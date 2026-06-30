@@ -1,90 +1,93 @@
 export interface PreloadConfig<TBuiltinNodeRenderer extends string = string> {
-  nodeRenderers?: TBuiltinNodeRenderer[]
+    nodeRenderers?: TBuiltinNodeRenderer[]
 }
 
 export type PreviewSegmentedPlacement = 'left' | 'center' | 'right' | 'auto'
 
 export interface HtmlPreviewerOptions {
-  sandbox?: string
+    sandbox?: string
 }
 
-export type PreviewerConfig<TComponent = unknown>
-  = | boolean
+export type PreviewerConfig<TComponent = unknown> =
+    | boolean
     | {
-      placement?: PreviewSegmentedPlacement
-      progressive?: Record<string, boolean>
-      html?: HtmlPreviewerOptions
-      components?: {
-        mermaid?: boolean | TComponent
-        html?: boolean | TComponent
-      } & Record<string, TComponent>
-    }
+          placement?: PreviewSegmentedPlacement
+          progressive?: Record<string, boolean>
+          html?: HtmlPreviewerOptions
+          components?: {
+              mermaid?: boolean | TComponent
+              html?: boolean | TComponent
+          } & Record<string, TComponent>
+      }
 
 export interface ShikiOptions<
-  TTheme = string,
-  TLanguage = string,
-  TCodeToTokenOptions = unknown,
-  TEngine = unknown,
+    TTheme = string,
+    TLanguage = string,
+    TCodeToTokenOptions = unknown,
+    TEngine = unknown,
 > {
-  theme?: [TTheme, TTheme]
-  langs?: TLanguage[]
-  langAlias?: Record<string, string>
-  engine?: TEngine
-  codeToTokenOptions?: TCodeToTokenOptions
+    theme?: [TTheme, TTheme]
+    langs?: TLanguage[]
+    langAlias?: Record<string, string>
+    engine?: TEngine
+    codeToTokenOptions?: TCodeToTokenOptions
 }
 
 export interface MermaidOptions<
-  TComponent = unknown,
-  TConfig = unknown,
-  TBeautifulTheme = string,
-  TBeautifulConfig = unknown,
+    TComponent = unknown,
+    TConfig = unknown,
+    TBeautifulTheme = string,
+    TBeautifulConfig = unknown,
 > {
-  renderer?: 'vanilla' | 'beautiful'
-  theme?: [string, string]
-  config?: TConfig
-  beautifulTheme?: [TBeautifulTheme, TBeautifulTheme]
-  beautifulConfig?: TBeautifulConfig
-  errorComponent?: TComponent
+    renderer?: 'vanilla' | 'beautiful'
+    theme?: [string, string]
+    config?: TConfig
+    beautifulTheme?: [TBeautifulTheme, TBeautifulTheme]
+    beautifulConfig?: TBeautifulConfig
+    errorComponent?: TComponent
 }
 
 export interface KatexOptions<TComponent = unknown, TConfig = unknown> {
-  config?: TConfig
-  errorComponent?: TComponent
+    config?: TConfig
+    errorComponent?: TComponent
 }
 
 export interface ImageOptions<TComponent = unknown> {
-  fallback?: string
-  caption?: boolean
-  referrerPolicy?: ReferrerPolicy
-  errorComponent?: TComponent
+    fallback?: string
+    caption?: boolean
+    referrerPolicy?: ReferrerPolicy
+    errorComponent?: TComponent
 }
 
 export interface LinkOptions {
-  safetyCheck?: boolean
-  isTrusted?: (url: string) => Promise<boolean> | boolean
+    safetyCheck?: boolean
+    isTrusted?: (url: string) => Promise<boolean> | boolean
 }
 
 export interface CodeOptions<TComponent = unknown> {
-  languageIcon?: boolean
-  languageName?: boolean
-  lineNumbers?: boolean
-  maxHeight?: number | string
-  language?: Record<string, CodeOptionsLanguage<TComponent>>
+    languageIcon?: boolean
+    languageName?: boolean
+    lineNumbers?: boolean
+    maxHeight?: number | string
+    language?: Record<string, CodeOptionsLanguage<TComponent>>
 }
 
-export interface CodeOptionsLanguage<TComponent = unknown> extends Omit<CodeOptions<TComponent>, 'languageIcon'> {
-  languageIcon?: boolean | TComponent
+export interface CodeOptionsLanguage<TComponent = unknown> extends Omit<
+    CodeOptions<TComponent>,
+    'languageIcon'
+> {
+    languageIcon?: boolean | TComponent
 }
 
 export interface HardenOptions<TComponent = unknown> {
-  defaultOrigin?: string
-  allowedLinkPrefixes?: string[]
-  allowedImagePrefixes?: string[]
-  allowedProtocols?: string[]
-  allowDataImages?: boolean
-  errorComponent?: TComponent
+    defaultOrigin?: string
+    allowedLinkPrefixes?: string[]
+    allowedImagePrefixes?: string[]
+    allowedProtocols?: string[]
+    allowDataImages?: boolean
+    errorComponent?: TComponent
 }
 
 export interface UIOptions {
-  hideTooltip?: boolean
+    hideTooltip?: boolean
 }

@@ -4,83 +4,76 @@ import { useIntersectionObserver } from '@vueuse/core'
 import { computed, onUnmounted, ref, toValue } from 'vue'
 
 interface UseDeferredRenderOptions {
-  targetRef: MaybeRefOrGetter<HTMLElement | null | undefined>
-  immediate?: boolean
-  debounceDelay?: number
-  rootMargin?: string
-  idleTimeout?: number
+    targetRef: MaybeRefOrGetter<HTMLElement | null | undefined>
+    immediate?: boolean
+    debounceDelay?: number
+    rootMargin?: string
+    idleTimeout?: number
 }
 
 export function useDeferredRender(options: UseDeferredRenderOptions) {
-  const {
-    immediate = false,
-    debounceDelay = 300,
-    rootMargin = '300px',
-    idleTimeout = 500,
-  } = options
+    const {
+        immediate = false,
+        debounceDelay = 300,
+        rootMargin = '300px',
+        idleTimeout = 500,
+    } = options
 
-  const shouldRender = ref(immediate)
+    const shouldRender = ref(immediate)
 
-  const debounceTimer = ref<number | null>(null)
-  const idleCallbackId = ref<number | null>(null)
-  const target = computed(() => toValue(options.targetRef))
+    const debounceTimer = ref<number | null>(null)
+    const idleCallbackId = ref<number | null>(null)
+    const target = computed(() => toValue(options.targetRef))
 
-  const { request, cancel } = createIdleCallback()
+    const { request, cancel } = createIdleCallback()
 
-  const clearPending = () => {
-    if (debounceTimer.value !== null) {
-      clearTimeout(debounceTimer.value)
-      debounceTimer.value = null
-    }
-    if (idleCallbackId.value !== null) {
-      cancel(idleCallbackId.value)
-      idleCallbackId.value = null
-    }
-  }
-
-  const scheduleRender = (stop: () => void) => {
-    idleCallbackId.value = request(
-      (deadline) => {
-        if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
-          shouldRender.value = true
-          stop()
+    const clearPending = () => {
+        if (debounceTimer.value !== null) {
+            clearTimeout(debounceTimer.value)
+            debounceTimer.value = null
         }
-        else {
-          idleCallbackId.value = request(() => {
-            shouldRender.value = true
-            stop()
-          }, idleTimeout / 2)
+        if (idleCallbackId.value !== null) {
+            cancel(idleCallbackId.value)
+            idleCallbackId.value = null
         }
-      },
-      idleTimeout,
+    }
+
+    const scheduleRender = (stop: () => void) => {
+        idleCallbackId.value = request((deadline) => {
+            if (deadline.timeRemaining() > 0 || deadline.didTimeout) {
+                shouldRender.value = true
+                stop()
+            } else {
+                idleCallbackId.value = request(() => {
+                    shouldRender.value = true
+                    stop()
+                }, idleTimeout / 2)
+            }
+        }, idleTimeout)
+    }
+
+    const { stop } = useIntersectionObserver(
+        target,
+        ([entry]) => {
+            if (shouldRender.value || immediate) return
+
+            if (entry?.isIntersecting) {
+                clearPending()
+
+                debounceTimer.value = window.setTimeout(() => {
+                    if (entry.isIntersecting && !shouldRender.value) scheduleRender(stop)
+                }, debounceDelay)
+            } else {
+                clearPending()
+            }
+        },
+        { rootMargin },
     )
-  }
 
-  const { stop } = useIntersectionObserver(
-    target,
-    ([entry]) => {
-      if (shouldRender.value || immediate)
-        return
-
-      if (entry?.isIntersecting) {
+    onUnmounted(() => {
         clearPending()
+        stop()
+    })
 
-        debounceTimer.value = window.setTimeout(() => {
-          if (entry.isIntersecting && !shouldRender.value)
-            scheduleRender(stop)
-        }, debounceDelay)
-      }
-      else {
-        clearPending()
-      }
-    },
-    { rootMargin },
-  )
-
-  onUnmounted(() => {
-    clearPending()
-    stop()
-  })
-
-  return { shouldRender }
+    return { shouldRender }
 }

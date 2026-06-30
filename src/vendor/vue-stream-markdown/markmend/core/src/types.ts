@@ -1,7 +1,7 @@
 export type MarkdownProcessorMode = 'static' | 'streaming'
 
-export type PreprocessStepName
-  = | 'code'
+export type PreprocessStepName =
+    | 'code'
     | 'html'
     | 'footnote'
     | 'strong'
@@ -18,23 +18,23 @@ export type PreprocessStep = (content: string, options?: PreprocessContext) => s
 export type PreprocessSteps = Partial<Record<PreprocessStepName, PreprocessStep>>
 
 export interface MarkdownProcessorOptions {
-  normalize?: (content: string) => string
-  preprocess?: (content: string, options?: PreprocessContext) => string
-  preprocessSteps?: PreprocessSteps
-  parseMarkdownIntoBlocks?: (content: string) => string[]
+    normalize?: (content: string) => string
+    preprocess?: (content: string, options?: PreprocessContext) => string
+    preprocessSteps?: PreprocessSteps
+    parseMarkdownIntoBlocks?: (content: string) => string[]
 }
 
 export interface PreprocessContext {
-  singleDollarTextMath?: boolean
+    singleDollarTextMath?: boolean
 }
 
 export interface MarkdownProcessorRunOptions {
-  mode?: MarkdownProcessorMode
-  preprocessContext?: PreprocessContext
+    mode?: MarkdownProcessorMode
+    preprocessContext?: PreprocessContext
 }
 
 export interface MarkdownProcessorResult {
-  normalizedContent: string
-  blocks: string[]
-  contents: string[]
+    normalizedContent: string
+    blocks: string[]
+    contents: string[]
 }

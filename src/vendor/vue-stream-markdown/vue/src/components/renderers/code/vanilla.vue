@@ -6,5 +6,5 @@ const props = withDefaults(defineProps<CodeNodeRendererProps>(), {})
 </script>
 
 <template>
-  <VanillaRenderer :node="props.node" />
+    <VanillaRenderer :node="props.node" />
 </template>

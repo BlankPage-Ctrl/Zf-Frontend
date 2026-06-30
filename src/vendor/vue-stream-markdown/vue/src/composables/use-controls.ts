@@ -1,34 +1,30 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { Control, ControlsConfig, NodeRendererProps } from '../types'
-import {
-  getConfigValue,
-  isConfigEnabled,
-  resolveVisibleControls,
-} from '@stream-markdown/core'
+import { getConfigValue, isConfigEnabled, resolveVisibleControls } from '@stream-markdown/core'
 import { computed, toValue } from 'vue'
 
 interface UseControlsOptions {
-  controls: MaybeRefOrGetter<ControlsConfig | undefined>
+    controls: MaybeRefOrGetter<ControlsConfig | undefined>
 }
 
 export function useControls(options: UseControlsOptions) {
-  const controls = computed(() => toValue(options.controls) ?? true)
+    const controls = computed(() => toValue(options.controls) ?? true)
 
-  function isControlEnabled(key: string) {
-    return isConfigEnabled(controls.value, key)
-  }
+    function isControlEnabled(key: string) {
+        return isConfigEnabled(controls.value, key)
+    }
 
-  function getControlValue<T = any>(key: string): T | undefined {
-    return getConfigValue<T>(controls.value, key)
-  }
+    function getControlValue<T = any>(key: string): T | undefined {
+        return getConfigValue<T>(controls.value, key)
+    }
 
-  function resolveControls<T extends NodeRendererProps = NodeRendererProps>(
-    type: string,
-    builtinControls: Control[],
-    props: T,
-  ) {
-    return resolveVisibleControls<Control, T>(controls.value, type, builtinControls, props)
-  }
+    function resolveControls<T extends NodeRendererProps = NodeRendererProps>(
+        type: string,
+        builtinControls: Control[],
+        props: T,
+    ) {
+        return resolveVisibleControls<Control, T>(controls.value, type, builtinControls, props)
+    }
 
-  return { isControlEnabled, getControlValue, resolveControls }
+    return { isControlEnabled, getControlValue, resolveControls }
 }

@@ -1,16 +1,16 @@
 <template>
-  <div class="dropdown-separator" role="separator">
-    <div class="dropdown-separator__line" />
-  </div>
+    <div class="dropdown-separator" role="separator">
+        <div class="dropdown-separator__line" />
+    </div>
 </template>
 
 <style scoped>
 .dropdown-separator {
-  padding: 4px 0;
+    padding: 4px 0;
 }
 
 .dropdown-separator__line {
-  height: 1px;
-  background-color: rgba(var(--third-color), 0.15);
+    height: 1px;
+    background-color: rgba(var(--third-color), 0.15);
 }
 </style>

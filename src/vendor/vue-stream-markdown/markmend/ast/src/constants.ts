@@ -9,23 +9,24 @@ import { gfm } from 'micromark-extension-gfm'
 import { math } from 'micromark-extension-math'
 
 export const BUILTIN_MICROMARK_EXTENSIONS = {
-  gfm: () => gfm(),
-  math: (ctx: BuiltinPluginContext) => math({
-    singleDollarTextMath: ctx.mdastOptions?.singleDollarTextMath === true,
-  }),
-  frontmatter: () => frontmatter(),
-  cjkFriendlyExtension: () => cjkFriendlyExtension(),
-  gfmStrikethroughCjkFriendly: () => gfmStrikethroughCjkFriendly(),
+    gfm: () => gfm(),
+    math: (ctx: BuiltinPluginContext) =>
+        math({
+            singleDollarTextMath: ctx.mdastOptions?.singleDollarTextMath === true,
+        }),
+    frontmatter: () => frontmatter(),
+    cjkFriendlyExtension: () => cjkFriendlyExtension(),
+    gfmStrikethroughCjkFriendly: () => gfmStrikethroughCjkFriendly(),
 } as const
 
 export const BUILTIN_FROM_MDAST_EXTENSIONS = {
-  gfmFromMarkdown: () => gfmFromMarkdown(),
-  mathFromMarkdown: () => mathFromMarkdown(),
-  frontmatterFromMarkdown: () => frontmatterFromMarkdown(),
+    gfmFromMarkdown: () => gfmFromMarkdown(),
+    mathFromMarkdown: () => mathFromMarkdown(),
+    frontmatterFromMarkdown: () => frontmatterFromMarkdown(),
 } as const
 
 export const BUILTIN_TO_MDAST_EXTENSIONS = {
-  gfmToMarkdown: () => gfmToMarkdown(),
-  mathToMarkdown: () => mathToMarkdown(),
-  frontmatterToMarkdown: () => frontmatterToMarkdown(),
+    gfmToMarkdown: () => gfmToMarkdown(),
+    mathToMarkdown: () => mathToMarkdown(),
+    frontmatterToMarkdown: () => frontmatterToMarkdown(),
 } as const

@@ -1,312 +1,331 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { OptionItem } from '../types';
+import { computed } from 'vue'
+import type { OptionItem } from '../types'
 
 type Props = {
-  modelValue: unknown;
-  label?: string; // Group label or single label
-  options?: OptionItem[]; // For checkbox groups
-  value?: unknown; // Value for single checkbox in an array (if no options list)
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-};
+    modelValue: unknown
+    label?: string // Group label or single label
+    options?: OptionItem[] // For checkbox groups
+    value?: unknown // Value for single checkbox in an array (if no options list)
+    error?: string
+    helperText?: string
+    required?: boolean
+    disabled?: boolean
+}
 
 const props = withDefaults(defineProps<Props>(), {
-  required: false,
-  disabled: false,
-});
+    required: false,
+    disabled: false,
+})
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: unknown): void;
-}>();
+    (e: 'update:modelValue', value: unknown): void
+}>()
 
-const isGroup = computed(() => !!props.options && props.options.length > 0);
+const isGroup = computed(() => !!props.options && props.options.length > 0)
 
 // Single checkbox computed model
 const isSingleChecked = computed({
-  get: () => {
-    if (Array.isArray(props.modelValue)) {
-      return props.modelValue.includes(props.value);
-    }
-    return !!props.modelValue;
-  },
-  set: (checked) => {
-    if (props.disabled) return;
-    if (Array.isArray(props.modelValue)) {
-      const newVal = [...props.modelValue];
-      if (checked) {
-        if (!newVal.includes(props.value)) {
-          newVal.push(props.value);
+    get: () => {
+        if (Array.isArray(props.modelValue)) {
+            return props.modelValue.includes(props.value)
         }
-      } else {
-        const index = newVal.indexOf(props.value);
-        if (index > -1) {
-          newVal.splice(index, 1);
+        return !!props.modelValue
+    },
+    set: (checked) => {
+        if (props.disabled) return
+        if (Array.isArray(props.modelValue)) {
+            const newVal = [...props.modelValue]
+            if (checked) {
+                if (!newVal.includes(props.value)) {
+                    newVal.push(props.value)
+                }
+            } else {
+                const index = newVal.indexOf(props.value)
+                if (index > -1) {
+                    newVal.splice(index, 1)
+                }
+            }
+            emit('update:modelValue', newVal)
+        } else {
+            emit('update:modelValue', checked)
         }
-      }
-      emit('update:modelValue', newVal);
-    } else {
-      emit('update:modelValue', checked);
-    }
-  }
-});
+    },
+})
 
 // Helper for group checkbox items
 const isGroupItemChecked = (val: unknown) => {
-  if (Array.isArray(props.modelValue)) {
-    return props.modelValue.includes(val);
-  }
-  return false;
-};
+    if (Array.isArray(props.modelValue)) {
+        return props.modelValue.includes(val)
+    }
+    return false
+}
 
 function handleGroupChange(optValue: unknown, e: Event) {
-  if (e.target instanceof HTMLInputElement) {
-    toggleGroupItem(optValue, e.target.checked)
-  }
+    if (e.target instanceof HTMLInputElement) {
+        toggleGroupItem(optValue, e.target.checked)
+    }
 }
 
 const toggleGroupItem = (val: unknown, checked: boolean) => {
-  if (props.disabled) return;
-  const currentArray = Array.isArray(props.modelValue) ? [...props.modelValue] : [];
-  if (checked) {
-    if (!currentArray.includes(val)) {
-      currentArray.push(val);
+    if (props.disabled) return
+    const currentArray = Array.isArray(props.modelValue) ? [...props.modelValue] : []
+    if (checked) {
+        if (!currentArray.includes(val)) {
+            currentArray.push(val)
+        }
+    } else {
+        const index = currentArray.indexOf(val)
+        if (index > -1) {
+            currentArray.splice(index, 1)
+        }
     }
-  } else {
-    const index = currentArray.indexOf(val);
-    if (index > -1) {
-      currentArray.splice(index, 1);
-    }
-  }
-  emit('update:modelValue', currentArray);
-};
+    emit('update:modelValue', currentArray)
+}
 </script>
 
 <template>
-  <div class="checkbox-field-group">
-    <!-- Group label -->
-    <label v-if="isGroup && label" class="base-label" :class="{ 'label-error': !!error }">
-      {{ label }}
-      <span v-if="required" class="required-indicator">*</span>
-    </label>
+    <div class="checkbox-field-group">
+        <!-- Group label -->
+        <label v-if="isGroup && label" class="base-label" :class="{ 'label-error': !!error }">
+            {{ label }}
+            <span v-if="required" class="required-indicator">*</span>
+        </label>
 
-    <!-- Checkbox Group List -->
-    <div v-if="isGroup" class="checkbox-options-container">
-      <label
-        v-for="opt in options"
-        :key="opt.value"
-        class="checkbox-label"
-        :class="{ 'checkbox-disabled': disabled }"
-      >
-        <input
-          type="checkbox"
-          :value="opt.value"
-          :checked="isGroupItemChecked(opt.value)"
-          :disabled="disabled"
-          @change="(e: Event) => handleGroupChange(opt.value, e)"
-          class="hidden-checkbox"
-        />
-        <div
-          class="custom-checkbox"
-          :class="{
-            'custom-checkbox-checked': isGroupItemChecked(opt.value),
-            'custom-checkbox-error': !!error
-          }"
-        >
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none" class="check-mark">
-            <path d="M9 1L3.5 6.5L1 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <!-- Checkbox Group List -->
+        <div v-if="isGroup" class="checkbox-options-container">
+            <label
+                v-for="opt in options"
+                :key="opt.value"
+                class="checkbox-label"
+                :class="{ 'checkbox-disabled': disabled }"
+            >
+                <input
+                    type="checkbox"
+                    :value="opt.value"
+                    :checked="isGroupItemChecked(opt.value)"
+                    :disabled="disabled"
+                    @change="(e: Event) => handleGroupChange(opt.value, e)"
+                    class="hidden-checkbox"
+                />
+                <div
+                    class="custom-checkbox"
+                    :class="{
+                        'custom-checkbox-checked': isGroupItemChecked(opt.value),
+                        'custom-checkbox-error': !!error,
+                    }"
+                >
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" class="check-mark">
+                        <path
+                            d="M9 1L3.5 6.5L1 4"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </div>
+                <span class="option-text">{{ opt.label }}</span>
+            </label>
         </div>
-        <span class="option-text">{{ opt.label }}</span>
-      </label>
-    </div>
 
-    <!-- Single Checkbox -->
-    <div v-else class="single-checkbox-container">
-      <label class="checkbox-label" :class="{ 'checkbox-disabled': disabled }">
-        <input
-          type="checkbox"
-          v-model="isSingleChecked"
-          :disabled="disabled"
-          class="hidden-checkbox"
-        />
-        <div
-          class="custom-checkbox"
-          :class="{
-            'custom-checkbox-checked': isSingleChecked,
-            'custom-checkbox-error': !!error
-          }"
-        >
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none" class="check-mark">
-            <path d="M9 1L3.5 6.5L1 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <!-- Single Checkbox -->
+        <div v-else class="single-checkbox-container">
+            <label class="checkbox-label" :class="{ 'checkbox-disabled': disabled }">
+                <input
+                    type="checkbox"
+                    v-model="isSingleChecked"
+                    :disabled="disabled"
+                    class="hidden-checkbox"
+                />
+                <div
+                    class="custom-checkbox"
+                    :class="{
+                        'custom-checkbox-checked': isSingleChecked,
+                        'custom-checkbox-error': !!error,
+                    }"
+                >
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" class="check-mark">
+                        <path
+                            d="M9 1L3.5 6.5L1 4"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </div>
+                <span class="option-text single-label-text">
+                    {{ label }}
+                    <span v-if="required" class="required-indicator">*</span>
+                </span>
+            </label>
         </div>
-        <span class="option-text single-label-text">
-          {{ label }}
-          <span v-if="required" class="required-indicator">*</span>
-        </span>
-      </label>
-    </div>
 
-    <div class="message-container">
-      <transition name="slide-fade" mode="out-in">
-        <span v-if="error" class="error-text" :key="error">{{ error }}</span>
-        <span v-else-if="helperText" class="helper-text" :key="helperText">{{ helperText }}</span>
-      </transition>
+        <div class="message-container">
+            <transition name="slide-fade" mode="out-in">
+                <span v-if="error" class="error-text" :key="error">{{ error }}</span>
+                <span v-else-if="helperText" class="helper-text" :key="helperText">{{
+                    helperText
+                }}</span>
+            </transition>
+        </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
 .checkbox-field-group {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .base-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgb(var(--text-color));
-  opacity: 0.55;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-  user-select: none;
-  transition: color 150ms ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgb(var(--text-color));
+    opacity: 0.55;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    user-select: none;
+    transition: color 150ms ease;
 }
 
 .label-error {
-  color: rgb(var(--red-color));
-  opacity: 0.8;
+    color: rgb(var(--red-color));
+    opacity: 0.8;
 }
 
 .required-indicator {
-  color: rgb(var(--red-color));
+    color: rgb(var(--red-color));
 }
 
 .checkbox-options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: rgb(var(--text-color));
-  cursor: pointer;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgb(var(--text-color));
+    cursor: pointer;
+    user-select: none;
 }
 
 .hidden-checkbox {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .custom-checkbox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid rgba(var(--third-color), 0.5);
-  background: rgb(var(--primary-color));
-  color: rgb(var(--primary-color));
-  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(var(--third-color), 0.5);
+    background: rgb(var(--primary-color));
+    color: rgb(var(--primary-color));
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease,
+        box-shadow 150ms ease;
 }
 
 .checkbox-label:hover .custom-checkbox:not(.checkbox-disabled *) {
-  border-color: rgb(var(--third-color));
+    border-color: rgb(var(--third-color));
 }
 
 .custom-checkbox-checked {
-  border-color: rgb(var(--third-color)) !important;
-  background-color: rgb(var(--third-color)) !important;
+    border-color: rgb(var(--third-color)) !important;
+    background-color: rgb(var(--third-color)) !important;
 }
 
 .check-mark {
-  opacity: 0;
-  transform: scale(0.6);
-  transition: opacity 120ms ease, transform 120ms cubic-bezier(0.2, 0, 0, 1);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+        opacity 120ms ease,
+        transform 120ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .custom-checkbox-checked .check-mark {
-  opacity: 1;
-  transform: scale(1);
+    opacity: 1;
+    transform: scale(1);
 }
 
 .custom-checkbox-error {
-  border-color: rgb(var(--red-color)) !important;
+    border-color: rgb(var(--red-color)) !important;
 }
 
 .checkbox-disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .checkbox-disabled .custom-checkbox {
-  background: rgba(var(--secondary-color), 0.4);
-  border-color: rgba(var(--third-color), 0.2);
+    background: rgba(var(--secondary-color), 0.4);
+    border-color: rgba(var(--third-color), 0.2);
 }
 
 .checkbox-disabled .custom-checkbox-checked {
-  background-color: rgba(var(--third-color), 0.3) !important;
+    background-color: rgba(var(--third-color), 0.3) !important;
 }
 
 .option-text {
-  font-size: 12px;
-  line-height: 1;
+    font-size: 12px;
+    line-height: 1;
 }
 
 .single-label-text {
-  font-weight: 500;
+    font-weight: 500;
 }
 
 .message-container {
-  min-height: 18px;
-  margin-top: 4px;
+    min-height: 18px;
+    margin-top: 4px;
 }
 
 .error-text {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgb(var(--red-color));
-  line-height: 1.2;
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgb(var(--red-color));
+    line-height: 1.2;
 }
 
 .helper-text {
-  display: block;
-  font-size: 11px;
-  color: rgb(var(--text-color));
-  opacity: 0.45;
-  line-height: 1.2;
+    display: block;
+    font-size: 11px;
+    color: rgb(var(--text-color));
+    opacity: 0.45;
+    line-height: 1.2;
 }
 
 /* Transitions */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 120ms ease-out;
+    transition: all 120ms ease-out;
 }
 
 .slide-fade-enter-from {
-  opacity: 0;
-  transform: translateY(-2px);
+    opacity: 0;
+    transform: translateY(-2px);
 }
 
 .slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(2px);
+    opacity: 0;
+    transform: translateY(2px);
 }
 </style>

@@ -3,15 +3,11 @@ import { flow } from '@markmend/core'
 import { postFixFootnote } from './footnote'
 
 export function postNormalize(data: SyntaxTree): SyntaxTree {
-  return flow([
-    postFixFootnote,
-  ])(data)
+    return flow([postFixFootnote])(data)
 }
 
 export function postprocess(data: SyntaxTree): SyntaxTree {
-  return data
+    return data
 }
 
-export {
-  postFixFootnote,
-}
+export { postFixFootnote }

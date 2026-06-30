@@ -13,5 +13,5 @@ const resolved = computed(() => resolveButtonSchema(props.schema))
 </script>
 
 <template>
-  <BaseButton :resolved="resolved" @click="emit('click', $event)" />
+    <BaseButton :resolved="resolved" @click="emit('click', $event)" />
 </template>

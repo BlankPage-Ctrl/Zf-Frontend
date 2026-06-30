@@ -1,23 +1,23 @@
 import type {
-  UIButtonProps as CoreUIButtonProps,
-  UIErrorComponentProps as CoreUIErrorComponentProps,
-  UIIconProps as CoreUIIconProps,
-  UIImageProps as CoreUIImageProps,
-  UIModalProps as CoreUIModalProps,
-  UISegmentedProps as CoreUISegmentedProps,
-  UIZoomContainerProps as CoreUIZoomContainerProps,
+    UIButtonProps as CoreUIButtonProps,
+    UIErrorComponentProps as CoreUIErrorComponentProps,
+    UIIconProps as CoreUIIconProps,
+    UIImageProps as CoreUIImageProps,
+    UIModalProps as CoreUIModalProps,
+    UISegmentedProps as CoreUISegmentedProps,
+    UIZoomContainerProps as CoreUIZoomContainerProps,
 } from '@stream-markdown/core'
 import type { Component, CSSProperties } from 'vue'
 import type { ImageNodeRendererProps } from './renderer'
 import type { ControlsConfig } from './shared'
 
 export type {
-  SelectOption,
-  UIAlertProps,
-  UIDropdownProps,
-  UIErrorVariant,
-  UITableProps,
-  UITooltipProps,
+    SelectOption,
+    UIAlertProps,
+    UIDropdownProps,
+    UIErrorVariant,
+    UITableProps,
+    UITooltipProps,
 } from '@stream-markdown/core'
 
 export type UIButtonProps = CoreUIButtonProps<Component, CSSProperties>

@@ -6,10 +6,10 @@ import { settingsHandlers } from './settings'
 import { fileHandlers } from './files'
 
 export const handlers = [
-  ...workspaceHandlers,
-  ...chatHandlers,
-  ...messageHandlers,
-  ...providerHandlers,
-  ...settingsHandlers,
-  ...fileHandlers,
+    ...workspaceHandlers,
+    ...chatHandlers,
+    ...messageHandlers,
+    ...providerHandlers,
+    ...settingsHandlers,
+    ...fileHandlers,
 ]

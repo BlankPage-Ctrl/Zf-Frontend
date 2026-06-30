@@ -2,26 +2,26 @@
 import type { Control } from '../../types'
 import { useContext } from '../../composables'
 
-withDefaults(defineProps<{
-  actions?: Control[]
-}>(), {
-  actions: () => [],
-})
+withDefaults(
+    defineProps<{
+        actions?: Control[]
+    }>(),
+    {
+        actions: () => [],
+    },
+)
 
 const { uiComponents: UI } = useContext()
 </script>
 
 <template>
-  <div
-    data-stream-markdown="actions"
-    class="flex gap-1 items-center"
-  >
-    <component
-      :is="UI.Button"
-      v-for="item in actions"
-      v-bind="item"
-      :key="item.key"
-      @click="item.onClick"
-    />
-  </div>
+    <div data-stream-markdown="actions" class="flex gap-1 items-center">
+        <component
+            :is="UI.Button"
+            v-for="item in actions"
+            v-bind="item"
+            :key="item.key"
+            @click="item.onClick"
+        />
+    </div>
 </template>

@@ -11,54 +11,65 @@ export type ParsedNode = RootContent & { loading?: boolean }
 export type NodeType = ParsedNode['type']
 
 export interface MarkdownAstParserResult {
-  contents: string[]
-  asts: SyntaxTree[]
+    contents: string[]
+    asts: SyntaxTree[]
 }
 
 export interface MarkdownAstParserOptions extends MarkdownProcessorOptions {
-  mdastOptions?: MdastOptions
-  postNormalize?: (data: SyntaxTree) => SyntaxTree
-  postprocess?: (data: SyntaxTree) => SyntaxTree
+    mdastOptions?: MdastOptions
+    postNormalize?: (data: SyntaxTree) => SyntaxTree
+    postprocess?: (data: SyntaxTree) => SyntaxTree
 }
 
 export type MarkdownParserResult = MarkdownAstParserResult
 export type MarkdownParserOptions = MarkdownAstParserOptions
 
 export interface MdastOptions {
-  from?: FromMarkdownExtension[]
-  to?: ToMarkdownExtension[]
-  micromark?: MicromarkExtension[]
-  builtin?: {
-    micromark?: BuiltinPluginControl<BuiltinMicromarkExtension, BuiltinPluginContext, MicromarkExtension>
-    from?: BuiltinPluginControl<BuiltinFromMdastExtension, BuiltinPluginContext, FromMarkdownExtension>
-    to?: BuiltinPluginControl<BuiltinToMdastExtension, BuiltinPluginContext, ToMarkdownExtension>
-  }
-  singleDollarTextMath?: boolean
+    from?: FromMarkdownExtension[]
+    to?: ToMarkdownExtension[]
+    micromark?: MicromarkExtension[]
+    builtin?: {
+        micromark?: BuiltinPluginControl<
+            BuiltinMicromarkExtension,
+            BuiltinPluginContext,
+            MicromarkExtension
+        >
+        from?: BuiltinPluginControl<
+            BuiltinFromMdastExtension,
+            BuiltinPluginContext,
+            FromMarkdownExtension
+        >
+        to?: BuiltinPluginControl<
+            BuiltinToMdastExtension,
+            BuiltinPluginContext,
+            ToMarkdownExtension
+        >
+    }
+    singleDollarTextMath?: boolean
 }
 
-export type BuiltinMicromarkExtension
-  = | 'gfm'
+export type BuiltinMicromarkExtension =
+    | 'gfm'
     | 'math'
     | 'frontmatter'
     | 'cjkFriendlyExtension'
     | 'gfmStrikethroughCjkFriendly'
 
-export type BuiltinFromMdastExtension
-  = | 'gfmFromMarkdown'
+export type BuiltinFromMdastExtension =
+    | 'gfmFromMarkdown'
     | 'mathFromMarkdown'
     | 'frontmatterFromMarkdown'
 
-export type BuiltinToMdastExtension
-  = | 'gfmToMarkdown'
-    | 'mathToMarkdown'
-    | 'frontmatterToMarkdown'
+export type BuiltinToMdastExtension = 'gfmToMarkdown' | 'mathToMarkdown' | 'frontmatterToMarkdown'
 
 export type BuiltinPluginFactory<Ctx, Ext> = (ctx: Ctx) => Ext | Ext[]
 
-export type BuiltinPluginControl<T extends string, Ctx, Ext> = Partial<Record<T, false | BuiltinPluginFactory<Ctx, Ext>>>
+export type BuiltinPluginControl<T extends string, Ctx, Ext> = Partial<
+    Record<T, false | BuiltinPluginFactory<Ctx, Ext>>
+>
 
 export interface BuiltinPluginContext {
-  mdastOptions?: MdastOptions
+    mdastOptions?: MdastOptions
 }
 
 // > Alpha bravo charlie.
@@ -145,8 +156,4 @@ export type MathNode = Extract<ParsedNode, { type: 'math' }>
 // $L$
 export type InlineMathNode = Extract<ParsedNode, { type: 'inlineMath' }>
 
-export type {
-  FromMarkdownExtension,
-  MicromarkExtension,
-  ToMarkdownExtension,
-}
+export type { FromMarkdownExtension, MicromarkExtension, ToMarkdownExtension }

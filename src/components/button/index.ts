@@ -1,15 +1,15 @@
 export type {
-  ButtonVariant,
-  ButtonSize,
-  ButtonRadius,
-  ButtonType,
-  IconPosition,
-  ButtonTag,
-  ButtonSchema,
-  ButtonClasses,
-  ResolvedContent,
-  ResolvedInteraction,
-  ResolvedButton,
+    ButtonVariant,
+    ButtonSize,
+    ButtonRadius,
+    ButtonType,
+    IconPosition,
+    ButtonTag,
+    ButtonSchema,
+    ButtonClasses,
+    ResolvedContent,
+    ResolvedInteraction,
+    ResolvedButton,
 } from './types'
 
 export { BUTTON_PRESETS } from './presets'

@@ -5,25 +5,19 @@ import { computed } from 'vue'
 import { useContext } from '../composables'
 
 const props = withDefaults(defineProps<UIIconProps>(), {
-  width: 14,
-  height: 14,
+    width: 14,
+    height: 14,
 })
 
 const { icons } = useContext()
 
-const Icon = computed(() =>
-  typeof props.icon === 'string' ? icons.value[props.icon] : props.icon,
-)
+const Icon = computed(() => (typeof props.icon === 'string' ? icons.value[props.icon] : props.icon))
 const model = computed(() => createIconModel(props))
 const iconStyle = computed(() => model.value.style)
 </script>
 
 <template>
-  <div data-stream-markdown="icon" :style="iconStyle">
-    <Icon
-      :width="width" :height="height"
-      :class="props.class"
-      :style="style"
-    />
-  </div>
+    <div data-stream-markdown="icon" :style="iconStyle">
+        <Icon :width="width" :height="height" :class="props.class" :style="style" />
+    </div>
 </template>

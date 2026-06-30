@@ -1,41 +1,41 @@
 {
-  "name": "@stream-markdown/code",
-  "type": "module",
-  "version": "1.0.0",
-  "publishConfig": {
-    "access": "public"
-  },
-  "homepage": "https://github.com/jinghaihan/vue-stream-markdown#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jinghaihan/vue-stream-markdown.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jinghaihan/vue-stream-markdown/issues"
-  },
-  "keywords": [
-    "stream-markdown",
-    "code",
-    "shiki",
-    "highlight"
-  ],
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.mts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsdown",
-    "prepublishOnly": "pnpm build"
-  },
-  "dependencies": {
-    "@stream-markdown/core": "workspace:*",
-    "shiki": "^4.0.2"
-  },
-  "devDependencies": {
-    "tsdown": "catalog:build"
-  }
+    "name": "@stream-markdown/code",
+    "version": "1.0.0",
+    "keywords": [
+        "code",
+        "highlight",
+        "shiki",
+        "stream-markdown"
+    ],
+    "homepage": "https://github.com/jinghaihan/vue-stream-markdown#readme",
+    "bugs": {
+        "url": "https://github.com/jinghaihan/vue-stream-markdown/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jinghaihan/vue-stream-markdown.git"
+    },
+    "files": [
+        "dist"
+    ],
+    "type": "module",
+    "types": "./dist/index.d.mts",
+    "exports": {
+        ".": "./dist/index.mjs",
+        "./package.json": "./package.json"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "tsdown",
+        "prepublishOnly": "pnpm build"
+    },
+    "dependencies": {
+        "@stream-markdown/core": "workspace:*",
+        "shiki": "^4.0.2"
+    },
+    "devDependencies": {
+        "tsdown": "catalog:build"
+    }
 }

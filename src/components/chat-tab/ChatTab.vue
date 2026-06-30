@@ -1,73 +1,62 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import type { Chat } from '@/services/chat';
-import { useChatSession } from '@/composables/useChatSession';
-import MessageList from './MessageList.vue';
-import ChatInput from './ChatInput.vue';
+import { onMounted, onUnmounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import type { Chat } from '@/services/chat'
+import { useChatSession } from '@/composables/useChatSession'
+import MessageList from './MessageList.vue'
+import ChatInput from './ChatInput.vue'
 
 const props = defineProps<{
-  chat: Chat;
-}>();
+    chat: Chat
+}>()
 
-const route = useRoute();
-const workspaceId = computed(() => route.params.id as string);
+const route = useRoute()
+const workspaceId = computed(() => route.params.id as string)
 
-const {
-  messages,
-  isLoading,
-  loadHistory,
-  sendMessage,
-  stop,
-  cleanup,
-} = useChatSession(workspaceId.value, props.chat.id);
+const { messages, isLoading, loadHistory, sendMessage, stop, cleanup } = useChatSession(
+    workspaceId.value,
+    props.chat.id,
+)
 
 onMounted(() => {
-  loadHistory();
-});
+    loadHistory()
+})
 
 onUnmounted(() => {
-  cleanup();
-});
+    cleanup()
+})
 </script>
 
 <template>
-  <div class="chat-tab-content">
-    <div class="chat-tab-header">
-      <h2 class="chat-tab-title">{{ chat.title }}</h2>
+    <div class="chat-tab-content">
+        <div class="chat-tab-header">
+            <h2 class="chat-tab-title">{{ chat.title }}</h2>
+        </div>
+        <MessageList :messages="messages" :loading="isLoading" />
+        <ChatInput :loading="isLoading" @send="sendMessage" @stop="stop" />
     </div>
-    <MessageList
-      :messages="messages"
-      :loading="isLoading"
-    />
-    <ChatInput
-      :loading="isLoading"
-      @send="sendMessage"
-      @stop="stop"
-    />
-  </div>
 </template>
 
 <style scoped>
 .chat-tab-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .chat-tab-header {
-  flex-shrink: 0;
-  padding: 12px 20px 8px;
-  border-bottom: 1px solid rgba(var(--third-color), 0.12);
+    flex-shrink: 0;
+    padding: 12px 20px 8px;
+    border-bottom: 1px solid rgba(var(--third-color), 0.12);
 }
 
 .chat-tab-title {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: rgb(var(--text-color));
-  margin: 0;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: rgb(var(--text-color));
+    margin: 0;
 }
 </style>

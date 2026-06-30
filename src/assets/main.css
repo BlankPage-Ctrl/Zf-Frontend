@@ -1,118 +1,135 @@
-@import "tailwindcss";
-@import "@fontsource-variable/source-serif-4/wght.css";
-@import "@fontsource/barlow/400.css";
-@import "@fontsource/barlow/500.css";
-@import "@fontsource/barlow/600.css";
+@import 'tailwindcss';
+@import '@fontsource-variable/source-serif-4/wght.css';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
 @import url('./utilities.css');
 
 @theme {
-  --color-primary: rgb(var(--primary-color));
-  --color-secondary: rgb(var(--secondary-color));
-  --color-third: rgb(var(--third-color));
-  --color-text: rgb(var(--text-color));
-  --color-green-custom: rgb(var(--green-color));
-  --color-red-custom: rgb(var(--red-color));
-  --font-serif: "Source Serif 4 Variable", serif;
-  --font-body: "Barlow", sans-serif;
-  --animate-slide-in: slideIn 0.3s ease-out;
-  --animate-fade-in: fadeIn 0.15s ease-out;
+    --color-primary: rgb(var(--primary-color));
+    --color-secondary: rgb(var(--secondary-color));
+    --color-third: rgb(var(--third-color));
+    --color-text: rgb(var(--text-color));
+    --color-green-custom: rgb(var(--green-color));
+    --color-red-custom: rgb(var(--red-color));
+    --font-serif: 'Source Serif 4 Variable', serif;
+    --font-body: 'Barlow', sans-serif;
+    --animate-slide-in: slideIn 0.3s ease-out;
+    --animate-fade-in: fadeIn 0.15s ease-out;
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 :root {
-  --primary-color: 239, 233, 227;
-  --secondary-color: 217, 207, 199;
-  --third-color: 201, 181, 156;
-  --text-color: 19, 16, 16;
-  --green-color: 34, 197, 93;
-  --red-color: 140, 16, 7;
+    --primary-color: 239, 233, 227;
+    --secondary-color: 217, 207, 199;
+    --third-color: 201, 181, 156;
+    --text-color: 19, 16, 16;
+    --green-color: 34, 197, 93;
+    --red-color: 140, 16, 7;
 }
 
 /*
 vue-code-layout Theme Override
 */
 :root {
-  --code-layout-color-background: rgb(var(--primary-color));
-  --code-layout-color-background-second: rgba(var(--secondary-color), 0.6);
-  --code-layout-color-background-light: rgb(var(--secondary-color));
-  --code-layout-color-background-highlight: rgba(var(--third-color), 0.18);
-  --code-layout-color-background-hover: rgba(var(--third-color), 0.1);
-  --code-layout-color-background-hover-light: rgba(var(--third-color), 0.06);
-  --code-layout-color-background-mask-light: rgba(19, 16, 16, 0.08);
-  --code-layout-color-highlight: rgb(var(--third-color));
-  --code-layout-color-text: rgb(var(--text-color));
-  --code-layout-color-text-light: rgb(var(--text-color));
-  --code-layout-color-text-highlight: rgb(var(--third-color));
-  --code-layout-color-text-gray: rgba(var(--text-color), 0.45);
-  --code-layout-color-text-disabled: rgba(var(--text-color), 0.25);
-  --code-layout-color-border: rgba(var(--third-color), 0.25);
-  --code-layout-color-border-light: rgba(var(--third-color), 0.12);
-  --code-layout-color-border-background: rgba(var(--third-color), 0.08);
-  --code-layout-color-border-white: rgba(var(--text-color), 0.25);
-  --code-layout-color-shadow: rgba(19, 16, 16, 0.08);
-  --code-layout-color-scrollbar-thumb: rgba(var(--third-color), 0.3);
-  --code-layout-color-scrollbar-thumb-light: rgba(var(--third-color), 0.45);
-  --code-layout-border-size: 1px;
-  --code-layout-border-size-larger: 2px;
-  --code-layout-border-size-dragger: 4px;
-  --code-layout-sash-size: 6px;
-  --code-layout-border-radius-small: 4px;
-  --code-layout-border-radius-large: 8px;
-  --code-layout-header-height: 24px;
-  --code-layout-titlebar-background: transparent;
-  --code-layout-titlebar-height: 0;
-  --code-layout-status-height: 0;
-  --code-layout-font-size: 13px;
-  --code-layout-font-size-small: 11px;
+    --code-layout-color-background: rgb(var(--primary-color));
+    --code-layout-color-background-second: rgba(var(--secondary-color), 0.6);
+    --code-layout-color-background-light: rgb(var(--secondary-color));
+    --code-layout-color-background-highlight: rgba(var(--third-color), 0.18);
+    --code-layout-color-background-hover: rgba(var(--third-color), 0.1);
+    --code-layout-color-background-hover-light: rgba(var(--third-color), 0.06);
+    --code-layout-color-background-mask-light: rgba(19, 16, 16, 0.08);
+    --code-layout-color-highlight: rgb(var(--third-color));
+    --code-layout-color-text: rgb(var(--text-color));
+    --code-layout-color-text-light: rgb(var(--text-color));
+    --code-layout-color-text-highlight: rgb(var(--third-color));
+    --code-layout-color-text-gray: rgba(var(--text-color), 0.45);
+    --code-layout-color-text-disabled: rgba(var(--text-color), 0.25);
+    --code-layout-color-border: rgba(var(--third-color), 0.25);
+    --code-layout-color-border-light: rgba(var(--third-color), 0.12);
+    --code-layout-color-border-background: rgba(var(--third-color), 0.08);
+    --code-layout-color-border-white: rgba(var(--text-color), 0.25);
+    --code-layout-color-shadow: rgba(19, 16, 16, 0.08);
+    --code-layout-color-scrollbar-thumb: rgba(var(--third-color), 0.3);
+    --code-layout-color-scrollbar-thumb-light: rgba(var(--third-color), 0.45);
+    --code-layout-border-size: 1px;
+    --code-layout-border-size-larger: 2px;
+    --code-layout-border-size-dragger: 4px;
+    --code-layout-sash-size: 6px;
+    --code-layout-border-radius-small: 4px;
+    --code-layout-border-radius-large: 8px;
+    --code-layout-header-height: 24px;
+    --code-layout-titlebar-background: transparent;
+    --code-layout-titlebar-height: 0;
+    --code-layout-status-height: 0;
+    --code-layout-font-size: 13px;
+    --code-layout-font-size-small: 11px;
 }
 
 .code-layout-split-tab {
-  --tab-height: 35px;
-  --tab-font-size: 12px;
-  --tab-icon-size: 14px;
-  --tab-text-color: rgb(var(--text-color));
-  --tab-active-text-color: rgb(var(--text-color));
-  --tab-mormal-color: rgba(var(--secondary-color), 0.6);
-  --tab-active-color: rgb(var(--primary-color));
-  --tab-border-color: rgba(var(--third-color), 0.12);
-  --tab-button-normal-color: transparent;
-  --tab-button-hover-color: rgba(var(--third-color), 0.1);
-  --tab-close-size: 18px;
+    --tab-height: 35px;
+    --tab-font-size: 12px;
+    --tab-icon-size: 14px;
+    --tab-text-color: rgb(var(--text-color));
+    --tab-active-text-color: rgb(var(--text-color));
+    --tab-mormal-color: rgba(var(--secondary-color), 0.6);
+    --tab-active-color: rgb(var(--primary-color));
+    --tab-border-color: rgba(var(--third-color), 0.12);
+    --tab-button-normal-color: transparent;
+    --tab-button-hover-color: rgba(var(--third-color), 0.1);
+    --tab-close-size: 18px;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: "Barlow", sans-serif;
-  color: rgb(var(--text-color));
-  background: rgb(var(--primary-color));
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Barlow', sans-serif;
+    color: rgb(var(--text-color));
+    background: rgb(var(--primary-color));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-input, textarea, select, button {
-  font-family: inherit;
+input,
+textarea,
+select,
+button {
+    font-family: inherit;
 }
 
 button {
-  cursor: pointer;
-  border: none;
-  background: none;
+    cursor: pointer;
+    border: none;
+    background: none;
 }
 
-input, textarea {
-  outline: none;
+input,
+textarea {
+    outline: none;
 }

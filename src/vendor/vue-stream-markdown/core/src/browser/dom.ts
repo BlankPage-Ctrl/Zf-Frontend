@@ -1,54 +1,49 @@
 import { isClient } from '../utils'
 
 export function getDocument(): Document | null {
-  if (!isClient())
-    return null
+    if (!isClient()) return null
 
-  return document
+    return document
 }
 
 export function getDocumentBody(doc?: Document): HTMLElement | null {
-  if (!isClient())
-    return null
+    if (!isClient()) return null
 
-  return (doc ?? document).body
+    return (doc ?? document).body
 }
 
 export function getDocumentElement(doc?: Document): HTMLElement | null {
-  if (!isClient())
-    return null
+    if (!isClient()) return null
 
-  return (doc ?? document).documentElement
+    return (doc ?? document).documentElement
 }
 
 export function readDocumentLanguage(doc?: Document): string {
-  return getDocumentElement(doc)?.lang ?? ''
+    return getDocumentElement(doc)?.lang ?? ''
 }
 
 export function isDocumentElementDark(doc?: Document, className = 'dark'): boolean {
-  return getDocumentElement(doc)?.classList.contains(className) ?? false
+    return getDocumentElement(doc)?.classList.contains(className) ?? false
 }
 
 export function isElementInDocumentBody(element: Element, doc?: Document): boolean {
-  return getDocumentBody(doc)?.contains(element) ?? false
+    return getDocumentBody(doc)?.contains(element) ?? false
 }
 
 export function isEscapeKeyEvent(event: Event): boolean {
-  if (!('key' in event))
-    return false
+    if (!('key' in event)) return false
 
-  return event.key === 'Escape' || event.key === 'Esc'
+    return event.key === 'Escape' || event.key === 'Esc'
 }
 
 export function scrollToElement(
-  container: ParentNode,
-  selector: string,
-  options: ScrollIntoViewOptions = { behavior: 'smooth' },
+    container: ParentNode,
+    selector: string,
+    options: ScrollIntoViewOptions = { behavior: 'smooth' },
 ): boolean {
-  const element = container.querySelector(selector)
-  if (!element)
-    return false
+    const element = container.querySelector(selector)
+    if (!element) return false
 
-  element.scrollIntoView(options)
-  return true
+    element.scrollIntoView(options)
+    return true
 }

@@ -5,5 +5,5 @@ withDefaults(defineProps<BreakNodeRendererProps>(), {})
 </script>
 
 <template>
-  <br data-stream-markdown="break">
+    <br data-stream-markdown="break" />
 </template>

@@ -10,19 +10,20 @@ import router from './router'
 import CodeLayout from 'vue-code-layout'
 
 async function bootstrap() {
-  if (import.meta.env.VITE_API_MOCKING === 'true') {
-    const { worker } = await import('./mocks/browser')
-    await worker.start({ onUnhandledRequest: 'bypass' })
-  }
+    if (import.meta.env.VITE_API_MOCKING === 'true') {
+        const { worker } = await import('./mocks/browser')
+        await worker.start({ onUnhandledRequest: 'bypass' })
+    }
 
-  const app = createApp(App)
+    const app = createApp(App)
 
-  app.use(createPinia())
-  app.use(router)
-  app.use(CodeLayout)
-  app.component('Icon', Icon)
+    app.use(createPinia())
+    app.use(router)
+    app.use(CodeLayout)
+    // eslint-disable-next-line vue/multi-word-component-names
+    app.component('Icon', Icon)
 
-  app.mount('#app')
+    app.mount('#app')
 }
 
 bootstrap()

@@ -13,12 +13,12 @@ const SEGMENTED_OPTIONS = computed(() => createPreviewSegmentedOptions(t))
 </script>
 
 <template>
-  <Segmented
-    v-model:value="mode"
-    :options="SEGMENTED_OPTIONS"
-    :button-style="{
-      fontFamily: 'var(--font-mono)',
-    }"
-    @change="() => collapsed = false"
-  />
+    <Segmented
+        v-model:value="mode"
+        :options="SEGMENTED_OPTIONS"
+        :button-style="{
+            fontFamily: 'var(--font-mono)',
+        }"
+        @change="() => (collapsed = false)"
+    />
 </template>

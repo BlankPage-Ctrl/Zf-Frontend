@@ -1,7 +1,7 @@
 import type { ANIMATION_SPLITS, ANIMATION_TYPES } from '../constants'
 
-export type BuiltinNodeRenderers
-  = | 'blockquote'
+export type BuiltinNodeRenderers =
+    | 'blockquote'
     | 'break'
     | 'code'
     | 'delete'
@@ -26,8 +26,8 @@ export type BuiltinNodeRenderers
 
 export type BuiltinPreviewers = 'mermaid' | 'html'
 
-export type BuiltinUIComponents
-  = | 'Alert'
+export type BuiltinUIComponents =
+    | 'Alert'
     | 'Button'
     | 'Caret'
     | 'CodeBlock'
@@ -44,13 +44,13 @@ export type BuiltinUIComponents
 
 export type CaretType = 'block' | 'circle'
 
-export type AnimationType = typeof ANIMATION_TYPES[number] | (string & {})
+export type AnimationType = (typeof ANIMATION_TYPES)[number] | (string & {})
 
-export type AnimationSplit = typeof ANIMATION_SPLITS[number]
+export type AnimationSplit = (typeof ANIMATION_SPLITS)[number]
 export type ResolvedAnimationSplit = Exclude<AnimationSplit, 'auto'>
 
-export type PlainTextNodeTypes
-  = | 'text'
+export type PlainTextNodeTypes =
+    | 'text'
     | 'inlineCode'
     | 'inlineMath'
     | 'strong'
@@ -62,9 +62,15 @@ export type PlainTextNodeTypes
     | 'linkReference'
 
 export interface SelectOption {
-  label: string
-  value: string | number
-  icon?: string
+    label: string
+    value: string | number
+    icon?: string
 }
 
-export type UIErrorVariant = 'vanilla' | 'image' | 'mermaid' | 'katex' | 'harden-image' | 'harden-link'
+export type UIErrorVariant =
+    | 'vanilla'
+    | 'image'
+    | 'mermaid'
+    | 'katex'
+    | 'harden-image'
+    | 'harden-link'

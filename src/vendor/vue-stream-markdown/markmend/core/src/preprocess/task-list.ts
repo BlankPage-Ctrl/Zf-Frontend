@@ -1,13 +1,17 @@
 import {
-  dashWithSpacePattern,
-  incompleteTaskListPattern,
-  quoteIncompleteTaskListPattern,
-  quoteStandaloneDashPattern,
-  quoteTaskListPattern,
-  standaloneDashPattern,
-  taskListPattern,
+    dashWithSpacePattern,
+    incompleteTaskListPattern,
+    quoteIncompleteTaskListPattern,
+    quoteStandaloneDashPattern,
+    quoteTaskListPattern,
+    standaloneDashPattern,
+    taskListPattern,
 } from './pattern'
-import { findClosedCodeBlockRanges, isInsideUnclosedCodeBlock, isRangeOverlappingRanges } from './utils'
+import {
+    findClosedCodeBlockRanges,
+    isInsideUnclosedCodeBlock,
+    isRangeOverlappingRanges,
+} from './utils'
 
 /**
  * Fix incomplete task list syntax in streaming markdown
@@ -38,80 +42,84 @@ import { findClosedCodeBlockRanges, isInsideUnclosedCodeBlock, isRangeOverlappin
  * // Returns: '> **Note**: Here\'s a quote with tasks:\n\n'
  */
 export function fixTaskList(content: string): string {
-  // Don't process if we're inside a code block (unclosed)
-  if (isInsideUnclosedCodeBlock(content)) {
-    return content
-  }
-
-  // Check if the last line is inside a code block
-  // Find all code block ranges
-  const codeBlockRanges = findClosedCodeBlockRanges(content)
-
-  const lines = content.split('\n')
-
-  // Get the last line
-  const lastLine = lines.at(-1)
-  if (!lastLine) {
-    return content
-  }
-
-  // Calculate the position of the last line in the content
-  let lastLineStartPos = 0
-  for (let i = 0; i < lines.length - 1; i++) {
-    const line = lines[i]
-    if (line !== undefined) {
-      lastLineStartPos += line.length + 1 // +1 for newline
+    // Don't process if we're inside a code block (unclosed)
+    if (isInsideUnclosedCodeBlock(content)) {
+        return content
     }
-  }
-  const lastLineEndPos = lastLineStartPos + lastLine.length
 
-  // Check if the last line is inside a code block
-  const isLastLineInCodeBlock = isRangeOverlappingRanges(lastLineStartPos, lastLineEndPos, codeBlockRanges)
+    // Check if the last line is inside a code block
+    // Find all code block ranges
+    const codeBlockRanges = findClosedCodeBlockRanges(content)
 
-  if (isLastLineInCodeBlock) {
+    const lines = content.split('\n')
+
+    // Get the last line
+    const lastLine = lines.at(-1)
+    if (!lastLine) {
+        return content
+    }
+
+    // Calculate the position of the last line in the content
+    let lastLineStartPos = 0
+    for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i]
+        if (line !== undefined) {
+            lastLineStartPos += line.length + 1 // +1 for newline
+        }
+    }
+    const lastLineEndPos = lastLineStartPos + lastLine.length
+
+    // Check if the last line is inside a code block
+    const isLastLineInCodeBlock = isRangeOverlappingRanges(
+        lastLineStartPos,
+        lastLineEndPos,
+        codeBlockRanges,
+    )
+
+    if (isLastLineInCodeBlock) {
+        return content
+    }
+
+    // Check if the last line is in a quote block (starts with `>`)
+    // First check for incomplete task list in quote block `> - [`
+    if (quoteIncompleteTaskListPattern.test(lastLine)) {
+        // Remove the last line (the incomplete `> - [`)
+        const newLines = lines.slice(0, -1)
+        return newLines.join('\n')
+    }
+
+    // Check for standalone dash in quote block
+    if (quoteStandaloneDashPattern.test(lastLine) && !quoteTaskListPattern.test(lastLine)) {
+        // Remove the last line (the standalone `> -`)
+        const newLines = lines.slice(0, -1)
+        return newLines.join('\n')
+    }
+
+    // Check if the last line is an incomplete task list item `- [` (with optional trailing whitespace)
+    if (incompleteTaskListPattern.test(lastLine)) {
+        // Remove the last line (the incomplete `- [`)
+        const newLines = lines.slice(0, -1)
+        return newLines.join('\n')
+    }
+
+    // Check if the last line is a standalone `-` (with optional trailing whitespace)
+    // or `- ` (dash with space, which is a regular list item, not a task list)
+    // but not `- [ ]` or `- [x]` or `- [X]`
+    // If it matches standalone dash but not a task list, remove it
+    if (standaloneDashPattern.test(lastLine) && !taskListPattern.test(lastLine)) {
+        // Remove the last line (the standalone `-`)
+        const newLines = lines.slice(0, -1)
+        return newLines.join('\n')
+    }
+
+    // Check for `- ` (dash with space, regular list item, not a task list)
+    // Pattern: starts with optional whitespace, then `- `, then optional trailing whitespace
+    // But not a task list pattern
+    if (dashWithSpacePattern.test(lastLine) && !taskListPattern.test(lastLine)) {
+        // Remove the last line (the `- `)
+        const newLines = lines.slice(0, -1)
+        return newLines.join('\n')
+    }
+
     return content
-  }
-
-  // Check if the last line is in a quote block (starts with `>`)
-  // First check for incomplete task list in quote block `> - [`
-  if (quoteIncompleteTaskListPattern.test(lastLine)) {
-    // Remove the last line (the incomplete `> - [`)
-    const newLines = lines.slice(0, -1)
-    return newLines.join('\n')
-  }
-
-  // Check for standalone dash in quote block
-  if (quoteStandaloneDashPattern.test(lastLine) && !quoteTaskListPattern.test(lastLine)) {
-    // Remove the last line (the standalone `> -`)
-    const newLines = lines.slice(0, -1)
-    return newLines.join('\n')
-  }
-
-  // Check if the last line is an incomplete task list item `- [` (with optional trailing whitespace)
-  if (incompleteTaskListPattern.test(lastLine)) {
-    // Remove the last line (the incomplete `- [`)
-    const newLines = lines.slice(0, -1)
-    return newLines.join('\n')
-  }
-
-  // Check if the last line is a standalone `-` (with optional trailing whitespace)
-  // or `- ` (dash with space, which is a regular list item, not a task list)
-  // but not `- [ ]` or `- [x]` or `- [X]`
-  // If it matches standalone dash but not a task list, remove it
-  if (standaloneDashPattern.test(lastLine) && !taskListPattern.test(lastLine)) {
-    // Remove the last line (the standalone `-`)
-    const newLines = lines.slice(0, -1)
-    return newLines.join('\n')
-  }
-
-  // Check for `- ` (dash with space, regular list item, not a task list)
-  // Pattern: starts with optional whitespace, then `- `, then optional trailing whitespace
-  // But not a task list pattern
-  if (dashWithSpacePattern.test(lastLine) && !taskListPattern.test(lastLine)) {
-    // Remove the last line (the `- `)
-    const newLines = lines.slice(0, -1)
-    return newLines.join('\n')
-  }
-
-  return content
 }

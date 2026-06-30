@@ -5,5 +5,5 @@ const { enableCaret, caret } = useContext()
 </script>
 
 <template>
-  <span v-if="enableCaret" data-stream-markdown="caret">{{ caret }}</span>
+    <span v-if="enableCaret" data-stream-markdown="caret">{{ caret }}</span>
 </template>

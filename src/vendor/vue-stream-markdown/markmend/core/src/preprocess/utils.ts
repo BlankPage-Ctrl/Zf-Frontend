@@ -1,17 +1,17 @@
 import type { PreprocessContext } from '../types'
 import {
-  codeBlockPattern,
-  htmlTagPattern,
-  incompleteLinkImageUrlPattern,
-  incompleteLinkImageUrlSuffixPattern,
-  linkImagePattern,
-  linkImageUrlSuffixPattern,
-  trailingWhitespacePattern,
+    codeBlockPattern,
+    htmlTagPattern,
+    incompleteLinkImageUrlPattern,
+    incompleteLinkImageUrlSuffixPattern,
+    linkImagePattern,
+    linkImageUrlSuffixPattern,
+    trailingWhitespacePattern,
 } from './pattern'
 
 export interface TextRange {
-  start: number
-  end: number
+    start: number
+    end: number
 }
 
 /**
@@ -23,23 +23,23 @@ export interface TextRange {
  * @returns The start index of the last paragraph
  */
 export function findLastParagraphStart(lines: string[], skipTrailingEmpty = false): number {
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const line = lines[i]
-    // Handle undefined (shouldn't happen, but be safe)
-    if (line === undefined) {
-      continue
-    }
+    for (let i = lines.length - 1; i >= 0; i--) {
+        const line = lines[i]
+        // Handle undefined (shouldn't happen, but be safe)
+        if (line === undefined) {
+            continue
+        }
 
-    // Skip the last element if it's empty (from trailing \n)
-    if (skipTrailingEmpty && i === lines.length - 1 && line.trim() === '') {
-      continue
-    }
+        // Skip the last element if it's empty (from trailing \n)
+        if (skipTrailingEmpty && i === lines.length - 1 && line.trim() === '') {
+            continue
+        }
 
-    if (line.trim() === '') {
-      return i + 1
+        if (line.trim() === '') {
+            return i + 1
+        }
     }
-  }
-  return 0
+    return 0
 }
 
 /**
@@ -50,9 +50,9 @@ export function findLastParagraphStart(lines: string[], skipTrailingEmpty = fals
  * @returns The last paragraph content
  */
 export function getLastParagraph(content: string, skipTrailingEmpty = false): string {
-  const lines = content.split('\n')
-  const startIndex = findLastParagraphStart(lines, skipTrailingEmpty)
-  return lines.slice(startIndex).join('\n')
+    const lines = content.split('\n')
+    const startIndex = findLastParagraphStart(lines, skipTrailingEmpty)
+    return lines.slice(startIndex).join('\n')
 }
 
 /**
@@ -63,15 +63,15 @@ export function getLastParagraph(content: string, skipTrailingEmpty = false): st
  * @returns Object with lastParagraph and startIndex
  */
 export function getLastParagraphWithIndex(
-  content: string,
-  skipTrailingEmpty = false,
-): { lastParagraph: string, startIndex: number } {
-  const lines = content.split('\n')
-  const startIndex = findLastParagraphStart(lines, skipTrailingEmpty)
-  return {
-    lastParagraph: lines.slice(startIndex).join('\n'),
-    startIndex,
-  }
+    content: string,
+    skipTrailingEmpty = false,
+): { lastParagraph: string; startIndex: number } {
+    const lines = content.split('\n')
+    const startIndex = findLastParagraphStart(lines, skipTrailingEmpty)
+    return {
+        lastParagraph: lines.slice(startIndex).join('\n'),
+        startIndex,
+    }
 }
 
 /**
@@ -81,13 +81,13 @@ export function getLastParagraphWithIndex(
  * @returns The index of the last non-empty line, or -1 if all lines are empty
  */
 export function findLastNonEmptyLineIndex(lines: string[]): number {
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const line = lines[i]
-    if (line && line.trim() !== '') {
-      return i
+    for (let i = lines.length - 1; i >= 0; i--) {
+        const line = lines[i]
+        if (line && line.trim() !== '') {
+            return i
+        }
     }
-  }
-  return -1
+    return -1
 }
 
 /**
@@ -97,8 +97,8 @@ export function findLastNonEmptyLineIndex(lines: string[]): number {
  * @returns The last non-empty line, or undefined if all lines are empty
  */
 export function getLastNonEmptyLine(lines: string[]): string | undefined {
-  const index = findLastNonEmptyLineIndex(lines)
-  return index >= 0 ? lines[index] : undefined
+    const index = findLastNonEmptyLineIndex(lines)
+    return index >= 0 ? lines[index] : undefined
 }
 
 /**
@@ -110,16 +110,16 @@ export function getLastNonEmptyLine(lines: string[]): string | undefined {
  * @returns The absolute position in the full content
  */
 export function calculateAbsolutePosition(
-  paragraphStartIndex: number,
-  relativePos: number,
-  lines: string[],
+    paragraphStartIndex: number,
+    relativePos: number,
+    lines: string[],
 ): number {
-  if (paragraphStartIndex === 0) {
-    return relativePos
-  }
+    if (paragraphStartIndex === 0) {
+        return relativePos
+    }
 
-  const beforeParagraph = lines.slice(0, paragraphStartIndex).join('\n')
-  return beforeParagraph.length > 0 ? beforeParagraph.length + 1 + relativePos : relativePos
+    const beforeParagraph = lines.slice(0, paragraphStartIndex).join('\n')
+    return beforeParagraph.length > 0 ? beforeParagraph.length + 1 + relativePos : relativePos
 }
 
 /**
@@ -130,12 +130,12 @@ export function calculateAbsolutePosition(
  * @returns The offset to add to relative positions
  */
 export function calculateParagraphOffset(paragraphStartIndex: number, lines: string[]): number {
-  if (paragraphStartIndex === 0) {
-    return 0
-  }
+    if (paragraphStartIndex === 0) {
+        return 0
+    }
 
-  const beforeParagraph = lines.slice(0, paragraphStartIndex).join('\n')
-  return beforeParagraph.length > 0 ? beforeParagraph.length + 1 : 0
+    const beforeParagraph = lines.slice(0, paragraphStartIndex).join('\n')
+    return beforeParagraph.length > 0 ? beforeParagraph.length + 1 : 0
 }
 
 /**
@@ -146,17 +146,17 @@ export function calculateParagraphOffset(paragraphStartIndex: number, lines: str
  * @returns True if the position is within a code block
  */
 export function isWithinCodeBlock(text: string, position: number): boolean {
-  let inCodeBlock = false
+    let inCodeBlock = false
 
-  for (let i = 0; i < position; i += 1) {
-    // Check for triple backticks
-    if (text[i] === '`' && text[i + 1] === '`' && text[i + 2] === '`') {
-      inCodeBlock = !inCodeBlock
-      i += 2 // Skip the next two backticks
+    for (let i = 0; i < position; i += 1) {
+        // Check for triple backticks
+        if (text[i] === '`' && text[i + 1] === '`' && text[i + 2] === '`') {
+            inCodeBlock = !inCodeBlock
+            i += 2 // Skip the next two backticks
+        }
     }
-  }
 
-  return inCodeBlock
+    return inCodeBlock
 }
 
 /**
@@ -167,7 +167,7 @@ export function isWithinCodeBlock(text: string, position: number): boolean {
  * @returns True if content is inside an unclosed code block
  */
 export function isInsideUnclosedCodeBlock(content: string): boolean {
-  return isWithinCodeBlock(content, content.length)
+    return isWithinCodeBlock(content, content.length)
 }
 
 /**
@@ -175,54 +175,57 @@ export function isInsideUnclosedCodeBlock(content: string): boolean {
  * Ranges are [start, end) where end is exclusive.
  */
 export function findClosedCodeBlockRanges(content: string): TextRange[] {
-  const ranges: TextRange[] = []
-  let searchStart = 0
+    const ranges: TextRange[] = []
+    let searchStart = 0
 
-  while (true) {
-    const codeBlockStart = content.indexOf('```', searchStart)
-    if (codeBlockStart === -1) {
-      break
+    while (true) {
+        const codeBlockStart = content.indexOf('```', searchStart)
+        if (codeBlockStart === -1) {
+            break
+        }
+
+        const codeBlockEnd = content.indexOf('```', codeBlockStart + 3)
+        if (codeBlockEnd === -1) {
+            break
+        }
+
+        ranges.push({ start: codeBlockStart, end: codeBlockEnd + 3 })
+        searchStart = codeBlockEnd + 3
     }
 
-    const codeBlockEnd = content.indexOf('```', codeBlockStart + 3)
-    if (codeBlockEnd === -1) {
-      break
-    }
-
-    ranges.push({ start: codeBlockStart, end: codeBlockEnd + 3 })
-    searchStart = codeBlockEnd + 3
-  }
-
-  return ranges
+    return ranges
 }
 
 /**
  * Check whether [start, end) overlaps with any ranges.
  */
 export function isRangeOverlappingRanges(start: number, end: number, ranges: TextRange[]): boolean {
-  return ranges.some(
-    range => (start >= range.start && start < range.end)
-      || (end > range.start && end <= range.end)
-      || (start < range.start && end > range.end),
-  )
+    return ranges.some(
+        (range) =>
+            (start >= range.start && start < range.end) ||
+            (end > range.start && end <= range.end) ||
+            (start < range.start && end > range.end),
+    )
 }
 
 /**
  * Check whether a position is inside any range.
  */
 export function isPositionInRanges(position: number, ranges: TextRange[]): boolean {
-  return ranges.some(range => position >= range.start && position < range.end)
+    return ranges.some((range) => position >= range.start && position < range.end)
 }
 
 function isBacktickPartOfTriple(text: string, index: number): boolean {
-  const before = text[index - 1] || ''
-  const before2 = text[index - 2] || ''
-  const after = text[index + 1] || ''
-  const after2 = text[index + 2] || ''
+    const before = text[index - 1] || ''
+    const before2 = text[index - 2] || ''
+    const after = text[index + 1] || ''
+    const after2 = text[index + 2] || ''
 
-  return (before === '`' && before2 === '`')
-    || (before === '`' && after === '`')
-    || (after === '`' && after2 === '`')
+    return (
+        (before === '`' && before2 === '`') ||
+        (before === '`' && after === '`') ||
+        (after === '`' && after2 === '`')
+    )
 }
 
 /**
@@ -230,37 +233,37 @@ function isBacktickPartOfTriple(text: string, index: number): boolean {
  * Returned ranges are [start, end) where end is exclusive.
  */
 export function findInlineCodeRanges(
-  content: string,
-  codeBlockRanges: TextRange[] = findClosedCodeBlockRanges(content),
+    content: string,
+    codeBlockRanges: TextRange[] = findClosedCodeBlockRanges(content),
 ): TextRange[] {
-  const backtickPositions: number[] = []
+    const backtickPositions: number[] = []
 
-  for (let i = 0; i < content.length; i++) {
-    if (isPositionInRanges(i, codeBlockRanges)) {
-      continue
+    for (let i = 0; i < content.length; i++) {
+        if (isPositionInRanges(i, codeBlockRanges)) {
+            continue
+        }
+
+        if (content[i] !== '`') {
+            continue
+        }
+
+        if (isBacktickPartOfTriple(content, i)) {
+            continue
+        }
+
+        backtickPositions.push(i)
     }
 
-    if (content[i] !== '`') {
-      continue
+    const ranges: TextRange[] = []
+    for (let i = 0; i < backtickPositions.length; i += 2) {
+        const start = backtickPositions[i]
+        const end = backtickPositions[i + 1]
+        if (start !== undefined && end !== undefined) {
+            ranges.push({ start, end: end + 1 })
+        }
     }
 
-    if (isBacktickPartOfTriple(content, i)) {
-      continue
-    }
-
-    backtickPositions.push(i)
-  }
-
-  const ranges: TextRange[] = []
-  for (let i = 0; i < backtickPositions.length; i += 2) {
-    const start = backtickPositions[i]
-    const end = backtickPositions[i + 1]
-    if (start !== undefined && end !== undefined) {
-      ranges.push({ start, end: end + 1 })
-    }
-  }
-
-  return ranges
+    return ranges
 }
 
 /**
@@ -277,35 +280,35 @@ export function findInlineCodeRanges(
  * @returns True if the position is within a math block
  */
 export function isWithinMathBlock(
-  text: string,
-  position: number,
-  options?: Pick<PreprocessContext, 'singleDollarTextMath'>,
+    text: string,
+    position: number,
+    options?: Pick<PreprocessContext, 'singleDollarTextMath'>,
 ): boolean {
-  let inBlockMath = false
-  let inInlineMath = false
-  const singleDollarEnabled = options?.singleDollarTextMath === true
+    let inBlockMath = false
+    let inInlineMath = false
+    const singleDollarEnabled = options?.singleDollarTextMath === true
 
-  for (let i = 0; i < text.length && i < position; i += 1) {
-    // Skip escaped dollar signs
-    if (text[i] === '\\' && text[i + 1] === '$') {
-      i += 1 // Skip the next character
-      continue
+    for (let i = 0; i < text.length && i < position; i += 1) {
+        // Skip escaped dollar signs
+        if (text[i] === '\\' && text[i + 1] === '$') {
+            i += 1 // Skip the next character
+            continue
+        }
+
+        // Only treat `$$` as block math delimiters
+        if (text[i] === '$' && text[i + 1] === '$') {
+            inBlockMath = !inBlockMath
+            i += 1 // Skip the second $
+            continue
+        }
+
+        // Treat single `$` as inline math when enabled
+        if (singleDollarEnabled && !inBlockMath && text[i] === '$') {
+            inInlineMath = !inInlineMath
+        }
     }
 
-    // Only treat `$$` as block math delimiters
-    if (text[i] === '$' && text[i + 1] === '$') {
-      inBlockMath = !inBlockMath
-      i += 1 // Skip the second $
-      continue
-    }
-
-    // Treat single `$` as inline math when enabled
-    if (singleDollarEnabled && !inBlockMath && text[i] === '$') {
-      inInlineMath = !inInlineMath
-    }
-  }
-
-  return inBlockMath || inInlineMath
+    return inBlockMath || inInlineMath
 }
 
 /**
@@ -316,15 +319,15 @@ export function isWithinMathBlock(
  * @returns True if there's a closing paren on the same line after the position
  */
 function isBeforeClosingParen(text: string, position: number): boolean {
-  for (let j = position; j < text.length; j += 1) {
-    if (text[j] === ')') {
-      return true
+    for (let j = position; j < text.length; j += 1) {
+        if (text[j] === ')') {
+            return true
+        }
+        if (text[j] === '\n') {
+            return false
+        }
     }
-    if (text[j] === '\n') {
-      return false
-    }
-  }
-  return false
+    return false
 }
 
 /**
@@ -335,39 +338,36 @@ function isBeforeClosingParen(text: string, position: number): boolean {
  * @param position - The position to check
  * @returns True if the position is within a link or image URL
  */
-export function isWithinLinkOrImageUrl(
-  text: string,
-  position: number,
-): boolean {
-  // Search backwards from position to find if we're inside a (url) part
-  for (let i = position - 1; i >= 0; i -= 1) {
-    if (text[i] === ')') {
-      return false
-    }
-    if (text[i] === '(') {
-      // Check if there's a ] immediately before the (
-      if (i > 0 && text[i - 1] === ']') {
-        // We're inside a link/image URL
-        // If there's a closing ) on the same line after position, we're before it
-        // If there's no closing ), we're still in the URL (unclosed)
-        const hasClosingParen = isBeforeClosingParen(text, position)
-        // If we found ]( and haven't found ), we're in an unclosed URL
-        // Check if there's a ) after position on the same line
-        if (!hasClosingParen) {
-          // A newline between `(` and position would have been caught by the
-          // backward scan above, so reaching this point means we're in URL text.
-          return true
+export function isWithinLinkOrImageUrl(text: string, position: number): boolean {
+    // Search backwards from position to find if we're inside a (url) part
+    for (let i = position - 1; i >= 0; i -= 1) {
+        if (text[i] === ')') {
+            return false
         }
-        return true
-      }
-      return false
+        if (text[i] === '(') {
+            // Check if there's a ] immediately before the (
+            if (i > 0 && text[i - 1] === ']') {
+                // We're inside a link/image URL
+                // If there's a closing ) on the same line after position, we're before it
+                // If there's no closing ), we're still in the URL (unclosed)
+                const hasClosingParen = isBeforeClosingParen(text, position)
+                // If we found ]( and haven't found ), we're in an unclosed URL
+                // Check if there's a ) after position on the same line
+                if (!hasClosingParen) {
+                    // A newline between `(` and position would have been caught by the
+                    // backward scan above, so reaching this point means we're in URL text.
+                    return true
+                }
+                return true
+            }
+            return false
+        }
+        if (text[i] === '\n') {
+            return false
+        }
     }
-    if (text[i] === '\n') {
-      return false
-    }
-  }
 
-  return false
+    return false
 }
 
 /**
@@ -378,23 +378,22 @@ export function isWithinLinkOrImageUrl(
  * @returns True if the position is within an HTML tag
  */
 export function isWithinHtmlTag(text: string, position: number): boolean {
-  let inHtmlTag = false
+    let inHtmlTag = false
 
-  for (let i = 0; i < position; i += 1) {
-    if (text[i] === '<') {
-      // Check if it's not escaped and looks like an HTML tag
-      if (i === 0 || text[i - 1] !== '\\') {
-        inHtmlTag = true
-      }
+    for (let i = 0; i < position; i += 1) {
+        if (text[i] === '<') {
+            // Check if it's not escaped and looks like an HTML tag
+            if (i === 0 || text[i - 1] !== '\\') {
+                inHtmlTag = true
+            }
+        } else if (text[i] === '>') {
+            if (inHtmlTag && i > 0 && text[i - 1] !== '\\') {
+                inHtmlTag = false
+            }
+        }
     }
-    else if (text[i] === '>') {
-      if (inHtmlTag && i > 0 && text[i - 1] !== '\\') {
-        inHtmlTag = false
-      }
-    }
-  }
 
-  return inHtmlTag
+    return inHtmlTag
 }
 
 /**
@@ -406,26 +405,26 @@ export function isWithinHtmlTag(text: string, position: number): boolean {
  * @returns Text with link/image URLs and HTML tags removed (keeping only [text] or ![alt] part)
  */
 export function removeUrlsFromText(text: string): string {
-  // First, remove code blocks to avoid processing URLs inside them
-  const withoutCodeBlocks = text.replace(codeBlockPattern, '')
+    // First, remove code blocks to avoid processing URLs inside them
+    const withoutCodeBlocks = text.replace(codeBlockPattern, '')
 
-  // Remove HTML tags (including their attributes which may contain URLs)
-  // This handles cases like <file url="http://example.com/path_with_underscore">
-  let result = withoutCodeBlocks.replace(htmlTagPattern, '')
+    // Remove HTML tags (including their attributes which may contain URLs)
+    // This handles cases like <file url="http://example.com/path_with_underscore">
+    let result = withoutCodeBlocks.replace(htmlTagPattern, '')
 
-  // Remove complete link/image URLs: [text](url) or ![alt](url)
-  // Replace the URL part with empty string, keep the [text] or ![alt] part
-  result = result.replace(linkImagePattern, (match) => {
-    return match.replace(linkImageUrlSuffixPattern, ']()')
-  })
+    // Remove complete link/image URLs: [text](url) or ![alt](url)
+    // Replace the URL part with empty string, keep the [text] or ![alt] part
+    result = result.replace(linkImagePattern, (match) => {
+        return match.replace(linkImageUrlSuffixPattern, ']()')
+    })
 
-  // Remove incomplete link/image URLs: [text](url or ![alt](url
-  // Replace the incomplete URL part with empty string
-  result = result.replace(incompleteLinkImageUrlPattern, (match) => {
-    return match.replace(incompleteLinkImageUrlSuffixPattern, '](')
-  })
+    // Remove incomplete link/image URLs: [text](url or ![alt](url
+    // Replace the incomplete URL part with empty string
+    result = result.replace(incompleteLinkImageUrlPattern, (match) => {
+        return match.replace(incompleteLinkImageUrlSuffixPattern, '](')
+    })
 
-  return result
+    return result
 }
 
 /**
@@ -437,64 +436,62 @@ export function removeUrlsFromText(text: string): string {
  * @returns Text with math blocks removed
  */
 export function removeMathBlocksFromText(
-  text: string,
-  options?: Pick<PreprocessContext, 'singleDollarTextMath'>,
+    text: string,
+    options?: Pick<PreprocessContext, 'singleDollarTextMath'>,
 ): string {
-  const singleDollarEnabled = options?.singleDollarTextMath === true
-  let result = text
-  let i = 0
+    const singleDollarEnabled = options?.singleDollarTextMath === true
+    let result = text
+    let i = 0
 
-  while (i < result.length) {
-    // Skip escaped dollar signs
-    if (result[i] === '\\' && result[i + 1] === '$') {
-      i += 2
-      continue
-    }
-
-    // Check for block math ($$)
-    if (result[i] === '$' && result[i + 1] === '$') {
-      // Find the closing $$ and remove everything in between (including the delimiters)
-      const closingPos = result.indexOf('$$', i + 2)
-      if (closingPos !== -1) {
-        // Remove the entire block math including delimiters
-        result = result.slice(0, i) + result.slice(closingPos + 2)
-        // Don't increment i since we removed content, check the same position again
-        continue
-      }
-      else {
-        // Unclosed block math - remove from here to end
-        result = result.slice(0, i)
-        break
-      }
-    }
-
-    // Check for inline math ($) when enabled
-    if (singleDollarEnabled && result[i] === '$') {
-      // Find the closing $ (not escaped) and remove everything in between (including the delimiters)
-      let closingPos = -1
-      for (let j = i + 1; j < result.length; j++) {
-        if (result[j] === '$' && result[j - 1] !== '\\') {
-          closingPos = j
-          break
+    while (i < result.length) {
+        // Skip escaped dollar signs
+        if (result[i] === '\\' && result[i + 1] === '$') {
+            i += 2
+            continue
         }
-      }
-      if (closingPos !== -1) {
-        // Remove the entire inline math including delimiters
-        result = result.slice(0, i) + result.slice(closingPos + 1)
-        // Don't increment i since we removed content, check the same position again
-        continue
-      }
-      else {
-        // Unclosed inline math - remove from here to end
-        result = result.slice(0, i)
-        break
-      }
+
+        // Check for block math ($$)
+        if (result[i] === '$' && result[i + 1] === '$') {
+            // Find the closing $$ and remove everything in between (including the delimiters)
+            const closingPos = result.indexOf('$$', i + 2)
+            if (closingPos !== -1) {
+                // Remove the entire block math including delimiters
+                result = result.slice(0, i) + result.slice(closingPos + 2)
+                // Don't increment i since we removed content, check the same position again
+                continue
+            } else {
+                // Unclosed block math - remove from here to end
+                result = result.slice(0, i)
+                break
+            }
+        }
+
+        // Check for inline math ($) when enabled
+        if (singleDollarEnabled && result[i] === '$') {
+            // Find the closing $ (not escaped) and remove everything in between (including the delimiters)
+            let closingPos = -1
+            for (let j = i + 1; j < result.length; j++) {
+                if (result[j] === '$' && result[j - 1] !== '\\') {
+                    closingPos = j
+                    break
+                }
+            }
+            if (closingPos !== -1) {
+                // Remove the entire inline math including delimiters
+                result = result.slice(0, i) + result.slice(closingPos + 1)
+                // Don't increment i since we removed content, check the same position again
+                continue
+            } else {
+                // Unclosed inline math - remove from here to end
+                result = result.slice(0, i)
+                break
+            }
+        }
+
+        i += 1
     }
 
-    i += 1
-  }
-
-  return result
+    return result
 }
 
 /**
@@ -508,8 +505,8 @@ export function removeMathBlocksFromText(
  * @returns The content with the suffix appended before trailing whitespace
  */
 export function appendBeforeTrailingWhitespace(content: string, suffix: string): string {
-  const match = content.match(trailingWhitespacePattern)
-  const trailing = match ? match[0] : ''
-  const withoutTrailing = trailing.length > 0 ? content.slice(0, -trailing.length) : content
-  return `${withoutTrailing}${suffix}${trailing}`
+    const match = content.match(trailingWhitespacePattern)
+    const trailing = match ? match[0] : ''
+    const withoutTrailing = trailing.length > 0 ? content.slice(0, -trailing.length) : content
+    return `${withoutTrailing}${suffix}${trailing}`
 }

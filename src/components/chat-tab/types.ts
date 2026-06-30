@@ -1,4 +1,4 @@
 export interface ChatTabState {
-  chatId: string
-  title: string
+    chatId: string
+    title: string
 }

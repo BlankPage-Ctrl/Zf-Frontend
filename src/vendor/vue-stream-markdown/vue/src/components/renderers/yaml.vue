@@ -14,17 +14,14 @@ const rows = computed(() => model.value.rows)
 </script>
 
 <template>
-  <div
-    data-stream-markdown="yaml"
-    class="w-full overflow-x-auto"
-  >
-    <component :is="UI.Table" :headers="headers" :rows="rows">
-      <template #header-cell="{ cell }">
-        {{ cell }}
-      </template>
-      <template #body-cell="{ cell }">
-        {{ cell }}
-      </template>
-    </component>
-  </div>
+    <div data-stream-markdown="yaml" class="w-full overflow-x-auto">
+        <component :is="UI.Table" :headers="headers" :rows="rows">
+            <template #header-cell="{ cell }">
+                {{ cell }}
+            </template>
+            <template #body-cell="{ cell }">
+                {{ cell }}
+            </template>
+        </component>
+    </div>
 </template>

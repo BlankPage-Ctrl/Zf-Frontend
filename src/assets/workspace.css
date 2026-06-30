@@ -1,114 +1,114 @@
 .ws-layout {
-  --ws-text: rgb(var(--text-color));
-  --ws-hover-bg: rgba(var(--third-color), 0.12);
-  --ws-active-bg: rgba(var(--third-color), 0.18);
-  --ws-icon-hover-bg: rgba(var(--third-color), 0.15);
-  --ws-transition: opacity 100ms ease, background 100ms ease;
+    --ws-text: rgb(var(--text-color));
+    --ws-hover-bg: rgba(var(--third-color), 0.12);
+    --ws-active-bg: rgba(var(--third-color), 0.18);
+    --ws-icon-hover-bg: rgba(var(--third-color), 0.15);
+    --ws-transition: opacity 100ms ease, background 100ms ease;
 
-  display: flex;
-  height: 100%;
-  overflow: hidden;
+    display: flex;
+    height: 100%;
+    overflow: hidden;
 }
 
 .ws-layout--not-found {
-  align-items: center;
-  justify-content: center;
+    align-items: center;
+    justify-content: center;
 }
 
 /* --- Sidebar --- */
 
 .ws-sidebar__rail-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  color: var(--ws-text);
-  opacity: 0.45;
-  transition: var(--ws-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: var(--ws-text);
+    opacity: 0.45;
+    transition: var(--ws-transition);
 }
 
 .ws-sidebar__rail-icon:hover {
-  opacity: 1;
-  background: var(--ws-hover-bg);
+    opacity: 1;
+    background: var(--ws-hover-bg);
 }
 
 .ws-sidebar__rail-icon--active {
-  opacity: 1;
-  background: var(--ws-icon-hover-bg);
+    opacity: 1;
+    background: var(--ws-icon-hover-bg);
 }
 
 .ws-sidebar__title {
-  font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ws-text);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ws-text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* --- Content --- */
 
 .ws-content {
-  flex: 1;
-  background: rgb(var(--primary-color));
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
+    flex: 1;
+    background: rgb(var(--primary-color));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
 }
 
 .ws-content__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 32px;
-  height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+    height: 100%;
 }
 
 .ws-empty__icon {
-  margin-bottom: 16px;
-  color: var(--ws-text);
+    margin-bottom: 16px;
+    color: var(--ws-text);
 }
 
 .ws-empty__title {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ws-text);
-  margin: 0 0 6px;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ws-text);
+    margin: 0 0 6px;
 }
 
 .ws-empty__desc {
-  font-size: 13px;
-  color: var(--ws-text);
-  opacity: 0.5;
-  max-width: 280px;
-  line-height: 1.5;
-  margin: 0;
+    font-size: 13px;
+    color: var(--ws-text);
+    opacity: 0.5;
+    max-width: 280px;
+    line-height: 1.5;
+    margin: 0;
 }
 
 /* --- Shared within Workspace --- */
 
 .ws-btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  color: var(--ws-text);
-  opacity: 0.5;
-  transition: var(--ws-transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    color: var(--ws-text);
+    opacity: 0.5;
+    transition: var(--ws-transition);
 }
 
 .ws-btn-icon:hover {
-  opacity: 1;
-  background: var(--ws-icon-hover-bg);
+    opacity: 1;
+    background: var(--ws-icon-hover-bg);
 }

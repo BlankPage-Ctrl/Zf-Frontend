@@ -1,9 +1,9 @@
 import { pipePattern, separatorPattern, tableRowPattern } from './pattern'
 import {
-  findClosedCodeBlockRanges,
-  getLastParagraphWithIndex,
-  isInsideUnclosedCodeBlock,
-  isRangeOverlappingRanges,
+    findClosedCodeBlockRanges,
+    getLastParagraphWithIndex,
+    isInsideUnclosedCodeBlock,
+    isRangeOverlappingRanges,
 } from './utils'
 
 /**
@@ -33,118 +33,121 @@ import {
  * // Returns: '| a | b |\n| --- | --- |' (no change, already complete)
  */
 export function fixTable(content: string): string {
-  // Don't process if we're inside a code block (unclosed)
-  if (isInsideUnclosedCodeBlock(content))
-    return content
+    // Don't process if we're inside a code block (unclosed)
+    if (isInsideUnclosedCodeBlock(content)) return content
 
-  // Find all code block ranges to check if table is inside a closed code block
-  const codeBlockRanges = findClosedCodeBlockRanges(content)
+    // Find all code block ranges to check if table is inside a closed code block
+    const codeBlockRanges = findClosedCodeBlockRanges(content)
 
-  // Find the last paragraph (after the last blank line)
-  const { lastParagraph } = getLastParagraphWithIndex(content, true)
-  const paragraphLines = lastParagraph.split('\n').filter(line => line.trim() !== '')
+    // Find the last paragraph (after the last blank line)
+    const { lastParagraph } = getLastParagraphWithIndex(content, true)
+    const paragraphLines = lastParagraph.split('\n').filter((line) => line.trim() !== '')
 
-  // Check if any line in the last paragraph is a table header row
-  if (paragraphLines.length === 0)
-    return content
+    // Check if any line in the last paragraph is a table header row
+    if (paragraphLines.length === 0) return content
 
-  // Find potential table header row (first table row in the paragraph)
-  // Also check for lines starting with | that might be incomplete table headers
-  let headerRowIndex = -1
-  let headerRow = ''
+    // Find potential table header row (first table row in the paragraph)
+    // Also check for lines starting with | that might be incomplete table headers
+    let headerRowIndex = -1
+    let headerRow = ''
 
-  for (let i = 0; i < paragraphLines.length; i++) {
-    const line = paragraphLines[i]
-    const trimmedLine = (line || '').trim()
-    // Check if it matches table row pattern or starts with | (might be incomplete)
-    if (tableRowPattern.test(trimmedLine) || (trimmedLine.startsWith('|') && trimmedLine.length > 1)) {
-      headerRowIndex = i
-      headerRow = trimmedLine
-      break
+    for (let i = 0; i < paragraphLines.length; i++) {
+        const line = paragraphLines[i]
+        const trimmedLine = (line || '').trim()
+        // Check if it matches table row pattern or starts with | (might be incomplete)
+        if (
+            tableRowPattern.test(trimmedLine) ||
+            (trimmedLine.startsWith('|') && trimmedLine.length > 1)
+        ) {
+            headerRowIndex = i
+            headerRow = trimmedLine
+            break
+        }
     }
-  }
 
-  // No table header row found
-  if (headerRowIndex === -1)
-    return content
+    // No table header row found
+    if (headerRowIndex === -1) return content
 
-  // Check if the header row is inside a code block
-  const headerRowPos = content.lastIndexOf(headerRow)
-  if (headerRowPos !== -1) {
-    const headerRowEndPos = headerRowPos + headerRow.length
-    const isHeaderRowInCodeBlock = isRangeOverlappingRanges(headerRowPos, headerRowEndPos, codeBlockRanges)
+    // Check if the header row is inside a code block
+    const headerRowPos = content.lastIndexOf(headerRow)
+    if (headerRowPos !== -1) {
+        const headerRowEndPos = headerRowPos + headerRow.length
+        const isHeaderRowInCodeBlock = isRangeOverlappingRanges(
+            headerRowPos,
+            headerRowEndPos,
+            codeBlockRanges,
+        )
 
-    if (isHeaderRowInCodeBlock) {
-      return content
+        if (isHeaderRowInCodeBlock) {
+            return content
+        }
     }
-  }
 
-  // Check if header row is complete (ends with |)
-  // This ensures we complete incomplete headers during streaming to avoid flickering
-  const trimmedHeader = headerRow.trim()
-  const isHeaderComplete = trimmedHeader.endsWith('|')
+    // Check if header row is complete (ends with |)
+    // This ensures we complete incomplete headers during streaming to avoid flickering
+    const trimmedHeader = headerRow.trim()
+    const isHeaderComplete = trimmedHeader.endsWith('|')
 
-  // Complete the header row if it's incomplete
-  let completedHeaderRow = headerRow
-  if (!isHeaderComplete) {
-    // Add closing | to make it a valid table row
-    completedHeaderRow = `${trimmedHeader} |`
-  }
-
-  // Count columns in the completed header row
-  const headerColumns = (completedHeaderRow.match(pipePattern) || []).length - 1
-
-  const separator = generateSeparator(headerColumns)
-
-  // Use the headerRowPos we already found above
-  const beforeHeaderRow = content.substring(0, headerRowPos)
-  const afterHeaderRow = content.substring(headerRowPos + headerRow.length)
-
-  // Case 1: Header row is the last line in paragraph - complete header and add separator
-  if (headerRowIndex === paragraphLines.length - 1) {
-    const newContent = isHeaderComplete ? content : `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
-    if (newContent.endsWith('\n'))
-      return `${newContent}${separator}`
-    else
-      return `${newContent}\n${separator}`
-  }
-
-  // Case 2: There's a line after the header row
-  const nextLineRaw = paragraphLines[headerRowIndex + 1]
-  const nextLine = (nextLineRaw || '').trim()
-
-  // Check if next line is already a valid separator with correct column count
-  if (separatorPattern.test(nextLine)) {
-    const separatorColumns = (nextLine.match(pipePattern) || []).length - 1
-    if (separatorColumns === headerColumns) {
-      // Separator matches, but we might still need to complete the header
-      if (!isHeaderComplete) {
-        return `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
-      }
-      return content // Already complete
+    // Complete the header row if it's incomplete
+    let completedHeaderRow = headerRow
+    if (!isHeaderComplete) {
+        // Add closing | to make it a valid table row
+        completedHeaderRow = `${trimmedHeader} |`
     }
-  }
 
-  // Case 3: Next line is incomplete separator or data row - complete header, replace/insert separator
-  // Split the content after header row to find the next line
-  const afterLines = afterHeaderRow.split('\n')
-  const nextLineInContent = afterLines[1] || ''
-  const newHeader = isHeaderComplete ? headerRow : completedHeaderRow
+    // Count columns in the completed header row
+    const headerColumns = (completedHeaderRow.match(pipePattern) || []).length - 1
 
-  if (nextLineInContent.startsWith('|') && nextLineInContent.includes('-')) {
-    // Replace incomplete separator
-    const remainingLines = afterLines.slice(2).join('\n')
-    if (remainingLines.length > 0) {
-      return `${beforeHeaderRow}${newHeader}\n${separator}\n${remainingLines}`
+    const separator = generateSeparator(headerColumns)
+
+    // Use the headerRowPos we already found above
+    const beforeHeaderRow = content.substring(0, headerRowPos)
+    const afterHeaderRow = content.substring(headerRowPos + headerRow.length)
+
+    // Case 1: Header row is the last line in paragraph - complete header and add separator
+    if (headerRowIndex === paragraphLines.length - 1) {
+        const newContent = isHeaderComplete
+            ? content
+            : `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
+        if (newContent.endsWith('\n')) return `${newContent}${separator}`
+        else return `${newContent}\n${separator}`
     }
-    else {
-      return `${beforeHeaderRow}${newHeader}\n${separator}`
-    }
-  }
 
-  // Insert separator before the next line (which might be data row)
-  const remainingContent = afterLines.slice(1).join('\n')
-  return `${beforeHeaderRow}${newHeader}\n${separator}\n${remainingContent}`
+    // Case 2: There's a line after the header row
+    const nextLineRaw = paragraphLines[headerRowIndex + 1]
+    const nextLine = (nextLineRaw || '').trim()
+
+    // Check if next line is already a valid separator with correct column count
+    if (separatorPattern.test(nextLine)) {
+        const separatorColumns = (nextLine.match(pipePattern) || []).length - 1
+        if (separatorColumns === headerColumns) {
+            // Separator matches, but we might still need to complete the header
+            if (!isHeaderComplete) {
+                return `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
+            }
+            return content // Already complete
+        }
+    }
+
+    // Case 3: Next line is incomplete separator or data row - complete header, replace/insert separator
+    // Split the content after header row to find the next line
+    const afterLines = afterHeaderRow.split('\n')
+    const nextLineInContent = afterLines[1] || ''
+    const newHeader = isHeaderComplete ? headerRow : completedHeaderRow
+
+    if (nextLineInContent.startsWith('|') && nextLineInContent.includes('-')) {
+        // Replace incomplete separator
+        const remainingLines = afterLines.slice(2).join('\n')
+        if (remainingLines.length > 0) {
+            return `${beforeHeaderRow}${newHeader}\n${separator}\n${remainingLines}`
+        } else {
+            return `${beforeHeaderRow}${newHeader}\n${separator}`
+        }
+    }
+
+    // Insert separator before the next line (which might be data row)
+    const remainingContent = afterLines.slice(1).join('\n')
+    return `${beforeHeaderRow}${newHeader}\n${separator}\n${remainingContent}`
 }
 
 /**
@@ -152,9 +155,9 @@ export function fixTable(content: string): string {
  * Format: | --- | --- | ... |
  */
 function generateSeparator(columns: number): string {
-  const parts: string[] = []
-  for (let i = 0; i < columns; i++) {
-    parts.push(' --- ')
-  }
-  return `|${parts.join('|')}|`
+    const parts: string[] = []
+    for (let i = 0; i < columns; i++) {
+        parts.push(' --- ')
+    }
+    return `|${parts.join('|')}|`
 }

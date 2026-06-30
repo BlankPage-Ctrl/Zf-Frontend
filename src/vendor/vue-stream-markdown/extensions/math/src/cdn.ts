@@ -1,12 +1,12 @@
 import type { SharedCdnOptions } from '@stream-markdown/core'
 import type { MaybeGetter } from './types'
 import {
-  dynamicImport,
-  getModuleFromImport,
-  getModuleStrategy,
-  isModuleEnabled,
-  removeTrailingSlash,
-  resolveGetter,
+    dynamicImport,
+    getModuleFromImport,
+    getModuleStrategy,
+    isModuleEnabled,
+    removeTrailingSlash,
+    resolveGetter,
 } from '@stream-markdown/core'
 import { KATEX_VERSION } from './constants'
 
@@ -14,94 +14,81 @@ let katexModule: typeof import('katex') | null = null
 let katexCssLoaded = false
 
 export interface KatexCdnLoaderOptions {
-  cdnOptions?: MaybeGetter<SharedCdnOptions | undefined>
+    cdnOptions?: MaybeGetter<SharedCdnOptions | undefined>
 }
 
 export function createKatexCdnLoader(options?: KatexCdnLoaderOptions) {
-  function getCdnUrl(): string | undefined {
-    const cdnOptions = resolveGetter(options?.cdnOptions)
-    const enabled = isModuleEnabled(cdnOptions?.katex)
-    const strategy = getModuleStrategy(cdnOptions?.katex)
-    const baseUrl = cdnOptions?.baseUrl
-      ? removeTrailingSlash(cdnOptions.baseUrl)
-      : ''
-    const customGetter = !!cdnOptions?.getUrl
+    function getCdnUrl(): string | undefined {
+        const cdnOptions = resolveGetter(options?.cdnOptions)
+        const enabled = isModuleEnabled(cdnOptions?.katex)
+        const strategy = getModuleStrategy(cdnOptions?.katex)
+        const baseUrl = cdnOptions?.baseUrl ? removeTrailingSlash(cdnOptions.baseUrl) : ''
+        const customGetter = !!cdnOptions?.getUrl
 
-    if (!enabled)
-      return undefined
-    if (!baseUrl && !customGetter)
-      return undefined
+        if (!enabled) return undefined
+        if (!baseUrl && !customGetter) return undefined
 
-    if (customGetter) {
-      const url = cdnOptions?.getUrl?.('katex', KATEX_VERSION)
-      if (url)
-        return url
+        if (customGetter) {
+            const url = cdnOptions?.getUrl?.('katex', KATEX_VERSION)
+            if (url) return url
+        }
+
+        const umd = `${baseUrl}/katex@${KATEX_VERSION}/dist/katex.min.js`
+        if (strategy === 'umd') return umd
+
+        return typeof window !== 'undefined' &&
+            'supports' in HTMLScriptElement &&
+            HTMLScriptElement.supports?.('importmap')
+            ? `${baseUrl}/katex@${KATEX_VERSION}/+esm`
+            : umd
     }
 
-    const umd = `${baseUrl}/katex@${KATEX_VERSION}/dist/katex.min.js`
-    if (strategy === 'umd')
-      return umd
+    async function loadCdn(): Promise<typeof import('katex') | undefined> {
+        if (katexModule) return katexModule
 
-    return typeof window !== 'undefined' && 'supports' in HTMLScriptElement && HTMLScriptElement.supports?.('importmap')
-      ? `${baseUrl}/katex@${KATEX_VERSION}/+esm`
-      : umd
-  }
+        const url = getCdnUrl()
+        if (!url) return undefined
 
-  async function loadCdn(): Promise<typeof import('katex') | undefined> {
-    if (katexModule)
-      return katexModule
-
-    const url = getCdnUrl()
-    if (!url)
-      return undefined
-
-    const module = await dynamicImport<typeof import('katex')>(url)
-    katexModule = getModuleFromImport(module, 'katex')
-    return katexModule ?? module
-  }
-
-  function getCdnCssUrl(): string | undefined {
-    const cdnOptions = resolveGetter(options?.cdnOptions)
-    const enabled = isModuleEnabled(cdnOptions?.katex)
-    const baseUrl = cdnOptions?.baseUrl
-      ? removeTrailingSlash(cdnOptions.baseUrl)
-      : ''
-    const customGetter = !!cdnOptions?.getUrl
-
-    if (!enabled)
-      return undefined
-    if (!baseUrl && !customGetter)
-      return undefined
-
-    if (customGetter) {
-      const url = cdnOptions?.getUrl?.('katex-css', KATEX_VERSION)
-      if (url)
-        return url
+        const module = await dynamicImport<typeof import('katex')>(url)
+        katexModule = getModuleFromImport(module, 'katex')
+        return katexModule ?? module
     }
 
-    return `${baseUrl}/katex@${KATEX_VERSION}/dist/katex.min.css`
-  }
+    function getCdnCssUrl(): string | undefined {
+        const cdnOptions = resolveGetter(options?.cdnOptions)
+        const enabled = isModuleEnabled(cdnOptions?.katex)
+        const baseUrl = cdnOptions?.baseUrl ? removeTrailingSlash(cdnOptions.baseUrl) : ''
+        const customGetter = !!cdnOptions?.getUrl
 
-  function loadCss() {
-    if (katexCssLoaded || typeof document === 'undefined')
-      return
+        if (!enabled) return undefined
+        if (!baseUrl && !customGetter) return undefined
 
-    const url = getCdnCssUrl()
-    if (!url)
-      return
+        if (customGetter) {
+            const url = cdnOptions?.getUrl?.('katex-css', KATEX_VERSION)
+            if (url) return url
+        }
 
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = url
-    document.head.appendChild(link)
+        return `${baseUrl}/katex@${KATEX_VERSION}/dist/katex.min.css`
+    }
 
-    katexCssLoaded = true
-  }
+    function loadCss() {
+        if (katexCssLoaded || typeof document === 'undefined') return
 
-  return {
-    getCdnUrl,
-    loadCdn,
-    getCdnCssUrl,
-    loadCss,
-  }
+        const url = getCdnCssUrl()
+        if (!url) return
+
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        document.head.appendChild(link)
+
+        katexCssLoaded = true
+    }
+
+    return {
+        getCdnUrl,
+        loadCdn,
+        getCdnCssUrl,
+        loadCss,
+    }
 }

@@ -1,231 +1,235 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { OptionItem } from '../types';
+import { computed } from 'vue'
+import type { OptionItem } from '../types'
 
 type Props = {
-  modelValue: any;
-  label?: string;
-  options: OptionItem[];
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  disabled?: boolean;
-  row?: boolean;
-};
+    modelValue: unknown
+    label?: string
+    options: OptionItem[]
+    error?: string
+    helperText?: string
+    required?: boolean
+    disabled?: boolean
+    row?: boolean
+}
 
 const props = withDefaults(defineProps<Props>(), {
-  required: false,
-  disabled: false,
-  row: false,
-});
+    required: false,
+    disabled: false,
+    row: false,
+})
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void;
-}>();
+    (e: 'update:modelValue', value: unknown): void
+}>()
 
 const selectedValue = computed({
-  get: () => props.modelValue,
-  set: (val) => {
-    if (!props.disabled) {
-      emit('update:modelValue', val);
-    }
-  }
-});
+    get: () => props.modelValue,
+    set: (val: unknown) => {
+        if (!props.disabled) {
+            emit('update:modelValue', val)
+        }
+    },
+})
 </script>
 
 <template>
-  <div class="radio-field-group">
-    <label v-if="label" class="base-label" :class="{ 'label-error': !!error }">
-      {{ label }}
-      <span v-if="required" class="required-indicator">*</span>
-    </label>
+    <div class="radio-field-group">
+        <label v-if="label" class="base-label" :class="{ 'label-error': !!error }">
+            {{ label }}
+            <span v-if="required" class="required-indicator">*</span>
+        </label>
 
-    <div :class="['radio-options-container', { 'row-layout': row }]">
-      <label
-        v-for="opt in options"
-        :key="opt.value"
-        class="radio-label"
-        :class="{ 'radio-disabled': disabled }"
-      >
-        <input
-          type="radio"
-          :value="opt.value"
-          v-model="selectedValue"
-          :disabled="disabled"
-          class="hidden-radio"
-        />
-        <div 
-          class="custom-radio"
-          :class="{
-            'custom-radio-checked': selectedValue === opt.value,
-            'custom-radio-error': !!error
-          }"
-        >
-          <div class="radio-dot"></div>
+        <div :class="['radio-options-container', { 'row-layout': row }]">
+            <label
+                v-for="opt in options"
+                :key="String(opt.value)"
+                class="radio-label"
+                :class="{ 'radio-disabled': disabled }"
+            >
+                <input
+                    type="radio"
+                    :value="opt.value"
+                    v-model="selectedValue"
+                    :disabled="disabled"
+                    class="hidden-radio"
+                />
+                <div
+                    class="custom-radio"
+                    :class="{
+                        'custom-radio-checked': selectedValue === opt.value,
+                        'custom-radio-error': !!error,
+                    }"
+                >
+                    <div class="radio-dot"></div>
+                </div>
+                <span class="option-text">{{ opt.label }}</span>
+            </label>
         </div>
-        <span class="option-text">{{ opt.label }}</span>
-      </label>
-    </div>
 
-    <div class="message-container">
-      <transition name="slide-fade" mode="out-in">
-        <span v-if="error" class="error-text" :key="error">{{ error }}</span>
-        <span v-else-if="helperText" class="helper-text" :key="helperText">{{ helperText }}</span>
-      </transition>
+        <div class="message-container">
+            <transition name="slide-fade" mode="out-in">
+                <span v-if="error" class="error-text" :key="error">{{ error }}</span>
+                <span v-else-if="helperText" class="helper-text" :key="helperText">{{
+                    helperText
+                }}</span>
+            </transition>
+        </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
 .radio-field-group {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .base-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgb(var(--text-color));
-  opacity: 0.55;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-  user-select: none;
-  transition: color 150ms ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgb(var(--text-color));
+    opacity: 0.55;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    user-select: none;
+    transition: color 150ms ease;
 }
 
 .label-error {
-  color: rgb(var(--red-color));
-  opacity: 0.8;
+    color: rgb(var(--red-color));
+    opacity: 0.8;
 }
 
 .required-indicator {
-  color: rgb(var(--red-color));
+    color: rgb(var(--red-color));
 }
 
 .radio-options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .row-layout {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 20px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .radio-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: rgb(var(--text-color));
-  cursor: pointer;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgb(var(--text-color));
+    cursor: pointer;
+    user-select: none;
 }
 
 .hidden-radio {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .custom-radio {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid rgba(var(--third-color), 0.5);
-  background: rgb(var(--primary-color));
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--third-color), 0.5);
+    background: rgb(var(--primary-color));
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
 }
 
 .radio-label:hover .custom-radio:not(.radio-disabled *) {
-  border-color: rgb(var(--third-color));
+    border-color: rgb(var(--third-color));
 }
 
 .custom-radio-checked {
-  border-color: rgb(var(--third-color)) !important;
+    border-color: rgb(var(--third-color)) !important;
 }
 
 .custom-radio-checked .radio-dot {
-  transform: scale(1);
+    transform: scale(1);
 }
 
 .custom-radio-error {
-  border-color: rgb(var(--red-color)) !important;
+    border-color: rgb(var(--red-color)) !important;
 }
 
 .radio-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgb(var(--third-color));
-  transform: scale(0);
-  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgb(var(--third-color));
+    transform: scale(0);
+    transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .radio-disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .radio-disabled .custom-radio {
-  background: rgba(var(--secondary-color), 0.4);
-  border-color: rgba(var(--third-color), 0.2);
+    background: rgba(var(--secondary-color), 0.4);
+    border-color: rgba(var(--third-color), 0.2);
 }
 
 .radio-disabled .radio-dot {
-  background: rgba(var(--text-color), 0.4);
+    background: rgba(var(--text-color), 0.4);
 }
 
 .option-text {
-  font-size: 12px;
-  line-height: 1;
+    font-size: 12px;
+    line-height: 1;
 }
 
 .message-container {
-  min-height: 18px;
-  margin-top: 4px;
+    min-height: 18px;
+    margin-top: 4px;
 }
 
 .error-text {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgb(var(--red-color));
-  line-height: 1.2;
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgb(var(--red-color));
+    line-height: 1.2;
 }
 
 .helper-text {
-  display: block;
-  font-size: 11px;
-  color: rgb(var(--text-color));
-  opacity: 0.45;
-  line-height: 1.2;
+    display: block;
+    font-size: 11px;
+    color: rgb(var(--text-color));
+    opacity: 0.45;
+    line-height: 1.2;
 }
 
 /* Transitions */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 120ms ease-out;
+    transition: all 120ms ease-out;
 }
 
 .slide-fade-enter-from {
-  opacity: 0;
-  transform: translateY(-2px);
+    opacity: 0;
+    transform: translateY(-2px);
 }
 
 .slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(2px);
+    opacity: 0;
+    transform: translateY(2px);
 }
 </style>

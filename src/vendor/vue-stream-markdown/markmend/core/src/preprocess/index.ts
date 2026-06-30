@@ -1,4 +1,9 @@
-import type { PreprocessContext, PreprocessStep, PreprocessStepName, PreprocessSteps } from '../types'
+import type {
+    PreprocessContext,
+    PreprocessStep,
+    PreprocessStepName,
+    PreprocessSteps,
+} from '../types'
 import { flow } from '../utils'
 import { fixCode } from './code'
 import { fixDelete } from './delete'
@@ -17,68 +22,65 @@ import { parseMarkdownIntoBlocks, preprocessLaTeX } from './vendored'
 export * from './pattern'
 
 function proprocessContent(content: string): string {
-  return content.replace(crlfPattern, '\n').trimEnd()
+    return content.replace(crlfPattern, '\n').trimEnd()
 }
 
 export function normalize(content: string): string {
-  return flow([
-    proprocessContent,
-    preprocessLaTeX,
-  ])(content)
+    return flow([proprocessContent, preprocessLaTeX])(content)
 }
 
 const DEFAULT_PREPROCESS_STEP_NAMES: PreprocessStepName[] = [
-  'code',
-  'html',
-  'footnote',
-  'strong',
-  'emphasis',
-  'delete',
-  'taskList',
-  'link',
-  'table',
-  'inlineMath',
-  'math',
+    'code',
+    'html',
+    'footnote',
+    'strong',
+    'emphasis',
+    'delete',
+    'taskList',
+    'link',
+    'table',
+    'inlineMath',
+    'math',
 ]
 
 export const DEFAULT_PREPROCESS_STEPS = {
-  code: fixCode,
-  html: fixHtml,
-  footnote: fixFootnote,
-  strong: fixStrong,
-  emphasis: fixEmphasis,
-  delete: fixDelete,
-  taskList: fixTaskList,
-  link: fixLink,
-  table: fixTable,
-  inlineMath: fixInlineMath,
-  math: fixMath,
+    code: fixCode,
+    html: fixHtml,
+    footnote: fixFootnote,
+    strong: fixStrong,
+    emphasis: fixEmphasis,
+    delete: fixDelete,
+    taskList: fixTaskList,
+    link: fixLink,
+    table: fixTable,
+    inlineMath: fixInlineMath,
+    math: fixMath,
 } satisfies Record<PreprocessStepName, PreprocessStep>
 
 export function preprocess(
-  content: string,
-  options?: PreprocessContext,
-  steps: PreprocessSteps = {},
+    content: string,
+    options?: PreprocessContext,
+    steps: PreprocessSteps = {},
 ): string {
-  return DEFAULT_PREPROCESS_STEP_NAMES.reduce((result, name) => {
-    const step = steps[name] ?? DEFAULT_PREPROCESS_STEPS[name]
-    return step(result, options)
-  }, content)
+    return DEFAULT_PREPROCESS_STEP_NAMES.reduce((result, name) => {
+        const step = steps[name] ?? DEFAULT_PREPROCESS_STEPS[name]
+        return step(result, options)
+    }, content)
 }
 
 export {
-  fixCode,
-  fixDelete,
-  fixEmphasis,
-  fixFootnote,
-  fixHtml,
-  fixInlineMath,
-  fixLink,
-  fixMath,
-  fixStrong,
-  fixTable,
-  fixTaskList,
-  parseMarkdownIntoBlocks,
-  preprocessLaTeX,
-  proprocessContent,
+    fixCode,
+    fixDelete,
+    fixEmphasis,
+    fixFootnote,
+    fixHtml,
+    fixInlineMath,
+    fixLink,
+    fixMath,
+    fixStrong,
+    fixTable,
+    fixTaskList,
+    parseMarkdownIntoBlocks,
+    preprocessLaTeX,
+    proprocessContent,
 }

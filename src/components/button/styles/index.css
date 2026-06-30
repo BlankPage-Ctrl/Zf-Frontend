@@ -1,222 +1,238 @@
 .btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-weight: 500;
-  line-height: 1;
-  text-decoration: none;
-  white-space: nowrap;
-  user-select: none;
-  transition: background 120ms ease, color 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+    transition:
+        background 120ms ease,
+        color 120ms ease,
+        opacity 120ms ease,
+        box-shadow 120ms ease;
 }
 
 .btn:disabled,
 .btn--disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-  pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.4;
+    pointer-events: none;
 }
 
 .btn--full {
-  width: 100%;
+    width: 100%;
 }
 
 /* ── Variants ──────────────────────────────────────────────── */
 
 .btn--solid {
-  background: rgb(var(--third-color));
-  color: rgb(var(--primary-color));
+    background: rgb(var(--third-color));
+    color: rgb(var(--primary-color));
 }
 
 .btn--solid:hover:not(:disabled):not(.btn--disabled) {
-  background: rgba(var(--third-color), 0.85);
+    background: rgba(var(--third-color), 0.85);
 }
 
 .btn--outline {
-  border: 1px solid rgba(var(--third-color), 0.35);
-  color: rgb(var(--text-color));
+    border: 1px solid rgba(var(--third-color), 0.35);
+    color: rgb(var(--text-color));
 }
 
 .btn--outline:hover:not(:disabled):not(.btn--disabled) {
-  background: rgba(var(--third-color), 0.08);
+    background: rgba(var(--third-color), 0.08);
 }
 
 .btn--ghost {
-  color: rgb(var(--text-color));
-  opacity: 0.6;
+    color: rgb(var(--text-color));
+    opacity: 0.6;
 }
 
 .btn--ghost:hover:not(:disabled):not(.btn--disabled) {
-  opacity: 1;
-  background: rgba(var(--third-color), 0.1);
+    opacity: 1;
+    background: rgba(var(--third-color), 0.1);
 }
 
 .btn--soft {
-  background: rgba(var(--secondary-color), 0.6);
-  color: rgb(var(--text-color));
+    background: rgba(var(--secondary-color), 0.6);
+    color: rgb(var(--text-color));
 }
 
 .btn--soft:hover:not(:disabled):not(.btn--disabled) {
-  background: rgba(var(--secondary-color), 1);
+    background: rgba(var(--secondary-color), 1);
 }
 
 .btn--link {
-  color: rgba(var(--text-color), 0.7);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+    color: rgba(var(--text-color), 0.7);
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .btn--link:hover:not(:disabled):not(.btn--disabled) {
-  color: rgb(var(--text-color));
+    color: rgb(var(--text-color));
 }
 
 /* Danger overrides */
 .btn--danger.btn--solid {
-  background: rgb(var(--red-color));
-  color: #fff;
+    background: rgb(var(--red-color));
+    color: #fff;
 }
 
 .btn--danger.btn--solid:hover:not(:disabled):not(.btn--disabled) {
-  opacity: 0.85;
+    opacity: 0.85;
 }
 
 .btn--danger.btn--ghost:hover:not(:disabled):not(.btn--disabled) {
-  background: rgba(var(--red-color), 0.1);
-  color: rgb(var(--red-color));
-  opacity: 1;
+    background: rgba(var(--red-color), 0.1);
+    color: rgb(var(--red-color));
+    opacity: 1;
 }
 
 /* ── Sizes ─────────────────────────────────────────────────── */
 
 .btn--xs {
-  padding: 4px 8px;
-  font-size: 11px;
-  gap: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
 }
 
 .btn--sm {
-  padding: 6px 12px;
-  font-size: 12px;
-  gap: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 6px;
 }
 
 .btn--md {
-  padding: 8px 16px;
-  font-size: 13px;
-  gap: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    gap: 8px;
 }
 
 .btn--lg {
-  padding: 10px 20px;
-  font-size: 14px;
-  gap: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    gap: 10px;
 }
 
 .btn--xl {
-  padding: 12px 24px;
-  font-size: 15px;
-  gap: 12px;
+    padding: 12px 24px;
+    font-size: 15px;
+    gap: 12px;
 }
 
 /* Icon-only: square */
 .btn--icon-only.btn--xs {
-  padding: 4px;
-  min-width: 28px;
-  min-height: 28px;
+    padding: 4px;
+    min-width: 28px;
+    min-height: 28px;
 }
 
 .btn--icon-only.btn--sm {
-  padding: 6px;
-  min-width: 32px;
-  min-height: 32px;
+    padding: 6px;
+    min-width: 32px;
+    min-height: 32px;
 }
 
 .btn--icon-only.btn--md {
-  padding: 8px;
-  min-width: 36px;
-  min-height: 36px;
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
 }
 
 .btn--icon-only.btn--lg {
-  padding: 10px;
-  min-width: 40px;
-  min-height: 40px;
+    padding: 10px;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .btn--icon-only.btn--xl {
-  padding: 12px;
-  min-width: 44px;
-  min-height: 44px;
+    padding: 12px;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 /* ── Radius ────────────────────────────────────────────────── */
 
-.btn--radius-none { border-radius: 0; }
-.btn--radius-sm    { border-radius: 4px; }
-.btn--radius-md    { border-radius: 6px; }
-.btn--radius-lg    { border-radius: 10px; }
-.btn--radius-full  { border-radius: 9999px; }
+.btn--radius-none {
+    border-radius: 0;
+}
+.btn--radius-sm {
+    border-radius: 4px;
+}
+.btn--radius-md {
+    border-radius: 6px;
+}
+.btn--radius-lg {
+    border-radius: 10px;
+}
+.btn--radius-full {
+    border-radius: 9999px;
+}
 
 /* ── Inner layout ──────────────────────────────────────────── */
 
 .btn__inner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: inherit;
-  min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: inherit;
+    min-width: 0;
 }
 
 .btn__icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    line-height: 0;
 }
 
 .btn__label {
-  display: inline-block;
-  line-height: 1;
+    display: inline-block;
+    line-height: 1;
 }
 
 /* ── Spinner ───────────────────────────────────────────────── */
 
 .btn__spinner {
-  width: 1em;
-  height: 1em;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: btn-spin 0.6s linear infinite;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 0.6s linear infinite;
 }
 
 @keyframes btn-spin {
-  to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ── Ripple ────────────────────────────────────────────────── */
 
 .btn__ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(19, 16, 16, 0.12);
-  pointer-events: none;
-  transform: scale(0);
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(19, 16, 16, 0.12);
+    pointer-events: none;
+    transform: scale(0);
 }
 
 .btn__ripple--active {
-  animation: btn-ripple-anim 0.5s ease-out;
+    animation: btn-ripple-anim 0.5s ease-out;
 }
 
 @keyframes btn-ripple-anim {
-  to {
-    transform: scale(3);
-    opacity: 0;
-  }
+    to {
+        transform: scale(3);
+        opacity: 0;
+    }
 }

@@ -5,8 +5,5 @@ withDefaults(defineProps<ThematicBreakNodeRendererProps>(), {})
 </script>
 
 <template>
-  <hr
-    data-stream-markdown="thematic-break"
-    class="my-6 border-t border-border"
-  >
+    <hr data-stream-markdown="thematic-break" class="my-6 border-t border-border" />
 </template>

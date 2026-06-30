@@ -11,21 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+      - uses: oven-sh/setup-bun@v2
 
-      - run: npm ci
+      - run: bun install --frozen-lockfile
 
       - name: ESLint
-        run: npx eslint . --cache
+        run: bun eslint . --cache
 
       - name: Format Check
-        run: npx oxfmt src/ --check
+        run: bun oxfmt src/ --check
 
       - name: Type Check
-        run: npm run type-check
+        run: bun run type-check
 
       - name: Build
-        run: npm run build-only
+        run: bun run build-only

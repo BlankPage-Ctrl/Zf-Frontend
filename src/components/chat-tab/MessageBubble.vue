@@ -16,9 +16,7 @@ defineProps<{
 
 const appearance = useAppearanceStore()
 
-function isSourcePart(
-    part: unknown,
-): part is {
+function isSourcePart(part: unknown): part is {
     type: 'source-url' | 'source-document'
     sourceId: string
     url?: string

@@ -1,0 +1,41 @@
+{
+  "name": "@stream-markdown/math",
+  "type": "module",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/jinghaihan/vue-stream-markdown#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinghaihan/vue-stream-markdown.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jinghaihan/vue-stream-markdown/issues"
+  },
+  "keywords": [
+    "stream-markdown",
+    "math",
+    "latex",
+    "katex"
+  ],
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@stream-markdown/core": "workspace:*",
+    "katex": "^0.16.38"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:build"
+  }
+}

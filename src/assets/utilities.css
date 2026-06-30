@@ -1,0 +1,17 @@
+/* --- Typography --- */
+
+.text-muted {
+  font-size: 12px;
+  color: rgb(var(--text-color));
+  opacity: 0.4;
+}
+
+.confirm-message {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(var(--text-color));
+  opacity: 0.75;
+  padding: 4px 0;
+}

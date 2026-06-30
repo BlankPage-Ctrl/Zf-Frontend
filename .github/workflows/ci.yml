@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: ESLint
+        run: npx eslint . --cache
+
+      - name: Format Check
+        run: npx oxfmt src/ --check
+
+      - name: Type Check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build-only

@@ -1,0 +1,43 @@
+export type FieldType =
+  | 'text-short'
+  | 'paragraph'
+  | 'number'
+  | 'select'
+  | 'radio'
+  | 'checkbox'
+  | 'switch'
+  | 'date';
+
+export interface OptionItem {
+  label: string;
+  value: any;
+}
+
+export interface FieldMetadata {
+  require?: boolean;      // user spelling
+  required?: boolean;     // standard spelling helper
+  maxLength?: number;
+  minLength?: number;
+  min?: number;
+  max?: number;
+  pattern?: string;
+  errorMessage?: string;
+  options?: OptionItem[]; // For select, radio, checkbox
+}
+
+export interface ColumnSchema {
+  type: FieldType;
+  label: string;
+  span?: number;          // 1 to 12. Default is 12 (full-width)
+  placeholder?: string;
+  metadata?: FieldMetadata;
+  defaultValue?: any;     // Optional initial value
+}
+
+export interface RowSchema {
+  columns: Record<string, ColumnSchema>;
+}
+
+export type DialogGridSchema = Record<string, RowSchema>;
+
+export type DynamicGridDataOutput = Record<string, Record<string, any>>;

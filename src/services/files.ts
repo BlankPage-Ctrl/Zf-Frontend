@@ -1,13 +1,47 @@
 import { request } from './client.js'
-import type {
-    ListDirData,
-    ReadFileData,
-    GetStatData,
-    WatchEvent,
-} from '../../../src/fm/types/index.js'
 import type { FEListDirData, FEFileNode, FEWatchEvent } from '@/components/file-explorer'
 
-function toFEFileNode(n: ListDirData['nodes'][number]): FEFileNode {
+interface BackendFileNode {
+    id: string
+    name: string
+    path: string
+    type: string
+    isDirectory: boolean
+    size?: number
+    lastModified?: number
+    hasChildren?: boolean
+    children?: BackendFileNode[]
+    meta?: {
+        isSymlink?: boolean
+        symlinkTarget?: string
+    }
+}
+
+interface BackendListDirData {
+    requestedPath: string
+    nodes: BackendFileNode[]
+}
+
+interface BackendReadFileData {
+    path: string
+    content: string
+    encoding: string
+    size: number
+    truncated: boolean
+}
+
+interface BackendGetStatData {
+    node: BackendFileNode
+}
+
+interface BackendWatchEvent {
+    type: string
+    node: BackendFileNode
+    oldPath?: string
+    timestamp: number
+}
+
+function toFEFileNode(n: BackendFileNode): FEFileNode {
     return {
         id: n.id,
         name: n.name,
@@ -22,14 +56,14 @@ function toFEFileNode(n: ListDirData['nodes'][number]): FEFileNode {
     }
 }
 
-function toFEListDirData(data: ListDirData): FEListDirData {
+function toFEListDirData(data: BackendListDirData): FEListDirData {
     return {
         requestedPath: data.requestedPath,
         nodes: data.nodes.map(toFEFileNode),
     }
 }
 
-function toFEWatchEvent(event: WatchEvent): FEWatchEvent {
+function toFEWatchEvent(event: BackendWatchEvent): FEWatchEvent {
     return {
         type: event.type as FEWatchEvent['type'],
         node: toFEFileNode(event.node),
@@ -40,19 +74,19 @@ function toFEWatchEvent(event: WatchEvent): FEWatchEvent {
 
 export const filesApi = {
     listDir: (workspaceId: string, path: string) =>
-        request<ListDirData>(
+        request<BackendListDirData>(
             `/workspaces/${workspaceId}/files?path=${encodeURIComponent(path)}`,
         ).then(toFEListDirData),
 
     getStat: (workspaceId: string, path: string) =>
-        request<GetStatData>(
+        request<BackendGetStatData>(
             `/workspaces/${workspaceId}/files/stat?path=${encodeURIComponent(path)}`,
         ),
 
     readFile: (workspaceId: string, path: string, maxBytes?: number) => {
         let url = `/workspaces/${workspaceId}/files/read?path=${encodeURIComponent(path)}`
         if (maxBytes !== undefined) url += `&maxBytes=${maxBytes}`
-        return request<ReadFileData>(url)
+        return request<BackendReadFileData>(url)
     },
 
     watchEvents: (workspaceId: string): EventSource =>

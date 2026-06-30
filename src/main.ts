@@ -20,6 +20,7 @@ async function bootstrap() {
   app.use(createPinia())
   app.use(router)
   app.use(CodeLayout)
+  // eslint-disable-next-line vue/multi-word-component-names
   app.component('Icon', Icon)
 
   app.mount('#app')

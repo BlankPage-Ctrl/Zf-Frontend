@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ButtonSchema } from './types/schema.ts'
+
+defineOptions({ name: 'AppButton' })
 import { resolveButtonSchema } from './resolver/resolveSchema.ts'
 import BaseButton from './BaseButton.vue'
 

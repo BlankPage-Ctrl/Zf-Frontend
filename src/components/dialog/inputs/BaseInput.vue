@@ -6,7 +6,7 @@ defineOptions({
 });
 
 type Props = {
-  modelValue: string | number | null | undefined;
+  modelValue: unknown;
   label?: string;
   type?: string;
   placeholder?: string;
@@ -26,15 +26,19 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void;
+  (e: 'update:modelValue', value: unknown): void;
   (e: 'blur', event: FocusEvent): void;
   (e: 'focus', event: FocusEvent): void;
 }>();
 
 const inputValue = computed({
-  get: () => props.modelValue ?? '',
-  set: (val) => {
-    let finalVal: any = val;
+  get: () => {
+    const v = props.modelValue;
+    if (v == null) return '';
+    return String(v);
+  },
+  set: (val: unknown) => {
+    let finalVal: unknown = val;
     if (props.type === 'number') {
       finalVal = val === '' ? null : Number(val);
     }

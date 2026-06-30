@@ -10,7 +10,7 @@ export type FieldType =
 
 export interface OptionItem {
   label: string;
-  value: any;
+  value: string | number;
 }
 
 export interface FieldMetadata {
@@ -31,7 +31,7 @@ export interface ColumnSchema {
   span?: number;          // 1 to 12. Default is 12 (full-width)
   placeholder?: string;
   metadata?: FieldMetadata;
-  defaultValue?: any;     // Optional initial value
+  defaultValue?: unknown;
 }
 
 export interface RowSchema {
@@ -40,4 +40,4 @@ export interface RowSchema {
 
 export type DialogGridSchema = Record<string, RowSchema>;
 
-export type DynamicGridDataOutput = Record<string, Record<string, any>>;
+export type DynamicGridDataOutput = Record<string, Record<string, unknown>>;

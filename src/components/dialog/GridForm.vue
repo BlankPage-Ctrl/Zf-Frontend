@@ -10,6 +10,7 @@ import BaseCheckbox from './inputs/BaseCheckbox.vue';
 import BaseSwitch from './inputs/BaseSwitch.vue';
 import BaseDatePicker from './inputs/BaseDatePicker.vue';
 
+
 type Props = {
   schema: DialogGridSchema;
   initialData?: DynamicGridDataOutput;
@@ -24,11 +25,11 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: DynamicGridDataOutput): void;
 }>();
 
-const formData = ref<any>({});
-const errors = ref<any>({});
+const formData = ref<Record<string, Record<string, unknown>>>({});
+const errors = ref<Record<string, Record<string, string>>>({});
 
 const initFormData = () => {
-  const data: Record<string, Record<string, any>> = {};
+  const data: Record<string, Record<string, unknown>> = {};
   const errs: Record<string, Record<string, string>> = {};
 
   for (const rowKey in props.schema) {
@@ -42,7 +43,7 @@ const initFormData = () => {
       const metadata = col.metadata || {};
       errs[rowKey][colKey] = '';
 
-      let val: any = undefined;
+      let val: unknown;
       // 1. Prioritize initialData
       if (props.initialData?.[rowKey] && props.initialData[rowKey][colKey] !== undefined) {
         val = props.initialData[rowKey][colKey];
@@ -197,7 +198,7 @@ defineExpose({
         <BaseInput
           v-if="col.type === 'text-short' || col.type === 'number'"
           :type="col.type === 'number' ? 'number' : 'text'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :placeholder="col.placeholder"
           :required="col.metadata?.require || col.metadata?.required"
@@ -209,7 +210,7 @@ defineExpose({
         <!-- Textarea (paragraph) -->
         <BaseTextarea
           v-else-if="col.type === 'paragraph'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :placeholder="col.placeholder"
           :required="col.metadata?.require || col.metadata?.required"
@@ -220,7 +221,7 @@ defineExpose({
         <!-- Select Dropdown -->
         <BaseSelect
           v-else-if="col.type === 'select'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :placeholder="col.placeholder"
           :options="col.metadata?.options || []"
@@ -233,7 +234,7 @@ defineExpose({
         <!-- Radio Group -->
         <BaseRadioGroup
           v-else-if="col.type === 'radio'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :options="col.metadata?.options || []"
           :required="col.metadata?.require || col.metadata?.required"
@@ -244,7 +245,7 @@ defineExpose({
         <!-- Checkbox Group or Single -->
         <BaseCheckbox
           v-else-if="col.type === 'checkbox'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :options="col.metadata?.options"
           :required="col.metadata?.require || col.metadata?.required"
@@ -255,7 +256,7 @@ defineExpose({
         <!-- Switch Toggle -->
         <BaseSwitch
           v-else-if="col.type === 'switch'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :error="errors[rowKey]?.[colKey]"
           @update:model-value="clearError(rowKey, colKey)"
@@ -264,7 +265,7 @@ defineExpose({
         <!-- Date Picker -->
         <BaseDatePicker
           v-else-if="col.type === 'date'"
-          v-model="formData[rowKey][colKey]"
+          v-model="formData[rowKey]![colKey]"
           :label="col.label"
           :placeholder="col.placeholder"
           :required="col.metadata?.require || col.metadata?.required"

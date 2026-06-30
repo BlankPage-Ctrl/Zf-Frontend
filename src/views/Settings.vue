@@ -84,11 +84,14 @@ function cancelProviderForm() {
 
 async function submitProviderForm(data: DynamicGridDataOutput) {
   const row = data.row!;
+  const providerType: ProviderDto['type'] = row.type === 'openai' || row.type === 'openai-compatible'
+    ? row.type
+    : 'openai';
   const dto: ProviderDto = {
-    name: row.name,
-    type: row.type,
-    apiKey: row.apiKey || undefined,
-    baseURL: row.baseURL || undefined,
+    name: String(row.name ?? ''),
+    type: providerType,
+    apiKey: row.apiKey ? String(row.apiKey) : undefined,
+    baseURL: row.baseURL ? String(row.baseURL) : undefined,
   };
   providerFormLoading.value = true;
   try {
@@ -171,8 +174,8 @@ function cancelModelForm() {
 async function submitModelForm(data: DynamicGridDataOutput) {
   const row = data.row!;
   const dto: ModelDto = {
-    modelId: row.modelId,
-    displayName: row.displayName || undefined,
+    modelId: String(row.modelId ?? ''),
+    displayName: row.displayName ? String(row.displayName) : undefined,
   };
   modelFormLoading.value = true;
   try {

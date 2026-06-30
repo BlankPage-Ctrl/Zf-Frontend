@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import type { OptionItem } from '../types';
 
 type Props = {
-  modelValue: any;
+  modelValue: unknown;
   label?: string;
   options: OptionItem[];
   error?: string;
@@ -20,12 +20,12 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void;
+  (e: 'update:modelValue', value: unknown): void;
 }>();
 
 const selectedValue = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: (val: unknown) => {
     if (!props.disabled) {
       emit('update:modelValue', val);
     }
@@ -43,7 +43,7 @@ const selectedValue = computed({
     <div :class="['radio-options-container', { 'row-layout': row }]">
       <label
         v-for="opt in options"
-        :key="opt.value"
+        :key="String(opt.value)"
         class="radio-label"
         :class="{ 'radio-disabled': disabled }"
       >

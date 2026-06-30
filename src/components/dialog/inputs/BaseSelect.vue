@@ -7,7 +7,7 @@ defineOptions({
 });
 
 type Props = {
-  modelValue: any;
+  modelValue: unknown;
   label?: string;
   options: OptionItem[];
   placeholder?: string;
@@ -26,13 +26,13 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void;
-  (e: 'change', value: any): void;
+  (e: 'update:modelValue', value: unknown): void;
+  (e: 'change', value: unknown): void;
 }>();
 
 const selectedValue = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: (val: unknown) => {
     emit('update:modelValue', val);
     emit('change', val);
   }

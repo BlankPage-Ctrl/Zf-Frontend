@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 type Props = {
-  modelValue: boolean;
+  modelValue: unknown;
   label?: string;
   error?: string;
   helperText?: string;
@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:modelValue', value: unknown): void;
 }>();
 
 const isChecked = computed({

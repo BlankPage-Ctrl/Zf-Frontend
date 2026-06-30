@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { useSidebarResize } from '@/composables/useSidebarResize'
 import { SIDEBAR_DEFAULTS } from '@/components/sidebar/sidebar'
 
+defineOptions({ name: 'AppSidebar' })
+
 const RAIL_WIDTH = 48
 const HANDLE_WIDTH = 6
 

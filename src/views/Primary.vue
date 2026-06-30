@@ -82,7 +82,7 @@ const chatFormSchema: DialogGridSchema = {
 };
 
 // --- List schemas ---
-const wsListSchema = computed<ListSchema>(() => ({
+const wsListSchema = computed<ListSchema<Workspace>>(() => ({
   variant: 'sidebar',
   size: 'sm',
   activeKey: 'id',
@@ -101,7 +101,7 @@ const wsListSchema = computed<ListSchema>(() => ({
   onSelect: (ws) => wsStore.selectWorkspace(ws.id),
 }));
 
-const chatListSchema = computed<ListSchema>(() => ({
+const chatListSchema = computed<ListSchema<Chat>>(() => ({
   variant: 'content',
   size: 'md',
   fields: [
@@ -150,9 +150,9 @@ function cancelWsForm() {
 async function submitWsForm(data: DynamicGridDataOutput) {
   const ws = data.ws!;
   const payload: WorkspaceDto = {
-    name: ws.name,
-    description: ws.description || '',
-    projectPath: ws.projectPath,
+    name: String(ws.name ?? ''),
+    description: String(ws.description ?? ''),
+    projectPath: String(ws.projectPath ?? ''),
   };
   wsFormLoading.value = true;
   try {
@@ -210,8 +210,8 @@ async function submitChatForm(data: DynamicGridDataOutput) {
   if (!wsStore.selectedWorkspaceId) return;
   const chat = data.chat!;
   const payload: ChatDto = {
-    title: chat.title,
-    modelId: chat.model,
+    title: String(chat.title ?? ''),
+    modelId: String(chat.model ?? ''),
   };
   chatFormLoading.value = true;
   try {
@@ -243,8 +243,8 @@ function cancelChatDelete() {
 }
 
 // --- Date formatting ---
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+function fmtDate(iso: unknown): string {
+  return new Date(String(iso)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 onMounted(() => {

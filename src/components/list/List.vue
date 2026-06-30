@@ -1,16 +1,18 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 import { computed } from 'vue'
 import type { ListSchema } from './types.ts'
 import DynamicListItem from './ListItem.vue'
 import { pButton } from '@/components/button'
 
+defineOptions({ name: 'DynamicList' })
+
 type Props = {
-  schema: ListSchema
-  items: any[]
+  schema: ListSchema<T>
+  items: T[]
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{ select: [item: any] }>()
+const emit = defineEmits<{ select: [item: T] }>()
 
 const rootClass = computed(() => [
   'dl-root',
@@ -18,12 +20,17 @@ const rootClass = computed(() => [
   props.schema.class ?? '',
 ].filter(Boolean).join(' '))
 
-function isActive(item: any): boolean {
-  if (!props.schema.activeKey || props.schema.activeId == null) return false
-  return item?.[props.schema.activeKey] === props.schema.activeId
+function getItemKey(item: T, index: number): string | number {
+  const id = item.id
+  return id != null ? String(id) : index
 }
 
-function handleSelect(item: any) {
+function isActive(item: T): boolean {
+  if (!props.schema.activeKey || props.schema.activeId == null) return false
+  return item[props.schema.activeKey] === props.schema.activeId
+}
+
+function handleSelect(item: T) {
   props.schema.onSelect?.(item)
   emit('select', item)
 }
@@ -34,8 +41,8 @@ function handleSelect(item: any) {
 <template>
   <div :class="rootClass">
     <DynamicListItem
-      v-for="item in items"
-      :key="item.id ?? item"
+      v-for="(item, index) in items"
+      :key="getItemKey(item, index)"
       :item="item"
       :fields="schema.fields"
       :actions="schema.actions"

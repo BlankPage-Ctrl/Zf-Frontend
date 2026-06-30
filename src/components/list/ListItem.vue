@@ -1,16 +1,16 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 import { computed } from 'vue'
 import type { ListItemField, ListItemAction } from './types'
 import { pButton } from '@/components/button'
 
 type Props = {
-  item: any
-  fields: ListItemField[]
-  actions?: ListItemAction[]
+  item: T
+  fields: ListItemField<T>[]
+  actions?: ListItemAction<T>[]
   active?: boolean
   size?: 'xs' | 'sm' | 'md'
   variant?: 'sidebar' | 'content' | 'compact'
-  onSelect?: (item: any) => void
+  onSelect?: (item: T) => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -38,8 +38,8 @@ const metaFields = computed(() =>
   visibleFields.value.filter(f => !f.class?.includes('title')),
 )
 
-function getFieldValue(field: ListItemField): string {
-  const raw = props.item?.[field.key]
+function getFieldValue(field: ListItemField<T>): string {
+  const raw = props.item[field.key]
   if (field.format) return field.format(raw, props.item)
   if (raw == null) return ''
   return String(raw)

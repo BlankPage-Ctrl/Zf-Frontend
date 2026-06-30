@@ -3,10 +3,10 @@ import { computed } from 'vue';
 import type { OptionItem } from '../types';
 
 type Props = {
-  modelValue: boolean | any[];
+  modelValue: unknown;
   label?: string; // Group label or single label
   options?: OptionItem[]; // For checkbox groups
-  value?: any; // Value for single checkbox in an array (if no options list)
+  value?: unknown; // Value for single checkbox in an array (if no options list)
   error?: string;
   helperText?: string;
   required?: boolean;
@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean | any[]): void;
+  (e: 'update:modelValue', value: unknown): void;
 }>();
 
 const isGroup = computed(() => !!props.options && props.options.length > 0);
@@ -54,14 +54,20 @@ const isSingleChecked = computed({
 });
 
 // Helper for group checkbox items
-const isGroupItemChecked = (val: any) => {
+const isGroupItemChecked = (val: unknown) => {
   if (Array.isArray(props.modelValue)) {
     return props.modelValue.includes(val);
   }
   return false;
 };
 
-const toggleGroupItem = (val: any, checked: boolean) => {
+function handleGroupChange(optValue: unknown, e: Event) {
+  if (e.target instanceof HTMLInputElement) {
+    toggleGroupItem(optValue, e.target.checked)
+  }
+}
+
+const toggleGroupItem = (val: unknown, checked: boolean) => {
   if (props.disabled) return;
   const currentArray = Array.isArray(props.modelValue) ? [...props.modelValue] : [];
   if (checked) {
@@ -99,7 +105,7 @@ const toggleGroupItem = (val: any, checked: boolean) => {
           :value="opt.value"
           :checked="isGroupItemChecked(opt.value)"
           :disabled="disabled"
-          @change="(e: any) => toggleGroupItem(opt.value, e.target.checked)"
+          @change="(e: Event) => handleGroupChange(opt.value, e)"
           class="hidden-checkbox"
         />
         <div

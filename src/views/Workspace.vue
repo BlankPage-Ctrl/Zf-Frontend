@@ -3,7 +3,6 @@
 import { ref, computed, onMounted, onUnmounted, h } from 'vue';
 import { useRoute } from 'vue-router';
 import { Icon } from '@iconify/vue';
-import { pButton } from '@/components/button';
 import DialogGrid from '@/components/dialog/GridDialog.vue';
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types';
 import { DynamicList } from '@/components/list';
@@ -59,14 +58,13 @@ const {
   openTab,
   closeTab,
   focusTab,
-  isOpen,
   syncTitle,
 } = useChatTabs()
 
 const EditIcon = () => h(Icon, { icon: 'lucide:pencil' })
 const TrashIcon = () => h(Icon, { icon: 'lucide:trash-2' })
 
-function chatIcon(chat: Chat) {
+function chatIcon() {
   return h('span', {
     style: {
       width: '16px',
@@ -96,7 +94,7 @@ function openChatTab(chat: Chat) {
     title: chat.title,
     tooltip: chat.title,
     closeType: 'close',
-    iconSmall: () => chatIcon(chat),
+    iconSmall: () => chatIcon(),
   })
   splitLayoutRef.value?.activePanel(panelName)
 }
@@ -115,10 +113,6 @@ function onPanelActive(panel: CodeLayoutSplitNPanelInternal | null) {
   if (!panel) return
   const chatId = panel.name.replace('chat-', '')
   focusTab(chatId)
-}
-
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 const chatFormSchema: DialogGridSchema = {
@@ -142,7 +136,7 @@ function cancelChatCreate() {
 
 async function submitChatCreate(data: DynamicGridDataOutput) {
   const d = data.chat!;
-  const payload: ChatDto = { title: d.title };
+  const payload: ChatDto = { title: String(d.title ?? '') };
   chatCreateLoading.value = true;
   try {
     await chatStore.createChat(workspaceId.value, payload);
@@ -159,7 +153,7 @@ const editChatFormSchema: DialogGridSchema = {
   },
 };
 
-const chatListSchema = computed<ListSchema>(() => ({
+const chatListSchema = computed<ListSchema<Chat>>(() => ({
   variant: 'sidebar',
   size: 'sm',
   activeKey: 'id',
@@ -199,7 +193,7 @@ function cancelChatEdit() {
 async function submitChatEdit(data: DynamicGridDataOutput) {
   if (!editingChat.value) return;
   const d = data.chat!;
-  const payload: Partial<ChatDto> = { title: d.title };
+  const payload: Partial<ChatDto> = { title: String(d.title ?? '') };
   chatEditLoading.value = true;
   try {
     await chatStore.updateChat(workspaceId.value, editingChat.value.id, payload);

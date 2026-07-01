@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { ChatBubbleEmpty } from '@iconoir/vue'
 import type { UIMessage } from 'ai'
 import MessageBubble from './MessageBubble.vue'
 
@@ -40,19 +41,7 @@ watch(
     <div ref="listRef" class="message-list" @scroll="onScroll">
         <div v-if="messages.length === 0" class="message-list-empty">
             <div class="empty-icon">
-                <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    opacity="0.3"
-                >
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                </svg>
+                <ChatBubbleEmpty width="32" height="32" style="opacity: 0.3" />
             </div>
             <span class="empty-label">Start a conversation</span>
             <span class="empty-hint">Ask a question or describe a task</span>

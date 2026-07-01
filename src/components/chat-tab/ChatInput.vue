@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { Cube, NavArrowDown, SendDiagonal, Xmark } from '@iconoir/vue'
 import DropdownRoot from '@/components/dropdown/DropdownRoot.vue'
 import { useProviderStore } from '@/stores/provider'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
@@ -117,9 +118,7 @@ function onModelSelect(value: string) {
                     title="Stop generating"
                     type="button"
                 >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <rect x="3" y="3" width="10" height="10" rx="2" />
-                    </svg>
+                    <Xmark width="16" height="16" />
                 </button>
                 <button
                     v-else
@@ -129,18 +128,7 @@ function onModelSelect(value: string) {
                     title="Send message"
                     type="button"
                 >
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M2 8L14 2L8 14L6 10Z" />
-                    </svg>
+                    <SendDiagonal width="16" height="16" />
                 </button>
             </div>
         </div>
@@ -162,33 +150,15 @@ function onModelSelect(value: string) {
                         @click="toggle"
                         type="button"
                     >
-                        <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-                        </svg>
+                        <Cube width="12" height="12" />
                         <span class="model-selector__label">{{ selectedLabel }}</span>
-                        <svg
+                        <NavArrowDown
                             width="10"
                             height="10"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
                             stroke-width="2.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
                             class="model-selector__chevron"
                             :class="{ 'model-selector__chevron--open': isOpen }"
-                        >
-                            <polyline points="18 15 12 9 6 15" />
-                        </svg>
+                        />
                     </button>
                 </template>
             </DropdownRoot>

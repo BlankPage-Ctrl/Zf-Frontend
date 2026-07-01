@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useRouter } from 'vue-router'
-import { Icon } from '@iconify/vue'
+import { Album, EditPencil, Folder, Plus, Settings, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import ContainerGrid from '@/components/container/ContainerGrid.vue'
 import type { ContainerRowConfig } from '@/components/container/types'
@@ -15,11 +15,11 @@ import { useChatStore } from '@/stores/chat'
 import type { Workspace, WorkspaceDto } from '@/services/workspace'
 import type { Chat, ChatDto } from '@/services/chat'
 
-const SettingsIcon = () => h(Icon, { icon: 'lucide:settings' })
-const PlusIcon = () => h(Icon, { icon: 'lucide:plus' })
-const EditIcon = () => h(Icon, { icon: 'lucide:pencil' })
-const TrashIcon = () => h(Icon, { icon: 'lucide:trash-2' })
-const FolderIcon = () => h(Icon, { icon: 'lucide:folder' })
+const SettingsIcon = () => h(Settings, { width: 14, height: 14 })
+const PlusIcon = () => h(Plus, { width: 14, height: 14 })
+const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
+const TrashIcon = () => h(Trash, { width: 14, height: 14 })
+const FolderIcon = () => h(Folder, { width: 14, height: 14 })
 
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
@@ -360,23 +360,7 @@ watch(
                     <!-- No workspace selected: welcome -->
                     <div v-if="!wsStore.selectedWorkspace" class="welcome-state">
                         <div class="welcome-icon">
-                            <svg
-                                width="48"
-                                height="48"
-                                viewBox="0 0 48 48"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                opacity="0.3"
-                            >
-                                <rect x="6" y="10" width="36" height="28" rx="3" />
-                                <line x1="6" y1="18" x2="42" y2="18" />
-                                <line x1="14" y1="10" x2="14" y2="6" />
-                                <line x1="24" y1="10" x2="24" y2="6" />
-                                <line x1="34" y1="10" x2="34" y2="6" />
-                            </svg>
+                            <Album width="48" height="48" style="opacity: 0.3" />
                         </div>
                         <h2 class="welcome-title">Welcome</h2>
                         <p class="welcome-desc">

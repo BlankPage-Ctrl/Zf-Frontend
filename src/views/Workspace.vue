@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import { useRoute } from 'vue-router'
-import { Icon } from '@iconify/vue'
+import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -53,8 +53,8 @@ function showPanel(view: 'chat' | 'files') {
 
 const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
 
-const EditIcon = () => h(Icon, { icon: 'lucide:pencil' })
-const TrashIcon = () => h(Icon, { icon: 'lucide:trash-2' })
+const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
+const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 
 function chatIcon() {
     return h(
@@ -306,18 +306,7 @@ onUnmounted(() => {
                     title="Chat"
                     @click="showPanel('chat')"
                 >
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                    </svg>
+                    <ChatBubbleEmpty width="20" height="20" />
                 </button>
                 <button
                     class="ws-sidebar__rail-icon"
@@ -325,7 +314,7 @@ onUnmounted(() => {
                     title="File Explorer"
                     @click="showPanel('files')"
                 >
-                    <Icon icon="lucide:folder-tree" class="w-5 h-5" />
+                    <Folder width="20" height="20" />
                 </button>
             </template>
 
@@ -333,18 +322,7 @@ onUnmounted(() => {
                 <template v-if="!showFileExplorer">
                     <h2 class="ws-sidebar__title">{{ workspace.name }}</h2>
                     <button class="ws-btn-icon" @click="openChatCreate" title="New chat">
-                        <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                        >
-                            <line x1="8" y1="3" x2="8" y2="13" />
-                            <line x1="3" y1="8" x2="13" y2="8" />
-                        </svg>
+                        <Plus width="14" height="14" />
                     </button>
                 </template>
             </template>
@@ -382,21 +360,7 @@ onUnmounted(() => {
                 <template #tabEmptyContentRender>
                     <div class="ws-content__empty">
                         <div class="ws-empty__icon">
-                            <svg
-                                width="48"
-                                height="48"
-                                viewBox="0 0 48 48"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                opacity="0.3"
-                            >
-                                <path
-                                    d="M42 30a4 4 0 01-4 4H14l-8 8V10a4 4 0 014-4h24a4 4 0 014 4z"
-                                />
-                            </svg>
+                            <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
                         </div>
                         <h2 class="ws-empty__title">Select a chat</h2>
                         <p class="ws-empty__desc">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { NavArrowDown } from '@iconoir/vue'
 import type { OptionItem } from '../types'
 
 defineOptions({
@@ -68,18 +69,7 @@ const selectedValue = computed({
                 </option>
             </select>
             <div class="select-arrow">
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                <NavArrowDown width="16" height="16" />
             </div>
         </div>
 

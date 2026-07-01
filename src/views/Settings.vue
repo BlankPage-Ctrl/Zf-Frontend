@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
-import { Icon } from '@iconify/vue'
+import { Album, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
@@ -9,13 +9,13 @@ import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import type { Provider, ProviderDto, Model, ModelDto } from '@/services/provider'
 
-const PlusIcon = () => h(Icon, { icon: 'lucide:plus' })
-const EditIcon = () => h(Icon, { icon: 'lucide:pencil' })
-const TrashIcon = () => h(Icon, { icon: 'lucide:trash-2' })
-const StarIcon = () => h(Icon, { icon: 'lucide:star' })
-const LayersIcon = () => h(Icon, { icon: 'lucide:layers' })
-const PaletteIcon = () => h(Icon, { icon: 'lucide:palette' })
-const ChevronIcon = () => h(Icon, { icon: 'lucide:chevron-right' })
+const PlusIcon = () => h(Plus, { width: 14, height: 14 })
+const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
+const TrashIcon = () => h(Trash, { width: 14, height: 14 })
+const StarIcon = () => h(Star, { width: 14, height: 14 })
+const LayersIcon = () => h(Album, { width: 14, height: 14 })
+const PaletteIcon = () => h(Palette, { width: 14, height: 14 })
+const ChevronIcon = () => h(NavArrowRight, { width: 14, height: 14 })
 
 const store = useProviderStore()
 const appearance = useAppearanceStore()
@@ -376,23 +376,7 @@ onMounted(() => {
                 <!-- Empty state -->
                 <div v-else-if="!store.providers.length" class="section-empty">
                     <div class="empty-icon">
-                        <svg
-                            width="32"
-                            height="32"
-                            viewBox="0 0 32 32"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            opacity="0.3"
-                        >
-                            <rect x="4" y="6" width="24" height="20" rx="3" />
-                            <line x1="4" y1="14" x2="28" y2="14" />
-                            <line x1="10" y1="6" x2="10" y2="3" />
-                            <line x1="16" y1="6" x2="16" y2="3" />
-                            <line x1="22" y1="6" x2="22" y2="3" />
-                        </svg>
+                        <Album width="32" height="32" style="opacity: 0.3" />
                     </div>
                     <span class="empty-text">No providers yet</span>
                     <pButton

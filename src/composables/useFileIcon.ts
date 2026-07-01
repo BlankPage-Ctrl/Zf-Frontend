@@ -1,90 +1,92 @@
 import { extname } from '@/shared/utils/path.utils'
 
+import type { Component } from 'vue'
+
 const extensionIconMap: Record<string, string> = {
-    '.ts': 'lucide:file-code',
-    '.tsx': 'lucide:file-code',
-    '.js': 'lucide:file-code',
-    '.jsx': 'lucide:file-code',
-    '.mjs': 'lucide:file-code',
-    '.cjs': 'lucide:file-code',
-    '.mts': 'lucide:file-code',
-    '.cts': 'lucide:file-code',
-    '.vue': 'lucide:file-code',
-    '.svelte': 'lucide:file-code',
-    '.py': 'lucide:file-code',
-    '.go': 'lucide:file-code',
-    '.rs': 'lucide:file-code',
-    '.java': 'lucide:file-code',
-    '.rb': 'lucide:file-code',
-    '.php': 'lucide:file-code',
-    '.c': 'lucide:file-code',
-    '.cpp': 'lucide:file-code',
-    '.h': 'lucide:file-code',
+    '.ts': 'CodeBrackets',
+    '.tsx': 'CodeBrackets',
+    '.js': 'CodeBrackets',
+    '.jsx': 'CodeBrackets',
+    '.mjs': 'CodeBrackets',
+    '.cjs': 'CodeBrackets',
+    '.mts': 'CodeBrackets',
+    '.cts': 'CodeBrackets',
+    '.vue': 'CodeBrackets',
+    '.svelte': 'CodeBrackets',
+    '.py': 'CodeBrackets',
+    '.go': 'CodeBrackets',
+    '.rs': 'CodeBrackets',
+    '.java': 'CodeBrackets',
+    '.rb': 'CodeBrackets',
+    '.php': 'CodeBrackets',
+    '.c': 'CodeBrackets',
+    '.cpp': 'CodeBrackets',
+    '.h': 'CodeBrackets',
 
-    '.json': 'lucide:file-json',
-    '.yaml': 'lucide:file-json',
-    '.yml': 'lucide:file-json',
-    '.toml': 'lucide:file-json',
-    '.xml': 'lucide:file-json',
+    '.json': 'Code',
+    '.yaml': 'Code',
+    '.yml': 'Code',
+    '.toml': 'Code',
+    '.xml': 'Code',
 
-    '.html': 'lucide:file-text',
-    '.css': 'lucide:file-type',
-    '.scss': 'lucide:file-type',
-    '.less': 'lucide:file-type',
-    '.postcss': 'lucide:file-type',
+    '.html': 'Page',
+    '.css': 'Page',
+    '.scss': 'Page',
+    '.less': 'Page',
+    '.postcss': 'Page',
 
-    '.md': 'lucide:file-text',
-    '.mdx': 'lucide:file-text',
-    '.txt': 'lucide:file-text',
+    '.md': 'Page',
+    '.mdx': 'Page',
+    '.txt': 'Page',
 
-    '.png': 'lucide:file-image',
-    '.jpg': 'lucide:file-image',
-    '.jpeg': 'lucide:file-image',
-    '.gif': 'lucide:file-image',
-    '.webp': 'lucide:file-image',
-    '.ico': 'lucide:file-image',
-    '.svg': 'lucide:file-image',
+    '.png': 'MediaImage',
+    '.jpg': 'MediaImage',
+    '.jpeg': 'MediaImage',
+    '.gif': 'MediaImage',
+    '.webp': 'MediaImage',
+    '.ico': 'MediaImage',
+    '.svg': 'MediaImage',
 
-    '.mp3': 'lucide:file-audio',
-    '.wav': 'lucide:file-audio',
-    '.ogg': 'lucide:file-audio',
-    '.flac': 'lucide:file-audio',
+    '.mp3': 'MusicDoubleNote',
+    '.wav': 'MusicDoubleNote',
+    '.ogg': 'MusicDoubleNote',
+    '.flac': 'MusicDoubleNote',
 
-    '.mp4': 'lucide:file-video',
-    '.webm': 'lucide:file-video',
-    '.avi': 'lucide:file-video',
-    '.mov': 'lucide:file-video',
+    '.mp4': 'MediaVideo',
+    '.webm': 'MediaVideo',
+    '.avi': 'MediaVideo',
+    '.mov': 'MediaVideo',
 
-    '.csv': 'lucide:file-spreadsheet',
-    '.xlsx': 'lucide:file-spreadsheet',
-    '.xls': 'lucide:file-spreadsheet',
+    '.csv': 'AlbumList',
+    '.xlsx': 'AlbumList',
+    '.xls': 'AlbumList',
 
-    '.sh': 'lucide:file-terminal',
-    '.bash': 'lucide:file-terminal',
-    '.zsh': 'lucide:file-terminal',
-    '.fish': 'lucide:file-terminal',
+    '.sh': 'Terminal',
+    '.bash': 'Terminal',
+    '.zsh': 'Terminal',
+    '.fish': 'Terminal',
 
-    '.gitignore': 'lucide:file-code',
-    '.env': 'lucide:file-text',
-    '.editorconfig': 'lucide:file-code',
-    '.prettierrc': 'lucide:file-json',
+    '.gitignore': 'CodeBrackets',
+    '.env': 'Page',
+    '.editorconfig': 'CodeBrackets',
+    '.prettierrc': 'Code',
 }
 
 const knownFilenames: Record<string, string> = {
-    Makefile: 'lucide:file-code',
-    Dockerfile: 'lucide:file-code',
-    'package.json': 'lucide:file-json',
-    'tsconfig.json': 'lucide:file-json',
-    'vite.config.ts': 'lucide:file-code',
-    'vite.config.js': 'lucide:file-code',
-    'README.md': 'lucide:file-text',
-    LICENSE: 'lucide:file-text',
+    Makefile: 'CodeBrackets',
+    Dockerfile: 'CodeBrackets',
+    'package.json': 'Code',
+    'tsconfig.json': 'Code',
+    'vite.config.ts': 'CodeBrackets',
+    'vite.config.js': 'CodeBrackets',
+    'README.md': 'Page',
+    LICENSE: 'Page',
 }
 
 export function useFileIcon() {
     function getIconName(path: string, isDirectory: boolean, isExpanded = false): string {
         if (isDirectory) {
-            return isExpanded ? 'lucide:folder-open' : 'lucide:folder'
+            return 'Folder'
         }
 
         const base = path.split('/').pop() ?? path
@@ -92,7 +94,7 @@ export function useFileIcon() {
         if (known) return known
 
         const ext = extname(path)
-        return extensionIconMap[ext] ?? 'lucide:file'
+        return extensionIconMap[ext] ?? 'Page'
     }
 
     return { getIconName }

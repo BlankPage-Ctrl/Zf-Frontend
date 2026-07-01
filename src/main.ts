@@ -3,7 +3,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Icon } from '@iconify/vue'
+
 
 import App from './App.vue'
 import router from './router'
@@ -21,7 +21,7 @@ async function bootstrap() {
     app.use(router)
     app.use(CodeLayout)
     // eslint-disable-next-line vue/multi-word-component-names
-    app.component('Icon', Icon)
+
 
     app.mount('#app')
 }

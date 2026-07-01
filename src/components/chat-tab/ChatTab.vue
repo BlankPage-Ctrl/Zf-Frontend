@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { Chat } from '@/services/chat'
 import { useChatSession } from '@/composables/useChatSession'
+import { useChatStore } from '@/stores/chat'
 import MessageList from './MessageList.vue'
 import ChatInput from './ChatInput.vue'
 
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
+const chatStore = useChatStore()
 const workspaceId = computed(() => route.params.id as string)
 
 const { messages, isLoading, loadHistory, sendMessage, stop, cleanup } = useChatSession(
@@ -25,6 +27,17 @@ onMounted(() => {
 onUnmounted(() => {
     cleanup()
 })
+
+async function onModelChange(modelId: string, providerId: string) {
+    try {
+        await chatStore.updateChat(workspaceId.value, props.chat.id, {
+            modelId,
+            providerId,
+        })
+    } catch {
+        // silently fail — store handles error state
+    }
+}
 </script>
 
 <template>
@@ -33,7 +46,14 @@ onUnmounted(() => {
             <h2 class="chat-tab-title">{{ chat.title }}</h2>
         </div>
         <MessageList :messages="messages" :loading="isLoading" />
-        <ChatInput :loading="isLoading" @send="sendMessage" @stop="stop" />
+        <ChatInput
+            :loading="isLoading"
+            :model-id="chat.modelId"
+            :provider-id="chat.providerId"
+            @send="sendMessage"
+            @stop="stop"
+            @select-model="onModelChange"
+        />
     </div>
 </template>
 

@@ -4,7 +4,7 @@ export function flattenTree<T = string>(items: DropdownItemConfig<T>[]): Dropdow
     const result: DropdownItemConfig<T>[] = []
     function walk(list: DropdownItemConfig<T>[]) {
         for (const item of list) {
-            if (item.type === 'separator') continue
+            if (item.type === 'separator' || item.type === 'label') continue
             if (item.visible === false) continue
             result.push(item)
             if (item.children && item.children.length > 0) {
@@ -40,7 +40,7 @@ export function getSelectableItems<T = string>(
     const result: DropdownItemConfig<T>[] = []
     function walk(list: DropdownItemConfig<T>[]) {
         for (const item of list) {
-            if (item.type === 'separator') continue
+            if (item.type === 'separator' || item.type === 'label') continue
             if (item.visible === false) continue
             if (item.action?.type === 'submenu') continue
             if (item.enabled === false) continue

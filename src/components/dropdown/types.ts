@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 export type DropdownMode = 'menu' | 'select' | 'multi-select' | 'search-list'
 export type DropdownPlacement = 'top' | 'bottom'
 export type TriggerMode = 'click' | 'contextmenu' | 'hover'
-export type ItemType = 'item' | 'separator'
+export type ItemType = 'item' | 'separator' | 'label'
 
 export interface CommandAction {
     type: 'command'

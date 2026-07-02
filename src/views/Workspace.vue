@@ -23,6 +23,8 @@ import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/components/file-explorer'
 import type { FEListDirData, FEMeta } from '@/components/file-explorer'
 import { filesApi } from '@/services/files'
+import { Header } from '@/components/header'
+import type { HeaderSchema } from '@/components/header'
 
 const route = useRoute()
 const wsStore = useWorkspaceStore()
@@ -334,6 +336,19 @@ function setupWatchEvents() {
     )
 }
 
+// --- Header schema ---
+const sidebarHeaderSchema = computed<HeaderSchema | null>(() => {
+    if (!workspace.value || showFileExplorer.value) return null
+    return {
+        title: workspace.value.name,
+        height: 'sm',
+        padding: 'md',
+        actions: [
+            { icon: Plus, ariaLabel: 'New chat', onClick: openChatCreate },
+        ],
+    }
+})
+
 onMounted(async () => {
     if (workspaceId.value) {
         wsStore.selectWorkspace(workspaceId.value)
@@ -372,12 +387,7 @@ onUnmounted(() => {
             </template>
 
             <template #header>
-                <template v-if="!showFileExplorer">
-                    <h2 class="ws-sidebar__title">{{ workspace.name }}</h2>
-                    <button class="ws-btn-icon" @click="openChatCreate" title="New chat">
-                        <Plus width="14" height="14" />
-                    </button>
-                </template>
+                <Header v-if="sidebarHeaderSchema" :schema="sidebarHeaderSchema" />
             </template>
 
             <template v-if="!showFileExplorer">

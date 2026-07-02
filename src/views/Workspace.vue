@@ -9,10 +9,14 @@ import { DynamicList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
+import { useProviderStore } from '@/stores/provider'
+import { useAppearanceStore } from '@/stores/appearance'
 import type { Chat, ChatDto } from '@/services/chat'
 import { SplitLayout, CodeLayoutSplitNRootGrid } from 'vue-code-layout'
 import type { CodeLayoutSplitNPanelInternal } from 'vue-code-layout'
 import ChatTab from '@/components/chat-tab/ChatTab.vue'
+import type { ChatTabSchema } from '@/components/chat-tab/types/schema'
+import { useChatSession } from '@/composables/useChatSession'
 import { useChatTabs } from '@/composables/useChatTabs'
 import AppSidebar from '@/components/sidebar/Sidebar.vue'
 import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
@@ -23,6 +27,8 @@ import { filesApi } from '@/services/files'
 const route = useRoute()
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
+const providerStore = useProviderStore()
+const appearanceStore = useAppearanceStore()
 
 const workspaceId = computed(() => route.params.id as string)
 const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
@@ -52,6 +58,43 @@ function showPanel(view: 'chat' | 'files') {
 }
 
 const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
+
+const chatSessions = new Map<string, ReturnType<typeof useChatSession>>()
+
+function ensureSession(chatId: string) {
+    if (!chatSessions.has(chatId)) {
+        const session = useChatSession(workspaceId.value, chatId)
+        chatSessions.set(chatId, session)
+        session.loadHistory()
+    }
+    return chatSessions.get(chatId)!
+}
+
+function removeSession(chatId: string) {
+    const session = chatSessions.get(chatId)
+    if (session) {
+        session.cleanup()
+        chatSessions.delete(chatId)
+    }
+}
+
+function buildChatTabSchema(chat: Chat): ChatTabSchema {
+    const session = ensureSession(chat.id)
+    return {
+        title: chat.title,
+        messages: session.messages.value,
+        loading: session.isLoading.value,
+        providers: providerStore.providers,
+        modelId: chat.modelId,
+        providerId: chat.providerId,
+        contentWidth: appearanceStore.contentWidth,
+        fontSize: appearanceStore.fontSize,
+        lineHeight: appearanceStore.lineHeight,
+        onSend: session.sendMessage,
+        onStop: session.stop,
+        onSelectModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
+    }
+}
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
@@ -99,8 +142,17 @@ function getChatById(chatId: string): Chat | undefined {
     return chatStore.chats.find((c) => c.id === chatId)
 }
 
+async function onUpdateChat(chatId: string, payload: { modelId?: string; providerId?: string }) {
+    try {
+        await chatStore.updateChat(workspaceId.value, chatId, payload)
+    } catch {
+        /* handled by store */
+    }
+}
+
 function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
     const chatId = panel.name.replace('chat-', '')
+    removeSession(chatId)
     closeTab(chatId)
     resolve()
 }
@@ -286,6 +338,7 @@ onMounted(async () => {
     if (workspaceId.value) {
         wsStore.selectWorkspace(workspaceId.value)
         chatStore.fetchChats(workspaceId.value)
+        providerStore.fetchProviders()
         await setupFileExplorer()
         setupWatchEvents()
     }
@@ -354,7 +407,7 @@ onUnmounted(() => {
                     <ChatTab
                         v-if="getChatById(panel.name.replace('chat-', ''))"
                         :key="panel.name"
-                        :chat="getChatById(panel.name.replace('chat-', ''))!"
+                        :schema="buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)"
                     />
                 </template>
                 <template #tabEmptyContentRender>

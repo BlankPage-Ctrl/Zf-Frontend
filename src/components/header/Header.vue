@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { HeaderSchema } from './types'
 import HeaderTitle from './components/HeaderTitle.vue'
 import HeaderActions from './components/HeaderActions.vue'
@@ -7,19 +8,48 @@ const props = defineProps<{
     schema: HeaderSchema
 }>()
 
-const widthClass = props.schema.width === 'full' ? 'header--full' : 'header--auto'
-const heightClass = `header--h-${props.schema.height ?? 'md'}`
-const paddingClass = `header--p-${props.schema.padding ?? 'md'}`
-const borderClass = props.schema.border ? 'header--border' : ''
+const variant = computed(() => props.schema.variant ?? 'default')
+
+const widthClass = computed(() => props.schema.width === 'full' ? 'header--full' : 'header--auto')
+const heightClass = computed(() => `header--h-${props.schema.height ?? 'md'}`)
+const paddingClass = computed(() => `header--p-${props.schema.padding ?? 'md'}`)
+const borderClass = computed(() => props.schema.border ? 'header--border' : '')
 </script>
 
 <template>
     <div
         class="header"
-        :class="[widthClass, heightClass, paddingClass, borderClass, props.schema.class]"
+        :class="[
+            `header--${variant}`,
+            widthClass,
+            heightClass,
+            paddingClass,
+            borderClass,
+            props.schema.class,
+        ]"
     >
-        <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" />
-        <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" />
+        <!-- workspace: title centered -->
+        <template v-if="variant === 'workspace'">
+            <div class="header__start">
+                <slot name="start" />
+            </div>
+            <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" class="header__center" />
+            <div class="header__end">
+                <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" />
+            </div>
+        </template>
+
+        <!-- split: actions on left -->
+        <template v-else-if="variant === 'split'">
+            <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" class="header__actions--left" />
+            <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" />
+        </template>
+
+        <!-- default/sidebar: title left, actions right -->
+        <template v-else>
+            <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" />
+            <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" />
+        </template>
     </div>
 </template>
 
@@ -69,5 +99,50 @@ const borderClass = props.schema.border ? 'header--border' : ''
 
 .header--border {
     border-bottom: 1px solid rgba(var(--third-color), 0.12);
+}
+
+/* --- Variant: sidebar --- */
+.header--sidebar {
+    gap: 8px;
+}
+
+.header--sidebar :deep(.header-title) {
+    font-size: 13px;
+}
+
+/* --- Variant: workspace --- */
+.header--workspace {
+    position: relative;
+}
+
+.header__start,
+.header__end {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.header__end {
+    justify-content: flex-end;
+}
+
+.header__center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.header__center :deep(*) {
+    pointer-events: auto;
+}
+
+/* --- Variant: split --- */
+.header--split {
+    gap: 8px;
+}
+
+.header--split .header__actions--left {
+    order: -1;
 }
 </style>

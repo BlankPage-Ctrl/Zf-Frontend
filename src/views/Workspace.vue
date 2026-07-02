@@ -340,6 +340,7 @@ function setupWatchEvents() {
 const sidebarHeaderSchema = computed<HeaderSchema | null>(() => {
     if (!workspace.value || showFileExplorer.value) return null
     return {
+        variant: 'sidebar',
         title: workspace.value.name,
         height: 'sm',
         padding: 'md',

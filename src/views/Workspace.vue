@@ -20,7 +20,7 @@ import ChatTab from '@/components/chat-tab/ChatTab.vue'
 import type { ChatTabSchema } from '@/components/chat-tab/types/schema'
 import { useChatSession } from '@/composables/useChatSession'
 import { useChatTabs } from '@/composables/useChatTabs'
-import AppSidebar from '@/components/sidebar/Sidebar.vue'
+import { ContainerGrid } from '@/components/container'
 import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/components/file-explorer'
 import type { FEListDirData, FEMeta } from '@/components/file-explorer'
@@ -41,7 +41,7 @@ const splitLayoutRef = ref<typeof SplitLayout | null>(null)
 const splitLayoutData = ref(new CodeLayoutSplitNRootGrid())
 
 const sidebarCollapsed = ref(false)
-const sidebarWidth = ref(240)
+const sidebarPanelWidth = ref(240)
 const showFileExplorer = ref(false)
 
 const fileExplorerRef = ref<InstanceType<typeof FileExplorer> | null>(null)
@@ -81,6 +81,51 @@ const iconRailsSchema = computed<IconRailsSchema>(() => ({
         },
     ],
 }))
+
+const workspaceSchema = computed(() => [
+    {
+        id: 'workspace',
+        columns: [
+            {
+                id: 'rail',
+                width: 48,
+                resizable: false,
+                cell: {
+                    background: 'rgb(var(--secondary-color))',
+                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    borderWidth: '0 1px 0 0',
+                    borderStyle: 'solid' as const,
+                    overflow: 'hidden' as const,
+                },
+            },
+            {
+                id: 'panel',
+                width: sidebarPanelWidth.value,
+                visible: !sidebarCollapsed.value,
+                resizable: true,
+                resizeMode: 'edge' as const,
+                minWidth: 180,
+                maxWidth: 480,
+                cell: {
+                    background: 'rgb(var(--secondary-color))',
+                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    borderWidth: '0 1px 0 0',
+                    borderStyle: 'solid' as const,
+                    overflow: 'hidden' as const,
+                },
+            },
+            {
+                id: 'content',
+                width: '1fr',
+                resizable: false,
+                cell: {
+                    background: 'rgb(var(--primary-color))',
+                    overflow: 'hidden' as const,
+                },
+            },
+        ],
+    },
+])
 
 const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
 
@@ -390,58 +435,63 @@ onUnmounted(() => {
 
 <template>
     <div class="ws-layout" v-if="workspace">
-        <AppSidebar v-model:collapsed="sidebarCollapsed" v-model:width="sidebarWidth">
-            <template #iconRail>
+        <ContainerGrid :schema="workspaceSchema" :animate="true">
+            <template #rail>
                 <IconRails :schema="iconRailsSchema" />
             </template>
 
-            <template #header>
-                <Header v-if="sidebarHeaderSchema" :schema="sidebarHeaderSchema" />
-            </template>
-
-            <template v-if="!showFileExplorer">
-                <DynamicList :schema="chatListSchema" :items="chatStore.chats" />
-            </template>
-
-            <FileExplorer
-                v-else
-                ref="fileExplorerRef"
-                :initial-data="fileExplorerInitialData"
-                :meta="fileExplorerMeta"
-                @request-children="onRequestChildren"
-                @select="onFileSelect"
-            />
-        </AppSidebar>
-
-        <!-- CONTENT -->
-        <div class="ws-content">
-            <SplitLayout
-                ref="splitLayoutRef"
-                :layoutData="splitLayoutData as CodeLayoutSplitNRootGrid"
-                @panelClose="onPanelClose"
-                @panelActive="onPanelActive"
-                @update:layoutData="(v: any) => (splitLayoutData = v)"
-            >
-                <template #tabContentRender="{ panel }">
-                    <ChatTab
-                        v-if="getChatById(panel.name.replace('chat-', ''))"
-                        :key="panel.name"
-                        :schema="buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)"
-                    />
-                </template>
-                <template #tabEmptyContentRender>
-                    <div class="ws-content__empty">
-                        <div class="ws-empty__icon">
-                            <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
-                        </div>
-                        <h2 class="ws-empty__title">Select a chat</h2>
-                        <p class="ws-empty__desc">
-                            Choose a chat from the sidebar or create a new one to get started.
-                        </p>
+            <template #panel>
+                <div class="ws-sidebar__panel">
+                    <div v-if="sidebarHeaderSchema" class="ws-sidebar__header">
+                        <Header :schema="sidebarHeaderSchema" />
                     </div>
-                </template>
-            </SplitLayout>
-        </div>
+                    <div class="ws-sidebar__body">
+                        <DynamicList
+                            v-if="!showFileExplorer"
+                            :schema="chatListSchema"
+                            :items="chatStore.chats"
+                        />
+                        <FileExplorer
+                            v-else
+                            ref="fileExplorerRef"
+                            :initial-data="fileExplorerInitialData"
+                            :meta="fileExplorerMeta"
+                            @request-children="onRequestChildren"
+                            @select="onFileSelect"
+                        />
+                    </div>
+                </div>
+            </template>
+
+            <template #content>
+                <SplitLayout
+                    ref="splitLayoutRef"
+                    :layoutData="splitLayoutData as CodeLayoutSplitNRootGrid"
+                    @panelClose="onPanelClose"
+                    @panelActive="onPanelActive"
+                    @update:layoutData="(v: any) => (splitLayoutData = v)"
+                >
+                    <template #tabContentRender="{ panel }">
+                        <ChatTab
+                            v-if="getChatById(panel.name.replace('chat-', ''))"
+                            :key="panel.name"
+                            :schema="buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)"
+                        />
+                    </template>
+                    <template #tabEmptyContentRender>
+                        <div class="ws-content__empty">
+                            <div class="ws-empty__icon">
+                                <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
+                            </div>
+                            <h2 class="ws-empty__title">Select a chat</h2>
+                            <p class="ws-empty__desc">
+                                Choose a chat from the sidebar or create a new one to get started.
+                            </p>
+                        </div>
+                    </template>
+                </SplitLayout>
+            </template>
+        </ContainerGrid>
     </div>
 
     <div v-else class="ws-layout ws-layout--not-found">

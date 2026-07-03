@@ -7,6 +7,8 @@ import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
+import { IconRails } from '@/components/icon-rails'
+import type { IconRailsSchema } from '@/components/icon-rails'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
 import { useProviderStore } from '@/stores/provider'
@@ -58,6 +60,27 @@ function showPanel(view: 'chat' | 'files') {
     showFileExplorer.value = view === 'files'
     sidebarCollapsed.value = false
 }
+
+const iconRailsSchema = computed<IconRailsSchema>(() => ({
+    items: [
+        {
+            id: 'chat',
+            icon: ChatBubbleEmpty,
+            ariaLabel: 'Chat',
+            tooltip: 'Chat',
+            active: !showFileExplorer.value,
+            onClick: () => showPanel('chat'),
+        },
+        {
+            id: 'files',
+            icon: Folder,
+            ariaLabel: 'File Explorer',
+            tooltip: 'File Explorer',
+            active: showFileExplorer.value,
+            onClick: () => showPanel('files'),
+        },
+    ],
+}))
 
 const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
 
@@ -369,22 +392,7 @@ onUnmounted(() => {
     <div class="ws-layout" v-if="workspace">
         <AppSidebar v-model:collapsed="sidebarCollapsed" v-model:width="sidebarWidth">
             <template #iconRail>
-                <button
-                    class="ws-sidebar__rail-icon"
-                    :class="{ 'ws-sidebar__rail-icon--active': !showFileExplorer }"
-                    title="Chat"
-                    @click="showPanel('chat')"
-                >
-                    <ChatBubbleEmpty width="20" height="20" />
-                </button>
-                <button
-                    class="ws-sidebar__rail-icon"
-                    :class="{ 'ws-sidebar__rail-icon--active': showFileExplorer }"
-                    title="File Explorer"
-                    @click="showPanel('files')"
-                >
-                    <Folder width="20" height="20" />
-                </button>
+                <IconRails :schema="iconRailsSchema" />
             </template>
 
             <template #header>

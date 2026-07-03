@@ -4,7 +4,6 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
-
 import App from './App.vue'
 import router from './router'
 import CodeLayout from 'vue-code-layout'
@@ -20,8 +19,6 @@ async function bootstrap() {
     app.use(createPinia())
     app.use(router)
     app.use(CodeLayout)
-    // eslint-disable-next-line vue/multi-word-component-names
-
 
     app.mount('#app')
 }

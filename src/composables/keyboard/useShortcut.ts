@@ -6,10 +6,13 @@ import type { ShortcutConfig } from './types'
  * Global shortcut registry tracks all registered shortcuts
  * Ensures no conflicts between shortcuts
  */
-const shortcutRegistry = new Map<string, {
-    config: ShortcutConfig
-    cleanup: () => void
-}>()
+const shortcutRegistry = new Map<
+    string,
+    {
+        config: ShortcutConfig
+        cleanup: () => void
+    }
+>()
 
 let shortcutCounter = 0
 
@@ -83,7 +86,7 @@ export function useShortcut(config: ShortcutConfig) {
         const conflictingShortcut = findConflictingShortcut(config, priority)
         if (conflictingShortcut) {
             console.warn(
-                `[useShortcut] Conflict detected: "${keyString}" conflicts with "${buildKeyString(conflictingShortcut.config)}" (priority: ${conflictingShortcut.config.priority ?? 0} > ${priority})`
+                `[useShortcut] Conflict detected: "${keyString}" conflicts with "${buildKeyString(conflictingShortcut.config)}" (priority: ${conflictingShortcut.config.priority ?? 0} > ${priority})`,
             )
             return // Higher priority shortcut exists, skip this one
         }
@@ -103,9 +106,11 @@ export function useShortcut(config: ShortcutConfig) {
         currentPriority: number,
     ): { config: ShortcutConfig; cleanup: () => void } | undefined {
         for (const [, entry] of shortcutRegistry) {
-            if (entry.config.key === config.key &&
+            if (
+                entry.config.key === config.key &&
                 JSON.stringify(entry.config.modifiers) === JSON.stringify(config.modifiers) &&
-                (entry.config.priority ?? 0) > currentPriority) {
+                (entry.config.priority ?? 0) > currentPriority
+            ) {
                 return entry
             }
         }

@@ -109,11 +109,14 @@ export function getParentScope(scopeId: string): ScopeEntry | undefined {
 }
 
 export function debugScopeStack(): void {
-    console.log('[KeyboardScope] Stack:', scopeStack.map((s) => ({
-        id: s.id,
-        priority: s.priority,
-        active: s.isActive.value,
-        paused: s.isPaused.value,
-        bindings: s.bindings.size,
-    })))
+    console.log(
+        '[KeyboardScope] Stack:',
+        scopeStack.map((s) => ({
+            id: s.id,
+            priority: s.priority,
+            active: s.isActive.value,
+            paused: s.isPaused.value,
+            bindings: s.bindings.size,
+        })),
+    )
 }

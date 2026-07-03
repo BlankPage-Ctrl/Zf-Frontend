@@ -23,7 +23,10 @@ function toggle() {
                 <Brain width="14" height="14" />
             </span>
             <span class="reasoning-label">Thinking</span>
-            <span class="reasoning-status" :class="{ running: resolved.isRunning, done: resolved.isDone }">
+            <span
+                class="reasoning-status"
+                :class="{ running: resolved.isRunning, done: resolved.isDone }"
+            >
                 <span v-if="resolved.isRunning" class="status-spinner"></span>
                 <span v-else class="status-check">
                     <Check width="12" height="12" stroke-width="3" />

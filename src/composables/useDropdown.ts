@@ -145,7 +145,12 @@ export function useDropdown<T = string>(options: {
             ArrowUp: { handler: focusPrev, preventDefault: true },
             Enter: { handler: selectFocused, preventDefault: true },
             ' ': { handler: selectFocused, preventDefault: true },
-            Escape: { handler: () => { isOpen.value = false }, preventDefault: true },
+            Escape: {
+                handler: () => {
+                    isOpen.value = false
+                },
+                preventDefault: true,
+            },
             Home: { handler: focusFirst, preventDefault: true },
             End: { handler: focusLast, preventDefault: true },
         },

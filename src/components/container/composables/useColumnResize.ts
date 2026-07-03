@@ -43,7 +43,12 @@ export function useColumnResize(options: {
         return original
     }
 
-    function onHandleMouseDown(e: MouseEvent, rowId: string, colId: string, resizeMode: ContainerResizeMode) {
+    function onHandleMouseDown(
+        e: MouseEvent,
+        rowId: string,
+        colId: string,
+        resizeMode: ContainerResizeMode,
+    ) {
         e.preventDefault()
         e.stopPropagation()
 
@@ -89,7 +94,10 @@ export function useColumnResize(options: {
                 map.set(colId, Math.round(clamp(startColWidth + delta, activeMin, activeMax)))
             } else if (activeMode === 'split' && activeNextColId) {
                 map.set(colId, Math.round(clamp(startColWidth + delta, activeMin, activeMax)))
-                map.set(activeNextColId, Math.round(clamp(nextColWidth - delta, activeNextMin, activeNextMax)))
+                map.set(
+                    activeNextColId,
+                    Math.round(clamp(nextColWidth - delta, activeNextMin, activeNextMax)),
+                )
             }
 
             overriddenWidths.value = map

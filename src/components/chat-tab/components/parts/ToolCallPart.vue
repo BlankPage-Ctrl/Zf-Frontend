@@ -23,7 +23,14 @@ function toggleDetails() {
                 <Wrench width="14" height="14" />
             </span>
             <span class="tool-name">{{ resolved.toolName }}</span>
-            <span class="tool-status" :class="{ running: resolved.isRunning, done: resolved.isDone, error: resolved.isError }">
+            <span
+                class="tool-status"
+                :class="{
+                    running: resolved.isRunning,
+                    done: resolved.isDone,
+                    error: resolved.isError,
+                }"
+            >
                 <span v-if="resolved.isRunning" class="status-spinner"></span>
                 <span v-else-if="resolved.isDone" class="status-check">
                     <Check width="12" height="12" stroke-width="3" />

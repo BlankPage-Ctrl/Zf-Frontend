@@ -2,7 +2,12 @@
 import { computed } from 'vue'
 import ContainerCell from './ContainerCell.vue'
 import { useColumnResize } from './composables/useColumnResize'
-import type { ContainerColumnConfig, ContainerSchema, ContainerResizeMode, SizeValue } from './types'
+import type {
+    ContainerColumnConfig,
+    ContainerSchema,
+    ContainerResizeMode,
+    SizeValue,
+} from './types'
 
 type Props = {
     readonly schema: ReadonlyArray<ContainerSchema>
@@ -25,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
     maxWidth: 600,
 })
 
-const { isResizing, onHandleMouseDown, resolveWidth } = useColumnResize({
+const { onHandleMouseDown, resolveWidth } = useColumnResize({
     rows: computed(() => props.schema),
     defaultMinWidth: props.minWidth,
     defaultMaxWidth: props.maxWidth,
@@ -94,7 +99,9 @@ const getRowStyle = (row: ContainerSchema) => {
                 :resize-mode="column.resizeMode ?? resizeMode"
                 :animate="props.animate"
                 :animation-ms="props.animationMs"
-                @resize-grab="(e) => onHandleMouseDown(e, row.id, column.id, column.resizeMode ?? resizeMode)"
+                @resize-grab="
+                    (e) => onHandleMouseDown(e, row.id, column.id, column.resizeMode ?? resizeMode)
+                "
             >
                 <slot :name="column.id" />
             </ContainerCell>

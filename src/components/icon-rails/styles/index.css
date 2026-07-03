@@ -34,7 +34,9 @@
     border-radius: 8px;
     color: rgb(var(--text-color));
     opacity: 0.45;
-    transition: opacity 150ms ease, background 150ms ease;
+    transition:
+        opacity 150ms ease,
+        background 150ms ease;
     cursor: pointer;
     border: none;
     background: none;

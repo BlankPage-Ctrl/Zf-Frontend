@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useRouter } from 'vue-router'
-import { Album, EditPencil, Folder, Plus, Settings, Trash } from '@iconoir/vue'
+import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
@@ -17,12 +17,8 @@ import { useChatStore } from '@/stores/chat'
 import type { Workspace, WorkspaceDto } from '@/services/workspace'
 import type { Chat, ChatDto } from '@/services/chat'
 
-const SettingsIcon = () => h(Settings, { width: 14, height: 14 })
-const PlusIcon = () => h(Plus, { width: 14, height: 14 })
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
-const FolderIcon = () => h(Folder, { width: 14, height: 14 })
-
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const router = useRouter()
@@ -50,9 +46,7 @@ const chatHeaderSchema = computed<HeaderSchema | null>(() => {
         height: 'md',
         padding: 'md',
         border: true,
-        actions: [
-            { icon: Folder, ariaLabel: 'Open', label: 'Open', onClick: openWorkspace },
-        ],
+        actions: [{ icon: ChatBubble, ariaLabel: 'Open', label: 'Open', onClick: openWorkspace }],
     }
 })
 

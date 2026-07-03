@@ -3,9 +3,7 @@ import { useEventListener } from '@vueuse/core'
 import type { UseKeyboardOptions, KeyboardBindings, KeyBinding } from './types'
 import { useKeyboardScope, getTopmostScope } from './useKeyboardScope'
 
-function normalizeBinding(
-    binding: KeyboardBindings[string],
-): KeyBinding {
+function normalizeBinding(binding: KeyboardBindings[string]): KeyBinding {
     if (typeof binding === 'function') {
         return {
             handler: binding,
@@ -20,7 +18,10 @@ function normalizeBinding(
     }
 }
 
-function parseKeyString(keyStr: string): { modifiers: { ctrl: boolean; shift: boolean; alt: boolean; meta: boolean }; key: string } {
+function parseKeyString(keyStr: string): {
+    modifiers: { ctrl: boolean; shift: boolean; alt: boolean; meta: boolean }
+    key: string
+} {
     const parts = keyStr.toLowerCase().split('+')
     const key = parts.pop()!
     const modifiers = {

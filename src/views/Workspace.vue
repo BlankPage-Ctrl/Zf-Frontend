@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, h } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
+import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash, ChatBubble } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -169,26 +169,7 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 
-function chatIcon() {
-    return h(
-        'span',
-        {
-            style: {
-                width: '16px',
-                height: '16px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                lineHeight: '1',
-                color: 'rgb(var(--text-color))',
-                opacity: '0.5',
-            },
-        },
-        '💬',
-    )
-}
-
+const chatIcon = () => h(ChatBubble, { width: 16, height: 16 })
 function openChatTab(chat: Chat) {
     const panelName = `chat-${chat.id}`
     const existing = splitLayoutData.value.getPanelByName(panelName)
@@ -412,9 +393,7 @@ const sidebarHeaderSchema = computed<HeaderSchema | null>(() => {
         title: workspace.value.name,
         height: 'sm',
         padding: 'md',
-        actions: [
-            { icon: Plus, ariaLabel: 'New chat', onClick: openChatCreate },
-        ],
+        actions: [{ icon: Plus, ariaLabel: 'New chat', onClick: openChatCreate }],
     }
 })
 
@@ -475,7 +454,9 @@ onUnmounted(() => {
                         <ChatTab
                             v-if="getChatById(panel.name.replace('chat-', ''))"
                             :key="panel.name"
-                            :schema="buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)"
+                            :schema="
+                                buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)
+                            "
                         />
                     </template>
                     <template #tabEmptyContentRender>

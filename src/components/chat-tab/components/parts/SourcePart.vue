@@ -11,7 +11,13 @@ const resolved = computed(() => resolveSourcePartSchema(props.schema))
 </script>
 
 <template>
-    <a v-if="resolved.isLink" :href="resolved.url" target="_blank" rel="noopener noreferrer" class="source-part">
+    <a
+        v-if="resolved.isLink"
+        :href="resolved.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="source-part"
+    >
         <span class="source-icon" v-text="resolved.icon"></span>
         <span class="source-title">{{ resolved.displayTitle }}</span>
         <span class="source-arrow">\u2197</span>

@@ -53,11 +53,7 @@ const cellStyle = computed(() => {
 <template>
     <div class="container-cell" :data-cell="cellId" :style="cellStyle">
         <slot />
-        <ResizeHandle
-            v-if="resizable"
-            :mode="resizeMode"
-            @grab="emit('resizeGrab', $event)"
-        />
+        <ResizeHandle v-if="resizable" :mode="resizeMode" @grab="emit('resizeGrab', $event)" />
     </div>
 </template>
 

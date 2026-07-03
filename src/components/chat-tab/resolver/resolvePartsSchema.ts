@@ -20,7 +20,10 @@ import type {
 import { isTextUIPart, isReasoningUIPart, isToolUIPart, isFileUIPart, isDataUIPart } from 'ai'
 import type { UIMessage } from 'ai'
 
-export function resolveTextPartSchema(schema: TextPartSchema, defaults?: { fontSize?: number; lineHeight?: number }): ResolvedTextPart {
+export function resolveTextPartSchema(
+    schema: TextPartSchema,
+    defaults?: { fontSize?: number; lineHeight?: number },
+): ResolvedTextPart {
     return {
         text: schema.text,
         state: schema.state,
@@ -116,7 +119,15 @@ export function resolveStepIndicatorSchema(schema: StepIndicatorSchema): Resolve
     }
 }
 
-function isSourcePart(part: unknown): part is { type: 'source-url' | 'source-document'; sourceId: string; url?: string; title?: string; mediaType?: string } {
+function isSourcePart(
+    part: unknown,
+): part is {
+    type: 'source-url' | 'source-document'
+    sourceId: string
+    url?: string
+    title?: string
+    mediaType?: string
+} {
     const p = part as Record<string, unknown>
     return p.type === 'source-url' || p.type === 'source-document'
 }

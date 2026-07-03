@@ -18,9 +18,7 @@ export type {
     MessagePartSchema,
 } from './types/schema'
 
-export type {
-    ChatTabState,
-} from './types'
+export type { ChatTabState } from './types'
 
 export { resolveChatTabSchema } from './resolver/resolveChatTabSchema'
 export { resolveChatInputSchema } from './resolver/resolveChatInputSchema'

@@ -43,7 +43,12 @@ const providerSectionHeaderSchema = computed<HeaderSchema>(() => ({
     height: 'auto',
     padding: 'none',
     actions: [
-        { icon: Plus, ariaLabel: 'Add provider', label: 'Add provider', onClick: openProviderCreate },
+        {
+            icon: Plus,
+            ariaLabel: 'Add provider',
+            label: 'Add provider',
+            onClick: openProviderCreate,
+        },
     ],
 }))
 

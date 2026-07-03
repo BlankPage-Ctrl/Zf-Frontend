@@ -10,10 +10,10 @@ const props = defineProps<{
 
 const variant = computed(() => props.schema.variant ?? 'default')
 
-const widthClass = computed(() => props.schema.width === 'full' ? 'header--full' : 'header--auto')
+const widthClass = computed(() => (props.schema.width === 'full' ? 'header--full' : 'header--auto'))
 const heightClass = computed(() => `header--h-${props.schema.height ?? 'md'}`)
 const paddingClass = computed(() => `header--p-${props.schema.padding ?? 'md'}`)
-const borderClass = computed(() => props.schema.border ? 'header--border' : '')
+const borderClass = computed(() => (props.schema.border ? 'header--border' : ''))
 </script>
 
 <template>
@@ -33,15 +33,26 @@ const borderClass = computed(() => props.schema.border ? 'header--border' : '')
             <div class="header__start">
                 <slot name="start" />
             </div>
-            <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" class="header__center" />
+            <HeaderTitle
+                :title="props.schema.title"
+                :subtitle="props.schema.subtitle"
+                class="header__center"
+            />
             <div class="header__end">
-                <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" />
+                <HeaderActions
+                    v-if="props.schema.actions?.length"
+                    :actions="props.schema.actions"
+                />
             </div>
         </template>
 
         <!-- split: actions on left -->
         <template v-else-if="variant === 'split'">
-            <HeaderActions v-if="props.schema.actions?.length" :actions="props.schema.actions" class="header__actions--left" />
+            <HeaderActions
+                v-if="props.schema.actions?.length"
+                :actions="props.schema.actions"
+                class="header__actions--left"
+            />
             <HeaderTitle :title="props.schema.title" :subtitle="props.schema.subtitle" />
         </template>
 

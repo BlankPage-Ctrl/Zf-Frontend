@@ -20,10 +20,7 @@ export {
     debugScopeStack,
 } from './useKeyboardScope'
 
-export {
-    useKeyboard,
-    useKeyListener,
-} from './useKeyboard'
+export { useKeyboard, useKeyListener } from './useKeyboard'
 
 export {
     useShortcut,

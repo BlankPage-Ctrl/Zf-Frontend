@@ -28,7 +28,10 @@ defineProps<{
             <span v-else class="avatar-ai">{{ avatarLabel ?? 'AI' }}</span>
         </div>
         <div class="bubble-content">
-            <div class="bubble-role-label" v-text="roleLabel ?? (role === 'user' ? 'You' : 'Assistant')"></div>
+            <div
+                class="bubble-role-label"
+                v-text="roleLabel ?? (role === 'user' ? 'You' : 'Assistant')"
+            ></div>
             <template v-for="(part, idx) in parts" :key="idx">
                 <TextPart v-if="part.type === 'text'" :schema="part" />
                 <ReasoningPart v-else-if="part.type === 'reasoning'" :schema="part" />

@@ -1,5 +1,7 @@
 export type SizeValue = string | number
 
+export type ContainerResizeMode = 'edge' | 'split'
+
 export type ContainerCellStyle = {
     readonly padding?: SizeValue
     readonly margin?: SizeValue
@@ -18,10 +20,13 @@ export type ContainerColumnConfig = {
     readonly width?: SizeValue
     readonly visible?: boolean
     readonly resizable?: boolean
+    readonly resizeMode?: ContainerResizeMode
+    readonly minWidth?: number
+    readonly maxWidth?: number
     readonly cell?: ContainerCellStyle
 }
 
-export type ContainerRowConfig = {
+export type ContainerSchema = {
     readonly id: string
     readonly height?: SizeValue
     readonly columnGap?: SizeValue

@@ -7,7 +7,7 @@ import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
 import ContainerGrid from '@/components/container/ContainerGrid.vue'
-import type { ContainerRowConfig } from '@/components/container/types'
+import type { ContainerSchema } from '@/components/container/types'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -56,7 +56,7 @@ const chatHeaderSchema = computed<HeaderSchema | null>(() => {
     }
 })
 
-const rows = ref<ContainerRowConfig[]>([
+const containerPrimary = ref<ContainerSchema[]>([
     {
         id: 'row-1',
         height: '1fr',
@@ -64,6 +64,9 @@ const rows = ref<ContainerRowConfig[]>([
             {
                 id: 'cell-1-1',
                 width: 200,
+                resizable: true,
+                minWidth: 150,
+                maxWidth: 400,
                 cell: {
                     padding: 0,
                     background: 'rgb(var(--secondary-color))',
@@ -334,7 +337,7 @@ watch(
 
 <template>
     <div style="height: 100%">
-        <ContainerGrid :rows="rows" :animate="true" :animation-ms="200">
+        <ContainerGrid :schema="containerPrimary" :animate="true" :animation-ms="200">
             <!-- WORKSPACE SIDEBAR -->
             <template #cell-1-1>
                 <div class="ws-sidebar">

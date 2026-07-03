@@ -16,8 +16,8 @@ export function useChatSession(workspaceId: string, chatId: string) {
     async function loadHistory() {
         try {
             const history = await messagesApi.loadHistory(workspaceId, chatId)
-            messages.value = history
-            initChat(history)
+            messages.value = history ?? []
+            initChat(history ?? [])
         } catch (e: unknown) {
             error.value = e instanceof Error ? e : new Error('Failed to load messages')
         }
@@ -52,7 +52,7 @@ export function useChatSession(workspaceId: string, chatId: string) {
         statusInterval = setInterval(() => {
             if (chat) {
                 status.value = chat.status
-                messages.value = [...chat.messages]
+                messages.value = chat.messages ? [...chat.messages] : []
                 isLoading.value = chat.status === 'submitted' || chat.status === 'streaming'
             }
         }, 100)

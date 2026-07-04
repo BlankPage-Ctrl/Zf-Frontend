@@ -1,4 +1,3 @@
-import 'vue-code-layout/lib/vue-code-layout.css'
 import './assets/main.css'
 
 import { createApp } from 'vue'
@@ -6,7 +5,6 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-import CodeLayout from 'vue-code-layout'
 
 async function bootstrap() {
     if (import.meta.env.VITE_API_MOCKING === 'true') {
@@ -18,7 +16,6 @@ async function bootstrap() {
 
     app.use(createPinia())
     app.use(router)
-    app.use(CodeLayout)
 
     app.mount('#app')
 }

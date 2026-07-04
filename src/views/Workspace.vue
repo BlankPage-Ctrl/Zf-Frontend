@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, h } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash, ChatBubble } from '@iconoir/vue'
+import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -14,12 +14,9 @@ import { useChatStore } from '@/stores/chat'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
 import type { Chat, ChatDto } from '@/services/chat'
-import { SplitLayout, CodeLayoutSplitNRootGrid } from 'vue-code-layout'
-import type { CodeLayoutSplitNPanelInternal } from 'vue-code-layout'
-import ChatTab from '@/components/chat-tab/ChatTab.vue'
-import type { ChatTabSchema } from '@/components/chat-tab/types/schema'
+import ChatTab from '@/components/chat/ChatTab.vue'
+import type { ChatTabSchema } from '@/components/chat/types/schema'
 import { useChatSession } from '@/composables/useChatSession'
-import { useChatTabs } from '@/composables/useChatTabs'
 import { ContainerGrid } from '@/components/container'
 import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/components/file-explorer'
@@ -36,9 +33,6 @@ const appearanceStore = useAppearanceStore()
 
 const workspaceId = computed(() => route.params.id as string)
 const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
-
-const splitLayoutRef = ref<typeof SplitLayout | null>(null)
-const splitLayoutData = ref(new CodeLayoutSplitNRootGrid())
 
 const sidebarCollapsed = ref(false)
 const sidebarPanelWidth = ref(240)
@@ -127,7 +121,25 @@ const workspaceSchema = computed(() => [
     },
 ])
 
-const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
+const activeChatId = ref<string | null>(null)
+
+const activeChat = computed(() => {
+    if (!activeChatId.value) return null
+    return getChatById(activeChatId.value)
+})
+
+type ContentView =
+    | { type: 'chat'; chatId: string }
+    | { type: 'none' }
+
+const contentView = computed<ContentView>(() => {
+    if (activeChatId.value) return { type: 'chat', chatId: activeChatId.value }
+    return { type: 'none' }
+})
+
+watch(activeChatId, (newId) => {
+    if (newId) ensureSession(newId)
+})
 
 const chatSessions = new Map<string, ReturnType<typeof useChatSession>>()
 
@@ -169,26 +181,6 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 
-const chatIcon = () => h(ChatBubble, { width: 16, height: 16 })
-function openChatTab(chat: Chat) {
-    const panelName = `chat-${chat.id}`
-    const existing = splitLayoutData.value.getPanelByName(panelName)
-    if (existing) {
-        splitLayoutRef.value?.activePanel(panelName)
-        focusTab(chat.id)
-        return
-    }
-    openTab(chat)
-    splitLayoutData.value.addPanel({
-        name: panelName,
-        title: chat.title,
-        tooltip: chat.title,
-        closeType: 'close',
-        iconSmall: () => chatIcon(),
-    })
-    splitLayoutRef.value?.activePanel(panelName)
-}
-
 function getChatById(chatId: string): Chat | undefined {
     return chatStore.chats.find((c) => c.id === chatId)
 }
@@ -199,19 +191,6 @@ async function onUpdateChat(chatId: string, payload: { modelId?: string; provide
     } catch {
         /* handled by store */
     }
-}
-
-function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
-    const chatId = panel.name.replace('chat-', '')
-    removeSession(chatId)
-    closeTab(chatId)
-    resolve()
-}
-
-function onPanelActive(panel: CodeLayoutSplitNPanelInternal | null) {
-    if (!panel) return
-    const chatId = panel.name.replace('chat-', '')
-    focusTab(chatId)
 }
 
 const chatFormSchema: DialogGridSchema = {
@@ -269,7 +248,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     variant: 'sidebar',
     size: 'sm',
     activeKey: 'id',
-    activeId: activeChatId.value,
+    activeId: activeChatId.value ?? undefined,
     fields: [
         { key: 'title', class: 'title' },
         // { key: 'createdAt', class: 'date', format: fmtDate },
@@ -286,7 +265,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     ],
     emptyMessage: 'No chats yet',
     emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
-    onSelect: (chat) => openChatTab(chat),
+    onSelect: (chat) => { activeChatId.value = chat.id },
 }))
 
 const showChatEdit = ref(false)
@@ -315,12 +294,6 @@ async function submitChatEdit(data: DynamicGridDataOutput) {
     chatEditLoading.value = true
     try {
         await chatStore.updateChat(workspaceId.value, editingChat.value.id, payload)
-        const newTitle = editingChat.value.title
-        syncTitle(editingChat.value.id, newTitle)
-        const panel = splitLayoutData.value.getPanelByName(`chat-${editingChat.value.id}`)
-        if (panel) {
-            panel.title = newTitle
-        }
         showChatEdit.value = false
         editingChat.value = null
     } catch {
@@ -345,6 +318,10 @@ function cancelChatDelete() {
 
 async function executeChatDelete() {
     if (!deletingChat.value) return
+    if (activeChatId.value === deletingChat.value.id) {
+        activeChatId.value = null
+    }
+    removeSession(deletingChat.value.id)
     await chatStore.deleteChat(workspaceId.value, deletingChat.value.id)
     showChatDelete.value = false
     deletingChat.value = null
@@ -443,34 +420,20 @@ onUnmounted(() => {
             </template>
 
             <template #content>
-                <SplitLayout
-                    ref="splitLayoutRef"
-                    :layoutData="splitLayoutData as CodeLayoutSplitNRootGrid"
-                    @panelClose="onPanelClose"
-                    @panelActive="onPanelActive"
-                    @update:layoutData="(v: any) => (splitLayoutData = v)"
-                >
-                    <template #tabContentRender="{ panel }">
-                        <ChatTab
-                            v-if="getChatById(panel.name.replace('chat-', ''))"
-                            :key="panel.name"
-                            :schema="
-                                buildChatTabSchema(getChatById(panel.name.replace('chat-', ''))!)
-                            "
-                        />
-                    </template>
-                    <template #tabEmptyContentRender>
-                        <div class="ws-content__empty">
-                            <div class="ws-empty__icon">
-                                <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
-                            </div>
-                            <h2 class="ws-empty__title">Select a chat</h2>
-                            <p class="ws-empty__desc">
-                                Choose a chat from the sidebar or create a new one to get started.
-                            </p>
-                        </div>
-                    </template>
-                </SplitLayout>
+                <ChatTab
+                    v-if="contentView.type === 'chat' && activeChat"
+                    :key="activeChat.id"
+                    :schema="buildChatTabSchema(activeChat)"
+                />
+                <div v-else class="ws-content__empty">
+                    <div class="ws-empty__icon">
+                        <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
+                    </div>
+                    <h2 class="ws-empty__title">Just Select something on the sidebar, vro ✌🏻🥹</h2>
+                    <p class="ws-empty__desc">
+                        What will you have after 500 years!?.
+                    </p>
+                </div>
             </template>
         </ContainerGrid>
     </div>

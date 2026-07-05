@@ -2,10 +2,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useRouter } from 'vue-router'
-import { Album, EditPencil, Folder, Plus, Settings, Trash } from '@iconoir/vue'
+import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
 import { pButton } from '@/components/button'
+import { Header } from '@/components/header'
+import type { HeaderSchema } from '@/components/header'
 import ContainerGrid from '@/components/container/ContainerGrid.vue'
-import type { ContainerRowConfig } from '@/components/container/types'
+import type { ContainerSchema } from '@/components/container/types'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -15,12 +17,8 @@ import { useChatStore } from '@/stores/chat'
 import type { Workspace, WorkspaceDto } from '@/services/workspace'
 import type { Chat, ChatDto } from '@/services/chat'
 
-const SettingsIcon = () => h(Settings, { width: 14, height: 14 })
-const PlusIcon = () => h(Plus, { width: 14, height: 14 })
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
-const FolderIcon = () => h(Folder, { width: 14, height: 14 })
-
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const router = useRouter()
@@ -29,7 +27,30 @@ function goToSettings() {
     router.push({ name: 'settings' })
 }
 
-const rows = ref<ContainerRowConfig[]>([
+// --- Header schemas ---
+const wsHeaderSchema = computed<HeaderSchema>(() => ({
+    title: 'Workspaces',
+    height: 'sm',
+    padding: 'md',
+    actions: [
+        { icon: Settings, ariaLabel: 'Settings', onClick: goToSettings },
+        { icon: Plus, ariaLabel: 'New workspace', onClick: openWsCreate },
+    ],
+}))
+
+const chatHeaderSchema = computed<HeaderSchema | null>(() => {
+    if (!wsStore.selectedWorkspace) return null
+    return {
+        title: wsStore.selectedWorkspace.name,
+        subtitle: `${chatStore.chats.length} chat${chatStore.chats.length !== 1 ? 's' : ''}`,
+        height: 'md',
+        padding: 'md',
+        border: true,
+        actions: [{ icon: ChatBubble, ariaLabel: 'Open', label: 'Open', onClick: openWorkspace }],
+    }
+})
+
+const containerPrimary = ref<ContainerSchema[]>([
     {
         id: 'row-1',
         height: '1fr',
@@ -37,6 +58,9 @@ const rows = ref<ContainerRowConfig[]>([
             {
                 id: 'cell-1-1',
                 width: 200,
+                resizable: true,
+                minWidth: 150,
+                maxWidth: 400,
                 cell: {
                     padding: 0,
                     background: 'rgb(var(--secondary-color))',
@@ -307,33 +331,11 @@ watch(
 
 <template>
     <div style="height: 100%">
-        <ContainerGrid :rows="rows" :animate="true" :animation-ms="200">
+        <ContainerGrid :schema="containerPrimary" :animate="true" :animation-ms="200">
             <!-- WORKSPACE SIDEBAR -->
             <template #cell-1-1>
                 <div class="ws-sidebar">
-                    <div class="ws-header">
-                        <h2 class="ws-title">Workspaces</h2>
-                        <div class="ws-header-actions">
-                            <pButton
-                                :schema="{
-                                    preset: 'icon-only',
-                                    size: 'sm',
-                                    icon: SettingsIcon,
-                                    ariaLabel: 'Settings',
-                                }"
-                                @click="goToSettings"
-                            />
-                            <pButton
-                                :schema="{
-                                    preset: 'icon-only',
-                                    size: 'sm',
-                                    icon: PlusIcon,
-                                    ariaLabel: 'New workspace',
-                                }"
-                                @click="openWsCreate"
-                            />
-                        </div>
-                    </div>
+                    <Header :schema="wsHeaderSchema" />
 
                     <!-- Loading -->
                     <div v-if="wsStore.loading && !wsStore.workspaces.length" class="ws-empty">
@@ -371,27 +373,7 @@ watch(
 
                     <!-- Workspace selected -->
                     <template v-else>
-                        <div class="chat-header">
-                            <div class="chat-header-info">
-                                <h2 class="chat-header-title">
-                                    {{ wsStore.selectedWorkspace.name }}
-                                </h2>
-                                <span class="chat-header-meta"
-                                    >{{ chatStore.chats.length }} chat{{
-                                        chatStore.chats.length !== 1 ? 's' : ''
-                                    }}</span
-                                >
-                            </div>
-                            <pButton
-                                :schema="{
-                                    preset: 'primary',
-                                    size: 'sm',
-                                    label: 'Open',
-                                    icon: FolderIcon,
-                                }"
-                                @click="openWorkspace"
-                            />
-                        </div>
+                        <Header v-if="chatHeaderSchema" :schema="chatHeaderSchema" />
 
                         <!-- Chat list -->
                         <DynamicList :schema="chatListSchema" :items="chatStore.chats" />
@@ -458,64 +440,12 @@ watch(
     overflow: hidden;
 }
 
-.ws-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 12px 8px;
-    flex-shrink: 0;
-}
-
-.ws-header-actions {
-    display: flex;
-    gap: 2px;
-}
-
-.ws-title {
-    font-family: var(--font-serif);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
-    margin: 0;
-}
-
 /* --- Chat content --- */
 .chat-content {
     display: flex;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-}
-
-.chat-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 20px 12px;
-    flex-shrink: 0;
-    border-bottom: 1px solid rgba(var(--third-color), 0.12);
-}
-
-.chat-header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.chat-header-title {
-    font-family: var(--font-serif);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
-    margin: 0;
-}
-
-.chat-header-meta {
-    font-size: 11px;
-    color: rgb(var(--text-color));
-    opacity: 0.45;
 }
 
 /* --- Empty / Welcome --- */

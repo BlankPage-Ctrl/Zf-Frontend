@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { UIMessage } from 'ai'
 import { mockMessages } from '../data/seed'
+import { ok } from './helpers'
 
 function buildSSEStream(assistantMsg: UIMessage): ReadableStream<Uint8Array> {
     const encoder = new TextEncoder()
@@ -94,7 +95,7 @@ function getAssistantMessage(): UIMessage | null {
 
 export const messageHandlers = [
     http.get('/workspaces/:workspaceId/chats/:chatId/messages', () => {
-        return HttpResponse.json(mockMessages)
+        return ok(mockMessages)
     }),
 
     http.post('/workspaces/:workspaceId/chats/:chatId/messages', async ({ request }) => {

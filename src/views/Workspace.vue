@@ -1,37 +1,41 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, h } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue'
 import { useRoute } from 'vue-router'
 import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
+import { IconRails } from '@/components/icon-rails'
+import type { IconRailsSchema } from '@/components/icon-rails'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
+import { useProviderStore } from '@/stores/provider'
+import { useAppearanceStore } from '@/stores/appearance'
 import type { Chat, ChatDto } from '@/services/chat'
-import { SplitLayout, CodeLayoutSplitNRootGrid } from 'vue-code-layout'
-import type { CodeLayoutSplitNPanelInternal } from 'vue-code-layout'
-import ChatTab from '@/components/chat-tab/ChatTab.vue'
-import { useChatTabs } from '@/composables/useChatTabs'
-import AppSidebar from '@/components/sidebar/Sidebar.vue'
+import ChatTab from '@/components/chat/ChatTab.vue'
+import type { ChatTabSchema } from '@/components/chat/types/schema'
+import { useChatSession } from '@/composables/useChatSession'
+import { ContainerGrid } from '@/components/container'
 import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/components/file-explorer'
 import type { FEListDirData, FEMeta } from '@/components/file-explorer'
 import { filesApi } from '@/services/files'
+import { Header } from '@/components/header'
+import type { HeaderSchema } from '@/components/header'
 
 const route = useRoute()
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
+const providerStore = useProviderStore()
+const appearanceStore = useAppearanceStore()
 
 const workspaceId = computed(() => route.params.id as string)
 const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
 
-const splitLayoutRef = ref<typeof SplitLayout | null>(null)
-const splitLayoutData = ref(new CodeLayoutSplitNRootGrid())
-
 const sidebarCollapsed = ref(false)
-const sidebarWidth = ref(240)
+const sidebarPanelWidth = ref(240)
 const showFileExplorer = ref(false)
 
 const fileExplorerRef = ref<InstanceType<typeof FileExplorer> | null>(null)
@@ -51,64 +55,140 @@ function showPanel(view: 'chat' | 'files') {
     sidebarCollapsed.value = false
 }
 
-const { activeChatId, openTab, closeTab, focusTab, syncTitle } = useChatTabs()
+const iconRailsSchema = computed<IconRailsSchema>(() => ({
+    items: [
+        {
+            id: 'chat',
+            icon: ChatBubbleEmpty,
+            ariaLabel: 'Chat',
+            tooltip: 'Chat',
+            active: !showFileExplorer.value,
+            onClick: () => showPanel('chat'),
+        },
+        {
+            id: 'files',
+            icon: Folder,
+            ariaLabel: 'File Explorer',
+            tooltip: 'File Explorer',
+            active: showFileExplorer.value,
+            onClick: () => showPanel('files'),
+        },
+    ],
+}))
+
+const workspaceSchema = computed(() => [
+    {
+        id: 'workspace',
+        columns: [
+            {
+                id: 'rail',
+                width: 48,
+                resizable: false,
+                cell: {
+                    background: 'rgb(var(--secondary-color))',
+                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    borderWidth: '0 1px 0 0',
+                    borderStyle: 'solid' as const,
+                    overflow: 'hidden' as const,
+                },
+            },
+            {
+                id: 'panel',
+                width: sidebarPanelWidth.value,
+                visible: !sidebarCollapsed.value,
+                resizable: true,
+                resizeMode: 'edge' as const,
+                minWidth: 180,
+                maxWidth: 480,
+                cell: {
+                    background: 'rgb(var(--secondary-color))',
+                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    borderWidth: '0 1px 0 0',
+                    borderStyle: 'solid' as const,
+                    overflow: 'hidden' as const,
+                },
+            },
+            {
+                id: 'content',
+                width: '1fr',
+                resizable: false,
+                cell: {
+                    background: 'rgb(var(--primary-color))',
+                    overflow: 'hidden' as const,
+                },
+            },
+        ],
+    },
+])
+
+const activeChatId = ref<string | null>(null)
+
+const activeChat = computed(() => {
+    if (!activeChatId.value) return null
+    return getChatById(activeChatId.value)
+})
+
+type ContentView = { type: 'chat'; chatId: string } | { type: 'none' }
+
+const contentView = computed<ContentView>(() => {
+    if (activeChatId.value) return { type: 'chat', chatId: activeChatId.value }
+    return { type: 'none' }
+})
+
+watch(activeChatId, (newId) => {
+    if (newId) ensureSession(newId)
+})
+
+const chatSessions = new Map<string, ReturnType<typeof useChatSession>>()
+
+function ensureSession(chatId: string) {
+    if (!chatSessions.has(chatId)) {
+        const session = useChatSession(workspaceId.value, chatId)
+        chatSessions.set(chatId, session)
+        session.loadHistory()
+    }
+    return chatSessions.get(chatId)!
+}
+
+function removeSession(chatId: string) {
+    const session = chatSessions.get(chatId)
+    if (session) {
+        session.cleanup()
+        chatSessions.delete(chatId)
+    }
+}
+
+function buildChatTabSchema(chat: Chat): ChatTabSchema {
+    const session = ensureSession(chat.id)
+    return {
+        title: chat.title,
+        messages: session.messages.value,
+        loading: session.isLoading.value,
+        providers: providerStore.providers,
+        modelId: chat.modelId,
+        providerId: chat.providerId,
+        contentWidth: appearanceStore.contentWidth,
+        fontSize: appearanceStore.fontSize,
+        lineHeight: appearanceStore.lineHeight,
+        onSend: session.sendMessage,
+        onStop: session.stop,
+        onSelectModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
+    }
+}
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
-
-function chatIcon() {
-    return h(
-        'span',
-        {
-            style: {
-                width: '16px',
-                height: '16px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                lineHeight: '1',
-                color: 'rgb(var(--text-color))',
-                opacity: '0.5',
-            },
-        },
-        '💬',
-    )
-}
-
-function openChatTab(chat: Chat) {
-    const panelName = `chat-${chat.id}`
-    const existing = splitLayoutData.value.getPanelByName(panelName)
-    if (existing) {
-        splitLayoutRef.value?.activePanel(panelName)
-        focusTab(chat.id)
-        return
-    }
-    openTab(chat)
-    splitLayoutData.value.addPanel({
-        name: panelName,
-        title: chat.title,
-        tooltip: chat.title,
-        closeType: 'close',
-        iconSmall: () => chatIcon(),
-    })
-    splitLayoutRef.value?.activePanel(panelName)
-}
 
 function getChatById(chatId: string): Chat | undefined {
     return chatStore.chats.find((c) => c.id === chatId)
 }
 
-function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
-    const chatId = panel.name.replace('chat-', '')
-    closeTab(chatId)
-    resolve()
-}
-
-function onPanelActive(panel: CodeLayoutSplitNPanelInternal | null) {
-    if (!panel) return
-    const chatId = panel.name.replace('chat-', '')
-    focusTab(chatId)
+async function onUpdateChat(chatId: string, payload: { modelId?: string; providerId?: string }) {
+    try {
+        await chatStore.updateChat(workspaceId.value, chatId, payload)
+    } catch {
+        /* handled by store */
+    }
 }
 
 const chatFormSchema: DialogGridSchema = {
@@ -166,7 +246,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     variant: 'sidebar',
     size: 'sm',
     activeKey: 'id',
-    activeId: activeChatId.value,
+    activeId: activeChatId.value ?? undefined,
     fields: [
         { key: 'title', class: 'title' },
         // { key: 'createdAt', class: 'date', format: fmtDate },
@@ -183,7 +263,9 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     ],
     emptyMessage: 'No chats yet',
     emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
-    onSelect: (chat) => openChatTab(chat),
+    onSelect: (chat) => {
+        activeChatId.value = chat.id
+    },
 }))
 
 const showChatEdit = ref(false)
@@ -212,12 +294,6 @@ async function submitChatEdit(data: DynamicGridDataOutput) {
     chatEditLoading.value = true
     try {
         await chatStore.updateChat(workspaceId.value, editingChat.value.id, payload)
-        const newTitle = editingChat.value.title
-        syncTitle(editingChat.value.id, newTitle)
-        const panel = splitLayoutData.value.getPanelByName(`chat-${editingChat.value.id}`)
-        if (panel) {
-            panel.title = newTitle
-        }
         showChatEdit.value = false
         editingChat.value = null
     } catch {
@@ -242,6 +318,10 @@ function cancelChatDelete() {
 
 async function executeChatDelete() {
     if (!deletingChat.value) return
+    if (activeChatId.value === deletingChat.value.id) {
+        activeChatId.value = null
+    }
+    removeSession(deletingChat.value.id)
     await chatStore.deleteChat(workspaceId.value, deletingChat.value.id)
     showChatDelete.value = false
     deletingChat.value = null
@@ -282,10 +362,23 @@ function setupWatchEvents() {
     )
 }
 
+// --- Header schema ---
+const sidebarHeaderSchema = computed<HeaderSchema | null>(() => {
+    if (!workspace.value || showFileExplorer.value) return null
+    return {
+        variant: 'sidebar',
+        title: workspace.value.name,
+        height: 'sm',
+        padding: 'md',
+        actions: [{ icon: Plus, ariaLabel: 'New chat', onClick: openChatCreate }],
+    }
+})
+
 onMounted(async () => {
     if (workspaceId.value) {
         wsStore.selectWorkspace(workspaceId.value)
         chatStore.fetchChats(workspaceId.value)
+        providerStore.fetchProviders()
         await setupFileExplorer()
         setupWatchEvents()
     }
@@ -298,78 +391,49 @@ onUnmounted(() => {
 
 <template>
     <div class="ws-layout" v-if="workspace">
-        <AppSidebar v-model:collapsed="sidebarCollapsed" v-model:width="sidebarWidth">
-            <template #iconRail>
-                <button
-                    class="ws-sidebar__rail-icon"
-                    :class="{ 'ws-sidebar__rail-icon--active': !showFileExplorer }"
-                    title="Chat"
-                    @click="showPanel('chat')"
-                >
-                    <ChatBubbleEmpty width="20" height="20" />
-                </button>
-                <button
-                    class="ws-sidebar__rail-icon"
-                    :class="{ 'ws-sidebar__rail-icon--active': showFileExplorer }"
-                    title="File Explorer"
-                    @click="showPanel('files')"
-                >
-                    <Folder width="20" height="20" />
-                </button>
+        <ContainerGrid :schema="workspaceSchema" :animate="true">
+            <template #rail>
+                <IconRails :schema="iconRailsSchema" />
             </template>
 
-            <template #header>
-                <template v-if="!showFileExplorer">
-                    <h2 class="ws-sidebar__title">{{ workspace.name }}</h2>
-                    <button class="ws-btn-icon" @click="openChatCreate" title="New chat">
-                        <Plus width="14" height="14" />
-                    </button>
-                </template>
-            </template>
-
-            <template v-if="!showFileExplorer">
-                <DynamicList :schema="chatListSchema" :items="chatStore.chats" />
-            </template>
-
-            <FileExplorer
-                v-else
-                ref="fileExplorerRef"
-                :initial-data="fileExplorerInitialData"
-                :meta="fileExplorerMeta"
-                @request-children="onRequestChildren"
-                @select="onFileSelect"
-            />
-        </AppSidebar>
-
-        <!-- CONTENT -->
-        <div class="ws-content">
-            <SplitLayout
-                ref="splitLayoutRef"
-                :layoutData="splitLayoutData as CodeLayoutSplitNRootGrid"
-                @panelClose="onPanelClose"
-                @panelActive="onPanelActive"
-                @update:layoutData="(v: any) => (splitLayoutData = v)"
-            >
-                <template #tabContentRender="{ panel }">
-                    <ChatTab
-                        v-if="getChatById(panel.name.replace('chat-', ''))"
-                        :key="panel.name"
-                        :chat="getChatById(panel.name.replace('chat-', ''))!"
-                    />
-                </template>
-                <template #tabEmptyContentRender>
-                    <div class="ws-content__empty">
-                        <div class="ws-empty__icon">
-                            <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
-                        </div>
-                        <h2 class="ws-empty__title">Select a chat</h2>
-                        <p class="ws-empty__desc">
-                            Choose a chat from the sidebar or create a new one to get started.
-                        </p>
+            <template #panel>
+                <div class="ws-sidebar__panel">
+                    <div v-if="sidebarHeaderSchema" class="ws-sidebar__header">
+                        <Header :schema="sidebarHeaderSchema" />
                     </div>
-                </template>
-            </SplitLayout>
-        </div>
+                    <div class="ws-sidebar__body">
+                        <DynamicList
+                            v-if="!showFileExplorer"
+                            :schema="chatListSchema"
+                            :items="chatStore.chats"
+                        />
+                        <FileExplorer
+                            v-else
+                            ref="fileExplorerRef"
+                            :initial-data="fileExplorerInitialData"
+                            :meta="fileExplorerMeta"
+                            @request-children="onRequestChildren"
+                            @select="onFileSelect"
+                        />
+                    </div>
+                </div>
+            </template>
+
+            <template #content>
+                <ChatTab
+                    v-if="contentView.type === 'chat' && activeChat"
+                    :key="activeChat.id"
+                    :schema="buildChatTabSchema(activeChat)"
+                />
+                <div v-else class="ws-content__empty">
+                    <div class="ws-empty__icon">
+                        <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
+                    </div>
+                    <h2 class="ws-empty__title">Just Select something on the sidebar, vro ✌🏻🥹</h2>
+                    <p class="ws-empty__desc">What will you have after 500 years!?.</p>
+                </div>
+            </template>
+        </ContainerGrid>
     </div>
 
     <div v-else class="ws-layout ws-layout--not-found">

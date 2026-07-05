@@ -7,6 +7,8 @@ export const MOCK_IDS = {
     workspace: '550e8400-e29b-41d4-a716-446655440001',
     provider: '550e8400-e29b-41d4-a716-446655440002',
     model: '550e8400-e29b-41d4-a716-446655440003',
+    model2: '550e8400-e29b-41d4-a716-446655440005',
+    model3: '550e8400-e29b-41d4-a716-446655440006',
     chat: '550e8400-e29b-41d4-a716-446655440004',
 } as const
 
@@ -129,6 +131,22 @@ export const store = {
             id: MOCK_IDS.model,
             modelId: 'gpt-4o',
             displayName: 'GPT-4o',
+            providerId: MOCK_IDS.provider,
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+        {
+            id: MOCK_IDS.model2,
+            modelId: 'gpt-5.4',
+            displayName: 'GPT-5.4',
+            providerId: MOCK_IDS.provider,
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+        {
+            id: MOCK_IDS.model3,
+            modelId: 'gpt-ngawi',
+            displayName: 'GPT-NGAWI',
             providerId: MOCK_IDS.provider,
             createdAt: nowStr,
             updatedAt: nowStr,

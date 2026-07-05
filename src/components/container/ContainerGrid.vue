@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ContainerCell from './ContainerCell.vue'
-import type { ContainerColumnConfig, ContainerRowConfig, SizeValue } from './types'
+import { useColumnResize } from './composables/useColumnResize'
+import type {
+    ContainerColumnConfig,
+    ContainerSchema,
+    ContainerResizeMode,
+    SizeValue,
+} from './types'
 
 type Props = {
-    readonly rows: ReadonlyArray<ContainerRowConfig>
+    readonly schema: ReadonlyArray<ContainerSchema>
     readonly rowGap?: SizeValue
     readonly colGap?: SizeValue
     readonly animate?: boolean
     readonly animationMs?: number
+    readonly resizeMode?: ContainerResizeMode
+    readonly minWidth?: number
+    readonly maxWidth?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -16,6 +25,15 @@ const props = withDefaults(defineProps<Props>(), {
     colGap: 0,
     animate: false,
     animationMs: 180,
+    resizeMode: 'edge',
+    minWidth: 80,
+    maxWidth: 600,
+})
+
+const { onHandleMouseDown, resolveWidth } = useColumnResize({
+    rows: computed(() => props.schema),
+    defaultMinWidth: props.minWidth,
+    defaultMaxWidth: props.maxWidth,
 })
 
 const toCssSize = (value?: SizeValue): string | undefined => {
@@ -23,19 +41,21 @@ const toCssSize = (value?: SizeValue): string | undefined => {
     return typeof value === 'number' ? `${value}px` : value
 }
 
-const getVisibleColumns = (row: ContainerRowConfig): ReadonlyArray<ContainerColumnConfig> => {
+const getVisibleColumns = (row: ContainerSchema): ReadonlyArray<ContainerColumnConfig> => {
     return row.columns.filter((column) => column.visible !== false)
 }
 
 const visibleRows = computed(() => {
-    return props.rows.filter((row) => getVisibleColumns(row).length > 0)
+    return props.schema.filter((row) => getVisibleColumns(row).length > 0)
 })
 
-const getColumnTemplate = (row: ContainerRowConfig): string => {
+const getColumnTemplate = (row: ContainerSchema): string => {
     const columns = getVisibleColumns(row)
     if (columns.length === 0) return '1fr'
 
-    return columns.map((column) => toCssSize(column.width) ?? '1fr').join(' ')
+    return columns
+        .map((column) => toCssSize(resolveWidth(column.id, column.width ?? '1fr')) ?? '1fr')
+        .join(' ')
 }
 
 const gridStyle = computed(() => {
@@ -51,7 +71,7 @@ const gridStyle = computed(() => {
     }
 })
 
-const getRowStyle = (row: ContainerRowConfig) => {
+const getRowStyle = (row: ContainerSchema) => {
     return {
         gridTemplateColumns: getColumnTemplate(row),
         columnGap: toCssSize(row.columnGap ?? props.colGap),
@@ -73,10 +93,15 @@ const getRowStyle = (row: ContainerRowConfig) => {
                 v-for="column in getVisibleColumns(row)"
                 :key="column.id"
                 :cell-id="column.id"
+                :row-id="row.id"
                 :style-config="column.cell"
                 :resizable="column.resizable ?? false"
+                :resize-mode="column.resizeMode ?? resizeMode"
                 :animate="props.animate"
                 :animation-ms="props.animationMs"
+                @resize-grab="
+                    (e) => onHandleMouseDown(e, row.id, column.id, column.resizeMode ?? resizeMode)
+                "
             >
                 <slot :name="column.id" />
             </ContainerCell>

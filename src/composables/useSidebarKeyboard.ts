@@ -1,10 +1,11 @@
-import { useEventListener } from '@vueuse/core'
+import { useShortcut } from './keyboard'
 
 export function useSidebarKeyboard(toggle: () => void) {
-    useEventListener(window, 'keydown', (e: KeyboardEvent) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-            e.preventDefault()
-            toggle()
-        }
+    useShortcut({
+        key: 'b',
+        modifiers: { ctrl: true },
+        handler: () => toggle(),
+        description: 'Toggle sidebar',
+        preventDefault: true,
     })
 }

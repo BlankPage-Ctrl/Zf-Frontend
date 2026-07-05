@@ -1,4 +1,4 @@
-import type { ButtonSchema, ButtonVariant, ButtonSize, ButtonRadius } from '../types/schema'
+import type { ButtonSchema } from '../types/schema'
 import type { ButtonClasses, ResolvedButton } from '../types/resolved'
 import { BUTTON_PRESETS } from '../presets'
 

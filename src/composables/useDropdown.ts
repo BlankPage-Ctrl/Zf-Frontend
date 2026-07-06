@@ -1,4 +1,4 @@
-import { ref, computed, watch, onUnmounted, type Ref } from 'vue'
+import { ref, computed, watch, type Ref } from 'vue'
 import {
     useFloating,
     offset as offsetMiddleware,
@@ -16,6 +16,7 @@ import type {
     TriggerMode,
 } from '../components/dropdown/types'
 import { getSelectableItems } from '../components/dropdown/utils'
+import { useKeyboardScope, useKeyboard } from './keyboard'
 
 export function useDropdown<T = string>(options: {
     isOpen: Ref<boolean>
@@ -131,37 +132,30 @@ export function useDropdown<T = string>(options: {
         }
     })
 
-    function handleKeydown(e: KeyboardEvent) {
-        if (!isOpen.value) return
+    const dropdownScope = useKeyboardScope({
+        id: 'dropdown',
+        priority: 10,
+    })
 
-        switch (e.key) {
-            case 'ArrowDown':
-                e.preventDefault()
-                focusNext()
-                break
-            case 'ArrowUp':
-                e.preventDefault()
-                focusPrev()
-                break
-            case 'Enter':
-            case ' ':
-                e.preventDefault()
-                selectFocused()
-                break
-            case 'Escape':
-                e.preventDefault()
-                isOpen.value = false
-                break
-            case 'Home':
-                e.preventDefault()
-                focusFirst()
-                break
-            case 'End':
-                e.preventDefault()
-                focusLast()
-                break
-        }
-    }
+    useKeyboard({
+        scope: dropdownScope,
+        active: isOpen,
+        bindings: {
+            ArrowDown: { handler: focusNext, preventDefault: true },
+            ArrowUp: { handler: focusPrev, preventDefault: true },
+            Enter: { handler: selectFocused, preventDefault: true },
+            ' ': { handler: selectFocused, preventDefault: true },
+            Escape: {
+                handler: () => {
+                    isOpen.value = false
+                },
+                preventDefault: true,
+            },
+            Home: { handler: focusFirst, preventDefault: true },
+            End: { handler: focusLast, preventDefault: true },
+        },
+        target: 'document',
+    })
 
     function handleClickOutside(e: MouseEvent) {
         if (!isOpen.value) return
@@ -172,25 +166,17 @@ export function useDropdown<T = string>(options: {
         isOpen.value = false
     }
 
-    let cleanupListener: (() => void) | null = null
-
+    let cleanupClickOutside: (() => void) | null = null
     watch(isOpen, (open) => {
         if (open) {
-            document.addEventListener('keydown', handleKeydown)
             document.addEventListener('mousedown', handleClickOutside)
-            cleanupListener = () => {
-                document.removeEventListener('keydown', handleKeydown)
+            cleanupClickOutside = () => {
                 document.removeEventListener('mousedown', handleClickOutside)
             }
         } else {
-            cleanupListener?.()
-            cleanupListener = null
-            resetFocus()
+            cleanupClickOutside?.()
+            cleanupClickOutside = null
         }
-    })
-
-    onUnmounted(() => {
-        cleanupListener?.()
     })
 
     return {
@@ -207,5 +193,6 @@ export function useDropdown<T = string>(options: {
         resetFocus,
         update,
         selectableItems,
+        scope: dropdownScope,
     }
 }

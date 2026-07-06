@@ -1,5 +1,6 @@
-import { http, HttpResponse } from 'msw'
+import { http } from 'msw'
 import fileTreeRaw from '../data/mock-file-tree.json'
+import { ok, fail } from './helpers'
 
 interface FileTreeNode {
     id: string
@@ -69,7 +70,7 @@ export const fileHandlers = [
         const rawPath = url.searchParams.get('path') || '.'
         const targetPath = rawPath === '.' || rawPath === '/' ? '.' : rawPath
         const nodes = listDir(targetPath)
-        return HttpResponse.json({ requestedPath: targetPath, nodes })
+        return ok({ requestedPath: targetPath, nodes })
     }),
 
     http.get('/workspaces/:workspaceId/files/stat', ({ request }) => {
@@ -77,8 +78,8 @@ export const fileHandlers = [
         const rawPath = url.searchParams.get('path') || '.'
         const targetPath = rawPath === '.' || rawPath === '/' ? '.' : rawPath
         const node = getStat(targetPath)
-        if (!node) return HttpResponse.json({ message: 'Not Found' }, { status: 404 })
-        return HttpResponse.json({ node })
+        if (!node) return fail('PATH_NOT_FOUND', `Path not found: "${targetPath}"`, { status: 404 })
+        return ok({ node })
     }),
 
     http.get('/workspaces/:workspaceId/files/read', ({ request }) => {
@@ -88,10 +89,10 @@ export const fileHandlers = [
         const content = mockFileContents[path]
         if (content === undefined) {
             const node = findNode(path)
-            if (!node) return HttpResponse.json({ message: 'Not Found' }, { status: 404 })
+            if (!node) return fail('PATH_NOT_FOUND', `Path not found: "${path}"`, { status: 404 })
             const placeholder = `[File: ${node.name}]`
             const truncated = placeholder.length > maxBytes
-            return HttpResponse.json({
+            return ok({
                 path,
                 content: truncated ? placeholder.slice(0, maxBytes) : placeholder,
                 encoding: 'utf-8' as const,
@@ -100,7 +101,7 @@ export const fileHandlers = [
             })
         }
         const truncated = content.length > maxBytes
-        return HttpResponse.json({
+        return ok({
             path,
             content: truncated ? content.slice(0, maxBytes) : content,
             encoding: 'utf-8' as const,

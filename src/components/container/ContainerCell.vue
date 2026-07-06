@@ -1,21 +1,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ContainerCellStyle, SizeValue } from './types'
+import ResizeHandle from './components/ResizeHandle.vue'
+import type { ContainerCellStyle, ContainerResizeMode, SizeValue } from './types'
 
 type Props = {
     readonly cellId: string
+    readonly rowId?: string
     readonly styleConfig?: ContainerCellStyle
     readonly animate?: boolean
     readonly animationMs?: number
     readonly resizable?: boolean
+    readonly resizeMode?: ContainerResizeMode
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    rowId: undefined,
     styleConfig: undefined,
     animate: false,
     animationMs: 180,
     resizable: false,
+    resizeMode: 'edge',
 })
+
+const emit = defineEmits<{
+    resizeGrab: [event: MouseEvent]
+}>()
 
 const toCssSize = (value?: SizeValue): string | undefined => {
     if (value === undefined) return undefined
@@ -44,12 +53,7 @@ const cellStyle = computed(() => {
 <template>
     <div class="container-cell" :data-cell="cellId" :style="cellStyle">
         <slot />
-        <div
-            v-if="resizable"
-            class="container-cell__resize-handle"
-            data-resize="col"
-            aria-hidden="true"
-        ></div>
+        <ResizeHandle v-if="resizable" :mode="resizeMode" @grab="emit('resizeGrab', $event)" />
     </div>
 </template>
 
@@ -61,15 +65,5 @@ const cellStyle = computed(() => {
     min-width: 0;
     min-height: 0;
     box-sizing: border-box;
-}
-
-.container-cell__resize-handle {
-    position: absolute;
-    top: 0;
-    right: -3px;
-    width: 6px;
-    height: 100%;
-    cursor: col-resize;
-    background: transparent;
 }
 </style>

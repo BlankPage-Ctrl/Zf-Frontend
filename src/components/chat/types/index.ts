@@ -1,0 +1,32 @@
+export type {
+    ChatTabSchema,
+    ChatInputSchema,
+    MessageBubbleSchema,
+    MessageListSchema,
+    TextPartSchema,
+    ReasoningPartSchema,
+    ToolCallPartSchema,
+    SourcePartSchema,
+    FilePartSchema,
+    DataPartSchema,
+    StepIndicatorSchema,
+    MessagePartSchema,
+    ResolvedChatTab,
+    ResolvedChatInput,
+    ResolvedMessageBubble,
+    ResolvedMessageList,
+    ResolvedTextPart,
+    ResolvedReasoningPart,
+    ResolvedToolCallPart,
+    ResolvedSourcePart,
+    ResolvedFilePart,
+    ResolvedDataPart,
+    ResolvedStepIndicator,
+} from './resolved'
+
+export type {
+    ChatTabSchema as ChatTabSchemaInput,
+    ChatInputSchema as ChatInputSchemaInput,
+    MessageBubbleSchema as MessageBubbleSchemaInput,
+    MessageListSchema as MessageListSchemaInput,
+} from './schema'

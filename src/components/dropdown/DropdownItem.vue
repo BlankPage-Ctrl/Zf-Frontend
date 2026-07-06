@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Check, NavArrowRight } from '@iconoir/vue'
 import type { DropdownItemConfig, DropdownMode } from './types'
 
 defineOptions({ inheritAttrs: false })
@@ -54,20 +55,13 @@ const showIconArea = computed(() => {
     >
         <div v-if="showIconArea" class="dropdown-item__icon">
             <component :is="item.icon" v-if="item.icon" class="dropdown-item__svg" />
-            <svg
+            <Check
                 v-else-if="selected"
                 class="dropdown-item__check"
                 width="14"
                 height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
                 stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <polyline points="20 6 9 17 4 12" />
-            </svg>
+            />
         </div>
 
         <span class="dropdown-item__label">{{ item.label }}</span>
@@ -75,18 +69,7 @@ const showIconArea = computed(() => {
         <span v-if="item.shortcut" class="dropdown-item__shortcut">{{ item.shortcut }}</span>
 
         <div v-if="hasSubmenu" class="dropdown-item__arrow">
-            <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <polyline points="9 18 15 12 9 6" />
-            </svg>
+            <NavArrowRight width="14" height="14" />
         </div>
     </div>
 </template>

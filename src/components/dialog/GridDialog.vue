@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { Xmark } from '@iconoir/vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from './types.ts'
 import DynamicGridForm from './GridForm.vue'
+import { useKeyboardScope, useKeyboard } from '../../composables/keyboard'
 
 type Props = {
     modelValue: boolean
@@ -92,47 +94,54 @@ const getFocusableElements = (): HTMLElement[] => {
     ) as HTMLElement[]
 }
 
-const handleKeyDown = (e: KeyboardEvent) => {
-    if (!props.modelValue) return
-
-    if (e.key === 'Escape') {
-        close()
+const handleTab = (e: KeyboardEvent) => {
+    const focusables = getFocusableElements().filter(
+        (el) => !el.hasAttribute('disabled') && el.style.display !== 'none',
+    )
+    if (focusables.length === 0) {
+        e.preventDefault()
+        return
     }
 
-    if (e.key === 'Tab') {
-        const focusables = getFocusableElements().filter(
-            (el) => !el.hasAttribute('disabled') && el.style.display !== 'none',
-        )
-        if (focusables.length === 0) {
+    const first = focusables[0]!
+    const last = focusables[focusables.length - 1]!
+    const active = document.activeElement as HTMLElement
+
+    if (e.shiftKey) {
+        if (active === first) {
+            last.focus()
             e.preventDefault()
-            return
         }
-
-        const first = focusables[0]!
-        const last = focusables[focusables.length - 1]!
-        const active = document.activeElement as HTMLElement
-
-        if (e.shiftKey) {
-            if (active === first) {
-                last.focus()
-                e.preventDefault()
-            }
-        } else {
-            if (active === last) {
-                first.focus()
-                e.preventDefault()
-            }
+    } else {
+        if (active === last) {
+            first.focus()
+            e.preventDefault()
         }
     }
 }
 
-// Watch modal state to activate/deactivate focus trap
+const dialogScope = useKeyboardScope({
+    id: `dialog-${Date.now()}`,
+    priority: 100,
+})
+const isDialogOpen = computed(() => props.modelValue)
+
+useKeyboard({
+    scope: dialogScope,
+    active: isDialogOpen,
+    bindings: {
+        Escape: { handler: close, preventDefault: true },
+        Tab: { handler: handleTab, preventDefault: true },
+    },
+    target: 'window',
+})
+
+// Watch modal state for focus management
 watch(
     () => props.modelValue,
     (newVal) => {
         if (newVal) {
             previouslyFocusedElement = document.activeElement as HTMLElement
-            window.addEventListener('keydown', handleKeyDown)
 
             // Focus first input field when open
             setTimeout(() => {
@@ -150,17 +159,12 @@ watch(
                 }
             }, 120)
         } else {
-            window.removeEventListener('keydown', handleKeyDown)
             if (previouslyFocusedElement) {
                 previouslyFocusedElement.focus()
             }
         }
     },
 )
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeyDown)
-})
 </script>
 
 <template>
@@ -176,19 +180,7 @@ onUnmounted(() => {
                 <div class="dialog-header">
                     <h3 class="dialog-title">{{ title }}</h3>
                     <button class="btn-close" @click="close" title="Tutup" :disabled="loading">
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        <Xmark width="18" height="18" />
                     </button>
                 </div>
 

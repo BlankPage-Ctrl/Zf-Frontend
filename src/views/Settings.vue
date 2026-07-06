@@ -1,21 +1,23 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue'
-import { Icon } from '@iconify/vue'
+import { ref, computed, onMounted, h } from 'vue'
+import { Album, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
+import { Header } from '@/components/header'
+import type { HeaderSchema } from '@/components/header'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import type { Provider, ProviderDto, Model, ModelDto } from '@/services/provider'
 
-const PlusIcon = () => h(Icon, { icon: 'lucide:plus' })
-const EditIcon = () => h(Icon, { icon: 'lucide:pencil' })
-const TrashIcon = () => h(Icon, { icon: 'lucide:trash-2' })
-const StarIcon = () => h(Icon, { icon: 'lucide:star' })
-const LayersIcon = () => h(Icon, { icon: 'lucide:layers' })
-const PaletteIcon = () => h(Icon, { icon: 'lucide:palette' })
-const ChevronIcon = () => h(Icon, { icon: 'lucide:chevron-right' })
+const PlusIcon = () => h(Plus, { width: 14, height: 14 })
+const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
+const TrashIcon = () => h(Trash, { width: 14, height: 14 })
+const StarIcon = () => h(Star, { width: 14, height: 14 })
+const LayersIcon = () => h(Album, { width: 14, height: 14 })
+const PaletteIcon = () => h(Palette, { width: 14, height: 14 })
+const ChevronIcon = () => h(NavArrowRight, { width: 14, height: 14 })
 
 const store = useProviderStore()
 const appearance = useAppearanceStore()
@@ -27,6 +29,35 @@ function scrollToSection(id: string) {
     activeSection.value = id
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+// --- Header schemas ---
+const sidebarHeaderSchema = computed<HeaderSchema>(() => ({
+    title: 'Settings',
+    height: 'md',
+    padding: 'md',
+}))
+
+const providerSectionHeaderSchema = computed<HeaderSchema>(() => ({
+    title: 'Model and Provider',
+    subtitle: 'Manage your AI providers and models. Set a default model for new chats.',
+    height: 'auto',
+    padding: 'none',
+    actions: [
+        {
+            icon: Plus,
+            ariaLabel: 'Add provider',
+            label: 'Add provider',
+            onClick: openProviderCreate,
+        },
+    ],
+}))
+
+const appearanceSectionHeaderSchema = computed<HeaderSchema>(() => ({
+    title: 'Appearance',
+    subtitle: 'Adjust the markdown rendering size and spacing.',
+    height: 'auto',
+    padding: 'none',
+}))
 
 // --- Provider form ---
 const showProviderDialog = ref(false)
@@ -306,9 +337,7 @@ onMounted(() => {
     <div class="settings-page">
         <!-- SIDEBAR NAV -->
         <nav class="settings-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-title">Settings</h1>
-            </div>
+            <Header :schema="sidebarHeaderSchema" />
             <div class="sidebar-nav">
                 <pButton
                     :schema="{
@@ -341,23 +370,7 @@ onMounted(() => {
         <main class="settings-content">
             <!-- Model & Provider Section -->
             <section id="model-provider" class="settings-section">
-                <div class="section-header">
-                    <div class="section-header-text">
-                        <h2 class="section-title">Model and Provider</h2>
-                        <p class="section-desc">
-                            Manage your AI providers and models. Set a default model for new chats.
-                        </p>
-                    </div>
-                    <pButton
-                        :schema="{
-                            preset: 'primary',
-                            size: 'sm',
-                            label: 'Add provider',
-                            icon: PlusIcon,
-                        }"
-                        @click="openProviderCreate"
-                    />
-                </div>
+                <Header :schema="providerSectionHeaderSchema" class="section-header" />
 
                 <!-- Loading -->
                 <div v-if="store.loading && !store.providers.length" class="section-empty">
@@ -376,23 +389,7 @@ onMounted(() => {
                 <!-- Empty state -->
                 <div v-else-if="!store.providers.length" class="section-empty">
                     <div class="empty-icon">
-                        <svg
-                            width="32"
-                            height="32"
-                            viewBox="0 0 32 32"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            opacity="0.3"
-                        >
-                            <rect x="4" y="6" width="24" height="20" rx="3" />
-                            <line x1="4" y1="14" x2="28" y2="14" />
-                            <line x1="10" y1="6" x2="10" y2="3" />
-                            <line x1="16" y1="6" x2="16" y2="3" />
-                            <line x1="22" y1="6" x2="22" y2="3" />
-                        </svg>
+                        <Album width="32" height="32" style="opacity: 0.3" />
                     </div>
                     <span class="empty-text">No providers yet</span>
                     <pButton
@@ -522,12 +519,7 @@ onMounted(() => {
 
             <!-- Appearance Section -->
             <section id="appearance" class="settings-section section-appearance">
-                <div class="section-header">
-                    <div class="section-header-text">
-                        <h2 class="section-title">Appearance</h2>
-                        <p class="section-desc">Adjust the markdown rendering size and spacing.</p>
-                    </div>
-                </div>
+                <Header :schema="appearanceSectionHeaderSchema" class="section-header" />
 
                 <div class="appearance-card">
                     <div class="appearance-row">
@@ -683,20 +675,6 @@ onMounted(() => {
     overflow-y: auto;
 }
 
-.sidebar-header {
-    padding: 16px 14px 12px;
-    flex-shrink: 0;
-}
-
-.sidebar-title {
-    font-family: var(--font-serif);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
-    margin: 0;
-}
-
 .sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -726,28 +704,6 @@ onMounted(() => {
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 24px;
-}
-
-.section-header-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.section-title {
-    font-family: var(--font-serif);
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
-    margin: 0;
-}
-
-.section-desc {
-    font-size: 13px;
-    color: rgb(var(--text-color));
-    opacity: 0.5;
-    margin: 0;
 }
 
 /* --- Empty state --- */

@@ -5,62 +5,41 @@
     --ws-icon-hover-bg: rgba(var(--third-color), 0.15);
     --ws-transition: opacity 100ms ease, background 100ms ease;
 
-    display: flex;
     height: 100%;
     overflow: hidden;
 }
 
 .ws-layout--not-found {
-    align-items: center;
-    justify-content: center;
-}
-
-/* --- Sidebar --- */
-
-.ws-sidebar__rail-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    color: var(--ws-text);
-    opacity: 0.45;
-    transition: var(--ws-transition);
 }
 
-.ws-sidebar__rail-icon:hover {
-    opacity: 1;
-    background: var(--ws-hover-bg);
-}
+/* --- Sidebar Panel (ContainerGrid replacement) --- */
 
-.ws-sidebar__rail-icon--active {
-    opacity: 1;
-    background: var(--ws-icon-hover-bg);
-}
-
-.ws-sidebar__title {
-    font-family: var(--font-serif);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--ws-text);
-    margin: 0;
-    white-space: nowrap;
+.ws-sidebar__panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+.ws-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 12px 8px;
+    flex-shrink: 0;
+}
+
+.ws-sidebar__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 8px;
 }
 
 /* --- Content --- */
-
-.ws-content {
-    flex: 1;
-    background: rgb(var(--primary-color));
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
-}
 
 .ws-content__empty {
     display: flex;

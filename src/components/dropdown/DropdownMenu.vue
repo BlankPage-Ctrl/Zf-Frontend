@@ -106,6 +106,7 @@ watch(
     >
         <template v-for="item in visibleItems" :key="item.id">
             <DropdownSeparator v-if="item.type === 'separator'" />
+            <div v-else-if="item.type === 'label'" class="dropdown-label">{{ item.label }}</div>
             <DropdownItem
                 v-else
                 :item="item"
@@ -186,5 +187,19 @@ watch(
 
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: rgba(var(--third-color), 0.35);
+}
+
+.dropdown-label {
+    padding: 5px 10px 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(var(--text-color), 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: default;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>

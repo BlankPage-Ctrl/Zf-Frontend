@@ -3,6 +3,7 @@ import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { messagesApi } from '@/services/messages'
+import { buildAuthHeaders } from '@/services/client'
 
 export function useChatSession(workspaceId: string, chatId: string) {
     const messages = ref<UIMessage[]>([]) as Ref<UIMessage[]>
@@ -24,12 +25,17 @@ export function useChatSession(workspaceId: string, chatId: string) {
     }
 
     function initChat(initialMessages: UIMessage[]) {
+        const apiPath = `/workspaces/${workspaceId}/chats/${chatId}/messages`
         const transport = new DefaultChatTransport({
-            api: `/workspaces/${workspaceId}/chats/${chatId}/messages`,
-            prepareSendMessagesRequest: ({ messages: msgs }) => {
+            api: apiPath,
+            prepareSendMessagesRequest: async ({ messages: msgs }) => {
                 const last = msgs[msgs.length - 1]
+                const body = { message: last }
+                const bodyStr = JSON.stringify(body)
+                const hmac = await buildAuthHeaders('POST', apiPath, bodyStr)
                 return {
-                    body: { message: last },
+                    headers: hmac,
+                    body,
                 }
             },
         })

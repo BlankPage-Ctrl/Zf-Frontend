@@ -10,6 +10,10 @@ export const MOCK_IDS = {
     model2: '550e8400-e29b-41d4-a716-446655440005',
     model3: '550e8400-e29b-41d4-a716-446655440006',
     chat: '550e8400-e29b-41d4-a716-446655440004',
+    note: '550e8400-e29b-41d4-a716-446655440007',
+    note2: '550e8400-e29b-41d4-a716-446655440008',
+    category: '550e8400-e29b-41d4-a716-446655440009',
+    category2: '550e8400-e29b-41d4-a716-44665544000a',
 } as const
 
 const now = new Date().toISOString()
@@ -56,6 +60,26 @@ export interface MockChat {
 export interface MockSetting {
     key: string
     value: string
+    createdAt: string
+    updatedAt: string
+}
+
+export interface MockNote {
+    id: string
+    name: string
+    category_id: string | null
+    desc: string | null
+    details: string | null
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    position: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface MockCategory {
+    id: string
+    name: string
+    color: string | null
     createdAt: string
     updatedAt: string
 }
@@ -161,6 +185,48 @@ export const store = {
             modelId: MOCK_IDS.model,
             systemPrompt: null,
             workspaceId: MOCK_IDS.workspace,
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+    ]),
+
+    notes: new Collection<MockNote>([
+        {
+            id: MOCK_IDS.note,
+            name: 'Setup Guide',
+            category_id: MOCK_IDS.category,
+            desc: 'Initial project setup instructions',
+            details: '## Steps\n1. Clone repo\n2. Install deps\n3. Run dev server',
+            priority: 'high',
+            position: 0,
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+        {
+            id: MOCK_IDS.note2,
+            name: 'API Reference',
+            category_id: MOCK_IDS.category2,
+            desc: 'Notes on API endpoints',
+            details: 'REST API with HMAC auth.',
+            priority: 'medium',
+            position: 1,
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+    ]),
+
+    categories: new Collection<MockCategory>([
+        {
+            id: MOCK_IDS.category,
+            name: 'Development',
+            color: '#3b82f6',
+            createdAt: nowStr,
+            updatedAt: nowStr,
+        },
+        {
+            id: MOCK_IDS.category2,
+            name: 'Documentation',
+            color: '#10b981',
             createdAt: nowStr,
             updatedAt: nowStr,
         },

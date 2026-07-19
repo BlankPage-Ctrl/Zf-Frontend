@@ -4,6 +4,7 @@ import { messageHandlers } from './messages'
 import { providerHandlers } from './providers'
 import { settingsHandlers } from './settings'
 import { fileHandlers } from './files'
+import { noteHandlers } from './notes'
 
 export const handlers = [
     ...workspaceHandlers,
@@ -12,4 +13,5 @@ export const handlers = [
     ...providerHandlers,
     ...settingsHandlers,
     ...fileHandlers,
+    ...noteHandlers,
 ]

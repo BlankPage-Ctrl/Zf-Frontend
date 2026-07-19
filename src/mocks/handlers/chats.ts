@@ -1,19 +1,18 @@
 import { http, HttpResponse } from 'msw'
 import { store } from '../data/seed'
-import { ok, fail } from './helpers'
 
 export const chatHandlers = [
     http.get('/workspaces/:workspaceId/chats', ({ params }) => {
         const chats = store.chats.filter((c) => c.workspaceId === params.workspaceId)
-        return ok(chats)
+        return HttpResponse.json(chats)
     }),
 
     http.get('/workspaces/:workspaceId/chats/:id', ({ params }) => {
         const chat = store.chats.findById(params.id as string)
         if (!chat || chat.workspaceId !== params.workspaceId) {
-            return fail('NOT_FOUND', `Chat ${params.id} not found`, { status: 404 })
+            return HttpResponse.json({ error: `Chat ${params.id} not found` }, { status: 404 })
         }
-        return ok(chat)
+        return HttpResponse.json(chat)
     }),
 
     http.post('/workspaces/:workspaceId/chats', async ({ params, request }) => {
@@ -34,20 +33,20 @@ export const chatHandlers = [
             updatedAt: new Date().toISOString(),
         }
         store.chats.create(chat)
-        return ok(chat, { status: 201 })
+        return HttpResponse.json(chat, { status: 201 })
     }),
 
     http.patch('/workspaces/:workspaceId/chats/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const chat = store.chats.update(params.id as string, body)
-        if (!chat) return fail('NOT_FOUND', `Chat ${params.id} not found`, { status: 404 })
-        return ok(chat)
+        if (!chat) return HttpResponse.json({ error: `Chat ${params.id} not found` }, { status: 404 })
+        return HttpResponse.json(chat)
     }),
 
     http.delete('/workspaces/:workspaceId/chats/:id', ({ params }) => {
         const chat = store.chats.findById(params.id as string)
         if (!chat || chat.workspaceId !== params.workspaceId) {
-            return fail('NOT_FOUND', `Chat ${params.id} not found`, { status: 404 })
+            return HttpResponse.json({ error: `Chat ${params.id} not found` }, { status: 404 })
         }
         store.chats.remove(params.id as string)
         return new HttpResponse(null, { status: 204 })

@@ -11,7 +11,9 @@ type Props = {
     items: T[]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+    items: () => [],
+})
 const emit = defineEmits<{ select: [item: T] }>()
 
 const rootClass = computed(() =>

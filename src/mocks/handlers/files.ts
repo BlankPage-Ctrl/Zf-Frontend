@@ -1,4 +1,4 @@
-import { http } from 'msw'
+import { http, HttpResponse } from 'msw'
 import fileTreeRaw from '../data/mock-file-tree.json'
 
 interface FileTreeNode {

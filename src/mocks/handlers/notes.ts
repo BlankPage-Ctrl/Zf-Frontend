@@ -42,7 +42,8 @@ export const noteHandlers = [
 
     http.get('/notes/:id', ({ params }) => {
         const note = store.notes.findById(params.id as string)
-        if (!note) return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 404 })
+        if (!note)
+            return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(note)
     }),
 
@@ -80,7 +81,8 @@ export const noteHandlers = [
     http.patch('/notes/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const note = store.notes.update(params.id as string, body)
-        if (!note) return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 400 })
+        if (!note)
+            return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 400 })
         return HttpResponse.json(note)
     }),
 
@@ -92,7 +94,8 @@ export const noteHandlers = [
     http.post('/notes/:id/move', async ({ params, request }) => {
         const body = (await request.json()) as { before?: string; after?: string }
         const note = store.notes.findById(params.id as string)
-        if (!note) return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 400 })
+        if (!note)
+            return HttpResponse.json({ error: `Note ${params.id} not found` }, { status: 400 })
 
         if (body.before) {
             const before = store.notes.findById(body.before)
@@ -128,7 +131,8 @@ export const noteHandlers = [
     http.patch('/categories/:id', async ({ params, request }) => {
         const body = (await request.json()) as { name: string }
         const cat = store.categories.update(params.id as string, { name: body.name })
-        if (!cat) return HttpResponse.json({ error: `Category ${params.id} not found` }, { status: 400 })
+        if (!cat)
+            return HttpResponse.json({ error: `Category ${params.id} not found` }, { status: 400 })
         return HttpResponse.json(cat)
     }),
 

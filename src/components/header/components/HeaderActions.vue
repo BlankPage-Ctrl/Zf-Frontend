@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { h, type Component } from 'vue'
+import { h } from 'vue'
+import type { Component } from 'vue'
 import type { HeaderAction } from '../types'
 
 defineProps<{
@@ -47,16 +48,16 @@ function renderIcon(icon: Component) {
     color: rgb(var(--text-color));
     cursor: pointer;
     transition: background 100ms ease;
-    opacity: 0.6;
+    opacity: 0.35;
 }
 
 .header-action-btn:hover {
-    background: rgba(var(--third-color), 0.12);
+    background: rgba(var(--third-color), 0.2);
     opacity: 1;
 }
 
 .header-action-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.2;
     cursor: not-allowed;
 }
 

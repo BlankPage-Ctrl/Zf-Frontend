@@ -1,4 +1,11 @@
-import type { MockWorkspace, MockProvider, MockModel, MockChat, MockNote, MockCategory } from './seed'
+import type {
+    MockWorkspace,
+    MockProvider,
+    MockModel,
+    MockChat,
+    MockNote,
+    MockCategory,
+} from './seed'
 
 export function createWorkspace(overrides?: Partial<MockWorkspace>): MockWorkspace {
     const now = new Date().toISOString()

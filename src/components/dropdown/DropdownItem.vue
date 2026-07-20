@@ -95,7 +95,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--focused {
-    background-color: rgba(var(--third-color), 0.15);
+    background-color: rgba(var(--third-color), 0.22);
 }
 
 .dropdown-item--danger {
@@ -103,7 +103,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--danger.dropdown-item--focused {
-    background-color: rgba(var(--red-color), 0.1);
+    background-color: rgba(var(--red-color), 0.12);
 }
 
 .dropdown-item--disabled {

@@ -1,8 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
+import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
-import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
@@ -12,10 +13,12 @@ import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
+import type { DropdownItemConfig } from '@/components/dropdown/types'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
 import type { Workspace, WorkspaceDto } from '@/services/workspace'
 import type { Chat, ChatDto } from '@/services/chat'
+import { chatsApi } from '@/services/chat'
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
@@ -129,6 +132,50 @@ const chatFormSchema: DialogGridSchema = {
     },
 }
 
+// --- Hover menu per workspace ---
+const workspaceChatsCache = ref<Map<string, Chat[]>>(new Map())
+const workspaceChatsLoading = ref<Set<string>>(new Set())
+
+function ensureWorkspaceChats(wsId: string) {
+    if (workspaceChatsCache.value.has(wsId) || workspaceChatsLoading.value.has(wsId)) return
+    workspaceChatsLoading.value.add(wsId)
+    chatsApi
+        .list(wsId)
+        .then((chats) => {
+            const map = new Map(workspaceChatsCache.value)
+            map.set(wsId, chats)
+            workspaceChatsCache.value = map
+            workspaceChatsLoading.value.delete(wsId)
+        })
+        .catch(() => {
+            workspaceChatsLoading.value.delete(wsId)
+        })
+}
+
+function getHoverMenuItems(ws: Workspace): DropdownItemConfig[] {
+    ensureWorkspaceChats(ws.id)
+    const chats = workspaceChatsCache.value.get(ws.id)
+    if (!chats || chats.length === 0) {
+        const loading = workspaceChatsLoading.value.has(ws.id)
+        return loading
+            ? [{ id: 'loading', label: 'Loading...', type: 'label' }]
+            : [{ id: 'empty', label: 'No chats yet', type: 'label' }]
+    }
+    return chats.map((chat) => ({
+        id: chat.id,
+        label: chat.title,
+        value: chat.id,
+        icon: ChatBubbleEmpty as Component,
+    }))
+}
+
+function handleHoverChatSelect(chatId: string) {
+    const wsId = wsStore.selectedWorkspaceId
+    if (wsId) {
+        router.push({ name: 'workspace', params: { id: wsId }, query: { chat: chatId } })
+    }
+}
+
 // --- List schemas ---
 const wsListSchema = computed<ListSchema<Workspace>>(() => ({
     variant: 'sidebar',
@@ -153,7 +200,18 @@ const wsListSchema = computed<ListSchema<Workspace>>(() => ({
     emptyMessage: 'No workspaces yet',
     emptyAction: { label: 'Create your first workspace', onClick: openWsCreate },
     onSelect: (ws) => wsStore.selectWorkspace(ws.id),
+    hoverMenu: {
+        items: (ws) => getHoverMenuItems(ws),
+        onSelect: (chatId) => handleHoverChatSelect(chatId),
+    },
 }))
+
+function goToWorkspace(chat?: Chat) {
+    if (wsStore.selectedWorkspaceId) {
+        const query = chat ? { chat: chat.id } : undefined
+        router.push({ name: 'workspace', params: { id: wsStore.selectedWorkspaceId }, query })
+    }
+}
 
 const chatListSchema = computed<ListSchema<Chat>>(() => ({
     variant: 'content',
@@ -173,6 +231,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     ],
     emptyMessage: 'No chats yet',
     emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
+    onSelect: (chat) => goToWorkspace(chat),
 }))
 
 // --- Workspace form ---

@@ -9,7 +9,8 @@ export const workspaceHandlers = [
 
     http.get('/workspaces/:id', ({ params }) => {
         const ws = store.workspaces.findById(params.id as string)
-        if (!ws) return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
+        if (!ws)
+            return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(ws)
     }),
 
@@ -31,13 +32,15 @@ export const workspaceHandlers = [
     http.patch('/workspaces/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const ws = store.workspaces.update(params.id as string, body)
-        if (!ws) return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
+        if (!ws)
+            return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(ws)
     }),
 
     http.delete('/workspaces/:id', ({ params }) => {
         const ws = store.workspaces.findById(params.id as string)
-        if (!ws) return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
+        if (!ws)
+            return HttpResponse.json({ error: `Workspace ${params.id} not found` }, { status: 404 })
         store.workspaces.remove(params.id as string)
         return new HttpResponse(null, { status: 204 })
     }),

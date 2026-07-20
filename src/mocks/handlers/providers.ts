@@ -13,7 +13,8 @@ export const providerHandlers = [
 
     http.get('/providers/:id', ({ params }) => {
         const p = store.providers.findById(params.id as string)
-        if (!p) return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
+        if (!p)
+            return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
         const models = store.models.filter((m) => m.providerId === p.id)
         return HttpResponse.json({ ...p, models })
     }),
@@ -40,13 +41,15 @@ export const providerHandlers = [
     http.patch('/providers/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const p = store.providers.update(params.id as string, body)
-        if (!p) return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
+        if (!p)
+            return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(p)
     }),
 
     http.delete('/providers/:id', ({ params }) => {
         const p = store.providers.findById(params.id as string)
-        if (!p) return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
+        if (!p)
+            return HttpResponse.json({ error: `Provider ${params.id} not found` }, { status: 404 })
         store.providers.remove(params.id as string)
         return new HttpResponse(null, { status: 204 })
     }),
@@ -70,13 +73,15 @@ export const providerHandlers = [
     http.patch('/providers/:providerId/models/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const model = store.models.update(params.id as string, body)
-        if (!model) return HttpResponse.json({ error: `Model ${params.id} not found` }, { status: 404 })
+        if (!model)
+            return HttpResponse.json({ error: `Model ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(model)
     }),
 
     http.delete('/providers/:providerId/models/:id', ({ params }) => {
         const model = store.models.findById(params.id as string)
-        if (!model) return HttpResponse.json({ error: `Model ${params.id} not found` }, { status: 404 })
+        if (!model)
+            return HttpResponse.json({ error: `Model ${params.id} not found` }, { status: 404 })
         store.models.remove(params.id as string)
         return new HttpResponse(null, { status: 204 })
     }),

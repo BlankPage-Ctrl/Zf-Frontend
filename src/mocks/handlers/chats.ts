@@ -39,7 +39,8 @@ export const chatHandlers = [
     http.patch('/workspaces/:workspaceId/chats/:id', async ({ params, request }) => {
         const body = (await request.json()) as Record<string, unknown>
         const chat = store.chats.update(params.id as string, body)
-        if (!chat) return HttpResponse.json({ error: `Chat ${params.id} not found` }, { status: 404 })
+        if (!chat)
+            return HttpResponse.json({ error: `Chat ${params.id} not found` }, { status: 404 })
         return HttpResponse.json(chat)
     }),
 

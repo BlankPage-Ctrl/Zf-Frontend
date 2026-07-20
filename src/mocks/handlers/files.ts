@@ -77,7 +77,8 @@ export const fileHandlers = [
         const rawPath = url.searchParams.get('path') || '.'
         const targetPath = rawPath === '.' || rawPath === '/' ? '.' : rawPath
         const node = getStat(targetPath)
-        if (!node) return HttpResponse.json({ error: `Path not found: "${targetPath}"` }, { status: 404 })
+        if (!node)
+            return HttpResponse.json({ error: `Path not found: "${targetPath}"` }, { status: 404 })
         return HttpResponse.json({ node })
     }),
 
@@ -88,7 +89,8 @@ export const fileHandlers = [
         const content = mockFileContents[path]
         if (content === undefined) {
             const node = findNode(path)
-            if (!node) return HttpResponse.json({ error: `Path not found: "${path}"` }, { status: 404 })
+            if (!node)
+                return HttpResponse.json({ error: `Path not found: "${path}"` }, { status: 404 })
             const placeholder = `[File: ${node.name}]`
             const truncated = placeholder.length > maxBytes
             return HttpResponse.json({

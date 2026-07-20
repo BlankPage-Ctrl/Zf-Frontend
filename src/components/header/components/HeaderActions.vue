@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { h } from 'vue'
+import type { Component } from 'vue'
 import type { HeaderAction } from '../types'
 
 defineProps<{
     actions: HeaderAction[]
 }>()
 
-function renderIcon(icon: any) {
+function renderIcon(icon: Component) {
     return h(icon, { width: 14, height: 14 })
 }
 </script>

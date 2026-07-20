@@ -7,4 +7,4 @@ export type {
     HeaderSchema,
 } from './types'
 
-export { default as Header } from './Header.vue'
+export { default as Header } from './AppHeader.vue'

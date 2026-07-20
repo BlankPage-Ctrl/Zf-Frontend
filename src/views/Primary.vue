@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
+import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { Album, ChatBubbleEmpty, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
 import { pButton } from '@/components/button'
@@ -148,11 +149,6 @@ function ensureWorkspaceChats(wsId: string) {
     })
 }
 
-function fmtChatDate(iso: unknown): string {
-    if (!iso) return ''
-    return new Date(String(iso)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
 function getHoverMenuItems(ws: Workspace): DropdownItemConfig[] {
     ensureWorkspaceChats(ws.id)
     const chats = workspaceChatsCache.value.get(ws.id)
@@ -166,7 +162,7 @@ function getHoverMenuItems(ws: Workspace): DropdownItemConfig[] {
         id: chat.id,
         label: chat.title,
         value: chat.id,
-        icon: ChatBubbleEmpty as any,
+        icon: ChatBubbleEmpty as Component,
     }))
 }
 

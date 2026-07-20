@@ -1,7 +1,5 @@
 import { extname } from '@/shared/utils/path.utils'
 
-import type { Component } from 'vue'
-
 const extensionIconMap: Record<string, string> = {
     '.ts': 'CodeBrackets',
     '.tsx': 'CodeBrackets',
@@ -84,7 +82,7 @@ const knownFilenames: Record<string, string> = {
 }
 
 export function useFileIcon() {
-    function getIconName(path: string, isDirectory: boolean, isExpanded = false): string {
+    function getIconName(path: string, isDirectory: boolean, _isExpanded = false): string {
         if (isDirectory) {
             return 'Folder'
         }

@@ -27,11 +27,6 @@ const isHovered = ref(false)
 
 const hasHoverMenu = computed(() => props.hoverMenuItems && props.hoverMenuItems.length > 0)
 
-const isExpandable = computed(() => {
-    if (!props.hoverMenuItems) return false
-    return props.hoverMenuItems.length > 0 && props.hoverMenuItems[0].type !== 'label'
-})
-
 const itemClass = computed(() =>
     [
         'dl-item',

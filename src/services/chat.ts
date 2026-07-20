@@ -20,6 +20,8 @@ export interface Chat {
 
 export const chatsApi = {
     list: (workspaceId: string) => request<Chat[]>(`/workspaces/${workspaceId}/chats`),
+    get: (workspaceId: string, chatId: string) =>
+        request<Chat>(`/workspaces/${workspaceId}/chats/${chatId}`),
     create: (workspaceId: string, dto: ChatDto) =>
         request<Chat>(`/workspaces/${workspaceId}/chats`, {
             method: 'POST',

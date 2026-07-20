@@ -1,7 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import type { UIMessage } from 'ai'
 import { mockMessages } from '../data/seed'
-import { ok } from './helpers'
 
 function buildSSEStream(assistantMsg: UIMessage): ReadableStream<Uint8Array> {
     const encoder = new TextEncoder()
@@ -95,7 +94,7 @@ function getAssistantMessage(): UIMessage | null {
 
 export const messageHandlers = [
     http.get('/workspaces/:workspaceId/chats/:chatId/messages', () => {
-        return ok(mockMessages)
+        return HttpResponse.json(mockMessages)
     }),
 
     http.post('/workspaces/:workspaceId/chats/:chatId/messages', async ({ request }) => {
@@ -104,7 +103,7 @@ export const messageHandlers = [
 
         if (!userMessage || userMessage.role !== 'user') {
             return HttpResponse.json(
-                { message: 'body.message is required and must be a user message' },
+                { error: 'body.message is required and must be a user message' },
                 { status: 400 },
             )
         }
@@ -112,7 +111,7 @@ export const messageHandlers = [
         const assistantMsg = getAssistantMessage()
         if (!assistantMsg) {
             return HttpResponse.json(
-                { message: 'No mock assistant message available' },
+                { error: 'No mock assistant message available' },
                 { status: 500 },
             )
         }

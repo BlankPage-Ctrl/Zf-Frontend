@@ -32,15 +32,15 @@ export default defineConfig({
   server: {
     proxy: {
       '/workspaces': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:4567',
         changeOrigin: true,
       },
       '/providers': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:4567',
         changeOrigin: true,
       },
       '/settings': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:4567',
         changeOrigin: true,
       },
     },

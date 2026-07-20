@@ -1,4 +1,4 @@
-import type { MockWorkspace, MockProvider, MockModel, MockChat } from './seed'
+import type { MockWorkspace, MockProvider, MockModel, MockChat, MockNote, MockCategory } from './seed'
 
 export function createWorkspace(overrides?: Partial<MockWorkspace>): MockWorkspace {
     const now = new Date().toISOString()
@@ -59,4 +59,32 @@ export function maskApiKey(key: string | undefined): string | undefined {
     if (!key) return undefined
     if (key.length <= 4) return '****'
     return `***${key.slice(-4)}`
+}
+
+export function createNote(overrides?: Partial<MockNote>): MockNote {
+    const now = new Date().toISOString()
+    return {
+        id: crypto.randomUUID(),
+        name: 'New Note',
+        category_id: null,
+        desc: null,
+        details: null,
+        priority: 'medium',
+        position: 0,
+        createdAt: now,
+        updatedAt: now,
+        ...overrides,
+    }
+}
+
+export function createCategory(overrides?: Partial<MockCategory>): MockCategory {
+    const now = new Date().toISOString()
+    return {
+        id: crypto.randomUUID(),
+        name: 'New Category',
+        color: null,
+        createdAt: now,
+        updatedAt: now,
+        ...overrides,
+    }
 }

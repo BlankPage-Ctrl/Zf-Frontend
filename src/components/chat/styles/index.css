@@ -31,7 +31,7 @@
     align-items: flex-end;
     gap: 8px;
     padding: 8px 12px;
-    border: 2px solid rgba(var(--third-color), 0.80);
+    border: 2px solid rgba(var(--third-color), 0.8);
     border-radius: 12px;
     background: rgb(var(--primary-color));
     transition: border-color 0.15s;

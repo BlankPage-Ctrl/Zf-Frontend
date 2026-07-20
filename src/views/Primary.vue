@@ -139,14 +139,17 @@ const workspaceChatsLoading = ref<Set<string>>(new Set())
 function ensureWorkspaceChats(wsId: string) {
     if (workspaceChatsCache.value.has(wsId) || workspaceChatsLoading.value.has(wsId)) return
     workspaceChatsLoading.value.add(wsId)
-    chatsApi.list(wsId).then((chats) => {
-        const map = new Map(workspaceChatsCache.value)
-        map.set(wsId, chats)
-        workspaceChatsCache.value = map
-        workspaceChatsLoading.value.delete(wsId)
-    }).catch(() => {
-        workspaceChatsLoading.value.delete(wsId)
-    })
+    chatsApi
+        .list(wsId)
+        .then((chats) => {
+            const map = new Map(workspaceChatsCache.value)
+            map.set(wsId, chats)
+            workspaceChatsCache.value = map
+            workspaceChatsLoading.value.delete(wsId)
+        })
+        .catch(() => {
+            workspaceChatsLoading.value.delete(wsId)
+        })
 }
 
 function getHoverMenuItems(ws: Workspace): DropdownItemConfig[] {

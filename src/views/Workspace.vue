@@ -131,9 +131,7 @@ const activeChat = computed(() => {
     return getChatById(activeChatId.value)
 })
 
-type ContentView =
-    | { type: 'chat'; chatId: string }
-    | { type: 'none' }
+type ContentView = { type: 'chat'; chatId: string } | { type: 'none' }
 
 const contentView = computed<ContentView>(() => {
     if (activeChatId.value) return { type: 'chat', chatId: activeChatId.value }
@@ -268,7 +266,9 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     ],
     emptyMessage: 'No chats yet',
     emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
-    onSelect: (chat) => { activeChatId.value = chat.id },
+    onSelect: (chat) => {
+        activeChatId.value = chat.id
+    },
 }))
 
 const showChatEdit = ref(false)
@@ -394,11 +394,21 @@ onUnmounted(() => {
             <template #panel>
                 <div class="ws-sidebar__panel">
                     <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <button class="ws-back-btn" @click="goBack" title="Back to workspaces" aria-label="Back">
+                        <button
+                            class="ws-back-btn"
+                            @click="goBack"
+                            title="Back to workspaces"
+                            aria-label="Back"
+                        >
                             <NavArrowLeft width="16" height="16" />
                         </button>
                         <span class="ws-sidebar__title">{{ workspace.name }}</span>
-                        <button class="ws-sidebar__action" @click="openChatCreate" title="New chat" aria-label="New chat">
+                        <button
+                            class="ws-sidebar__action"
+                            @click="openChatCreate"
+                            title="New chat"
+                            aria-label="New chat"
+                        >
                             <Plus width="14" height="14" />
                         </button>
                     </div>
@@ -431,9 +441,7 @@ onUnmounted(() => {
                         <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
                     </div>
                     <h2 class="ws-empty__title">Just Select something on the sidebar, vro ✌🏻🥹</h2>
-                    <p class="ws-empty__desc">
-                        What will you have after 500 years!?.
-                    </p>
+                    <p class="ws-empty__desc">What will you have after 500 years!?.</p>
                 </div>
             </template>
         </ContainerGrid>

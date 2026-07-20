@@ -265,10 +265,7 @@ function handleTriggerKeydown(e: KeyboardEvent) {
                 @keydown="handleKeydown"
                 @click.stop
             >
-                <div
-                    @mouseenter="handleMenuMouseEnter"
-                    @mouseleave="handleMenuMouseLeave"
-                >
+                <div @mouseenter="handleMenuMouseEnter" @mouseleave="handleMenuMouseLeave">
                     <DropdownMenu
                         :items="items"
                         :mode="mode"

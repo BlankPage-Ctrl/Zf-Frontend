@@ -68,11 +68,7 @@ function onChatClick(chatId: string) {
 </script>
 
 <template>
-    <div
-        class="dl-item-wrapper"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
-    >
+    <div class="dl-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
         <div :class="itemClass" @click="onSelect?.(item)">
             <div class="dl-item__body">
                 <span

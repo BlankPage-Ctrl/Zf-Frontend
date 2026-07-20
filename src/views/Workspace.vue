@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue'
-import { useRoute } from 'vue-router'
-import { ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ChatBubbleEmpty, EditPencil, Folder, NavArrowLeft, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { DynamicList } from '@/components/list'
@@ -22,14 +22,17 @@ import { useSidebarKeyboard } from '@/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/components/file-explorer'
 import type { FEListDirData, FEMeta } from '@/components/file-explorer'
 import { filesApi } from '@/services/files'
-import { Header } from '@/components/header'
-import type { HeaderSchema } from '@/components/header'
 
 const route = useRoute()
+const router = useRouter()
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const providerStore = useProviderStore()
 const appearanceStore = useAppearanceStore()
+
+function goBack() {
+    router.push({ name: 'primary' })
+}
 
 const workspaceId = computed(() => route.params.id as string)
 const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
@@ -362,25 +365,17 @@ function setupWatchEvents() {
     )
 }
 
-// --- Header schema ---
-const sidebarHeaderSchema = computed<HeaderSchema | null>(() => {
-    if (!workspace.value || showFileExplorer.value) return null
-    return {
-        variant: 'sidebar',
-        title: workspace.value.name,
-        height: 'sm',
-        padding: 'md',
-        actions: [{ icon: Plus, ariaLabel: 'New chat', onClick: openChatCreate }],
-    }
-})
-
 onMounted(async () => {
     if (workspaceId.value) {
         wsStore.selectWorkspace(workspaceId.value)
-        chatStore.fetchChats(workspaceId.value)
+        await chatStore.fetchChats(workspaceId.value)
         providerStore.fetchProviders()
         await setupFileExplorer()
         setupWatchEvents()
+        const chatId = route.query.chat as string | undefined
+        if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
+            activeChatId.value = chatId
+        }
     }
 })
 
@@ -398,8 +393,14 @@ onUnmounted(() => {
 
             <template #panel>
                 <div class="ws-sidebar__panel">
-                    <div v-if="sidebarHeaderSchema" class="ws-sidebar__header">
-                        <Header :schema="sidebarHeaderSchema" />
+                    <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
+                        <button class="ws-back-btn" @click="goBack" title="Back to workspaces" aria-label="Back">
+                            <NavArrowLeft width="16" height="16" />
+                        </button>
+                        <span class="ws-sidebar__title">{{ workspace.name }}</span>
+                        <button class="ws-sidebar__action" @click="openChatCreate" title="New chat" aria-label="New chat">
+                            <Plus width="14" height="14" />
+                        </button>
                     </div>
                     <div class="ws-sidebar__body">
                         <DynamicList

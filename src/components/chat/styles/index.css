@@ -31,14 +31,14 @@
     align-items: flex-end;
     gap: 8px;
     padding: 8px 12px;
-    border: 1px solid rgba(var(--third-color), 0.15);
+    border: 1.5px solid rgba(var(--third-color), 0.45);
     border-radius: 12px;
-    background: rgba(var(--third-color), 0.04);
+    background: rgb(var(--primary-color));
     transition: border-color 0.15s;
 }
 
 .input-container:focus-within {
-    border-color: rgba(var(--third-color), 0.3);
+    border-color: rgb(var(--third-color));
 }
 
 .input-field {
@@ -81,26 +81,30 @@
 }
 
 .send-btn {
-    background: rgba(var(--third-color), 0.1);
+    background: rgba(var(--third-color), 0.15);
     color: rgb(var(--text-color));
+    opacity: 0.5;
 }
 
 .send-btn:hover:not(:disabled) {
-    background: rgba(var(--third-color), 0.2);
+    background: rgba(var(--third-color), 0.35);
+    opacity: 1;
 }
 
 .send-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.15;
     cursor: default;
 }
 
 .stop-btn {
-    background: rgba(239, 68, 68, 0.15);
-    color: rgb(239, 68, 68);
+    background: rgba(var(--red-color), 0.1);
+    color: rgb(var(--red-color));
+    opacity: 0.5;
 }
 
 .stop-btn:hover {
-    background: rgba(239, 68, 68, 0.25);
+    background: rgba(var(--red-color), 0.3);
+    opacity: 1;
 }
 
 .input-footer {
@@ -118,24 +122,24 @@
     border: none;
     border-radius: 6px;
     background: transparent;
-    color: rgba(var(--text-color), 0.4);
+    color: rgba(var(--text-color), 0.3);
     font-size: 11px;
     cursor: pointer;
     transition: all 0.15s;
 }
 
 .model-selector:hover:not(:disabled) {
-    background: rgba(var(--third-color), 0.08);
-    color: rgba(var(--text-color), 0.65);
+    background: rgba(var(--third-color), 0.12);
+    color: rgba(var(--text-color), 0.7);
 }
 
 .model-selector--open {
-    background: rgba(var(--third-color), 0.1);
-    color: rgba(var(--text-color), 0.75);
+    background: rgba(var(--third-color), 0.15);
+    color: rgba(var(--text-color), 0.85);
 }
 
 .model-selector:disabled {
-    opacity: 0.35;
+    opacity: 0.2;
     cursor: default;
 }
 
@@ -232,13 +236,17 @@
 .message-bubble {
     display: flex;
     gap: 12px;
-    padding: 12px 20px;
+    padding: 8px 20px;
     margin: 0 auto;
     width: 100%;
 }
 
 .message-bubble.role-user {
     flex-direction: row-reverse;
+}
+
+.message-bubble.role-assistant {
+    flex-direction: row;
 }
 
 .bubble-avatar {
@@ -252,28 +260,42 @@
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.02em;
+    margin-top: 4px;
 }
 
 .role-user .bubble-avatar {
-    background: rgba(var(--third-color), 0.15);
+    background: rgba(var(--third-color), 0.2);
     color: rgb(var(--text-color));
 }
 
 .role-assistant .bubble-avatar {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(59, 130, 246);
+    background: rgba(var(--text-color), 0.08);
+    color: rgb(var(--text-color));
 }
 
 .bubble-content {
     flex: 1;
     min-width: 0;
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 12px;
+}
+
+.role-user .bubble-content {
+    background: rgba(var(--third-color), 0.12);
+    border-bottom-right-radius: 4px;
+}
+
+.role-assistant .bubble-content {
+    background: rgba(var(--secondary-color), 0.4);
+    border-bottom-left-radius: 4px;
 }
 
 .bubble-role-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     margin-bottom: 4px;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .role-user .bubble-role-label {
@@ -285,9 +307,10 @@
 }
 
 .text-part :deep(a) {
-    color: rgb(59, 130, 246);
+    color: rgb(var(--text-color));
     text-decoration: underline;
     text-underline-offset: 2px;
+    opacity: 0.75;
 }
 
 .text-part :deep(img) {
@@ -341,7 +364,7 @@
 }
 
 .reasoning-status.done {
-    color: rgb(34, 197, 94);
+    color: rgb(var(--green-color));
 }
 
 .status-spinner {
@@ -398,7 +421,7 @@
 }
 
 .tool-call-part.error {
-    border-color: rgba(239, 68, 68, 0.3);
+    border-color: rgba(var(--red-color), 0.3);
 }
 
 .tool-call-header {
@@ -438,11 +461,11 @@
 }
 
 .tool-status.done {
-    color: rgb(34, 197, 94);
+    color: rgb(var(--green-color));
 }
 
 .tool-status.error {
-    color: rgb(239, 68, 68);
+    color: rgb(var(--red-color));
 }
 
 .tool-details {
@@ -480,7 +503,7 @@
 }
 
 .error-text {
-    color: rgb(239, 68, 68);
+    color: rgb(var(--red-color));
 }
 
 .source-part {

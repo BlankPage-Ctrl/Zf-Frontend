@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import type { DropdownItemConfig } from '@/components/dropdown/types'
 
 export type ListVariant = 'sidebar' | 'content' | 'compact'
 export type ListSize = 'xs' | 'sm' | 'md'
@@ -35,6 +36,10 @@ export interface ListSchema<T = unknown> {
     emptyAction?: ListEmptyAction
     onSelect?: (item: T) => void
     class?: string
+    hoverMenu?: {
+        items: (item: T) => DropdownItemConfig[]
+        onSelect: (value: string) => void
+    }
 }
 
 export interface ListClasses {

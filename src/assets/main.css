@@ -39,12 +39,12 @@
 }
 
 :root {
-    --primary-color: 239, 233, 227;
-    --secondary-color: 217, 207, 199;
-    --third-color: 201, 181, 156;
+    --primary-color: 255, 250, 243;
+    --secondary-color: 255, 242, 219;
+    --third-color: 255, 229, 191;
     --text-color: 19, 16, 16;
     --green-color: 34, 197, 93;
-    --red-color: 140, 16, 7;
+    --red-color: 246, 36, 64;
 }
 
 *,

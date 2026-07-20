@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import {
     useFloating,
     offset as offsetMiddleware,
@@ -57,6 +57,7 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
+let closeTimer: ReturnType<typeof setTimeout> | null = null
 
 const floatingPlacement = computed<Placement>(() =>
     props.placement === 'top' ? 'top-start' : 'bottom-start',
@@ -134,13 +135,30 @@ function handleContextMenu(e: MouseEvent) {
 
 function handleMouseEnter() {
     if (props.triggerMode === 'hover') {
+        if (closeTimer) clearTimeout(closeTimer)
         open()
     }
 }
 
 function handleMouseLeave() {
     if (props.triggerMode === 'hover') {
-        close()
+        closeTimer = setTimeout(() => {
+            close()
+        }, 250)
+    }
+}
+
+function handleMenuMouseEnter() {
+    if (props.triggerMode === 'hover') {
+        if (closeTimer) clearTimeout(closeTimer)
+    }
+}
+
+function handleMenuMouseLeave() {
+    if (props.triggerMode === 'hover') {
+        closeTimer = setTimeout(() => {
+            close()
+        }, 250)
     }
 }
 
@@ -191,6 +209,10 @@ function handleKeydown(e: KeyboardEvent) {
             return
     }
 }
+
+onBeforeUnmount(() => {
+    if (closeTimer) clearTimeout(closeTimer)
+})
 
 function handleTriggerKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -243,16 +265,21 @@ function handleTriggerKeydown(e: KeyboardEvent) {
                 @keydown="handleKeydown"
                 @click.stop
             >
-                <DropdownMenu
-                    :items="items"
-                    :mode="mode"
-                    :dense="dense"
-                    :parent-ref="menuRef"
-                    :close="close"
-                    :on-item-click="handleItemClick"
-                    :max-height="maxHeight"
-                    :min-width="minWidth"
-                />
+                <div
+                    @mouseenter="handleMenuMouseEnter"
+                    @mouseleave="handleMenuMouseLeave"
+                >
+                    <DropdownMenu
+                        :items="items"
+                        :mode="mode"
+                        :dense="dense"
+                        :parent-ref="menuRef"
+                        :close="close"
+                        :on-item-click="handleItemClick"
+                        :max-height="maxHeight"
+                        :min-width="minWidth"
+                    />
+                </div>
             </div>
         </Transition>
     </div>

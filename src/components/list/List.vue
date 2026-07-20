@@ -12,7 +12,7 @@ type Props = {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{ select: [item: T] }>()
+const emit = defineEmits<{ select: [item: T]; hoverSelect: [value: string] }>()
 
 const rootClass = computed(() =>
     ['dl-root', `dl-root--${props.schema.variant ?? 'sidebar'}`, props.schema.class ?? '']
@@ -34,6 +34,16 @@ function handleSelect(item: T) {
     props.schema.onSelect?.(item)
     emit('select', item)
 }
+
+function getHoverItems(item: T) {
+    if (!props.schema.hoverMenu) return undefined
+    return props.schema.hoverMenu.items(item)
+}
+
+function handleHoverSelect(value: string) {
+    props.schema.hoverMenu?.onSelect(value)
+    emit('hoverSelect', value)
+}
 </script>
 
 <style src="./styles/list.css"></style>
@@ -49,7 +59,9 @@ function handleSelect(item: T) {
             :active="isActive(item)"
             :size="schema.size ?? 'sm'"
             :variant="schema.variant ?? 'sidebar'"
+            :hover-menu-items="getHoverItems(item)"
             :on-select="handleSelect"
+            @hover-select="handleHoverSelect"
         />
 
         <div v-if="!items.length" class="dl-empty">

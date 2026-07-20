@@ -346,20 +346,21 @@ watch(
     padding: 0 12px;
     border-radius: 5px;
     background-color: rgb(var(--third-color));
-    color: rgb(var(--primary-color));
+    color: rgb(var(--text-color));
     font-size: 12px;
     font-weight: 600;
+    opacity: 0.6;
     transition:
         opacity 150ms ease,
         background-color 150ms ease;
 }
 
 .btn-confirm:hover:not(:disabled) {
-    opacity: 0.88;
+    opacity: 2;
 }
 
 .btn-confirm:disabled {
-    opacity: 0.5;
+    opacity: 0.25;
     cursor: not-allowed;
 }
 
@@ -370,33 +371,37 @@ watch(
     height: 30px;
     padding: 0 10px;
     border-radius: 5px;
-    border: 1px solid rgba(var(--third-color), 0.4);
+    border: 1px solid rgba(var(--third-color), 0.2);
     background-color: transparent;
     color: rgb(var(--text-color));
     font-size: 12px;
     font-weight: 500;
+    opacity: 0.5;
     transition:
+        opacity 150ms ease,
         background-color 150ms ease,
         border-color 150ms ease;
 }
 
 .btn-cancel:hover:not(:disabled) {
-    background-color: rgba(var(--third-color), 0.1);
-    border-color: rgba(var(--third-color), 0.6);
+    background-color: rgba(var(--third-color), 0.12);
+    border-color: rgba(var(--third-color), 0.55);
+    opacity: 1;
 }
 
 .btn-cancel:disabled {
-    opacity: 0.5;
+    opacity: 0.2;
     cursor: not-allowed;
 }
 
 .btn-confirm.btn-danger {
     background-color: rgb(var(--red-color));
+    opacity: 0.7;
 }
 
 .btn-confirm.btn-danger:hover:not(:disabled) {
     background-color: rgb(var(--red-color));
-    opacity: 0.85;
+    opacity: 1;
 }
 
 .spinner-inline {

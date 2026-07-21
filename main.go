@@ -12,10 +12,8 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
 	app := NewApp()
 
-	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "myproject",
 		Width:  1024,
@@ -27,6 +25,17 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
+			app.Workspaces,
+			app.Chats,
+			app.Messages,
+			app.Notes,
+			app.Categories,
+			app.Providers,
+			app.Models,
+			app.Settings,
+			app.Files,
+			app.FileWatch,
+			app.ChatStream,
 		},
 	})
 

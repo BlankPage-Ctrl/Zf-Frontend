@@ -1,20 +1,17 @@
-import { request } from './client.js'
+import {
+    GetDefaultProvider,
+    SetDefaultProvider,
+    GetValue,
+    SetValue,
+} from '../../wailsjs/go/settings/Service'
 
 export const settingsApi = {
     getDefaultProvider: () =>
-        request<{ providerId: string | null; modelId: string | null }>(
-            '/settings/default-provider',
-        ),
+        GetDefaultProvider() as Promise<{ providerId: string | null; modelId: string | null }>,
     setDefaultProvider: (providerId: string, modelId: string) =>
-        request<{ providerId: string; modelId: string }>('/settings/default-provider', {
-            method: 'PUT',
-            body: JSON.stringify({ providerId, modelId }),
-        }),
+        SetDefaultProvider(providerId, modelId) as Promise<{ providerId: string; modelId: string }>,
     getValue: (key: string) =>
-        request<{ key: string; value: string | null }>(`/settings/${encodeURIComponent(key)}`),
+        GetValue(key) as Promise<{ key: string; value: string | null }>,
     setValue: (key: string, value: string) =>
-        request<{ key: string; value: string }>(`/settings/${encodeURIComponent(key)}`, {
-            method: 'PUT',
-            body: JSON.stringify({ value }),
-        }),
+        SetValue(key, value) as Promise<{ key: string; value: string }>,
 }

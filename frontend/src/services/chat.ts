@@ -1,4 +1,4 @@
-import { request } from './client.js'
+import { List, Get, Create, Update, Delete } from '../../wailsjs/go/chats/Service'
 
 export interface ChatDto {
     title: string
@@ -19,19 +19,11 @@ export interface Chat {
 }
 
 export const chatsApi = {
-    list: (workspaceId: string) => request<Chat[]>(`/workspaces/${workspaceId}/chats`),
-    get: (workspaceId: string, chatId: string) =>
-        request<Chat>(`/workspaces/${workspaceId}/chats/${chatId}`),
-    create: (workspaceId: string, dto: ChatDto) =>
-        request<Chat>(`/workspaces/${workspaceId}/chats`, {
-            method: 'POST',
-            body: JSON.stringify(dto),
-        }),
+    list: (workspaceId: string) => List(workspaceId) as Promise<Chat[]>,
+    get: (workspaceId: string, chatId: string) => Get(workspaceId, chatId) as Promise<Chat>,
+    create: (workspaceId: string, dto: ChatDto) => Create(workspaceId, dto) as Promise<Chat>,
     update: (workspaceId: string, chatId: string, dto: Partial<ChatDto>) =>
-        request<Chat>(`/workspaces/${workspaceId}/chats/${chatId}`, {
-            method: 'PATCH',
-            body: JSON.stringify(dto),
-        }),
+        Update(workspaceId, chatId, dto) as Promise<Chat>,
     remove: (workspaceId: string, chatId: string) =>
-        request<void>(`/workspaces/${workspaceId}/chats/${chatId}`, { method: 'DELETE' }),
+        Delete(workspaceId, chatId) as Promise<void>,
 }

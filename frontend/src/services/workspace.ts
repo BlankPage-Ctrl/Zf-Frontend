@@ -1,5 +1,4 @@
-import { request } from './client.js'
-import type { Chat } from './chat.js'
+import { List, Get, Create, Update, Delete } from '../../wailsjs/go/workspaces/Service'
 
 export interface WorkspaceDto {
     name: string
@@ -12,17 +11,14 @@ export interface Workspace {
     name: string
     description?: string
     projectPath: string
-    chats?: Chat[]
     createdAt: string
     updatedAt: string
 }
 
 export const workspacesApi = {
-    list: () => request<Workspace[]>('/workspaces'),
-    get: (id: string) => request<Workspace>(`/workspaces/${id}`),
-    create: (dto: WorkspaceDto) =>
-        request<Workspace>('/workspaces', { method: 'POST', body: JSON.stringify(dto) }),
-    update: (id: string, dto: Partial<WorkspaceDto>) =>
-        request<Workspace>(`/workspaces/${id}`, { method: 'PATCH', body: JSON.stringify(dto) }),
-    remove: (id: string) => request<void>(`/workspaces/${id}`, { method: 'DELETE' }),
+    list: () => List() as Promise<Workspace[]>,
+    get: (id: string) => Get(id) as Promise<Workspace>,
+    create: (dto: WorkspaceDto) => Create(dto) as Promise<Workspace>,
+    update: (id: string, dto: Partial<WorkspaceDto>) => Update(id, dto) as Promise<Workspace>,
+    remove: (id: string) => Delete(id) as Promise<void>,
 }

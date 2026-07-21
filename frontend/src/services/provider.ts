@@ -1,4 +1,20 @@
-import { request } from './client.js'
+import {
+    List as ListProviders,
+    Get as GetProvider,
+    Create as CreateProvider,
+    Update as UpdateProvider,
+    Delete as DeleteProvider,
+} from '../../wailsjs/go/providers/Service'
+import {
+    List as ListModels,
+    Create as CreateModel,
+    Update as UpdateModel,
+    Delete as DeleteModel,
+} from '../../wailsjs/go/models/Service'
+import {
+    GetDefaultProvider,
+    SetDefaultProvider,
+} from '../../wailsjs/go/settings/Service'
 
 export type ProviderType = 'openai' | 'openai-compatible'
 
@@ -35,27 +51,26 @@ export interface Model {
 }
 
 export const providersApi = {
-    list: () => request<Provider[]>('/providers'),
-    get: (id: string) => request<Provider>(`/providers/${id}`),
-    create: (dto: ProviderDto) =>
-        request<Provider>('/providers', { method: 'POST', body: JSON.stringify(dto) }),
+    list: () => ListProviders() as Promise<Provider[]>,
+    get: (id: string) => GetProvider(id) as Promise<Provider>,
+    create: (dto: ProviderDto) => CreateProvider(dto) as Promise<Provider>,
     update: (id: string, dto: Partial<ProviderDto>) =>
-        request<Provider>(`/providers/${id}`, { method: 'PATCH', body: JSON.stringify(dto) }),
-    remove: (id: string) => request<void>(`/providers/${id}`, { method: 'DELETE' }),
+        UpdateProvider(id, dto) as Promise<Provider>,
+    remove: (id: string) => DeleteProvider(id) as Promise<void>,
 }
 
 export const modelsApi = {
-    list: (providerId: string) => request<Model[]>(`/providers/${providerId}/models`),
+    list: (providerId: string) => ListModels(providerId) as Promise<Model[]>,
     create: (providerId: string, dto: ModelDto) =>
-        request<Model>(`/providers/${providerId}/models`, {
-            method: 'POST',
-            body: JSON.stringify(dto),
-        }),
+        CreateModel(providerId, dto) as Promise<Model>,
     update: (providerId: string, modelId: string, dto: Partial<ModelDto>) =>
-        request<Model>(`/providers/${providerId}/models/${modelId}`, {
-            method: 'PATCH',
-            body: JSON.stringify(dto),
-        }),
+        UpdateModel(providerId, modelId, dto) as Promise<Model>,
     remove: (providerId: string, modelId: string) =>
-        request<void>(`/providers/${providerId}/models/${modelId}`, { method: 'DELETE' }),
+        DeleteModel(providerId, modelId) as Promise<void>,
+}
+
+export const settingsApi = {
+    getDefaultProvider: () => GetDefaultProvider() as Promise<{ providerId: string | null; modelId: string | null }>,
+    setDefaultProvider: (providerId: string, modelId: string) =>
+        SetDefaultProvider(providerId, modelId) as Promise<{ providerId: string; modelId: string }>,
 }

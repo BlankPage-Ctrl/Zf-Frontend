@@ -1,4 +1,18 @@
-import { request } from './client.js'
+import {
+    List as ListNotes,
+    Get as GetNote,
+    Create as CreateNote,
+    Update as UpdateNote,
+    Delete as DeleteNote,
+    Move as MoveNote,
+    Renumber as RenumberNotes,
+} from '../../wailsjs/go/notes/Service'
+import {
+    List as ListCategories,
+    Create as CreateCategory,
+    Delete as DeleteCategory,
+    Rename as RenameCategory,
+} from '../../wailsjs/go/categories/Service'
 
 export type Priority = 'low' | 'medium' | 'high' | 'critical'
 
@@ -22,15 +36,6 @@ export interface NoteDto {
     details?: string
     priority?: Priority
     position?: { before?: string; after?: string }
-}
-
-export interface NoteUpdateDto {
-    name?: string
-    category_id?: string
-    desc?: string
-    details?: string
-    priority?: Priority
-    version: number
 }
 
 export interface NoteFilter {
@@ -59,53 +64,34 @@ export interface CategoryDto {
     color?: string
 }
 
-function buildQuery(params: Record<string, string | number | undefined>): string {
-    const parts: string[] = []
-    for (const [k, v] of Object.entries(params)) {
-        if (v !== undefined) parts.push(`${k}=${encodeURIComponent(v)}`)
-    }
-    return parts.length ? `?${parts.join('&')}` : ''
-}
-
 export const notesApi = {
     list: (filter?: NoteFilter, opts?: NoteListOpts) => {
-        const qs = buildQuery({ ...filter, ...opts })
-        return request<Note[]>(`/notes${qs}`)
+        const query = { ...filter, ...opts } as Record<string, string | number | undefined>
+        const filterArg: Record<string, any> = {}
+        for (const [k, v] of Object.entries(query)) {
+            if (v !== undefined) filterArg[k] = v
+        }
+        return ListNotes(filterArg) as Promise<Note[]>
     },
 
-    get: (id: string) => request<Note>(`/notes/${id}`),
+    get: (id: string) => GetNote(id) as Promise<Note>,
 
-    create: (dto: NoteDto) =>
-        request<Note>('/notes', { method: 'POST', body: JSON.stringify(dto) }),
+    create: (dto: NoteDto) => CreateNote(dto) as Promise<Note>,
 
-    update: (id: string, dto: NoteUpdateDto) =>
-        request<Note>(`/notes/${id}`, { method: 'PATCH', body: JSON.stringify(dto) }),
+    update: (id: string, dto: Record<string, unknown>) =>
+        UpdateNote(id, dto) as Promise<Note>,
 
-    remove: (id: string) => request<void>(`/notes/${id}`, { method: 'DELETE' }),
+    remove: (id: string) => DeleteNote(id) as Promise<void>,
 
     move: (id: string, position: { before?: string; after?: string }) =>
-        request<Note>(`/notes/${id}/move`, {
-            method: 'POST',
-            body: JSON.stringify(position),
-        }),
+        MoveNote(id, position) as Promise<Note>,
 
-    renumber: () => request<{ ok: boolean }>('/notes-renumber', { method: 'POST' }),
+    renumber: () => RenumberNotes() as Promise<{ ok: boolean }>,
 }
 
 export const categoriesApi = {
-    list: () => request<Category[]>('/categories'),
-
-    create: (dto: CategoryDto) =>
-        request<Category>('/categories', {
-            method: 'POST',
-            body: JSON.stringify(dto),
-        }),
-
-    rename: (id: string, name: string) =>
-        request<Category>(`/categories/${id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ name }),
-        }),
-
-    remove: (id: string) => request<void>(`/categories/${id}`, { method: 'DELETE' }),
+    list: () => ListCategories() as Promise<Category[]>,
+    create: (dto: CategoryDto) => CreateCategory(dto) as Promise<Category>,
+    rename: (id: string, name: string) => RenameCategory(id, name) as Promise<Category>,
+    remove: (id: string) => DeleteCategory(id) as Promise<void>,
 }

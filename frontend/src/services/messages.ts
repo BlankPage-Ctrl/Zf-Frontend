@@ -1,7 +1,7 @@
-import { request } from './client.js'
+import { LoadHistory } from '../../wailsjs/go/messages/Service'
 import type { UIMessage } from 'ai'
 
 export const messagesApi = {
     loadHistory: (workspaceId: string, chatId: string) =>
-        request<UIMessage[]>(`/workspaces/${workspaceId}/chats/${chatId}/messages`),
+        LoadHistory(workspaceId, chatId) as Promise<UIMessage[]>,
 }

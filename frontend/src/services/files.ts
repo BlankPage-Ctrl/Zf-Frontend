@@ -1,4 +1,6 @@
-import { request } from './client.js'
+import { ListDir, GetStat, ReadFile } from '../../wailsjs/go/files/Service'
+import { StartWatch, StopWatch } from '../../wailsjs/go/stream/FileWatchService'
+import { EventsOn, EventsOff } from '../../wailsjs/runtime'
 import type { FEListDirData, FEFileNode, FEWatchEvent } from '@/components/file-explorer'
 
 interface BackendFileNode {
@@ -74,19 +76,13 @@ function toFEWatchEvent(event: BackendWatchEvent): FEWatchEvent {
 
 export const filesApi = {
     listDir: (workspaceId: string, path: string) =>
-        request<BackendListDirData>(
-            `/workspaces/${workspaceId}/files?path=${encodeURIComponent(path)}`,
-        ).then(toFEListDirData),
+        ListDir(workspaceId, path).then(toFEListDirData),
 
     getStat: (workspaceId: string, path: string) =>
-        request<BackendGetStatData>(
-            `/workspaces/${workspaceId}/files/stat?path=${encodeURIComponent(path)}`,
-        ),
+        GetStat(workspaceId, path) as Promise<BackendGetStatData>,
 
     readFile: (workspaceId: string, path: string, maxBytes?: number) => {
-        let url = `/workspaces/${workspaceId}/files/read?path=${encodeURIComponent(path)}`
-        if (maxBytes !== undefined) url += `&maxBytes=${maxBytes}`
-        return request<BackendReadFileData>(url)
+        return ReadFile(workspaceId, path, maxBytes ?? null) as Promise<BackendReadFileData>
     },
 
     watchEvents: (workspaceId: string): EventSource =>
@@ -97,17 +93,42 @@ export const filesApi = {
         onEvent: (event: FEWatchEvent) => void,
         onError?: (error: Event) => void,
     ): (() => void) => {
-        const source = new EventSource(`/workspaces/${workspaceId}/files/events`)
-        source.onmessage = (e: MessageEvent) => {
+        let streamId: string | null = null
+        let active = true
+        let cleanup: (() => void)[] = []
+
+        const handleEvent = (sid: string, raw: string) => {
+            if (!active || sid !== streamId) return
             try {
-                const raw = JSON.parse(e.data)
-                onEvent(toFEWatchEvent(raw))
+                const parsed = JSON.parse(raw)
+                onEvent(toFEWatchEvent(parsed))
             } catch {
-                /* skip malformed events */
+                /* skip malformed */
             }
         }
-        if (onError) source.onerror = onError
-        return () => source.close()
+
+        const handleError = (sid: string, errMsg: string) => {
+            if (!active || sid !== streamId) return
+            console.error('[FileExplorer] watch error:', errMsg)
+            onError?.(new Event('error'))
+        }
+
+        cleanup = [
+            EventsOn('file:watch-event', handleEvent),
+            EventsOn('file:watch-error', handleError),
+        ]
+
+        StartWatch(workspaceId).then((id) => {
+            streamId = id
+        })
+
+        return () => {
+            active = false
+            cleanup.forEach((fn) => fn())
+            EventsOff('file:watch-event')
+            EventsOff('file:watch-error')
+            if (streamId) StopWatch(streamId)
+        }
     },
 }
 

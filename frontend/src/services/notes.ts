@@ -67,7 +67,7 @@ export interface CategoryDto {
 export const notesApi = {
     list: (filter?: NoteFilter, opts?: NoteListOpts) => {
         const query = { ...filter, ...opts } as Record<string, string | number | undefined>
-        const filterArg: Record<string, any> = {}
+        const filterArg: Record<string, string | number> = {}
         for (const [k, v] of Object.entries(query)) {
             if (v !== undefined) filterArg[k] = v
         }
@@ -78,8 +78,7 @@ export const notesApi = {
 
     create: (dto: NoteDto) => CreateNote(dto) as Promise<Note>,
 
-    update: (id: string, dto: Record<string, unknown>) =>
-        UpdateNote(id, dto) as Promise<Note>,
+    update: (id: string, dto: Record<string, unknown>) => UpdateNote(id, dto) as Promise<Note>,
 
     remove: (id: string) => DeleteNote(id) as Promise<void>,
 

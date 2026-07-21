@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { TableFormat } from '@stream-markdown/core'
-import type { Control, ParsedNode, SelectOption, TableNodeRendererProps } from '../../types/index.ts'
+import type {
+    Control,
+    ParsedNode,
+    SelectOption,
+    TableNodeRendererProps,
+} from '../../types/index.ts'
 import {
     createTableControlDescriptors,
     createTableModel,

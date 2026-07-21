@@ -41,11 +41,13 @@ function createWailsChatTransport(workspaceId: string, chatId: string) {
                         EventsOn('chat:stream-error', onError),
                     ]
 
-                    StartStream(workspaceId, chatId, messageBody).then((id) => {
-                        streamId = id
-                    }).catch((err: Error) => {
-                        controller.error(err)
-                    })
+                    StartStream(workspaceId, chatId, messageBody)
+                        .then((id) => {
+                            streamId = id
+                        })
+                        .catch((err: Error) => {
+                            controller.error(err)
+                        })
                 },
                 cancel() {
                     cleanup.forEach((fn) => fn())

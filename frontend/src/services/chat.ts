@@ -24,6 +24,5 @@ export const chatsApi = {
     create: (workspaceId: string, dto: ChatDto) => Create(workspaceId, dto) as Promise<Chat>,
     update: (workspaceId: string, chatId: string, dto: Partial<ChatDto>) =>
         Update(workspaceId, chatId, dto) as Promise<Chat>,
-    remove: (workspaceId: string, chatId: string) =>
-        Delete(workspaceId, chatId) as Promise<void>,
+    remove: (workspaceId: string, chatId: string) => Delete(workspaceId, chatId) as Promise<void>,
 }

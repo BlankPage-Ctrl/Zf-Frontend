@@ -16,9 +16,9 @@ import (
 	"time"
 )
 
-const DefaultBaseURL = "http://localhost:3000"
-const DefaultClientID = "dev-client"
-const DefaultSecretKey = "dev-secret-key"
+const DefaultBaseURL = "http://localhost:4567"
+const DefaultClientID = "default-client"
+const DefaultSecretKey = "default-01KY288BNYMXFXEK5GF3N82MT8"
 
 type Client struct {
 	BaseURL   string
@@ -68,9 +68,9 @@ func (c *Client) buildAuthHeaders(method, path, queryString, body string) map[st
 	signature := hmacSha256Hex(c.SecretKey, stringToSign)
 
 	return map[string]string{
-		"X-Client-Id":  c.ClientID,
-		"X-Timestamp":  ts,
-		"X-Signature":  "HMAC-SHA256=" + signature,
+		"X-Client-Id": c.ClientID,
+		"X-Timestamp": ts,
+		"X-Signature": "HMAC-SHA256=" + signature,
 	}
 }
 

@@ -5,7 +5,7 @@ import { Album, Download, EditPencil, NavArrowRight, Palette, Plus, Star, Trash 
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
-import { List } from '@/components/list'
+import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
@@ -537,7 +537,7 @@ onMounted(() => {
         <!-- SIDEBAR NAV -->
         <nav class="settings-sidebar">
             <Header :schema="sidebarHeaderSchema" />
-            <List :schema="sidebarListSchema" :items="sidebarItems" />
+            <AppList :schema="sidebarListSchema" :items="sidebarItems" />
         </nav>
 
         <!-- CONTENT -->

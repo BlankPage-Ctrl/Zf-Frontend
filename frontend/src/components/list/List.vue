@@ -4,7 +4,7 @@ import type { ListSchema } from './types.ts'
 import ListItem from './ListItem.vue'
 import { pButton } from '@/components/button'
 
-defineOptions({ name: 'List' })
+defineOptions({ name: 'AppList' })
 
 type Props = {
     schema: ListSchema<T>

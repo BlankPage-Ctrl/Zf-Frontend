@@ -10,7 +10,7 @@ import ContainerGrid from '@/components/container/ContainerGrid.vue'
 import type { ContainerSchema } from '@/components/container/types'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
-import { List } from '@/components/list'
+import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
@@ -272,7 +272,7 @@ watch(
                     </div>
 
                     <!-- Workspace list -->
-                    <List v-else :schema="wsListSchema" :items="wsStore.workspaces" />
+                    <AppList v-else :schema="wsListSchema" :items="wsStore.workspaces" />
                 </div>
             </template>
 
@@ -296,7 +296,7 @@ watch(
                         <Header v-if="chatHeaderSchema" :schema="chatHeaderSchema" />
 
                         <!-- Chat list -->
-                        <List :schema="chatListSchema" :items="chatStore.chats" />
+                        <AppList :schema="chatListSchema" :items="chatStore.chats" />
                     </template>
                 </div>
             </template>

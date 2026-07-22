@@ -8,5 +8,5 @@ export type {
     ListClasses,
 } from './types.ts'
 
-export { default as DynamicList } from './List.vue'
-export { default as DynamicListItem } from './ListItem.vue'
+export { default as List } from './List.vue'
+export { default as ListItem } from './ListItem.vue'

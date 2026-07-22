@@ -11,7 +11,7 @@ import ContainerGrid from '@/components/container/ContainerGrid.vue'
 import type { ContainerSchema } from '@/components/container/types'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
-import { DynamicList } from '@/components/list'
+import { List } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
 import { useWorkspaceStore } from '@/stores/workspace'
@@ -411,7 +411,7 @@ watch(
                     </div>
 
                     <!-- Workspace list -->
-                    <DynamicList v-else :schema="wsListSchema" :items="wsStore.workspaces" />
+                    <List v-else :schema="wsListSchema" :items="wsStore.workspaces" />
                 </div>
             </template>
 
@@ -435,7 +435,7 @@ watch(
                         <Header v-if="chatHeaderSchema" :schema="chatHeaderSchema" />
 
                         <!-- Chat list -->
-                        <DynamicList :schema="chatListSchema" :items="chatStore.chats" />
+                        <List :schema="chatListSchema" :items="chatStore.chats" />
                     </template>
                 </div>
             </template>

@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChatBubbleEmpty, EditPencil, Folder, NavArrowLeft, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
-import { DynamicList } from '@/components/list'
+import { List } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { IconRails } from '@/components/icon-rails'
 import type { IconRailsSchema } from '@/components/icon-rails'
@@ -413,7 +413,7 @@ onUnmounted(() => {
                         </button>
                     </div>
                     <div class="ws-sidebar__body">
-                        <DynamicList
+                        <List
                             v-if="!showFileExplorer"
                             :schema="chatListSchema"
                             :items="chatStore.chats"

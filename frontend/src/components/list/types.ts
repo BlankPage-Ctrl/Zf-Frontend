@@ -40,6 +40,7 @@ export interface ListSchema<T = unknown> {
         items: (item: T) => DropdownItemConfig[]
         onSelect: (value: string) => void
     }
+    icon?: (item: T) => Component
 }
 
 export interface ListClasses {

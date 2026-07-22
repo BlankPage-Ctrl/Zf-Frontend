@@ -1,8 +1,10 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
-import { ref, computed } from 'vue'
+import { ref, computed, type Component } from 'vue'
 import type { ListItemField, ListItemAction } from './types'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
 import { pButton } from '@/components/button'
+
+defineOptions({ name: 'ListItem' })
 
 type Props = {
     item: T
@@ -13,6 +15,7 @@ type Props = {
     variant?: 'sidebar' | 'content' | 'compact'
     onSelect?: (item: T) => void
     hoverMenuItems?: DropdownItemConfig[]
+    icon?: (item: T) => Component
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -20,6 +23,8 @@ const props = withDefaults(defineProps<Props>(), {
     size: 'sm',
     variant: 'sidebar',
 })
+
+const itemIcon = computed(() => props.icon?.(props.item))
 
 const emit = defineEmits<{ hoverSelect: [value: string] }>()
 
@@ -70,6 +75,7 @@ function onChatClick(chatId: string) {
 <template>
     <div class="dl-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
         <div :class="itemClass" @click="onSelect?.(item)">
+            <component :is="itemIcon" v-if="itemIcon" class="dl-item__icon" />
             <div class="dl-item__body">
                 <span
                     v-for="field in titleFields"

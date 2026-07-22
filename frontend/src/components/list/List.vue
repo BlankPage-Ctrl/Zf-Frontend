@@ -1,10 +1,10 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
 import { computed } from 'vue'
 import type { ListSchema } from './types.ts'
-import DynamicListItem from './ListItem.vue'
+import ListItem from './ListItem.vue'
 import { pButton } from '@/components/button'
 
-defineOptions({ name: 'DynamicList' })
+defineOptions({ name: 'List' })
 
 type Props = {
     schema: ListSchema<T>
@@ -50,7 +50,7 @@ function handleHoverSelect(value: string) {
 
 <template>
     <div :class="rootClass">
-        <DynamicListItem
+        <ListItem
             v-for="(item, index) in items"
             :key="getItemKey(item, index)"
             :item="item"
@@ -60,6 +60,7 @@ function handleHoverSelect(value: string) {
             :size="schema.size ?? 'sm'"
             :variant="schema.variant ?? 'sidebar'"
             :hover-menu-items="getHoverItems(item)"
+            :icon="schema.icon"
             :on-select="handleSelect"
             @hover-select="handleHoverSelect"
         />

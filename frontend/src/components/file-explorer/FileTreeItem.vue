@@ -61,7 +61,7 @@ const emit = defineEmits<{
     align-items: center;
     height: 22px;
     font-size: 13px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     cursor: default;
     user-select: none;
     white-space: nowrap;
@@ -72,12 +72,12 @@ const emit = defineEmits<{
 }
 
 .fe-item:hover {
-    background-color: rgba(var(--third-color), 0.1);
+    background-color: rgba(var(--border-color), 0.1);
 }
 
 .fe-item--selected {
-    background-color: rgba(var(--third-color), 0.2);
-    color: rgb(var(--text-color));
+    background-color: rgba(var(--border-color), 0.2);
+    color: rgb(var(--text-primary));
 }
 
 .fe-item__chevron {
@@ -88,7 +88,7 @@ const emit = defineEmits<{
     height: 22px;
     flex-shrink: 0;
     cursor: pointer;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.4;
     transition:
         transform 0.12s ease,
@@ -115,8 +115,8 @@ const emit = defineEmits<{
     width: 10px;
     height: 10px;
     border: 2px solid transparent;
-    border-top-color: rgb(var(--text-color));
-    border-top-color: rgba(var(--text-color), 0.5);
+    border-top-color: rgb(var(--text-primary));
+    border-top-color: rgba(var(--text-primary), 0.5);
     border-radius: 50%;
     animation: fe-spin 0.7s linear infinite;
 }

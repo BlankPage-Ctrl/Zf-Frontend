@@ -6,12 +6,12 @@
 @import url('./utilities.css');
 
 @theme {
-    --color-primary: rgb(var(--primary-color));
-    --color-secondary: rgb(var(--secondary-color));
-    --color-third: rgb(var(--third-color));
-    --color-text: rgb(var(--text-color));
-    --color-green-custom: rgb(var(--green-color));
-    --color-red-custom: rgb(var(--red-color));
+    --color-bg-primary: rgb(var(--bg-primary));
+    --color-bg-secondary: rgb(var(--bg-secondary));
+    --color-border: rgb(var(--border-color));
+    --color-text-primary: rgb(var(--text-primary));
+    --color-success: rgb(var(--color-success));
+    --color-danger: rgb(var(--color-danger));
     --font-serif: 'Source Serif 4 Variable', serif;
     --font-body: 'Barlow', sans-serif;
     --animate-slide-in: slideIn 0.3s ease-out;
@@ -28,42 +28,42 @@
 }
 
 :root:not([data-theme]) {
-    --primary-color: 255, 250, 243;
-    --secondary-color: 255, 242, 219;
-    --third-color: 255, 229, 191;
-    --text-color: 19, 16, 16;
-    --green-color: 34, 197, 93;
-    --red-color: 246, 36, 64;
+    --bg-primary: 255, 250, 243;
+    --bg-secondary: 255, 242, 219;
+    --border-color: 255, 229, 191;
+    --text-primary: 19, 16, 16;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
 }
 
 [data-theme="ola"] {
-    --primary-color: 255, 250, 243;
-    --secondary-color: 255, 242, 219;
-    --third-color: 255, 229, 191;
-    --text-color: 19, 16, 16;
-    --green-color: 34, 197, 93;
-    --red-color: 246, 36, 64;
-    --primary-lighting: 200, 180, 150;
+    --bg-primary: 255, 250, 243;
+    --bg-secondary: 255, 242, 219;
+    --border-color: 255, 229, 191;
+    --text-primary: 19, 16, 16;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
+    --shadow-color: 200, 180, 150;
 }
 
 [data-theme="day"] {
-    --primary-color: 255, 255, 255;
-    --secondary-color: 248, 249, 250;
-    --third-color: 233, 236, 239;
-    --text-color: 33, 37, 41;
-    --green-color: 34, 197, 93;
-    --red-color: 246, 36, 64;
-    --primary-lighting: 180, 180, 180;
+    --bg-primary: 255, 255, 255;
+    --bg-secondary: 248, 249, 250;
+    --border-color: 233, 236, 239;
+    --text-primary: 33, 37, 41;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
+    --shadow-color: 180, 180, 180;
 }
 
 [data-theme="night"] {
-    --primary-color: 34, 34, 40;
-    --secondary-color: 44, 44, 52;
-    --third-color: 56, 56, 64;
-    --text-color: 215, 215, 225;
-    --green-color: 68, 220, 120;
-    --red-color: 255, 90, 110;
-    --primary-lighting: 90, 90, 100;
+    --bg-primary: 34, 34, 40;
+    --bg-secondary: 44, 44, 52;
+    --border-color: 56, 56, 64;
+    --text-primary: 215, 215, 225;
+    --color-success: 68, 220, 120;
+    --color-danger: 255, 90, 110;
+    --shadow-color: 90, 90, 100;
 }
 
 @keyframes fadeIn {
@@ -90,8 +90,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Barlow', sans-serif;
-    color: rgb(var(--text-color));
-    background: rgb(var(--primary-color));
+    color: rgb(var(--text-primary));
+    background: rgb(var(--bg-primary));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

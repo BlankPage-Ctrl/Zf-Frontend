@@ -32,7 +32,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.3;
     transition:
         opacity 150ms ease,
@@ -45,12 +45,12 @@
 
 .ir-item:hover {
     opacity: 1;
-    background: rgba(var(--third-color), 0.18);
+    background: rgba(var(--border-color), 0.18);
 }
 
 .ir-item--active {
     opacity: 1;
-    background: rgba(var(--third-color), 0.28);
+    background: rgba(var(--border-color), 0.28);
 }
 
 .ir-item--disabled {

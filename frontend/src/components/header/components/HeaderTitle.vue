@@ -25,7 +25,7 @@ defineProps<{
     font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -34,7 +34,7 @@ defineProps<{
 
 .header-subtitle {
     font-size: 11px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.45;
 }
 </style>

@@ -37,11 +37,11 @@ const emit = defineEmits<{
 }
 
 .resize-handle:hover {
-    background: rgba(var(--primary-lighting, 100 100 100), 0.25);
+    background: rgba(var(--shadow-color, 100 100 100), 0.25);
 }
 
 .resize-handle:active {
-    background: rgba(var(--primary-lighting, 100 100 100), 0.4);
+    background: rgba(var(--shadow-color, 100 100 100), 0.4);
 }
 
 .resize-handle--edge {

@@ -48,7 +48,7 @@ const iconComponent = computed(() => iconMap[iconName.value] ?? Page)
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.7;
 }
 </style>

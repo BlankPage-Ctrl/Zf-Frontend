@@ -287,7 +287,7 @@ async function handleControlClick(key: string, item?: SelectOption) {
 .code-block-wrapper {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    border: 1px solid rgba(var(--third-color), 0.12);
+    border: 1px solid rgba(var(--border-color), 0.12);
     border-radius: 8px;
     overflow: clip;
 }
@@ -305,10 +305,10 @@ async function handleControlClick(key: string, item?: SelectOption) {
     height: 39px;
     min-height: 39px;
     box-sizing: border-box;
-    background: rgba(var(--primary-color), 0.55);
+    background: rgba(var(--bg-primary), 0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(var(--third-color), 0.12);
+    border-bottom: 1px solid rgba(var(--border-color), 0.12);
     position: sticky;
     top: -8px;
     z-index: 5;
@@ -335,11 +335,11 @@ async function handleControlClick(key: string, item?: SelectOption) {
 
 .details-toggle {
     padding: 2px 8px;
-    border: 1px solid rgba(var(--third-color), 0.15);
+    border: 1px solid rgba(var(--border-color), 0.15);
     border-radius: 4px;
     background: transparent;
     font-size: 11px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.5;
     cursor: pointer;
     transition: opacity 0.15s;

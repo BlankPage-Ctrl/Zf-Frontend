@@ -12,8 +12,8 @@
     display: flex;
     align-items: center;
     padding-left: 12px;
-    background: rgb(var(--secondary-color));
-    border-bottom: 1px solid rgba(var(--third-color), 0.12);
+    background: rgb(var(--bg-secondary));
+    border-bottom: 1px solid rgba(var(--border-color), 0.12);
     flex-shrink: 0;
 }
 
@@ -21,7 +21,7 @@
     font-family: var(--font-serif);
     font-size: 13px;
     font-weight: 700;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.55;
     letter-spacing: -0.01em;
     user-select: none;

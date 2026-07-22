@@ -88,8 +88,8 @@ const workspaceSchema = computed(() => [
                 width: 48,
                 resizable: false,
                 cell: {
-                    background: 'rgb(var(--secondary-color))',
-                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    background: 'rgb(var(--bg-secondary))',
+                    borderColor: 'rgba(var(--border-color), 0.25)',
                     borderWidth: '0 1px 0 0',
                     borderStyle: 'solid' as const,
                     overflow: 'hidden' as const,
@@ -104,8 +104,8 @@ const workspaceSchema = computed(() => [
                 minWidth: 180,
                 maxWidth: 480,
                 cell: {
-                    background: 'rgb(var(--secondary-color))',
-                    borderColor: 'rgba(var(--third-color), 0.25)',
+                    background: 'rgb(var(--bg-secondary))',
+                    borderColor: 'rgba(var(--border-color), 0.25)',
                     borderWidth: '0 1px 0 0',
                     borderStyle: 'solid' as const,
                     overflow: 'hidden' as const,
@@ -116,7 +116,7 @@ const workspaceSchema = computed(() => [
                 width: '1fr',
                 resizable: false,
                 cell: {
-                    background: 'rgb(var(--primary-color))',
+                    background: 'rgb(var(--bg-primary))',
                     overflow: 'hidden' as const,
                 },
             },

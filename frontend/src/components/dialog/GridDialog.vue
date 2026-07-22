@@ -237,8 +237,8 @@ watch(
     flex-direction: column;
     width: 100%;
     max-height: 90vh;
-    background-color: rgb(var(--primary-color));
-    border: 1px solid rgba(var(--third-color), 0.25);
+    background-color: rgb(var(--bg-primary));
+    border: 1px solid rgba(var(--border-color), 0.25);
     border-radius: 12px;
     box-shadow:
         0 4px 8px rgba(15, 15, 20, 0.06),
@@ -265,7 +265,7 @@ watch(
     align-items: center;
     justify-content: space-between;
     padding: 10px 20px 8px;
-    border-bottom: 1px solid rgba(var(--third-color), 0.1);
+    border-bottom: 1px solid rgba(var(--border-color), 0.1);
     flex-shrink: 0;
 }
 
@@ -274,7 +274,7 @@ watch(
     font-size: 15px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     margin: 0;
 }
 
@@ -285,7 +285,7 @@ watch(
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    color: rgba(var(--text-color), 0.5);
+    color: rgba(var(--text-primary), 0.5);
     cursor: pointer;
     transition:
         background-color 150ms ease,
@@ -293,8 +293,8 @@ watch(
 }
 
 .btn-close:hover:not(:disabled) {
-    background-color: rgba(var(--third-color), 0.15);
-    color: rgb(var(--text-color));
+    background-color: rgba(var(--border-color), 0.15);
+    color: rgb(var(--text-primary));
 }
 
 .btn-close:disabled {
@@ -317,11 +317,11 @@ watch(
     background: transparent;
 }
 .dialog-body::-webkit-scrollbar-thumb {
-    background: rgba(var(--third-color), 0.25);
+    background: rgba(var(--border-color), 0.25);
     border-radius: 4px;
 }
 .dialog-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--third-color), 0.45);
+    background: rgba(var(--border-color), 0.45);
 }
 
 /* Footer */
@@ -331,8 +331,8 @@ watch(
     justify-content: flex-end;
     gap: 8px;
     padding: 10px 20px 14px;
-    border-top: 1px solid rgba(var(--third-color), 0.1);
-    background-color: rgba(var(--secondary-color), 0.15);
+    border-top: 1px solid rgba(var(--border-color), 0.1);
+    background-color: rgba(var(--bg-secondary), 0.15);
     flex-shrink: 0;
 }
 
@@ -345,8 +345,8 @@ watch(
     height: 30px;
     padding: 0 12px;
     border-radius: 5px;
-    background-color: rgb(var(--third-color));
-    color: rgb(var(--text-color));
+    background-color: rgb(var(--border-color));
+    color: rgb(var(--text-primary));
     font-size: 12px;
     font-weight: 600;
     opacity: 0.6;
@@ -371,9 +371,9 @@ watch(
     height: 30px;
     padding: 0 10px;
     border-radius: 5px;
-    border: 1px solid rgba(var(--third-color), 0.2);
+    border: 1px solid rgba(var(--border-color), 0.2);
     background-color: transparent;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     font-size: 12px;
     font-weight: 500;
     opacity: 0.5;
@@ -384,8 +384,8 @@ watch(
 }
 
 .btn-cancel:hover:not(:disabled) {
-    background-color: rgba(var(--third-color), 0.12);
-    border-color: rgba(var(--third-color), 0.55);
+    background-color: rgba(var(--border-color), 0.12);
+    border-color: rgba(var(--border-color), 0.55);
     opacity: 1;
 }
 
@@ -395,21 +395,21 @@ watch(
 }
 
 .btn-confirm.btn-danger {
-    background-color: rgb(var(--red-color));
+    background-color: rgb(var(--color-danger));
     opacity: 0.7;
 }
 
 .btn-confirm.btn-danger:hover:not(:disabled) {
-    background-color: rgb(var(--red-color));
+    background-color: rgb(var(--color-danger));
     opacity: 1;
 }
 
 .spinner-inline {
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(var(--primary-color), 0.3);
+    border: 2px solid rgba(var(--bg-primary), 0.3);
     border-radius: 50%;
-    border-top-color: rgb(var(--primary-color));
+    border-top-color: rgb(var(--bg-primary));
     animation: spin 800ms linear infinite;
 }
 

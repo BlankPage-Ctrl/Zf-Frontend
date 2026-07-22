@@ -171,7 +171,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
     gap: 4px;
     font-size: 10px;
     font-weight: 600;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.55;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -181,12 +181,12 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 }
 
 .label-error {
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
     opacity: 0.8;
 }
 
 .required-indicator {
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
 }
 
 .checkbox-options-container {
@@ -200,7 +200,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     cursor: pointer;
     user-select: none;
 }
@@ -219,9 +219,9 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
     width: 14px;
     height: 14px;
     border-radius: 3px;
-    border: 1px solid rgba(var(--third-color), 0.5);
-    background: rgb(var(--primary-color));
-    color: rgb(var(--primary-color));
+    border: 1px solid rgba(var(--border-color), 0.5);
+    background: rgb(var(--bg-primary));
+    color: rgb(var(--bg-primary));
     transition:
         border-color 150ms ease,
         background-color 150ms ease,
@@ -229,12 +229,12 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 }
 
 .checkbox-label:hover .custom-checkbox:not(.checkbox-disabled *) {
-    border-color: rgb(var(--third-color));
+    border-color: rgb(var(--border-color));
 }
 
 .custom-checkbox-checked {
-    border-color: rgb(var(--third-color)) !important;
-    background-color: rgb(var(--third-color)) !important;
+    border-color: rgb(var(--border-color)) !important;
+    background-color: rgb(var(--border-color)) !important;
 }
 
 .check-mark {
@@ -251,7 +251,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 }
 
 .custom-checkbox-error {
-    border-color: rgb(var(--red-color)) !important;
+    border-color: rgb(var(--color-danger)) !important;
 }
 
 .checkbox-disabled {
@@ -260,12 +260,12 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 }
 
 .checkbox-disabled .custom-checkbox {
-    background: rgba(var(--secondary-color), 0.4);
-    border-color: rgba(var(--third-color), 0.2);
+    background: rgba(var(--bg-secondary), 0.4);
+    border-color: rgba(var(--border-color), 0.2);
 }
 
 .checkbox-disabled .custom-checkbox-checked {
-    background-color: rgba(var(--third-color), 0.3) !important;
+    background-color: rgba(var(--border-color), 0.3) !important;
 }
 
 .option-text {
@@ -286,14 +286,14 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
     display: block;
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
     line-height: 1.2;
 }
 
 .helper-text {
     display: block;
     font-size: 11px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.45;
     line-height: 1.2;
 }

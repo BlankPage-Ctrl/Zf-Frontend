@@ -29,7 +29,7 @@ withDefaults(
     font-size: 12px;
     font-weight: 600;
     font-family: var(--font-mono, ui-monospace, monospace);
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.85;
     text-transform: lowercase;
 }

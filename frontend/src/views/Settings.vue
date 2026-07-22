@@ -106,51 +106,51 @@ const themeFormSchema: DialogGridSchema = {
                 label: 'Description',
                 span: 12,
             },
-            primary: {
+            bgPrimary: {
                 type: 'text-short',
-                label: 'Primary (R, G, B)',
+                label: 'Background (R, G, B)',
                 span: 6,
                 placeholder: '255, 250, 243',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            secondary: {
+            bgSecondary: {
                 type: 'text-short',
-                label: 'Secondary (R, G, B)',
+                label: 'Surface (R, G, B)',
                 span: 6,
                 placeholder: '255, 242, 219',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            third: {
+            border: {
                 type: 'text-short',
-                label: 'Third (R, G, B)',
+                label: 'Border (R, G, B)',
                 span: 6,
                 placeholder: '255, 229, 191',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            text: {
+            textPrimary: {
                 type: 'text-short',
                 label: 'Text (R, G, B)',
                 span: 6,
                 placeholder: '19, 16, 16',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            green: {
+            success: {
                 type: 'text-short',
-                label: 'Green (R, G, B)',
+                label: 'Success (R, G, B)',
                 span: 6,
                 placeholder: '34, 197, 93',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            red: {
+            danger: {
                 type: 'text-short',
-                label: 'Red (R, G, B)',
+                label: 'Danger (R, G, B)',
                 span: 6,
                 placeholder: '246, 36, 64',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
             },
-            lighting: {
+            shadow: {
                 type: 'text-short',
-                label: 'Lighting (R, G, B)',
+                label: 'Shadow (R, G, B)',
                 span: 6,
                 placeholder: '200, 180, 150',
                 metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
@@ -178,13 +178,13 @@ async function submitThemeForm(data: DynamicGridDataOutput) {
         name: String(row.name ?? ''),
         description: row.description ? String(row.description) : undefined,
         colors: {
-            primary: String(row.primary ?? ''),
-            secondary: String(row.secondary ?? ''),
-            third: String(row.third ?? ''),
-            text: String(row.text ?? ''),
-            green: String(row.green ?? ''),
-            red: String(row.red ?? ''),
-            lighting: String(row.lighting ?? ''),
+            bgPrimary: String(row.bgPrimary ?? ''),
+            bgSecondary: String(row.bgSecondary ?? ''),
+            border: String(row.border ?? ''),
+            textPrimary: String(row.textPrimary ?? ''),
+            success: String(row.success ?? ''),
+            danger: String(row.danger ?? ''),
+            shadow: String(row.shadow ?? ''),
         },
     }
     themeFormLoading.value = true
@@ -245,10 +245,10 @@ function themePreviewColors(id: string) {
     const colors = theme.getThemePreview(id)
     if (!colors) return []
     return [
-        normalizeRgb(colors.primary),
-        normalizeRgb(colors.secondary),
-        normalizeRgb(colors.third),
-        normalizeRgb(colors.text),
+        normalizeRgb(colors.bgPrimary),
+        normalizeRgb(colors.bgSecondary),
+        normalizeRgb(colors.border),
+        normalizeRgb(colors.textPrimary),
     ]
 }
 
@@ -931,7 +931,7 @@ onMounted(() => {
     display: flex;
     height: 100%;
     overflow: hidden;
-    background: rgb(var(--primary-color));
+    background: rgb(var(--bg-primary));
 }
 
 /* --- Sidebar --- */
@@ -940,14 +940,14 @@ onMounted(() => {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: rgb(var(--secondary-color));
-    border-right: 1px solid rgba(var(--third-color), 0.2);
+    background: rgb(var(--bg-secondary));
+    border-right: 1px solid rgba(var(--border-color), 0.2);
     overflow-y: auto;
 }
 
 .settings-sidebar .dl-item--active {
-    background: rgba(var(--third-color), 0.15);
-    box-shadow: inset 3px 0 0 rgb(var(--third-color));
+    background: rgba(var(--border-color), 0.15);
+    box-shadow: inset 3px 0 0 rgb(var(--border-color));
 }
 
 /* --- Content --- */
@@ -980,12 +980,12 @@ onMounted(() => {
 
 .empty-icon {
     margin-bottom: 4px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 .empty-text {
     font-size: 13px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.5;
 }
 
@@ -997,10 +997,10 @@ onMounted(() => {
 }
 
 .provider-card {
-    border: 1px solid rgba(var(--third-color), 0.15);
+    border: 1px solid rgba(var(--border-color), 0.15);
     border-radius: 10px;
     overflow: hidden;
-    background: rgb(var(--secondary-color));
+    background: rgb(var(--bg-secondary));
 }
 
 .provider-card-header {
@@ -1031,7 +1031,7 @@ onMounted(() => {
     font-family: var(--font-serif);
     font-size: 13px;
     font-weight: 600;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 .provider-type-badge {
@@ -1039,8 +1039,8 @@ onMounted(() => {
     font-weight: 500;
     padding: 2px 7px;
     border-radius: 9999px;
-    background: rgba(var(--third-color), 0.15);
-    color: rgb(var(--text-color));
+    background: rgba(var(--border-color), 0.15);
+    color: rgb(var(--text-primary));
     opacity: 0.6;
     white-space: nowrap;
 }
@@ -1048,14 +1048,14 @@ onMounted(() => {
 .provider-key {
     font-size: 11px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.35;
 }
 
 .provider-url {
     font-size: 11px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.35;
     white-space: nowrap;
     overflow: hidden;
@@ -1072,13 +1072,13 @@ onMounted(() => {
 /* --- Provider models --- */
 .provider-models {
     padding: 0 12px 10px;
-    border-top: 1px solid rgba(var(--third-color), 0.1);
+    border-top: 1px solid rgba(var(--border-color), 0.1);
 }
 
 .model-empty {
     padding: 10px 0 4px;
     font-size: 12px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.4;
 }
 
@@ -1098,7 +1098,7 @@ onMounted(() => {
     bottom: 0;
     right: 0;
     height: 1px;
-    background: rgba(var(--third-color), 0.08);
+    background: rgba(var(--border-color), 0.08);
 }
 
 .model-info {
@@ -1111,13 +1111,13 @@ onMounted(() => {
 .model-name {
     font-size: 12px;
     font-weight: 500;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 .model-id {
     font-size: 11px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.35;
 }
 
@@ -1126,8 +1126,8 @@ onMounted(() => {
     font-weight: 500;
     padding: 1px 6px;
     border-radius: 9999px;
-    background: rgba(var(--green-color), 0.12);
-    color: rgb(var(--green-color));
+    background: rgba(var(--color-success), 0.12);
+    color: rgb(var(--color-success));
     white-space: nowrap;
 }
 
@@ -1150,9 +1150,9 @@ onMounted(() => {
 }
 
 .appearance-card {
-    border: 1px solid rgba(var(--third-color), 0.15);
+    border: 1px solid rgba(var(--border-color), 0.15);
     border-radius: 10px;
-    background: rgb(var(--secondary-color));
+    background: rgb(var(--bg-secondary));
     padding: 20px 24px;
     display: flex;
     flex-direction: column;
@@ -1168,7 +1168,7 @@ onMounted(() => {
 .appearance-label {
     font-size: 12px;
     font-weight: 500;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1193,7 +1193,7 @@ onMounted(() => {
 
 .preset-group .btn--ghost[aria-pressed='true'] {
     opacity: 1;
-    background: rgba(var(--third-color), 0.15);
+    background: rgba(var(--border-color), 0.15);
 }
 
 .preset-custom-tag {
@@ -1201,15 +1201,15 @@ onMounted(() => {
     font-weight: 500;
     padding: 3px 10px;
     border-radius: 9999px;
-    background: rgba(var(--third-color), 0.08);
-    color: rgb(var(--text-color));
+    background: rgba(var(--border-color), 0.08);
+    color: rgb(var(--text-primary));
     opacity: 0.35;
     transition: opacity 100ms ease;
 }
 
 .preset-custom-tag.active {
     opacity: 0.8;
-    background: rgba(var(--third-color), 0.15);
+    background: rgba(var(--border-color), 0.15);
 }
 
 .appearance-slider {
@@ -1218,7 +1218,7 @@ onMounted(() => {
     width: 100%;
     height: 4px;
     border-radius: 2px;
-    background: rgba(var(--third-color), 0.2);
+    background: rgba(var(--border-color), 0.2);
     outline: none;
     cursor: pointer;
 }
@@ -1229,9 +1229,9 @@ onMounted(() => {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: rgb(var(--third-color));
+    background: rgb(var(--border-color));
     cursor: pointer;
-    border: 2px solid rgb(var(--secondary-color));
+    border: 2px solid rgb(var(--bg-secondary));
     transition: transform 100ms ease;
 }
 
@@ -1243,16 +1243,16 @@ onMounted(() => {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: rgb(var(--third-color));
+    background: rgb(var(--border-color));
     cursor: pointer;
-    border: 2px solid rgb(var(--secondary-color));
+    border: 2px solid rgb(var(--bg-secondary));
 }
 
 .slider-labels {
     display: flex;
     justify-content: space-between;
     font-size: 10px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.3;
 }
 
@@ -1260,7 +1260,7 @@ onMounted(() => {
     display: flex;
     gap: 24px;
     padding-top: 12px;
-    border-top: 1px solid rgba(var(--third-color), 0.1);
+    border-top: 1px solid rgba(var(--border-color), 0.1);
 }
 
 .info-item {
@@ -1272,7 +1272,7 @@ onMounted(() => {
 .info-label {
     font-size: 10px;
     font-weight: 500;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.4;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -1282,7 +1282,7 @@ onMounted(() => {
     font-family: var(--font-serif);
     font-size: 14px;
     font-weight: 600;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 /* --- Theme --- */
@@ -1295,9 +1295,9 @@ onMounted(() => {
 
 .theme-card {
     width: 220px;
-    border: 1px solid rgba(var(--third-color), 0.2);
+    border: 1px solid rgba(var(--border-color), 0.2);
     border-radius: 12px;
-    background: rgb(var(--secondary-color));
+    background: rgb(var(--bg-secondary));
     padding: 20px;
     cursor: pointer;
     transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -1307,12 +1307,12 @@ onMounted(() => {
 }
 
 .theme-card:hover {
-    border-color: rgba(var(--third-color), 0.5);
+    border-color: rgba(var(--border-color), 0.5);
 }
 
 .theme-card.active {
-    border-color: rgb(var(--text-color));
-    box-shadow: 0 0 0 1.5px rgb(var(--text-color));
+    border-color: rgb(var(--text-primary));
+    box-shadow: 0 0 0 1.5px rgb(var(--text-primary));
 }
 
 .theme-swatches {
@@ -1324,7 +1324,7 @@ onMounted(() => {
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    border: 1px solid rgba(var(--third-color), 0.25);
+    border: 1px solid rgba(var(--border-color), 0.25);
 }
 
 .theme-card-body {
@@ -1337,12 +1337,12 @@ onMounted(() => {
 .theme-name {
     font-size: 15px;
     font-weight: 600;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 .theme-desc {
     font-size: 12px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.5;
     line-height: 1.4;
 }
@@ -1352,7 +1352,7 @@ onMounted(() => {
     gap: 6px;
     align-items: center;
     padding-top: 12px;
-    border-top: 1px solid rgba(var(--third-color), 0.12);
+    border-top: 1px solid rgba(var(--border-color), 0.12);
 }
 
 .theme-actions-row {

@@ -6,13 +6,13 @@ const STORAGE_KEY_CURRENT = 'theme-current'
 const STORAGE_KEY_CUSTOM = 'themes-custom'
 
 export interface ThemeColors {
-    primary: string
-    secondary: string
-    third: string
-    text: string
-    green: string
-    red: string
-    lighting: string
+    bgPrimary: string
+    bgSecondary: string
+    border: string
+    textPrimary: string
+    success: string
+    danger: string
+    shadow: string
 }
 
 export interface ThemeSchema {
@@ -35,13 +35,13 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         name: 'Ola',
         description: 'Warm cream beige — current default',
         colors: {
-            primary: '255, 250, 243',
-            secondary: '255, 242, 219',
-            third: '255, 229, 191',
-            text: '19, 16, 16',
-            green: '34, 197, 93',
-            red: '246, 36, 64',
-            lighting: '200, 180, 150',
+            bgPrimary: '255, 250, 243',
+            bgSecondary: '255, 242, 219',
+            border: '255, 229, 191',
+            textPrimary: '19, 16, 16',
+            success: '34, 197, 93',
+            danger: '246, 36, 64',
+            shadow: '200, 180, 150',
         },
     },
     {
@@ -49,13 +49,13 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         name: 'Day',
         description: 'Clean white, crisp and minimal',
         colors: {
-            primary: '255, 255, 255',
-            secondary: '248, 249, 250',
-            third: '233, 236, 239',
-            text: '33, 37, 41',
-            green: '34, 197, 93',
-            red: '246, 36, 64',
-            lighting: '180, 180, 180',
+            bgPrimary: '255, 255, 255',
+            bgSecondary: '248, 249, 250',
+            border: '233, 236, 239',
+            textPrimary: '33, 37, 41',
+            success: '34, 197, 93',
+            danger: '246, 36, 64',
+            shadow: '180, 180, 180',
         },
     },
     {
@@ -63,13 +63,13 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         name: 'Night',
         description: 'Dark mode, easy on the eyes',
         colors: {
-            primary: '34, 34, 40',
-            secondary: '44, 44, 52',
-            third: '56, 56, 64',
-            text: '215, 215, 225',
-            green: '68, 220, 120',
-            red: '255, 90, 110',
-            lighting: '90, 90, 100',
+            bgPrimary: '34, 34, 40',
+            bgSecondary: '44, 44, 52',
+            border: '56, 56, 64',
+            textPrimary: '215, 215, 225',
+            success: '68, 220, 120',
+            danger: '255, 90, 110',
+            shadow: '90, 90, 100',
         },
     },
 ]
@@ -141,8 +141,8 @@ export const useThemeStore = defineStore('theme', () => {
         if (!schema.id || !schema.name || !schema.colors) {
             throw new Error('Invalid theme format: missing id, name, or colors')
         }
-        const colors = schema.colors as ThemeColors
-        const required = ['primary', 'secondary', 'third', 'text', 'green', 'red', 'lighting'] as const
+        const colors = schema.colors as Record<string, unknown>
+        const required = ['bgPrimary', 'bgSecondary', 'border', 'textPrimary', 'success', 'danger', 'shadow'] as const
         for (const key of required) {
             if (typeof colors[key] !== 'string') {
                 throw new Error(`Invalid theme format: missing color "${key}"`)
@@ -153,13 +153,13 @@ export const useThemeStore = defineStore('theme', () => {
             name: String(schema.name),
             description: schema.description ? String(schema.description) : undefined,
             colors: {
-                primary: colors.primary,
-                secondary: colors.secondary,
-                third: colors.third,
-                text: colors.text,
-                green: colors.green,
-                red: colors.red,
-                lighting: colors.lighting,
+                bgPrimary: colors.bgPrimary as string,
+                bgSecondary: colors.bgSecondary as string,
+                border: colors.border as string,
+                textPrimary: colors.textPrimary as string,
+                success: colors.success as string,
+                danger: colors.danger as string,
+                shadow: colors.shadow as string,
             },
         }
         if (BUILT_IN_IDS.has(result.id)) {

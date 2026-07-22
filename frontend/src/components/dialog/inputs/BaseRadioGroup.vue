@@ -91,7 +91,7 @@ const selectedValue = computed({
     gap: 4px;
     font-size: 10px;
     font-weight: 600;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.55;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -101,12 +101,12 @@ const selectedValue = computed({
 }
 
 .label-error {
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
     opacity: 0.8;
 }
 
 .required-indicator {
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
 }
 
 .radio-options-container {
@@ -126,7 +126,7 @@ const selectedValue = computed({
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     cursor: pointer;
     user-select: none;
 }
@@ -145,19 +145,19 @@ const selectedValue = computed({
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 1px solid rgba(var(--third-color), 0.5);
-    background: rgb(var(--primary-color));
+    border: 1px solid rgba(var(--border-color), 0.5);
+    background: rgb(var(--bg-primary));
     transition:
         border-color 150ms ease,
         box-shadow 150ms ease;
 }
 
 .radio-label:hover .custom-radio:not(.radio-disabled *) {
-    border-color: rgb(var(--third-color));
+    border-color: rgb(var(--border-color));
 }
 
 .custom-radio-checked {
-    border-color: rgb(var(--third-color)) !important;
+    border-color: rgb(var(--border-color)) !important;
 }
 
 .custom-radio-checked .radio-dot {
@@ -165,14 +165,14 @@ const selectedValue = computed({
 }
 
 .custom-radio-error {
-    border-color: rgb(var(--red-color)) !important;
+    border-color: rgb(var(--color-danger)) !important;
 }
 
 .radio-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: rgb(var(--third-color));
+    background: rgb(var(--border-color));
     transform: scale(0);
     transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -183,12 +183,12 @@ const selectedValue = computed({
 }
 
 .radio-disabled .custom-radio {
-    background: rgba(var(--secondary-color), 0.4);
-    border-color: rgba(var(--third-color), 0.2);
+    background: rgba(var(--bg-secondary), 0.4);
+    border-color: rgba(var(--border-color), 0.2);
 }
 
 .radio-disabled .radio-dot {
-    background: rgba(var(--text-color), 0.4);
+    background: rgba(var(--text-primary), 0.4);
 }
 
 .option-text {
@@ -205,14 +205,14 @@ const selectedValue = computed({
     display: block;
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
     line-height: 1.2;
 }
 
 .helper-text {
     display: block;
     font-size: 11px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.45;
     line-height: 1.2;
 }

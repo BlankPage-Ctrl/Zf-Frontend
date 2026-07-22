@@ -86,7 +86,7 @@ watch(
     align-items: center;
     padding: 0 12px;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(var(--third-color), 0.12);
+    border-bottom: 1px solid rgba(var(--border-color), 0.12);
 }
 
 .fe-header__title {
@@ -94,7 +94,7 @@ watch(
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     opacity: 0.5;
     overflow: hidden;
     text-overflow: ellipsis;

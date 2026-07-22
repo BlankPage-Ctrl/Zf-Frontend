@@ -81,7 +81,7 @@ const showIconArea = computed(() => {
     gap: 8px;
     padding: 6px 10px;
     font-size: 12px;
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
@@ -95,15 +95,15 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--focused {
-    background-color: rgba(var(--third-color), 0.22);
+    background-color: rgba(var(--border-color), 0.22);
 }
 
 .dropdown-item--danger {
-    color: rgb(var(--red-color));
+    color: rgb(var(--color-danger));
 }
 
 .dropdown-item--danger.dropdown-item--focused {
-    background-color: rgba(var(--red-color), 0.12);
+    background-color: rgba(var(--color-danger), 0.12);
 }
 
 .dropdown-item--disabled {
@@ -112,7 +112,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--selected {
-    background-color: rgba(var(--third-color), 0.1);
+    background-color: rgba(var(--border-color), 0.1);
 }
 
 .dropdown-item__icon {
@@ -127,19 +127,19 @@ const showIconArea = computed(() => {
 .dropdown-item__svg {
     width: 16px;
     height: 16px;
-    color: rgba(var(--text-color), 0.6);
+    color: rgba(var(--text-primary), 0.6);
 }
 
 .dropdown-item--danger .dropdown-item__svg {
-    color: rgba(var(--red-color), 0.7);
+    color: rgba(var(--color-danger), 0.7);
 }
 
 .dropdown-item__check {
-    color: rgba(var(--text-color), 0.6);
+    color: rgba(var(--text-primary), 0.6);
 }
 
 .dropdown-item--selected .dropdown-item__check {
-    color: rgb(var(--text-color));
+    color: rgb(var(--text-primary));
 }
 
 .dropdown-item__label {
@@ -151,7 +151,7 @@ const showIconArea = computed(() => {
 
 .dropdown-item__shortcut {
     font-size: 10px;
-    color: rgba(var(--text-color), 0.4);
+    color: rgba(var(--text-primary), 0.4);
     margin-left: auto;
     padding-left: 12px;
     letter-spacing: 0.02em;
@@ -160,7 +160,7 @@ const showIconArea = computed(() => {
 .dropdown-item__arrow {
     display: flex;
     align-items: center;
-    color: rgba(var(--text-color), 0.35);
+    color: rgba(var(--text-primary), 0.35);
     margin-left: 4px;
 }
 </style>

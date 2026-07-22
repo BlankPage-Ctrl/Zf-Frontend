@@ -1,9 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, h } from 'vue'
-import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
+import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
@@ -13,12 +12,10 @@ import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { List } from '@/components/list'
 import type { ListSchema } from '@/components/list'
-import type { DropdownItemConfig } from '@/components/dropdown/types'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
 import type { Workspace, WorkspaceDto } from '@/services/workspace'
-import type { Chat, ChatDto } from '@/services/chat'
-import { chatsApi } from '@/services/chat'
+import type { Chat } from '@/services/chat'
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
@@ -113,69 +110,6 @@ const wsFormSchema: DialogGridSchema = {
     },
 }
 
-const chatFormSchema: DialogGridSchema = {
-    chat: {
-        columns: {
-            title: {
-                type: 'text-short',
-                label: 'Title',
-                placeholder: 'Chat title',
-                metadata: { require: true },
-            },
-            model: {
-                type: 'text-short',
-                label: 'Model',
-                placeholder: 'e.g. gpt-4o',
-                metadata: { require: true },
-            },
-        },
-    },
-}
-
-// --- Hover menu per workspace ---
-const workspaceChatsCache = ref<Map<string, Chat[]>>(new Map())
-const workspaceChatsLoading = ref<Set<string>>(new Set())
-
-function ensureWorkspaceChats(wsId: string) {
-    if (workspaceChatsCache.value.has(wsId) || workspaceChatsLoading.value.has(wsId)) return
-    workspaceChatsLoading.value.add(wsId)
-    chatsApi
-        .list(wsId)
-        .then((chats) => {
-            const map = new Map(workspaceChatsCache.value)
-            map.set(wsId, chats)
-            workspaceChatsCache.value = map
-            workspaceChatsLoading.value.delete(wsId)
-        })
-        .catch(() => {
-            workspaceChatsLoading.value.delete(wsId)
-        })
-}
-
-function getHoverMenuItems(ws: Workspace): DropdownItemConfig[] {
-    ensureWorkspaceChats(ws.id)
-    const chats = workspaceChatsCache.value.get(ws.id)
-    if (!chats || chats.length === 0) {
-        const loading = workspaceChatsLoading.value.has(ws.id)
-        return loading
-            ? [{ id: 'loading', label: 'Loading...', type: 'label' }]
-            : [{ id: 'empty', label: 'No chats yet', type: 'label' }]
-    }
-    return chats.map((chat) => ({
-        id: chat.id,
-        label: chat.title,
-        value: chat.id,
-        icon: ChatBubbleEmpty as Component,
-    }))
-}
-
-function handleHoverChatSelect(chatId: string) {
-    const wsId = wsStore.selectedWorkspaceId
-    if (wsId) {
-        router.push({ name: 'workspace', params: { id: wsId }, query: { chat: chatId } })
-    }
-}
-
 // --- List schemas ---
 const wsListSchema = computed<ListSchema<Workspace>>(() => ({
     variant: 'sidebar',
@@ -200,18 +134,7 @@ const wsListSchema = computed<ListSchema<Workspace>>(() => ({
     emptyMessage: 'No workspaces yet',
     emptyAction: { label: 'Create your first workspace', onClick: openWsCreate },
     onSelect: (ws) => wsStore.selectWorkspace(ws.id),
-    hoverMenu: {
-        items: (ws) => getHoverMenuItems(ws),
-        onSelect: (chatId) => handleHoverChatSelect(chatId),
-    },
 }))
-
-function goToWorkspace(chat?: Chat) {
-    if (wsStore.selectedWorkspaceId) {
-        const query = chat ? { chat: chat.id } : undefined
-        router.push({ name: 'workspace', params: { id: wsStore.selectedWorkspaceId }, query })
-    }
-}
 
 const chatListSchema = computed<ListSchema<Chat>>(() => ({
     variant: 'content',
@@ -220,18 +143,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
         { key: 'title', class: 'title' },
         { key: 'createdAt', class: 'date', format: fmtDate },
     ],
-    actions: [
-        {
-            icon: TrashIcon,
-            ariaLabel: 'Delete',
-            variant: 'danger',
-            size: 'xs',
-            onClick: confirmDeleteChat,
-        },
-    ],
     emptyMessage: 'No chats yet',
-    emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
-    onSelect: (chat) => goToWorkspace(chat),
 }))
 
 // --- Workspace form ---
@@ -314,57 +226,6 @@ function openWorkspace() {
     if (wsStore.selectedWorkspaceId) {
         router.push({ name: 'workspace', params: { id: wsStore.selectedWorkspaceId } })
     }
-}
-
-// --- Chat form ---
-const showChatDialog = ref(false)
-const chatFormLoading = ref(false)
-
-function openChatCreate() {
-    showChatDialog.value = true
-}
-
-function cancelChatForm() {
-    showChatDialog.value = false
-}
-
-async function submitChatForm(data: DynamicGridDataOutput) {
-    if (!wsStore.selectedWorkspaceId) return
-    const chat = data.chat!
-    const payload: ChatDto = {
-        title: String(chat.title ?? ''),
-        modelId: String(chat.model ?? ''),
-    }
-    chatFormLoading.value = true
-    try {
-        await chatStore.createChat(wsStore.selectedWorkspaceId, payload)
-        showChatDialog.value = false
-    } catch {
-        /* error handled by store */
-    } finally {
-        chatFormLoading.value = false
-    }
-}
-
-// --- Chat delete ---
-const showChatDeleteDialog = ref(false)
-const deletingChat = ref<Chat | null>(null)
-
-function confirmDeleteChat(chat: Chat) {
-    deletingChat.value = chat
-    showChatDeleteDialog.value = true
-}
-
-async function executeDeleteChat() {
-    if (!wsStore.selectedWorkspaceId || !deletingChat.value) return
-    await chatStore.deleteChat(wsStore.selectedWorkspaceId, deletingChat.value.id)
-    showChatDeleteDialog.value = false
-    deletingChat.value = null
-}
-
-function cancelChatDelete() {
-    showChatDeleteDialog.value = false
-    deletingChat.value = null
 }
 
 // --- Date formatting ---
@@ -463,29 +324,6 @@ watch(
             @cancel="cancelWsDelete"
         >
             <span class="confirm-message">Delete "{{ deletingWs?.name }}"?</span>
-        </DialogGrid>
-
-        <!-- Chat Form Dialog -->
-        <DialogGrid
-            v-model="showChatDialog"
-            :schema="chatFormSchema"
-            title="New chat"
-            confirm-label="Create"
-            :loading="chatFormLoading"
-            @submit="submitChatForm"
-            @cancel="cancelChatForm"
-        />
-
-        <!-- Chat Delete Dialog -->
-        <DialogGrid
-            v-model="showChatDeleteDialog"
-            title="Delete chat"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDeleteChat"
-            @cancel="cancelChatDelete"
-        >
-            <span class="confirm-message">Delete "{{ deletingChat?.title }}"?</span>
         </DialogGrid>
     </div>
 </template>

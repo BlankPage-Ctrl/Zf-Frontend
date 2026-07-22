@@ -1,16 +1,19 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, h } from 'vue'
-import { Album, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
+import { Album, Download, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
+import { useThemeStore } from '@/stores/theme'
+import type { ThemeSchema } from '@/stores/theme'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import type { Provider, ProviderDto, Model, ModelDto } from '@/services/provider'
 
+const DownloadIcon = () => h(Download, { width: 14, height: 14 })
 const PlusIcon = () => h(Plus, { width: 14, height: 14 })
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
@@ -21,6 +24,7 @@ const ChevronIcon = () => h(NavArrowRight, { width: 14, height: 14 })
 
 const store = useProviderStore()
 const appearance = useAppearanceStore()
+const theme = useThemeStore()
 
 // --- Sidebar nav ---
 const activeSection = ref('model-provider')
@@ -58,6 +62,181 @@ const appearanceSectionHeaderSchema = computed<HeaderSchema>(() => ({
     height: 'auto',
     padding: 'none',
 }))
+
+const themeSectionHeaderSchema = computed<HeaderSchema>(() => ({
+    title: 'Theme',
+    subtitle: 'Switch themes, create your own, or import from file.',
+    height: 'auto',
+    padding: 'none',
+}))
+
+// --- Theme form ---
+const showThemeDialog = ref(false)
+const themeFormLoading = ref(false)
+const themeFormSchema: DialogGridSchema = {
+    row: {
+        columns: {
+            name: {
+                type: 'text-short',
+                label: 'Theme Name',
+                span: 12,
+                metadata: { require: true },
+            },
+            description: {
+                type: 'text-short',
+                label: 'Description',
+                span: 12,
+            },
+            primary: {
+                type: 'text-short',
+                label: 'Primary (R, G, B)',
+                span: 6,
+                placeholder: '255, 250, 243',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            secondary: {
+                type: 'text-short',
+                label: 'Secondary (R, G, B)',
+                span: 6,
+                placeholder: '255, 242, 219',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            third: {
+                type: 'text-short',
+                label: 'Third (R, G, B)',
+                span: 6,
+                placeholder: '255, 229, 191',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            text: {
+                type: 'text-short',
+                label: 'Text (R, G, B)',
+                span: 6,
+                placeholder: '19, 16, 16',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            green: {
+                type: 'text-short',
+                label: 'Green (R, G, B)',
+                span: 6,
+                placeholder: '34, 197, 93',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            red: {
+                type: 'text-short',
+                label: 'Red (R, G, B)',
+                span: 6,
+                placeholder: '246, 36, 64',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+            lighting: {
+                type: 'text-short',
+                label: 'Lighting (R, G, B)',
+                span: 6,
+                placeholder: '200, 180, 150',
+                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
+            },
+        },
+    },
+}
+
+const themeInitialData = ref<DynamicGridDataOutput | undefined>(undefined)
+
+function openThemeCreate() {
+    themeInitialData.value = undefined
+    showThemeDialog.value = true
+}
+
+function cancelThemeForm() {
+    showThemeDialog.value = false
+    themeInitialData.value = undefined
+}
+
+async function submitThemeForm(data: DynamicGridDataOutput) {
+    const row = data.row!
+    const schema: ThemeSchema = {
+        id: (String(row.name ?? '')).toLowerCase().replace(/[^a-z0-9_-]/g, '_'),
+        name: String(row.name ?? ''),
+        description: row.description ? String(row.description) : undefined,
+        colors: {
+            primary: String(row.primary ?? ''),
+            secondary: String(row.secondary ?? ''),
+            third: String(row.third ?? ''),
+            text: String(row.text ?? ''),
+            green: String(row.green ?? ''),
+            red: String(row.red ?? ''),
+            lighting: String(row.lighting ?? ''),
+        },
+    }
+    themeFormLoading.value = true
+    try {
+        theme.addCustomTheme(schema)
+        showThemeDialog.value = false
+    } catch (e) {
+        alert(e instanceof Error ? e.message : 'Failed to save theme')
+    } finally {
+        themeFormLoading.value = false
+    }
+}
+
+// --- Theme import ---
+const fileInput = ref<HTMLInputElement | null>(null)
+
+function triggerImport() {
+    fileInput.value?.click()
+}
+
+function handleFileImport(event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+        try {
+            const data = JSON.parse(reader.result as string)
+            const schema = theme.importTheme(data)
+            theme.addCustomTheme(schema)
+        } catch (e) {
+            alert(e instanceof Error ? e.message : 'Invalid theme file')
+        }
+    }
+    reader.readAsText(file)
+    input.value = '' // reset so same file can be re-imported
+}
+
+// --- Theme export ---
+function exportTheme(id: string) {
+    const schema = theme.exportTheme(id)
+    if (!schema) return
+    const blob = new Blob([JSON.stringify(schema, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${schema.id}-theme.json`
+    a.click()
+    URL.revokeObjectURL(url)
+}
+
+// --- Theme helpers ---
+function isThemeActive(id: string): boolean {
+    return theme.activeThemeId === id
+}
+
+function themePreviewColors(id: string) {
+    const colors = theme.getThemePreview(id)
+    if (!colors) return []
+    return [
+        normalizeRgb(colors.primary),
+        normalizeRgb(colors.secondary),
+        normalizeRgb(colors.third),
+        normalizeRgb(colors.text),
+    ]
+}
+
+function normalizeRgb(rgb: string): string {
+    const parts = rgb.split(',').map((s) => s.trim())
+    return `rgb(${parts.join(',')})`
+}
 
 // --- Provider form ---
 const showProviderDialog = ref(false)
@@ -330,6 +509,7 @@ function maskKey(key?: string): string {
 onMounted(() => {
     store.fetchProviders()
     store.fetchDefaultProvider()
+    theme.load()
 })
 </script>
 
@@ -362,6 +542,18 @@ onMounted(() => {
                         iconPosition: 'left',
                     }"
                     @click="scrollToSection('appearance')"
+                />
+                <pButton
+                    :schema="{
+                        variant: 'ghost',
+                        size: 'xs',
+                        icon: PaletteIcon,
+                        label: 'Theme',
+                        fullWidth: true,
+                        ariaPressed: activeSection === 'theme',
+                        iconPosition: 'left',
+                    }"
+                    @click="scrollToSection('theme')"
                 />
             </div>
         </nav>
@@ -584,7 +776,108 @@ onMounted(() => {
                     </div>
                 </div>
             </section>
+
+            <!-- Theme Section -->
+            <section id="theme" class="settings-section section-theme">
+                <Header :schema="themeSectionHeaderSchema" class="section-header" />
+
+                <div class="theme-grid">
+                    <div
+                        v-for="t in theme.availableThemes"
+                        :key="t.id"
+                        class="theme-card"
+                        :class="{ active: isThemeActive(t.id) }"
+                        @click="theme.setTheme(t.id)"
+                    >
+                        <div class="theme-swatches">
+                            <span
+                                v-for="(color, ci) in themePreviewColors(t.id)"
+                                :key="ci"
+                                class="theme-swatch"
+                                :style="{ background: color }"
+                            />
+                        </div>
+                        <div class="theme-card-body">
+                            <span class="theme-name">{{ t.name }}</span>
+                            <span class="theme-desc">{{ t.description }}</span>
+                        </div>
+                        <div class="theme-card-actions">
+                            <pButton
+                                v-if="isThemeActive(t.id)"
+                                :schema="{
+                                    preset: 'ghost',
+                                    size: 'xs',
+                                    label: 'Active',
+                                    overrides: { variant: 'ghost' },
+                                }"
+                            />
+                            <pButton
+                                :schema="{
+                                    variant: 'ghost',
+                                    size: 'xs',
+                                    icon: DownloadIcon,
+                                    iconPosition: 'only',
+                                    ariaLabel: 'Export theme',
+                                }"
+                                @click.stop="exportTheme(t.id)"
+                            />
+                            <pButton
+                                v-if="!t.builtIn"
+                                :schema="{
+                                    preset: 'danger',
+                                    size: 'xs',
+                                    icon: TrashIcon,
+                                    overrides: { variant: 'ghost', iconPosition: 'only' },
+                                    ariaLabel: 'Delete theme',
+                                }"
+                                @click.stop="theme.removeCustomTheme(t.id)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theme-actions-row">
+                    <pButton
+                        :schema="{
+                            variant: 'ghost',
+                            size: 'sm',
+                            icon: PlusIcon,
+                            label: 'Add Theme',
+                        }"
+                        @click="openThemeCreate"
+                    />
+                    <pButton
+                        :schema="{
+                            variant: 'ghost',
+                            size: 'sm',
+                            icon: DownloadIcon,
+                            label: 'Import',
+                        }"
+                        @click="triggerImport"
+                    />
+                    <input
+                        ref="fileInput"
+                        type="file"
+                        accept=".json"
+                        style="display: none"
+                        @change="handleFileImport"
+                    />
+                </div>
+            </section>
         </main>
+
+        <!-- Theme Form Dialog -->
+        <DialogGrid
+            v-model="showThemeDialog"
+            :schema="themeFormSchema"
+            title="New Theme"
+            confirm-label="Create"
+            :initial-data="themeInitialData"
+            :loading="themeFormLoading"
+            width="md"
+            @submit="submitThemeForm"
+            @cancel="cancelThemeForm"
+        />
 
         <!-- Provider Form Dialog -->
         <DialogGrid
@@ -1021,5 +1314,85 @@ onMounted(() => {
     font-size: 14px;
     font-weight: 600;
     color: rgb(var(--text-color));
+}
+
+/* --- Theme --- */
+.section-theme {
+    margin-top: 48px;
+}
+
+.theme-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.theme-card {
+    width: 220px;
+    border: 1px solid rgba(var(--third-color), 0.2);
+    border-radius: 12px;
+    background: rgb(var(--secondary-color));
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.theme-card:hover {
+    border-color: rgba(var(--third-color), 0.5);
+}
+
+.theme-card.active {
+    border-color: rgb(var(--text-color));
+    box-shadow: 0 0 0 1.5px rgb(var(--text-color));
+}
+
+.theme-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.theme-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(var(--third-color), 0.25);
+}
+
+.theme-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.theme-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgb(var(--text-color));
+}
+
+.theme-desc {
+    font-size: 12px;
+    color: rgb(var(--text-color));
+    opacity: 0.5;
+    line-height: 1.4;
+}
+
+.theme-card-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(var(--third-color), 0.12);
+}
+
+.theme-actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
 }
 </style>

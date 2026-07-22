@@ -1,10 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, onMounted, h } from 'vue'
+import { ref, computed, onMounted, h, type Component } from 'vue'
 import { Album, Download, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
+import { List } from '@/components/list'
+import type { ListSchema } from '@/components/list'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useThemeStore } from '@/stores/theme'
@@ -18,8 +20,6 @@ const PlusIcon = () => h(Plus, { width: 14, height: 14 })
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
 const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 const StarIcon = () => h(Star, { width: 14, height: 14 })
-const LayersIcon = () => h(Album, { width: 14, height: 14 })
-const PaletteIcon = () => h(Palette, { width: 14, height: 14 })
 const ChevronIcon = () => h(NavArrowRight, { width: 14, height: 14 })
 
 const store = useProviderStore()
@@ -33,6 +33,33 @@ function scrollToSection(id: string) {
     activeSection.value = id
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+interface SidebarItem {
+    id: string
+    label: string
+}
+
+const sidebarItems: SidebarItem[] = [
+    { id: 'model-provider', label: 'Model and Provider' },
+    { id: 'appearance', label: 'Appearance' },
+    { id: 'theme', label: 'Theme' },
+]
+
+const sidebarIconMap: Record<string, Component> = {
+    'model-provider': () => h(Album, { width: 14, height: 14 }),
+    appearance: () => h(Palette, { width: 14, height: 14 }),
+    theme: () => h(Palette, { width: 14, height: 14 }),
+}
+
+const sidebarListSchema = computed<ListSchema<SidebarItem>>(() => ({
+    variant: 'sidebar',
+    size: 'xs',
+    activeKey: 'id',
+    activeId: activeSection.value,
+    fields: [{ key: 'label', class: 'title' }],
+    icon: (item) => sidebarIconMap[item.id],
+    onSelect: (item) => scrollToSection(item.id),
+}))
 
 // --- Header schemas ---
 const sidebarHeaderSchema = computed<HeaderSchema>(() => ({
@@ -518,44 +545,7 @@ onMounted(() => {
         <!-- SIDEBAR NAV -->
         <nav class="settings-sidebar">
             <Header :schema="sidebarHeaderSchema" />
-            <div class="sidebar-nav">
-                <pButton
-                    :schema="{
-                        variant: 'ghost',
-                        size: 'xs',
-                        icon: LayersIcon,
-                        label: 'Model and Provider',
-                        fullWidth: true,
-                        ariaPressed: activeSection === 'model-provider',
-                        iconPosition: 'left',
-                    }"
-                    @click="scrollToSection('model-provider')"
-                />
-                <pButton
-                    :schema="{
-                        variant: 'ghost',
-                        size: 'xs',
-                        icon: PaletteIcon,
-                        label: 'Appearance',
-                        fullWidth: true,
-                        ariaPressed: activeSection === 'appearance',
-                        iconPosition: 'left',
-                    }"
-                    @click="scrollToSection('appearance')"
-                />
-                <pButton
-                    :schema="{
-                        variant: 'ghost',
-                        size: 'xs',
-                        icon: PaletteIcon,
-                        label: 'Theme',
-                        fullWidth: true,
-                        ariaPressed: activeSection === 'theme',
-                        iconPosition: 'left',
-                    }"
-                    @click="scrollToSection('theme')"
-                />
-            </div>
+            <List :schema="sidebarListSchema" :items="sidebarItems" />
         </nav>
 
         <!-- CONTENT -->
@@ -968,15 +958,7 @@ onMounted(() => {
     overflow-y: auto;
 }
 
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    padding: 0 8px 12px;
-    gap: 2px;
-}
-
-.settings-sidebar .btn--ghost[aria-pressed='true'] {
-    opacity: 1;
+.settings-sidebar .dl-item--active {
     background: rgba(var(--third-color), 0.15);
     box-shadow: inset 3px 0 0 rgb(var(--third-color));
 }

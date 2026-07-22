@@ -42,13 +42,11 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
     { id: 'model-provider', label: 'Model and Provider' },
     { id: 'appearance', label: 'Appearance' },
-    { id: 'theme', label: 'Theme' },
 ]
 
 const sidebarIconMap: Record<string, Component> = {
     'model-provider': () => h(Album, { width: 14, height: 14 }),
     appearance: () => h(Palette, { width: 14, height: 14 }),
-    theme: () => h(Palette, { width: 14, height: 14 }),
 }
 
 const sidebarListSchema = computed<ListSchema<SidebarItem>>(() => ({
@@ -84,15 +82,8 @@ const providerSectionHeaderSchema = computed<HeaderSchema>(() => ({
 }))
 
 const appearanceSectionHeaderSchema = computed<HeaderSchema>(() => ({
-    title: 'Appearance',
-    subtitle: 'Adjust the markdown rendering size and spacing.',
-    height: 'auto',
-    padding: 'none',
-}))
-
-const themeSectionHeaderSchema = computed<HeaderSchema>(() => ({
-    title: 'Theme',
-    subtitle: 'Switch themes, create your own, or import from file.',
+    title: 'Appearance & Theme',
+    subtitle: 'Adjust markdown rendering, size, spacing, and manage themes.',
     height: 'auto',
     padding: 'none',
 }))
@@ -699,7 +690,7 @@ onMounted(() => {
                 </div>
             </section>
 
-            <!-- Appearance Section -->
+            <!-- Appearance & Theme Section -->
             <section id="appearance" class="settings-section section-appearance">
                 <Header :schema="appearanceSectionHeaderSchema" class="section-header" />
 
@@ -765,11 +756,6 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- Theme Section -->
-            <section id="theme" class="settings-section section-theme">
-                <Header :schema="themeSectionHeaderSchema" class="section-header" />
 
                 <div class="theme-grid">
                     <div
@@ -1299,11 +1285,8 @@ onMounted(() => {
 }
 
 /* --- Theme --- */
-.section-theme {
-    margin-top: 48px;
-}
-
 .theme-grid {
+    margin-top: 32px;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;

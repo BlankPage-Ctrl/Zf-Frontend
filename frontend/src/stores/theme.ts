@@ -142,7 +142,15 @@ export const useThemeStore = defineStore('theme', () => {
             throw new Error('Invalid theme format: missing id, name, or colors')
         }
         const colors = schema.colors as Record<string, unknown>
-        const required = ['bgPrimary', 'bgSecondary', 'border', 'textPrimary', 'success', 'danger', 'shadow'] as const
+        const required = [
+            'bgPrimary',
+            'bgSecondary',
+            'border',
+            'textPrimary',
+            'success',
+            'danger',
+            'shadow',
+        ] as const
         for (const key of required) {
             if (typeof colors[key] !== 'string') {
                 throw new Error(`Invalid theme format: missing color "${key}"`)
@@ -187,10 +195,7 @@ export const useThemeStore = defineStore('theme', () => {
     async function saveCustomThemes() {
         if (!loaded) return
         try {
-            await settingsApi.setValue(
-                STORAGE_KEY_CUSTOM,
-                JSON.stringify(customThemes.value),
-            )
+            await settingsApi.setValue(STORAGE_KEY_CUSTOM, JSON.stringify(customThemes.value))
         } catch {
             /* ignore */
         }
@@ -223,10 +228,7 @@ export const useThemeStore = defineStore('theme', () => {
         if (!loaded) return
         applyTheme(v)
         try {
-            await settingsApi.setValue(
-                STORAGE_KEY_CURRENT,
-                JSON.stringify({ themeId: v }),
-            )
+            await settingsApi.setValue(STORAGE_KEY_CURRENT, JSON.stringify({ themeId: v }))
         } catch {
             /* ignore */
         }

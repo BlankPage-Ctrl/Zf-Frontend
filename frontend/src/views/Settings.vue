@@ -1,7 +1,16 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, h, type Component } from 'vue'
-import { Album, Download, EditPencil, NavArrowRight, Palette, Plus, Star, Trash } from '@iconoir/vue'
+import {
+    Album,
+    Download,
+    EditPencil,
+    NavArrowRight,
+    Palette,
+    Plus,
+    Star,
+    Trash,
+} from '@iconoir/vue'
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
@@ -174,7 +183,9 @@ function cancelThemeForm() {
 async function submitThemeForm(data: DynamicGridDataOutput) {
     const row = data.row!
     const schema: ThemeSchema = {
-        id: (String(row.name ?? '')).toLowerCase().replace(/[^a-z0-9_-]/g, '_'),
+        id: String(row.name ?? '')
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]/g, '_'),
         name: String(row.name ?? ''),
         description: row.description ? String(row.description) : undefined,
         colors: {
@@ -1300,7 +1311,9 @@ onMounted(() => {
     background: rgb(var(--bg-secondary));
     padding: 20px;
     cursor: pointer;
-    transition: border-color 150ms ease, box-shadow 150ms ease;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
     display: flex;
     flex-direction: column;
     gap: 16px;

@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/source-serif-4/wght.css';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import url('./utilities.css');
+
+@theme {
+    --color-bg-primary: rgb(var(--bg-primary));
+    --color-bg-secondary: rgb(var(--bg-secondary));
+    --color-border: rgb(var(--border-color));
+    --color-text-primary: rgb(var(--text-primary));
+    --color-success: rgb(var(--color-success));
+    --color-danger: rgb(var(--color-danger));
+    --font-serif: 'Source Serif 4 Variable', serif;
+    --font-body: 'Barlow', sans-serif;
+    --animate-slide-in: slideIn 0.3s ease-out;
+    --animate-fade-in: fadeIn 0.15s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+:root:not([data-theme]) {
+    --bg-primary: 255, 250, 243;
+    --bg-secondary: 255, 242, 219;
+    --border-color: 255, 229, 191;
+    --text-primary: 19, 16, 16;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
+}
+
+[data-theme='ola'] {
+    --bg-primary: 255, 250, 243;
+    --bg-secondary: 255, 242, 219;
+    --border-color: 255, 229, 191;
+    --text-primary: 19, 16, 16;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
+    --shadow-color: 200, 180, 150;
+}
+
+[data-theme='day'] {
+    --bg-primary: 255, 255, 255;
+    --bg-secondary: 248, 249, 250;
+    --border-color: 233, 236, 239;
+    --text-primary: 33, 37, 41;
+    --color-success: 34, 197, 93;
+    --color-danger: 246, 36, 64;
+    --shadow-color: 180, 180, 180;
+}
+
+[data-theme='night'] {
+    --bg-primary: 34, 34, 40;
+    --bg-secondary: 44, 44, 52;
+    --border-color: 56, 56, 64;
+    --text-primary: 215, 215, 225;
+    --color-success: 68, 220, 120;
+    --color-danger: 255, 90, 110;
+    --shadow-color: 90, 90, 100;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Barlow', sans-serif;
+    color: rgb(var(--text-primary));
+    background: rgb(var(--bg-primary));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+textarea,
+select,
+button {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+input,
+textarea {
+    outline: none;
+}

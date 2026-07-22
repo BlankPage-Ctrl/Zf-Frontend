@@ -35,6 +35,7 @@ function scrollToSection(id: string) {
 }
 
 interface SidebarItem {
+    [key: string]: unknown
     id: string
     label: string
 }
@@ -55,7 +56,7 @@ const sidebarListSchema = computed<ListSchema<SidebarItem>>(() => ({
     activeKey: 'id',
     activeId: activeSection.value,
     fields: [{ key: 'label', class: 'title' }],
-    icon: (item) => sidebarIconMap[item.id],
+    icon: (item) => sidebarIconMap[item.id]!,
     onSelect: (item) => scrollToSection(item.id),
 }))
 

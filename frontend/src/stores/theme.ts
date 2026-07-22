@@ -141,8 +141,8 @@ export const useThemeStore = defineStore('theme', () => {
         if (!schema.id || !schema.name || !schema.colors) {
             throw new Error('Invalid theme format: missing id, name, or colors')
         }
-        const colors = schema.colors as Record<string, string>
-        const required = ['primary', 'secondary', 'third', 'text', 'green', 'red', 'lighting']
+        const colors = schema.colors as ThemeColors
+        const required = ['primary', 'secondary', 'third', 'text', 'green', 'red', 'lighting'] as const
         for (const key of required) {
             if (typeof colors[key] !== 'string') {
                 throw new Error(`Invalid theme format: missing color "${key}"`)

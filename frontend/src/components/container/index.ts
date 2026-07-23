@@ -3,6 +3,7 @@ export type {
     ContainerResizeMode,
     ContainerCellStyle,
     ContainerColumnConfig,
+    ContainerSchema,
     ContainerSchema as ContainerRowConfig,
 } from './types/index.ts'
 

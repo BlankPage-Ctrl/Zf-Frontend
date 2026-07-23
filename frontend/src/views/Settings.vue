@@ -16,6 +16,7 @@ import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
 import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
+import { ContainerGrid, type ContainerSchema } from '@/components/container'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useThemeStore } from '@/stores/theme'
@@ -68,6 +69,36 @@ const sidebarListSchema = computed<ListSchema<SidebarItem>>(() => ({
     icon: (item) => sidebarIconMap[item.id]!,
     onSelect: (item) => scrollToSection(item.id),
 }))
+
+// --- Container schema ---
+const settingsSchema = ref<ContainerSchema[]>([
+    {
+        id: 'row-1',
+        height: '1fr',
+        columns: [
+            {
+                id: 'sidebar',
+                width: 200,
+                cell: {
+                    padding: 0,
+                    background: 'rgb(var(--bg-secondary))',
+                    borderColor: 'rgba(var(--border-color), 0.2)',
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    radius: 0,
+                },
+            },
+            {
+                id: 'content',
+                width: '1fr',
+                cell: {
+                    padding: '32px 40px 64px',
+                    background: 'rgb(var(--bg-primary))',
+                },
+            },
+        ],
+    },
+])
 
 // --- Header schemas ---
 const sidebarHeaderSchema = computed<HeaderSchema>(() => ({
@@ -544,315 +575,321 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="settings-page">
-        <!-- SIDEBAR NAV -->
-        <nav class="settings-sidebar">
-            <Header :schema="sidebarHeaderSchema" />
-            <AppList :schema="sidebarListSchema" :items="sidebarItems" />
-        </nav>
+    <div style="height: 100%">
+        <ContainerGrid :schema="settingsSchema">
+            <!-- SIDEBAR NAV -->
+            <template #sidebar>
+                <nav class="settings-sidebar">
+                    <Header :schema="sidebarHeaderSchema" />
+                    <AppList :schema="sidebarListSchema" :items="sidebarItems" />
+                </nav>
+            </template>
 
-        <!-- CONTENT -->
-        <main class="settings-content">
-            <!-- Model & Provider Section -->
-            <section id="model-provider" class="settings-section">
-                <Header :schema="providerSectionHeaderSchema" class="section-header" />
+            <!-- CONTENT -->
+            <template #content>
+                <div class="settings-content">
+                    <!-- Model & Provider Section -->
+                    <section id="model-provider" class="settings-section">
+                        <Header :schema="providerSectionHeaderSchema" class="section-header" />
 
-                <!-- Loading -->
-                <div v-if="store.loading && !store.providers.length" class="section-empty">
-                    <span class="text-muted">Loading...</span>
-                </div>
+                        <!-- Loading -->
+                        <div v-if="store.loading && !store.providers.length" class="section-empty">
+                            <span class="text-muted">Loading...</span>
+                        </div>
 
-                <!-- Error -->
-                <div v-else-if="store.error && !store.providers.length" class="section-empty">
-                    <span class="text-muted">{{ store.error }}</span>
-                    <pButton
-                        :schema="{ preset: 'ghost', size: 'sm', label: 'Retry' }"
-                        @click="store.fetchProviders()"
-                    />
-                </div>
-
-                <!-- Empty state -->
-                <div v-else-if="!store.providers.length" class="section-empty">
-                    <div class="empty-icon">
-                        <Album width="32" height="32" style="opacity: 0.3" />
-                    </div>
-                    <span class="empty-text">No providers yet</span>
-                    <pButton
-                        :schema="{ preset: 'ghost', size: 'sm', label: 'Add your first provider' }"
-                        @click="openProviderCreate"
-                    />
-                </div>
-
-                <!-- Provider list -->
-                <div v-else class="provider-list">
-                    <div
-                        v-for="provider in store.providers"
-                        :key="provider.id"
-                        class="provider-card"
-                    >
-                        <div class="provider-card-header">
+                        <!-- Error -->
+                        <div v-else-if="store.error && !store.providers.length" class="section-empty">
+                            <span class="text-muted">{{ store.error }}</span>
                             <pButton
-                                :schema="{
-                                    preset: 'icon-only',
-                                    size: 'xs',
-                                    icon: ChevronIcon,
-                                    ariaExpanded: isProviderExpanded(provider.id),
-                                    ariaLabel: 'Toggle expand',
-                                }"
-                                @click="toggleProviderExpand(provider.id)"
+                                :schema="{ preset: 'ghost', size: 'sm', label: 'Retry' }"
+                                @click="store.fetchProviders()"
                             />
+                        </div>
 
-                            <div class="provider-info">
-                                <span class="provider-name">{{ provider.name }}</span>
-                                <span class="provider-type-badge">{{ provider.type }}</span>
-                                <span v-if="provider.apiKey" class="provider-key">{{
-                                    maskKey(provider.apiKey)
-                                }}</span>
-                                <span v-if="provider.baseURL" class="provider-url">{{
-                                    provider.baseURL
-                                }}</span>
+                        <!-- Empty state -->
+                        <div v-else-if="!store.providers.length" class="section-empty">
+                            <div class="empty-icon">
+                                <Album width="32" height="32" style="opacity: 0.3" />
+                            </div>
+                            <span class="empty-text">No providers yet</span>
+                            <pButton
+                                :schema="{ preset: 'ghost', size: 'sm', label: 'Add your first provider' }"
+                                @click="openProviderCreate"
+                            />
+                        </div>
+
+                        <!-- Provider list -->
+                        <div v-else class="provider-list">
+                            <div
+                                v-for="provider in store.providers"
+                                :key="provider.id"
+                                class="provider-card"
+                            >
+                                <div class="provider-card-header">
+                                    <pButton
+                                        :schema="{
+                                            preset: 'icon-only',
+                                            size: 'xs',
+                                            icon: ChevronIcon,
+                                            ariaExpanded: isProviderExpanded(provider.id),
+                                            ariaLabel: 'Toggle expand',
+                                        }"
+                                        @click="toggleProviderExpand(provider.id)"
+                                    />
+
+                                    <div class="provider-info">
+                                        <span class="provider-name">{{ provider.name }}</span>
+                                        <span class="provider-type-badge">{{ provider.type }}</span>
+                                        <span v-if="provider.apiKey" class="provider-key">{{
+                                            maskKey(provider.apiKey)
+                                        }}</span>
+                                        <span v-if="provider.baseURL" class="provider-url">{{
+                                            provider.baseURL
+                                        }}</span>
+                                    </div>
+
+                                    <div class="provider-actions">
+                                        <pButton
+                                            :schema="{
+                                                variant: 'ghost',
+                                                size: 'xs',
+                                                icon: PlusIcon,
+                                                iconPosition: 'only',
+                                                ariaLabel: 'Add model',
+                                            }"
+                                            @click="openModelCreate(provider.id)"
+                                        />
+                                        <pButton
+                                            :schema="{
+                                                variant: 'ghost',
+                                                size: 'xs',
+                                                icon: EditIcon,
+                                                iconPosition: 'only',
+                                                ariaLabel: 'Edit',
+                                            }"
+                                            @click="openProviderEdit(provider)"
+                                        />
+                                        <pButton
+                                            :schema="{
+                                                preset: 'danger',
+                                                size: 'xs',
+                                                icon: TrashIcon,
+                                                overrides: { variant: 'ghost', iconPosition: 'only' },
+                                                ariaLabel: 'Delete',
+                                            }"
+                                            @click="confirmDeleteProvider(provider)"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div v-if="isProviderExpanded(provider.id)" class="provider-models">
+                                    <div v-if="!provider.models.length" class="model-empty">
+                                        No models yet
+                                    </div>
+                                    <div v-for="model in provider.models" :key="model.id" class="model-row">
+                                        <div class="model-info">
+                                            <span class="model-name">{{
+                                                model.displayName || model.modelId
+                                            }}</span>
+                                            <span v-if="model.displayName" class="model-id">{{
+                                                model.modelId
+                                            }}</span>
+                                            <span v-if="isDefault(provider, model)" class="default-badge"
+                                                >Default</span
+                                            >
+                                        </div>
+                                        <div class="model-actions">
+                                            <pButton
+                                                v-if="!isDefault(provider, model)"
+                                                :schema="{
+                                                    variant: 'ghost',
+                                                    size: 'xs',
+                                                    icon: StarIcon,
+                                                    iconPosition: 'only',
+                                                    ariaLabel: 'Set as default',
+                                                }"
+                                                @click="openSetDefault(provider, model)"
+                                            />
+                                            <pButton
+                                                :schema="{
+                                                    variant: 'ghost',
+                                                    size: 'xs',
+                                                    icon: EditIcon,
+                                                    iconPosition: 'only',
+                                                    ariaLabel: 'Edit',
+                                                }"
+                                                @click="openModelEdit(provider.id, model)"
+                                            />
+                                            <pButton
+                                                :schema="{
+                                                    preset: 'danger',
+                                                    size: 'xs',
+                                                    icon: TrashIcon,
+                                                    overrides: { variant: 'ghost', iconPosition: 'only' },
+                                                    ariaLabel: 'Delete',
+                                                }"
+                                                @click="confirmDeleteModel(provider.id, model)"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Appearance & Theme Section -->
+                    <section id="appearance" class="settings-section section-appearance">
+                        <Header :schema="appearanceSectionHeaderSchema" class="section-header" />
+
+                        <div class="appearance-card">
+                            <div class="appearance-row">
+                                <label class="appearance-label">Preset</label>
+                                <div class="preset-group">
+                                    <pButton
+                                        v-for="p in appearance.PRESETS"
+                                        :key="p.label"
+                                        :schema="{
+                                            variant: 'ghost',
+                                            size: 'sm',
+                                            label: p.label,
+                                            ariaPressed: appearance.preset === p.label,
+                                        }"
+                                        @click="appearance.setPreset(p.label)"
+                                    />
+                                    <span
+                                        class="preset-custom-tag"
+                                        :class="{ active: appearance.preset === 'Custom' }"
+                                        >Custom</span
+                                    >
+                                </div>
                             </div>
 
-                            <div class="provider-actions">
-                                <pButton
-                                    :schema="{
-                                        variant: 'ghost',
-                                        size: 'xs',
-                                        icon: PlusIcon,
-                                        iconPosition: 'only',
-                                        ariaLabel: 'Add model',
-                                    }"
-                                    @click="openModelCreate(provider.id)"
+                            <div class="appearance-row">
+                                <label class="appearance-label">
+                                    Scale
+                                    <span class="scale-value">{{ appearance.fontSize }}px</span>
+                                </label>
+                                <input
+                                    type="range"
+                                    class="appearance-slider"
+                                    min="12"
+                                    max="20"
+                                    step="1"
+                                    :value="appearance.fontSize"
+                                    @input="
+                                        appearance.fontSize = Number(
+                                            ($event.target as HTMLInputElement).value,
+                                        )
+                                    "
                                 />
-                                <pButton
-                                    :schema="{
-                                        variant: 'ghost',
-                                        size: 'xs',
-                                        icon: EditIcon,
-                                        iconPosition: 'only',
-                                        ariaLabel: 'Edit',
-                                    }"
-                                    @click="openProviderEdit(provider)"
-                                />
-                                <pButton
-                                    :schema="{
-                                        preset: 'danger',
-                                        size: 'xs',
-                                        icon: TrashIcon,
-                                        overrides: { variant: 'ghost', iconPosition: 'only' },
-                                        ariaLabel: 'Delete',
-                                    }"
-                                    @click="confirmDeleteProvider(provider)"
-                                />
+                                <div class="slider-labels">
+                                    <span>Smaller</span>
+                                    <span>Larger</span>
+                                </div>
+                            </div>
+
+                            <div class="appearance-info">
+                                <div class="info-item">
+                                    <span class="info-label">Font size</span>
+                                    <span class="info-value">{{ appearance.fontSize }}px</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Line height</span>
+                                    <span class="info-value">{{ appearance.lineHeight.toFixed(2) }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Content width</span>
+                                    <span class="info-value">{{ appearance.contentWidth }}px</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div v-if="isProviderExpanded(provider.id)" class="provider-models">
-                            <div v-if="!provider.models.length" class="model-empty">
-                                No models yet
-                            </div>
-                            <div v-for="model in provider.models" :key="model.id" class="model-row">
-                                <div class="model-info">
-                                    <span class="model-name">{{
-                                        model.displayName || model.modelId
-                                    }}</span>
-                                    <span v-if="model.displayName" class="model-id">{{
-                                        model.modelId
-                                    }}</span>
-                                    <span v-if="isDefault(provider, model)" class="default-badge"
-                                        >Default</span
-                                    >
+                        <div class="theme-grid">
+                            <div
+                                v-for="t in theme.availableThemes"
+                                :key="t.id"
+                                class="theme-card"
+                                :class="{ active: isThemeActive(t.id) }"
+                                @click="theme.setTheme(t.id)"
+                            >
+                                <div class="theme-swatches">
+                                    <span
+                                        v-for="(color, ci) in themePreviewColors(t.id)"
+                                        :key="ci"
+                                        class="theme-swatch"
+                                        :style="{ background: color }"
+                                    />
                                 </div>
-                                <div class="model-actions">
+                                <div class="theme-card-body">
+                                    <span class="theme-name">{{ t.name }}</span>
+                                    <span class="theme-desc">{{ t.description }}</span>
+                                </div>
+                                <div class="theme-card-actions">
                                     <pButton
-                                        v-if="!isDefault(provider, model)"
+                                        v-if="isThemeActive(t.id)"
                                         :schema="{
-                                            variant: 'ghost',
+                                            preset: 'ghost',
                                             size: 'xs',
-                                            icon: StarIcon,
-                                            iconPosition: 'only',
-                                            ariaLabel: 'Set as default',
+                                            label: 'Active',
+                                            overrides: { variant: 'ghost' },
                                         }"
-                                        @click="openSetDefault(provider, model)"
                                     />
                                     <pButton
                                         :schema="{
                                             variant: 'ghost',
                                             size: 'xs',
-                                            icon: EditIcon,
+                                            icon: DownloadIcon,
                                             iconPosition: 'only',
-                                            ariaLabel: 'Edit',
+                                            ariaLabel: 'Export theme',
                                         }"
-                                        @click="openModelEdit(provider.id, model)"
+                                        @click.stop="exportTheme(t.id)"
                                     />
                                     <pButton
+                                        v-if="!t.builtIn"
                                         :schema="{
                                             preset: 'danger',
                                             size: 'xs',
                                             icon: TrashIcon,
                                             overrides: { variant: 'ghost', iconPosition: 'only' },
-                                            ariaLabel: 'Delete',
+                                            ariaLabel: 'Delete theme',
                                         }"
-                                        @click="confirmDeleteModel(provider.id, model)"
+                                        @click.stop="theme.removeCustomTheme(t.id)"
                                     />
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Appearance & Theme Section -->
-            <section id="appearance" class="settings-section section-appearance">
-                <Header :schema="appearanceSectionHeaderSchema" class="section-header" />
-
-                <div class="appearance-card">
-                    <div class="appearance-row">
-                        <label class="appearance-label">Preset</label>
-                        <div class="preset-group">
+                        <div class="theme-actions-row">
                             <pButton
-                                v-for="p in appearance.PRESETS"
-                                :key="p.label"
                                 :schema="{
                                     variant: 'ghost',
                                     size: 'sm',
-                                    label: p.label,
-                                    ariaPressed: appearance.preset === p.label,
+                                    icon: PlusIcon,
+                                    label: 'Add Theme',
                                 }"
-                                @click="appearance.setPreset(p.label)"
-                            />
-                            <span
-                                class="preset-custom-tag"
-                                :class="{ active: appearance.preset === 'Custom' }"
-                                >Custom</span
-                            >
-                        </div>
-                    </div>
-
-                    <div class="appearance-row">
-                        <label class="appearance-label">
-                            Scale
-                            <span class="scale-value">{{ appearance.fontSize }}px</span>
-                        </label>
-                        <input
-                            type="range"
-                            class="appearance-slider"
-                            min="12"
-                            max="20"
-                            step="1"
-                            :value="appearance.fontSize"
-                            @input="
-                                appearance.fontSize = Number(
-                                    ($event.target as HTMLInputElement).value,
-                                )
-                            "
-                        />
-                        <div class="slider-labels">
-                            <span>Smaller</span>
-                            <span>Larger</span>
-                        </div>
-                    </div>
-
-                    <div class="appearance-info">
-                        <div class="info-item">
-                            <span class="info-label">Font size</span>
-                            <span class="info-value">{{ appearance.fontSize }}px</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Line height</span>
-                            <span class="info-value">{{ appearance.lineHeight.toFixed(2) }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Content width</span>
-                            <span class="info-value">{{ appearance.contentWidth }}px</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="theme-grid">
-                    <div
-                        v-for="t in theme.availableThemes"
-                        :key="t.id"
-                        class="theme-card"
-                        :class="{ active: isThemeActive(t.id) }"
-                        @click="theme.setTheme(t.id)"
-                    >
-                        <div class="theme-swatches">
-                            <span
-                                v-for="(color, ci) in themePreviewColors(t.id)"
-                                :key="ci"
-                                class="theme-swatch"
-                                :style="{ background: color }"
-                            />
-                        </div>
-                        <div class="theme-card-body">
-                            <span class="theme-name">{{ t.name }}</span>
-                            <span class="theme-desc">{{ t.description }}</span>
-                        </div>
-                        <div class="theme-card-actions">
-                            <pButton
-                                v-if="isThemeActive(t.id)"
-                                :schema="{
-                                    preset: 'ghost',
-                                    size: 'xs',
-                                    label: 'Active',
-                                    overrides: { variant: 'ghost' },
-                                }"
+                                @click="openThemeCreate"
                             />
                             <pButton
                                 :schema="{
                                     variant: 'ghost',
-                                    size: 'xs',
+                                    size: 'sm',
                                     icon: DownloadIcon,
-                                    iconPosition: 'only',
-                                    ariaLabel: 'Export theme',
+                                    label: 'Import',
                                 }"
-                                @click.stop="exportTheme(t.id)"
+                                @click="triggerImport"
                             />
-                            <pButton
-                                v-if="!t.builtIn"
-                                :schema="{
-                                    preset: 'danger',
-                                    size: 'xs',
-                                    icon: TrashIcon,
-                                    overrides: { variant: 'ghost', iconPosition: 'only' },
-                                    ariaLabel: 'Delete theme',
-                                }"
-                                @click.stop="theme.removeCustomTheme(t.id)"
+                            <input
+                                ref="fileInput"
+                                type="file"
+                                accept=".json"
+                                style="display: none"
+                                @change="handleFileImport"
                             />
                         </div>
-                    </div>
+                    </section>
                 </div>
-
-                <div class="theme-actions-row">
-                    <pButton
-                        :schema="{
-                            variant: 'ghost',
-                            size: 'sm',
-                            icon: PlusIcon,
-                            label: 'Add Theme',
-                        }"
-                        @click="openThemeCreate"
-                    />
-                    <pButton
-                        :schema="{
-                            variant: 'ghost',
-                            size: 'sm',
-                            icon: DownloadIcon,
-                            label: 'Import',
-                        }"
-                        @click="triggerImport"
-                    />
-                    <input
-                        ref="fileInput"
-                        type="file"
-                        accept=".json"
-                        style="display: none"
-                        @change="handleFileImport"
-                    />
-                </div>
-            </section>
-        </main>
+            </template>
+        </ContainerGrid>
 
         <!-- Theme Form Dialog -->
         <DialogGrid
@@ -938,22 +975,12 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.settings-page {
-    display: flex;
-    height: 100%;
-    overflow: hidden;
-    background: rgb(var(--bg-primary));
-}
-
 /* --- Sidebar --- */
 .settings-sidebar {
-    width: 200px;
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: rgb(var(--bg-secondary));
-    border-right: 1px solid rgba(var(--border-color), 0.2);
-    overflow-y: auto;
+    height: 100%;
+    overflow: hidden;
 }
 
 .settings-sidebar .dl-item--active {
@@ -963,9 +990,7 @@ onMounted(() => {
 
 /* --- Content --- */
 .settings-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 32px 40px 64px;
+    max-width: 720px;
 }
 
 .settings-section {

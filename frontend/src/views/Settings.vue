@@ -1324,8 +1324,8 @@ onMounted(() => {
 }
 
 .theme-card.active {
-    border-color: rgb(var(--text-primary));
-    box-shadow: 0 0 0 1.5px rgb(var(--text-primary));
+    border-color: rgb(var(--border-color));
+    box-shadow: 0 0 0 1.5px rgb(var(--border-color));
 }
 
 .theme-swatches {

@@ -125,6 +125,38 @@
     opacity: 0.35;
 }
 
+/* --- Text size presets --- */
+
+.dl-item--text-xs .dl-item__field--title { font-size: 11px; }
+.dl-item--text-xs .dl-item__field--subtitle { font-size: 10px; }
+.dl-item--text-xs .dl-item__field--meta { font-size: 9px; }
+.dl-item--text-xs .dl-item__field--date { font-size: 10px; }
+
+.dl-item--text-sm .dl-item__field--title { font-size: 12px; }
+.dl-item--text-sm .dl-item__field--subtitle { font-size: 11px; }
+.dl-item--text-sm .dl-item__field--meta { font-size: 10px; }
+.dl-item--text-sm .dl-item__field--date { font-size: 11px; }
+
+.dl-item--text-md .dl-item__field--title { font-size: 13px; }
+.dl-item--text-md .dl-item__field--subtitle { font-size: 12px; }
+.dl-item--text-md .dl-item__field--meta { font-size: 11px; }
+.dl-item--text-md .dl-item__field--date { font-size: 12px; }
+
+.dl-item--text-lg .dl-item__field--title { font-size: 14px; }
+.dl-item--text-lg .dl-item__field--subtitle { font-size: 13px; }
+.dl-item--text-lg .dl-item__field--meta { font-size: 12px; }
+.dl-item--text-lg .dl-item__field--date { font-size: 13px; }
+
+.dl-item--text-xl .dl-item__field--title { font-size: 15px; }
+.dl-item--text-xl .dl-item__field--subtitle { font-size: 14px; }
+.dl-item--text-xl .dl-item__field--meta { font-size: 13px; }
+.dl-item--text-xl .dl-item__field--date { font-size: 14px; }
+
+.dl-item--text-custom .dl-item__field--title { font-size: var(--dl-text-size); }
+.dl-item--text-custom .dl-item__field--subtitle { font-size: calc(var(--dl-text-size) - 1px); }
+.dl-item--text-custom .dl-item__field--meta { font-size: calc(var(--dl-text-size) - 2px); }
+.dl-item--text-custom .dl-item__field--date { font-size: calc(var(--dl-text-size) - 1px); }
+
 /* --- Actions --- */
 
 .dl-item__actions {

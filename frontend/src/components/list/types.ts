@@ -3,6 +3,7 @@ import type { DropdownItemConfig } from '@/components/dropdown/types'
 
 export type ListVariant = 'sidebar' | 'content' | 'compact'
 export type ListSize = 'xs' | 'sm' | 'md'
+export type ListTextSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
 
 export interface ListItemField<T = unknown> {
     key: string
@@ -28,6 +29,7 @@ export interface ListEmptyAction {
 export interface ListSchema<T = unknown> {
     variant?: ListVariant
     size?: ListSize
+    textSize?: ListTextSize
     activeKey?: string
     activeId?: string | null
     fields: ListItemField<T>[]

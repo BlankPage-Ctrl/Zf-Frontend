@@ -25,6 +25,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     (e: 'click', item: DropdownItemConfig): void
     (e: 'mouseenter', item: DropdownItemConfig): void
+    (e: 'right-click', item: DropdownItemConfig): void
 }>()
 
 const showIconArea = computed(() => {
@@ -65,6 +66,14 @@ const showIconArea = computed(() => {
         </div>
 
         <span class="dropdown-item__label">{{ item.label }}</span>
+
+        <div
+            v-if="item.rightIcon"
+            class="dropdown-item__right-icon"
+            @click.stop="emit('right-click', item)"
+        >
+            <component :is="item.rightIcon" class="dropdown-item__right-svg" />
+        </div>
 
         <span v-if="item.shortcut" class="dropdown-item__shortcut">{{ item.shortcut }}</span>
 
@@ -155,6 +164,29 @@ const showIconArea = computed(() => {
     margin-left: auto;
     padding-left: 12px;
     letter-spacing: 0.02em;
+}
+
+.dropdown-item__right-icon {
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 80ms ease;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.dropdown-item:hover .dropdown-item__right-icon {
+    opacity: 1;
+}
+
+.dropdown-item__right-svg {
+    width: 14px;
+    height: 14px;
+    color: rgba(var(--color-danger), 0.7);
+}
+
+.dropdown-item__right-svg:hover {
+    color: rgb(var(--color-danger));
 }
 
 .dropdown-item__arrow {

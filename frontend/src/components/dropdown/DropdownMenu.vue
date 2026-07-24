@@ -123,6 +123,7 @@ watch(
                 :mode="mode"
                 @click="handleItemClick"
                 @mouseenter="handleItemMouseEnter"
+                @right-click="onItemClick"
             />
         </template>
 

@@ -22,6 +22,8 @@ export interface DropdownItemConfig<T = string> {
     label?: string
     type?: ItemType
     icon?: Component
+    rightIcon?: Component
+    rightAction?: CommandAction
     shortcut?: string
     group?: string
     order?: number

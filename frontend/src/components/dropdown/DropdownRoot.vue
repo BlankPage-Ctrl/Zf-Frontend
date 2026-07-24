@@ -193,6 +193,13 @@ function handleItemClick(item: DropdownItemConfig) {
     }
 }
 
+function handleRightClick(item: DropdownItemConfig) {
+    if (item.rightAction) {
+        emit('action', item.rightAction)
+    }
+    close()
+}
+
 function handleKeydown(e: KeyboardEvent) {
     if (!isOpen.value) return
 
@@ -275,6 +282,7 @@ function handleTriggerKeydown(e: KeyboardEvent) {
                         :on-item-click="handleItemClick"
                         :max-height="maxHeight"
                         :min-width="minWidth"
+                        @right-click="handleRightClick"
                     />
                 </div>
             </div>

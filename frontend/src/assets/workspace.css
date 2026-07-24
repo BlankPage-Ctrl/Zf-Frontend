@@ -9,10 +9,38 @@
     overflow: hidden;
 }
 
-.ws-layout--not-found {
+.ws-layout--not-found,
+.ws-layout--empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    gap: 6px;
+    padding: 32px;
+    text-align: center;
+}
+
+.ws-empty-icon {
+    margin-bottom: 16px;
+    color: rgb(var(--text-primary));
+}
+
+.ws-empty-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(var(--text-primary));
+    margin: 0;
+}
+
+.ws-empty-desc {
+    font-size: 13px;
+    color: rgb(var(--text-primary));
+    opacity: 0.5;
+    max-width: 300px;
+    line-height: 1.5;
+    margin: 0;
 }
 
 /* --- Sidebar Panel (ContainerGrid replacement) --- */

@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue'
+import { ref, computed, watch, onUnmounted, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChatBubbleEmpty, EditPencil, Folder, NavArrowLeft, Plus, Trash } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
 import DialogGrid from '@/components/dialog/GridDialog.vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import { AppList } from '@/components/list'
@@ -30,12 +30,16 @@ const chatStore = useChatStore()
 const providerStore = useProviderStore()
 const appearanceStore = useAppearanceStore()
 
-function goBack() {
-    router.push({ name: 'primary' })
-}
+const routeWsId = computed(() => route.params.id as string | undefined)
 
-const workspaceId = computed(() => route.params.id as string)
-const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
+const workspaceId = computed(() => {
+    return routeWsId.value || wsStore.selectedWorkspaceId || ''
+})
+
+const workspace = computed(() => {
+    if (!workspaceId.value) return null
+    return wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null
+})
 
 const sidebarCollapsed = ref(false)
 const sidebarPanelWidth = ref(240)
@@ -252,7 +256,6 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     activeId: activeChatId.value ?? undefined,
     fields: [
         { key: 'title', class: 'title' },
-        // { key: 'createdAt', class: 'date', format: fmtDate },
     ],
     actions: [
         { icon: EditIcon, ariaLabel: 'Edit', variant: 'ghost', size: 'xs', onClick: openChatEdit },
@@ -365,22 +368,49 @@ function setupWatchEvents() {
     )
 }
 
-onMounted(async () => {
-    if (workspaceId.value) {
-        wsStore.selectWorkspace(workspaceId.value)
-        await chatStore.fetchChats(workspaceId.value)
-        providerStore.fetchProviders()
-        await setupFileExplorer()
-        setupWatchEvents()
-        const chatId = route.query.chat as string | undefined
-        if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
-            activeChatId.value = chatId
-        }
+function cleanupWorkspace() {
+    chatSessions.forEach((s) => s.cleanup())
+    chatSessions.clear()
+    watchCleanup.value?.()
+    watchCleanup.value = null
+    fileExplorerInitialData.value = { requestedPath: '.', nodes: [] }
+}
+
+watch(routeWsId, (id) => {
+    if (id && id !== wsStore.selectedWorkspaceId) {
+        wsStore.selectWorkspace(id)
     }
 })
 
+watch(() => wsStore.selectedWorkspaceId, (id) => {
+    if (id && route.name === 'home' && !routeWsId.value) {
+        router.replace({ name: 'workspace', params: { id } })
+    }
+})
+
+watch(workspaceId, async (newId, oldId) => {
+    if (!newId) {
+        cleanupWorkspace()
+        return
+    }
+
+    if (newId === oldId) return
+
+    cleanupWorkspace()
+    activeChatId.value = null
+    await chatStore.fetchChats(newId)
+    providerStore.fetchProviders()
+    await setupFileExplorer()
+    setupWatchEvents()
+
+    const chatId = route.query.chat as string | undefined
+    if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
+        activeChatId.value = chatId
+    }
+}, { immediate: true })
+
 onUnmounted(() => {
-    watchCleanup.value?.()
+    cleanupWorkspace()
 })
 </script>
 
@@ -394,14 +424,6 @@ onUnmounted(() => {
             <template #panel>
                 <div class="ws-sidebar__panel">
                     <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <button
-                            class="ws-back-btn"
-                            @click="goBack"
-                            title="Back to workspaces"
-                            aria-label="Back"
-                        >
-                            <NavArrowLeft width="16" height="16" />
-                        </button>
                         <span class="ws-sidebar__title">{{ workspace.name }}</span>
                         <button
                             class="ws-sidebar__action"
@@ -447,8 +469,20 @@ onUnmounted(() => {
         </ContainerGrid>
     </div>
 
-    <div v-else class="ws-layout ws-layout--not-found">
-        <span class="text-muted">Workspace not found</span>
+    <div v-else class="ws-layout ws-layout--empty">
+        <div class="ws-empty-icon">
+            <Album width="48" height="48" style="opacity: 0.3" />
+        </div>
+        <h2 class="ws-empty-title">
+            {{ wsStore.workspaces.length ? 'Select a workspace' : 'No workspaces yet' }}
+        </h2>
+        <p class="ws-empty-desc">
+            {{
+                wsStore.workspaces.length
+                    ? 'Choose a workspace from the top bar to get started.'
+                    : 'Create a workspace from the top bar to get started.'
+            }}
+        </p>
     </div>
 
     <!-- Chat Create Dialog -->

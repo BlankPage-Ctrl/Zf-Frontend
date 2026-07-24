@@ -7,13 +7,13 @@ import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
 import { ContainerGrid, type ContainerSchema } from '@/components/container'
-import DialogGrid from '@/components/dialog/GridDialog.vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
+import type { DialogGridSchema } from '@/components/dialog/types'
+import { useDialog } from '@/composables/useDialog'
 import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
-import type { Workspace, WorkspaceDto } from '@/services/workspace'
+import type { Workspace } from '@/services/workspace'
 import type { Chat } from '@/services/chat'
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
@@ -21,6 +21,7 @@ const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const dialog = useDialog()
 
 function goToSettings() {
     router.push({ name: 'settings' })
@@ -146,79 +147,56 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
 }))
 
 // --- Workspace form ---
-const showWsDialog = ref(false)
-const editingWs = ref<Workspace | null>(null)
-const wsFormLoading = ref(false)
-
-const wsInitialData = computed<DynamicGridDataOutput | undefined>(() => {
-    if (!editingWs.value) return undefined
-    const w = editingWs.value
-    return {
-        ws: {
-            name: w.name,
-            description: w.description ?? '',
-            projectPath: w.projectPath,
-        },
-    }
-})
-
 function openWsCreate() {
-    editingWs.value = null
-    showWsDialog.value = true
+    dialog.spawn({
+        title: 'New workspace',
+        schema: wsFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const ws = data.ws!
+            await wsStore.createWorkspace({
+                name: String(ws.name ?? ''),
+                description: String(ws.description ?? ''),
+                projectPath: String(ws.projectPath ?? ''),
+            })
+        },
+    })
 }
 
 function openWsEdit(ws: Workspace) {
-    editingWs.value = ws
-    showWsDialog.value = true
-}
-
-function cancelWsForm() {
-    showWsDialog.value = false
-    editingWs.value = null
-}
-
-async function submitWsForm(data: DynamicGridDataOutput) {
-    const ws = data.ws!
-    const payload: WorkspaceDto = {
-        name: String(ws.name ?? ''),
-        description: String(ws.description ?? ''),
-        projectPath: String(ws.projectPath ?? ''),
-    }
-    wsFormLoading.value = true
-    try {
-        if (editingWs.value) {
-            await wsStore.updateWorkspace(editingWs.value.id, payload)
-        } else {
-            await wsStore.createWorkspace(payload)
-        }
-        showWsDialog.value = false
-        editingWs.value = null
-    } catch {
-        /* error handled by store */
-    } finally {
-        wsFormLoading.value = false
-    }
+    dialog.spawn({
+        title: 'Edit workspace',
+        schema: wsFormSchema,
+        initialData: {
+            ws: {
+                name: ws.name,
+                description: ws.description ?? '',
+                projectPath: ws.projectPath,
+            },
+        },
+        confirmLabel: 'Save',
+        submit: async (data) => {
+            const w = data.ws!
+            await wsStore.updateWorkspace(ws.id, {
+                name: String(w.name ?? ''),
+                description: String(w.description ?? ''),
+                projectPath: String(w.projectPath ?? ''),
+            })
+        },
+    })
 }
 
 // --- Workspace delete ---
-const showWsDeleteDialog = ref(false)
-const deletingWs = ref<Workspace | null>(null)
-
 function confirmDeleteWs(ws: Workspace) {
-    deletingWs.value = ws
-    showWsDeleteDialog.value = true
-}
-
-async function executeDeleteWs() {
-    if (!deletingWs.value) return
-    await wsStore.deleteWorkspace(deletingWs.value.id)
-    showWsDeleteDialog.value = false
-    deletingWs.value = null
-}
-
-function cancelWsDelete() {
-    showWsDeleteDialog.value = false
-    deletingWs.value = null
+    dialog.spawn({
+        title: 'Delete workspace',
+        message: `Delete "${ws.name}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            await wsStore.deleteWorkspace(ws.id)
+        },
+    })
 }
 
 function openWorkspace() {
@@ -301,29 +279,7 @@ watch(
             </template>
         </ContainerGrid>
 
-        <!-- Workspace Form Dialog -->
-        <DialogGrid
-            v-model="showWsDialog"
-            :schema="wsFormSchema"
-            :title="editingWs ? 'Edit workspace' : 'New workspace'"
-            :confirm-label="editingWs ? 'Save' : 'Create'"
-            :initial-data="wsInitialData"
-            :loading="wsFormLoading"
-            @submit="submitWsForm"
-            @cancel="cancelWsForm"
-        />
 
-        <!-- Workspace Delete Dialog -->
-        <DialogGrid
-            v-model="showWsDeleteDialog"
-            title="Delete workspace"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDeleteWs"
-            @cancel="cancelWsDelete"
-        >
-            <span class="confirm-message">Delete "{{ deletingWs?.name }}"?</span>
-        </DialogGrid>
     </div>
 </template>
 

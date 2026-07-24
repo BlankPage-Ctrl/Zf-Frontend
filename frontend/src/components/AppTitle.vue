@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Folder, Plus, Trash, NavArrowDown } from '@iconoir/vue'
 import DropdownRoot from '@/components/dropdown/DropdownRoot.vue'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
-import DialogGrid from '@/components/dialog/GridDialog.vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
+import type { DialogGridSchema } from '@/components/dialog/types'
+import { useDialog } from '@/composables/useDialog'
 import { useWorkspaceStore } from '@/stores/workspace'
-import type { Workspace, WorkspaceDto } from '@/services/workspace'
 
 const router = useRouter()
 const wsStore = useWorkspaceStore()
-
-const showCreate = ref(false)
-const createLoading = ref(false)
-
-const showDelete = ref(false)
-const deletingWs = ref<Workspace | null>(null)
+const dialog = useDialog()
 
 const selectedWsName = computed(() => {
     if (!wsStore.selectedWorkspace) return 'Select workspace'
@@ -60,32 +54,6 @@ const wsDropdownItems = computed<DropdownItemConfig[]>(() => {
     return items
 })
 
-function openCreate() {
-    showCreate.value = true
-}
-
-function cancelCreate() {
-    showCreate.value = false
-}
-
-async function submitCreate(data: DynamicGridDataOutput) {
-    const d = data.ws!
-    const payload: WorkspaceDto = {
-        name: String(d.name ?? ''),
-        description: String(d.description ?? ''),
-        projectPath: String(d.projectPath ?? ''),
-    }
-    createLoading.value = true
-    try {
-        await wsStore.createWorkspace(payload)
-        workspaceSelect(wsStore.selectedWorkspaceId!)
-    } catch {
-        /* handled by store */
-    } finally {
-        createLoading.value = false
-    }
-}
-
 function workspaceSelect(id: string) {
     wsStore.selectWorkspace(id)
     router.push({ name: 'workspace', params: { id } })
@@ -95,39 +63,44 @@ function handleSelect(value: string) {
     workspaceSelect(value)
 }
 
-function handleAction(action: { type: 'command'; command: string; args?: Record<string, unknown> }) {
+async function handleAction(action: { type: 'command'; command: string; args?: Record<string, unknown> }) {
     if (action.command === 'add-workspace') {
-        openCreate()
+        await dialog.spawn({
+            title: 'New workspace',
+            schema: wsFormSchema,
+            confirmLabel: 'Create',
+            submit: async (data) => {
+                const d = data.ws!
+                await wsStore.createWorkspace({
+                    name: String(d.name ?? ''),
+                    description: String(d.description ?? ''),
+                    projectPath: String(d.projectPath ?? ''),
+                })
+                workspaceSelect(wsStore.selectedWorkspaceId!)
+            },
+        })
     } else if (action.command === 'delete-workspace') {
         const id = action.args?.id as string
         const ws = wsStore.workspaces.find((w) => w.id === id)
         if (ws) {
-            deletingWs.value = ws
-            showDelete.value = true
+            await dialog.spawn({
+                title: 'Delete workspace',
+                message: `Delete "${ws.name}"?`,
+                confirmLabel: 'Delete',
+                confirmVariant: 'danger',
+                submit: async () => {
+                    await wsStore.deleteWorkspace(ws.id)
+                    if (wsStore.selectedWorkspaceId !== ws.id) return
+                    const first = wsStore.workspaces[0]
+                    if (first) {
+                        workspaceSelect(first.id)
+                    } else {
+                        wsStore.selectWorkspace('')
+                        router.push({ name: 'home' })
+                    }
+                },
+            })
         }
-    }
-}
-
-function cancelDelete() {
-    showDelete.value = false
-    deletingWs.value = null
-}
-
-async function executeDelete() {
-    if (!deletingWs.value) return
-    const id = deletingWs.value.id
-    await wsStore.deleteWorkspace(id)
-    showDelete.value = false
-    deletingWs.value = null
-
-    if (wsStore.selectedWorkspaceId !== id) return
-
-    const first = wsStore.workspaces[0]
-    if (first) {
-        workspaceSelect(first.id)
-    } else {
-        wsStore.selectWorkspace('')
-        router.push({ name: 'home' })
     }
 }
 
@@ -172,33 +145,12 @@ onMounted(() => {
 
         <button
             class="ws-add-btn"
-            @click="openCreate"
+            @click="handleAction({ type: 'command', command: 'add-workspace', args: {} })"
             title="New workspace"
             aria-label="New workspace"
         >
             <Plus width="14" height="14" />
         </button>
-
-        <DialogGrid
-            v-model="showCreate"
-            :schema="wsFormSchema"
-            title="New workspace"
-            confirm-label="Create"
-            :loading="createLoading"
-            @submit="submitCreate"
-            @cancel="cancelCreate"
-        />
-
-        <DialogGrid
-            v-model="showDelete"
-            title="Delete workspace"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDelete"
-            @cancel="cancelDelete"
-        >
-            <span class="confirm-message">Delete "{{ deletingWs?.name }}"?</span>
-        </DialogGrid>
     </div>
 </template>
 

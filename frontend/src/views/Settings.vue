@@ -21,9 +21,9 @@ import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useThemeStore } from '@/stores/theme'
 import type { ThemeSchema } from '@/stores/theme'
-import DialogGrid from '@/components/dialog/GridDialog.vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
-import type { Provider, ProviderDto, Model, ModelDto } from '@/services/provider'
+import type { DialogGridSchema } from '@/components/dialog/types'
+import { useDialog } from '@/composables/useDialog'
+import type { Provider, ProviderDto, Model } from '@/services/provider'
 
 const DownloadIcon = () => h(Download, { width: 14, height: 14 })
 const PlusIcon = () => h(Plus, { width: 14, height: 14 })
@@ -35,6 +35,7 @@ const ChevronIcon = () => h(NavArrowRight, { width: 14, height: 14 })
 const store = useProviderStore()
 const appearance = useAppearanceStore()
 const theme = useThemeStore()
+const dialog = useDialog()
 
 // --- Sidebar nav ---
 const activeSection = ref('model-provider')
@@ -130,8 +131,6 @@ const appearanceSectionHeaderSchema = computed<HeaderSchema>(() => ({
 }))
 
 // --- Theme form ---
-const showThemeDialog = ref(false)
-const themeFormLoading = ref(false)
 const themeFormSchema: DialogGridSchema = {
     row: {
         columns: {
@@ -199,45 +198,32 @@ const themeFormSchema: DialogGridSchema = {
     },
 }
 
-const themeInitialData = ref<DynamicGridDataOutput | undefined>(undefined)
-
 function openThemeCreate() {
-    themeInitialData.value = undefined
-    showThemeDialog.value = true
-}
-
-function cancelThemeForm() {
-    showThemeDialog.value = false
-    themeInitialData.value = undefined
-}
-
-async function submitThemeForm(data: DynamicGridDataOutput) {
-    const row = data.row!
-    const schema: ThemeSchema = {
-        id: String(row.name ?? '')
-            .toLowerCase()
-            .replace(/[^a-z0-9_-]/g, '_'),
-        name: String(row.name ?? ''),
-        description: row.description ? String(row.description) : undefined,
-        colors: {
-            bgPrimary: String(row.bgPrimary ?? ''),
-            bgSecondary: String(row.bgSecondary ?? ''),
-            border: String(row.border ?? ''),
-            textPrimary: String(row.textPrimary ?? ''),
-            success: String(row.success ?? ''),
-            danger: String(row.danger ?? ''),
-            shadow: String(row.shadow ?? ''),
+    dialog.spawn({
+        title: 'New Theme',
+        schema: themeFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const row = data.row!
+            const schema: ThemeSchema = {
+                id: String(row.name ?? '')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_-]/g, '_'),
+                name: String(row.name ?? ''),
+                description: row.description ? String(row.description) : undefined,
+                colors: {
+                    bgPrimary: String(row.bgPrimary ?? ''),
+                    bgSecondary: String(row.bgSecondary ?? ''),
+                    border: String(row.border ?? ''),
+                    textPrimary: String(row.textPrimary ?? ''),
+                    success: String(row.success ?? ''),
+                    danger: String(row.danger ?? ''),
+                    shadow: String(row.shadow ?? ''),
+                },
+            }
+            theme.addCustomTheme(schema)
         },
-    }
-    themeFormLoading.value = true
-    try {
-        theme.addCustomTheme(schema)
-        showThemeDialog.value = false
-    } catch (e) {
-        alert(e instanceof Error ? e.message : 'Failed to save theme')
-    } finally {
-        themeFormLoading.value = false
-    }
+    })
 }
 
 // --- Theme import ---
@@ -300,10 +286,6 @@ function normalizeRgb(rgb: string): string {
 }
 
 // --- Provider form ---
-const showProviderDialog = ref(false)
-const editingProvider = ref<Provider | null>(null)
-const providerFormLoading = ref(false)
-
 const providerFormSchema: DialogGridSchema = {
     row: {
         columns: {
@@ -337,87 +319,66 @@ const providerFormSchema: DialogGridSchema = {
     },
 }
 
-const providerInitialData = ref<DynamicGridDataOutput | undefined>(undefined)
-
 function openProviderCreate() {
-    editingProvider.value = null
-    providerInitialData.value = undefined
-    showProviderDialog.value = true
+    dialog.spawn({
+        title: 'New provider',
+        schema: providerFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const row = data.row!
+            const providerType: ProviderDto['type'] =
+                row.type === 'openai' || row.type === 'openai-compatible' ? row.type : 'openai'
+            await store.createProvider({
+                name: String(row.name ?? ''),
+                type: providerType,
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
 }
 
 function openProviderEdit(p: Provider) {
-    editingProvider.value = p
-    providerInitialData.value = {
-        row: {
-            name: p.name,
-            type: p.type,
-            apiKey: '',
-            baseURL: p.baseURL ?? '',
+    dialog.spawn({
+        title: 'Edit provider',
+        schema: providerFormSchema,
+        initialData: {
+            row: {
+                name: p.name,
+                type: p.type,
+                apiKey: '',
+                baseURL: p.baseURL ?? '',
+            },
         },
-    }
-    showProviderDialog.value = true
-}
-
-function cancelProviderForm() {
-    showProviderDialog.value = false
-    editingProvider.value = null
-    providerInitialData.value = undefined
-}
-
-async function submitProviderForm(data: DynamicGridDataOutput) {
-    const row = data.row!
-    const providerType: ProviderDto['type'] =
-        row.type === 'openai' || row.type === 'openai-compatible' ? row.type : 'openai'
-    const dto: ProviderDto = {
-        name: String(row.name ?? ''),
-        type: providerType,
-        apiKey: row.apiKey ? String(row.apiKey) : undefined,
-        baseURL: row.baseURL ? String(row.baseURL) : undefined,
-    }
-    providerFormLoading.value = true
-    try {
-        if (editingProvider.value) {
-            await store.updateProvider(editingProvider.value.id, dto)
-        } else {
-            await store.createProvider(dto)
-        }
-        showProviderDialog.value = false
-        editingProvider.value = null
-        providerInitialData.value = undefined
-    } catch {
-        /* handled by store */
-    } finally {
-        providerFormLoading.value = false
-    }
+        confirmLabel: 'Save',
+        submit: async (data) => {
+            const row = data.row!
+            const providerType: ProviderDto['type'] =
+                row.type === 'openai' || row.type === 'openai-compatible' ? row.type : 'openai'
+            await store.updateProvider(p.id, {
+                name: String(row.name ?? ''),
+                type: providerType,
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
 }
 
 // --- Provider delete ---
-const showProviderDeleteDialog = ref(false)
-const deletingProvider = ref<Provider | null>(null)
-
 function confirmDeleteProvider(p: Provider) {
-    deletingProvider.value = p
-    showProviderDeleteDialog.value = true
-}
-
-async function executeDeleteProvider() {
-    if (!deletingProvider.value) return
-    await store.deleteProvider(deletingProvider.value.id)
-    showProviderDeleteDialog.value = false
-    deletingProvider.value = null
-}
-
-function cancelProviderDelete() {
-    showProviderDeleteDialog.value = false
-    deletingProvider.value = null
+    dialog.spawn({
+        title: 'Delete provider',
+        message: `Delete "${p.name}" and all its models?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            await store.deleteProvider(p.id)
+        },
+    })
 }
 
 // --- Model form ---
-const showModelDialog = ref(false)
-const editingModel = ref<Model | null>(null)
-const modelFormLoading = ref(false)
-const modelProviderId = ref('')
-
 const modelFormSchema: DialogGridSchema = {
     row: {
         columns: {
@@ -438,106 +399,65 @@ const modelFormSchema: DialogGridSchema = {
     },
 }
 
-const modelInitialData = ref<DynamicGridDataOutput | undefined>(undefined)
-
 function openModelCreate(providerId: string) {
-    editingModel.value = null
-    modelProviderId.value = providerId
-    modelInitialData.value = undefined
-    showModelDialog.value = true
+    dialog.spawn({
+        title: 'New model',
+        schema: modelFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const row = data.row!
+            await store.createModel(providerId, {
+                modelId: String(row.modelId ?? ''),
+                displayName: row.displayName ? String(row.displayName) : undefined,
+            })
+        },
+    })
 }
 
 function openModelEdit(providerId: string, m: Model) {
-    editingModel.value = m
-    modelProviderId.value = providerId
-    modelInitialData.value = {
-        row: {
-            modelId: m.modelId,
-            displayName: m.displayName ?? '',
+    dialog.spawn({
+        title: 'Edit model',
+        schema: modelFormSchema,
+        initialData: {
+            row: {
+                modelId: m.modelId,
+                displayName: m.displayName ?? '',
+            },
         },
-    }
-    showModelDialog.value = true
-}
-
-function cancelModelForm() {
-    showModelDialog.value = false
-    editingModel.value = null
-    modelProviderId.value = ''
-    modelInitialData.value = undefined
-}
-
-async function submitModelForm(data: DynamicGridDataOutput) {
-    const row = data.row!
-    const dto: ModelDto = {
-        modelId: String(row.modelId ?? ''),
-        displayName: row.displayName ? String(row.displayName) : undefined,
-    }
-    modelFormLoading.value = true
-    try {
-        if (editingModel.value) {
-            await store.updateModel(modelProviderId.value, editingModel.value.id, dto)
-        } else {
-            await store.createModel(modelProviderId.value, dto)
-        }
-        showModelDialog.value = false
-        editingModel.value = null
-        modelProviderId.value = ''
-        modelInitialData.value = undefined
-    } catch {
-        /* handled by store */
-    } finally {
-        modelFormLoading.value = false
-    }
+        confirmLabel: 'Save',
+        submit: async (data) => {
+            const row = data.row!
+            await store.updateModel(providerId, m.id, {
+                modelId: String(row.modelId ?? ''),
+                displayName: row.displayName ? String(row.displayName) : undefined,
+            })
+        },
+    })
 }
 
 // --- Model delete ---
-const showModelDeleteDialog = ref(false)
-const deletingModel = ref<Model | null>(null)
-const deletingModelProviderId = ref('')
-
 function confirmDeleteModel(providerId: string, m: Model) {
-    deletingModel.value = m
-    deletingModelProviderId.value = providerId
-    showModelDeleteDialog.value = true
-}
-
-async function executeDeleteModel() {
-    if (!deletingModel.value || !deletingModelProviderId.value) return
-    await store.deleteModel(deletingModelProviderId.value, deletingModel.value.id)
-    showModelDeleteDialog.value = false
-    deletingModel.value = null
-    deletingModelProviderId.value = ''
-}
-
-function cancelModelDelete() {
-    showModelDeleteDialog.value = false
-    deletingModel.value = null
-    deletingModelProviderId.value = ''
+    dialog.spawn({
+        title: 'Delete model',
+        message: `Delete "${m.displayName || m.modelId}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            await store.deleteModel(providerId, m.id)
+        },
+    })
 }
 
 // --- Set default provider ---
-const showSetDefaultDialog = ref(false)
-const settingDefaultProvider = ref<Provider | null>(null)
-const settingDefaultModel = ref<Model | null>(null)
-
 function openSetDefault(p: Provider, m: Model) {
-    settingDefaultProvider.value = p
-    settingDefaultModel.value = m
-    showSetDefaultDialog.value = true
-}
-
-async function executeSetDefault() {
-    if (!settingDefaultProvider.value || !settingDefaultModel.value) return
-    await store.setDefaultProvider(settingDefaultProvider.value.id, settingDefaultModel.value.id)
-    showSetDefaultDialog.value = false
-    settingDefaultProvider.value = null
-    settingDefaultModel.value = null
-}
-
-function cancelSetDefault() {
-    showSetDefaultDialog.value = false
-    settingDefaultProvider.value = null
-    settingDefaultModel.value = null
+    dialog.spawn({
+        title: 'Set default model',
+        message: `Set "${m.displayName || m.modelId}" from ${p.name} as the default model for new chats?`,
+        confirmLabel: 'Set default',
+        submit: async () => {
+            await store.setDefaultProvider(p.id, m.id)
+        },
+    })
 }
 
 // --- Helpers ---
@@ -891,86 +811,7 @@ onMounted(() => {
             </template>
         </ContainerGrid>
 
-        <!-- Theme Form Dialog -->
-        <DialogGrid
-            v-model="showThemeDialog"
-            :schema="themeFormSchema"
-            title="New Theme"
-            confirm-label="Create"
-            :initial-data="themeInitialData"
-            :loading="themeFormLoading"
-            width="md"
-            @submit="submitThemeForm"
-            @cancel="cancelThemeForm"
-        />
 
-        <!-- Provider Form Dialog -->
-        <DialogGrid
-            v-model="showProviderDialog"
-            :schema="providerFormSchema"
-            :title="editingProvider ? 'Edit provider' : 'New provider'"
-            :confirm-label="editingProvider ? 'Save' : 'Create'"
-            :initial-data="providerInitialData"
-            :loading="providerFormLoading"
-            width="md"
-            @submit="submitProviderForm"
-            @cancel="cancelProviderForm"
-        />
-
-        <!-- Provider Delete Dialog -->
-        <DialogGrid
-            v-model="showProviderDeleteDialog"
-            title="Delete provider"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDeleteProvider"
-            @cancel="cancelProviderDelete"
-        >
-            <span class="confirm-message">
-                Delete "{{ deletingProvider?.name }}" and all its models?
-            </span>
-        </DialogGrid>
-
-        <!-- Model Form Dialog -->
-        <DialogGrid
-            v-model="showModelDialog"
-            :schema="modelFormSchema"
-            :title="editingModel ? 'Edit model' : 'New model'"
-            :confirm-label="editingModel ? 'Save' : 'Create'"
-            :initial-data="modelInitialData"
-            :loading="modelFormLoading"
-            width="md"
-            @submit="submitModelForm"
-            @cancel="cancelModelForm"
-        />
-
-        <!-- Model Delete Dialog -->
-        <DialogGrid
-            v-model="showModelDeleteDialog"
-            title="Delete model"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDeleteModel"
-            @cancel="cancelModelDelete"
-        >
-            <span class="confirm-message">
-                Delete "{{ deletingModel?.displayName || deletingModel?.modelId }}"?
-            </span>
-        </DialogGrid>
-
-        <!-- Set Default Dialog -->
-        <DialogGrid
-            v-model="showSetDefaultDialog"
-            title="Set default model"
-            confirm-label="Set default"
-            @submit="executeSetDefault"
-            @cancel="cancelSetDefault"
-        >
-            <span class="confirm-message">
-                Set "{{ settingDefaultModel?.displayName || settingDefaultModel?.modelId }}" from
-                {{ settingDefaultProvider?.name }} as the default model for new chats?
-            </span>
-        </DialogGrid>
     </div>
 </template>
 

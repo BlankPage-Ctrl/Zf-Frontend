@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import AppTitle from '@/components/AppTitle.vue'
+import DialogContainer from '@/components/dialog/DialogContainer.vue'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useThemeStore } from '@/stores/theme'
 
@@ -19,6 +20,7 @@ onMounted(async () => {
                 <component :is="Component" />
             </div>
         </RouterView>
+        <DialogContainer />
     </div>
 </template>
 

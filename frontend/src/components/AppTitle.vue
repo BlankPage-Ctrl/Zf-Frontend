@@ -57,16 +57,6 @@ const wsDropdownItems = computed<DropdownItemConfig[]>(() => {
         rightIcon: Trash,
         rightAction: { type: 'command', command: 'delete-workspace', args: { id: ws.id } },
     }))
-
-    items.push({ id: 'sep', type: 'separator' })
-
-    items.push({
-        id: 'add',
-        label: 'Add workspace',
-        icon: Plus,
-        action: { type: 'command', command: 'add-workspace' },
-    })
-
     return items
 })
 
@@ -155,6 +145,7 @@ onMounted(() => {
             mode="menu"
             placement="bottom"
             :offset="6"
+            :dense="true"
             @select="handleSelect"
             @action="handleAction"
         >

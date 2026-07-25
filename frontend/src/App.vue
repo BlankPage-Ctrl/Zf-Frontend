@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import AppTitle from '@/components/AppTitle.vue'
 import DialogContainer from '@/components/dialog/DialogContainer.vue'
 import SettingsPanel from '@/components/settings/SettingsPanel.vue'
+import type { SettingsTheme } from '@/components/settings/types'
 import { Xmark } from '@iconoir/vue'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useThemeStore } from '@/stores/theme'
 import { useProviderStore } from '@/stores/provider'
 import { useSettingsDialog } from '@/composables/useSettingsDialog'
 import { useDialog } from '@/composables/useDialog'
-import type { DialogGridSchema } from '@/components/dialog/types'
+import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
 import type { ThemeSchema } from '@/stores/theme'
 import type { ProviderDto } from '@/services/provider'
 
@@ -142,9 +143,34 @@ const themeFormSchema: DialogGridSchema = {
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
+const settingsThemes = computed<SettingsTheme[]>(() =>
+    themeStore.availableThemes.map((t) => ({
+        ...t,
+        swatches: themePreviewColors(t.id),
+    }))
+)
+
+function themePreviewColors(id: string): string[] {
+    const colors = themeStore.getThemePreview(id)
+    if (!colors) return []
+    return [
+        normalizeRgb(colors.bgPrimary),
+        normalizeRgb(colors.bgSecondary),
+        normalizeRgb(colors.border),
+        normalizeRgb(colors.textPrimary),
+    ]
+}
+
+function normalizeRgb(rgb: string): string {
+    const parts = rgb.split(',').map((s) => s.trim())
+    return `rgb(${parts.join(',')})`
+}
+
 onMounted(async () => {
     appearanceStore.load()
     await themeStore.load()
+    await providerStore.fetchProviders()
+    await providerStore.fetchDefaultProvider()
 })
 
 async function handleAddProvider(data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }) {
@@ -197,8 +223,30 @@ function handleUpdateFontSize(size: number) {
     appearanceStore.fontSize = size
 }
 
-async function handleAddTheme(data: ThemeSchema) {
-    themeStore.addCustomTheme(data)
+async function handleAddTheme() {
+    await dialog.spawn({
+        title: 'Create Theme',
+        schema: themeFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data: DynamicGridDataOutput) => {
+            const row = data.row ?? {}
+            const theme: ThemeSchema = {
+                id: crypto.randomUUID(),
+                name: String(row.name ?? ''),
+                description: row.description ? String(row.description) : undefined,
+                colors: {
+                    bgPrimary: String(row.bgPrimary ?? ''),
+                    bgSecondary: String(row.bgSecondary ?? ''),
+                    border: String(row.border ?? ''),
+                    textPrimary: String(row.textPrimary ?? ''),
+                    success: String(row.success ?? ''),
+                    danger: String(row.danger ?? ''),
+                    shadow: String(row.shadow ?? ''),
+                },
+            }
+            themeStore.addCustomTheme(theme)
+        },
+    })
 }
 
 function handleImportTheme() {
@@ -266,6 +314,16 @@ function handleSetActiveTheme(id: string) {
                     </div>
                     <div class="dialog-body">
                         <SettingsPanel
+                            :providers="providerStore.providers"
+                            :loading="providerStore.loading"
+                            :error="providerStore.error"
+                            :default-provider-id="providerStore.defaultProviderId"
+                            :default-model-id="providerStore.defaultModelId"
+                            :preset="appearanceStore.preset"
+                            :font-size="appearanceStore.fontSize"
+                            :themes="settingsThemes"
+                            :active-theme-id="themeStore.activeThemeId"
+                            :presets="appearanceStore.PRESETS"
                             @add-provider="handleAddProvider"
                             @edit-provider="handleEditProvider"
                             @delete-provider="handleDeleteProvider"

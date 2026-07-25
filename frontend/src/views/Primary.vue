@@ -9,6 +9,7 @@ import type { HeaderSchema } from '@/components/header'
 import { ContainerGrid, type ContainerSchema } from '@/components/container'
 import type { DialogGridSchema } from '@/components/dialog/types'
 import { useDialog } from '@/composables/useDialog'
+import { useSettingsDialog } from '@/composables/useSettingsDialog'
 import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useWorkspaceStore } from '@/stores/workspace'
@@ -22,9 +23,10 @@ const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const router = useRouter()
 const dialog = useDialog()
+const settingsDialog = useSettingsDialog()
 
 function goToSettings() {
-    router.push({ name: 'settings' })
+    settingsDialog.show()
 }
 
 // --- Header schemas ---

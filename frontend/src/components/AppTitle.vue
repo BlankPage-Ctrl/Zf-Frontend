@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Folder, Plus, Trash, NavArrowDown } from '@iconoir/vue'
+import { Folder, Plus, Trash, NavArrowDown, Settings as SettingsIcon } from '@iconoir/vue'
 import DropdownRoot from '@/components/dropdown/DropdownRoot.vue'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
 import type { DialogGridSchema } from '@/components/dialog/types'
 import { useDialog } from '@/composables/useDialog'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { useSettingsDialog } from '@/composables/useSettingsDialog'
 
 const router = useRouter()
 const wsStore = useWorkspaceStore()
 const dialog = useDialog()
+const settingsDialog = useSettingsDialog()
 
 const selectedWsName = computed(() => {
     if (!wsStore.selectedWorkspace) return 'Select workspace'
@@ -104,6 +106,10 @@ async function handleAction(action: { type: 'command'; command: string; args?: R
     }
 }
 
+function openSettings() {
+    settingsDialog.show()
+}
+
 onMounted(() => {
     wsStore.fetchWorkspaces()
 })
@@ -150,6 +156,15 @@ onMounted(() => {
             aria-label="New workspace"
         >
             <Plus width="14" height="14" />
+        </button>
+
+        <button
+            class="ws-add-btn ws-settings-btn"
+            @click="openSettings"
+            title="Settings"
+            aria-label="Settings"
+        >
+            <SettingsIcon width="14" height="14" />
         </button>
     </div>
 </template>
@@ -238,5 +253,13 @@ onMounted(() => {
 .ws-add-btn:hover {
     background: rgba(var(--border-color), 0.15);
     color: rgba(var(--text-primary), 0.8);
+}
+
+.ws-settings-btn {
+    color: rgba(var(--text-primary), 0.4);
+}
+
+.ws-settings-btn:hover {
+    color: rgba(var(--text-primary), 0.7);
 }
 </style>

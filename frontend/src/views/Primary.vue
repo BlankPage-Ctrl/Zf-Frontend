@@ -65,8 +65,8 @@ const containerPrimary = ref<ContainerSchema[]>([
                 maxWidth: 400,
                 cell: {
                     padding: 0,
-                    background: 'rgb(var(--bg-secondary))',
-                    borderColor: 'rgba(var(--border-color), 0.25)',
+                    background: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: 1,
                     borderStyle: 'solid',
                     radius: 0,
@@ -77,8 +77,8 @@ const containerPrimary = ref<ContainerSchema[]>([
                 width: '1fr',
                 cell: {
                     padding: 0,
-                    background: 'rgb(var(--bg-primary))',
-                    borderColor: 'rgba(var(--border-color), 0.15)',
+                    background: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: 1,
                     borderStyle: 'solid',
                     radius: 0,
@@ -324,20 +324,20 @@ watch(
 
 .welcome-icon {
     margin-bottom: 16px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .welcome-title {
     font-family: var(--font-serif);
     font-size: 18px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     margin: 0 0 6px;
 }
 
 .welcome-desc {
     font-size: 13px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.5;
     max-width: 300px;
     line-height: 1.5;

@@ -60,9 +60,9 @@ function onScaleInput(e: Event) {
 
 <style scoped>
 .appearance-card {
-    border: 1px solid rgba(var(--border-color), 0.15);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: rgb(var(--bg-secondary));
+    background: var(--bg-secondary);
     padding: 14px 18px;
     display: flex;
     flex-direction: column;
@@ -78,7 +78,7 @@ function onScaleInput(e: Event) {
 .appearance-label {
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -105,7 +105,7 @@ function onScaleInput(e: Event) {
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.5;
     cursor: pointer;
     transition: opacity 100ms ease, background 100ms ease;
@@ -118,7 +118,7 @@ function onScaleInput(e: Event) {
 .preset-btn.active,
 .preset-btn[aria-pressed='true'] {
     opacity: 1;
-    background: rgba(var(--border-color), 0.15);
+    background: var(--border-color);
 }
 
 .preset-custom-tag {
@@ -126,15 +126,15 @@ function onScaleInput(e: Event) {
     font-weight: 500;
     padding: 2px 8px;
     border-radius: 9999px;
-    background: rgba(var(--border-color), 0.08);
-    color: rgb(var(--text-primary));
+    background: var(--border-color);
+    color: var(--text-primary);
     opacity: 0.35;
     transition: opacity 100ms ease;
 }
 
 .preset-custom-tag.active {
     opacity: 0.8;
-    background: rgba(var(--border-color), 0.15);
+    background: var(--border-color);
 }
 
 .appearance-slider {
@@ -143,7 +143,7 @@ function onScaleInput(e: Event) {
     width: 100%;
     height: 3px;
     border-radius: 2px;
-    background: rgba(var(--border-color), 0.2);
+    background: var(--border-color);
     outline: none;
     cursor: pointer;
 }
@@ -154,9 +154,9 @@ function onScaleInput(e: Event) {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgb(var(--border-color));
+    background: var(--border-color);
     cursor: pointer;
-    border: 2px solid rgb(var(--bg-secondary));
+    border: 2px solid var(--bg-secondary);
     transition: transform 100ms ease;
 }
 
@@ -168,8 +168,8 @@ function onScaleInput(e: Event) {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgb(var(--border-color));
+    background: var(--border-color);
     cursor: pointer;
-    border: 2px solid rgb(var(--bg-secondary));
+    border: 2px solid var(--bg-secondary);
 }
 </style>

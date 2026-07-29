@@ -37,7 +37,7 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         colors: {
             bgPrimary: '255, 250, 243',
             bgSecondary: '255, 242, 219',
-            border: '255, 229, 191',
+            border: '242, 210, 160',
             textPrimary: '19, 16, 16',
             success: '34, 197, 93',
             danger: '246, 36, 64',
@@ -51,7 +51,7 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         colors: {
             bgPrimary: '255, 255, 255',
             bgSecondary: '248, 249, 250',
-            border: '233, 236, 239',
+            border: '215, 220, 228',
             textPrimary: '33, 37, 41',
             success: '34, 197, 93',
             danger: '246, 36, 64',
@@ -65,7 +65,7 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         colors: {
             bgPrimary: '34, 34, 40',
             bgSecondary: '44, 44, 52',
-            border: '56, 56, 64',
+            border: '68, 68, 80',
             textPrimary: '215, 215, 225',
             success: '68, 220, 120',
             danger: '255, 90, 110',

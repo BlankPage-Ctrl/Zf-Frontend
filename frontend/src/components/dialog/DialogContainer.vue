@@ -32,7 +32,7 @@ import { dialogs, submitDialog, cancelDialog } from '@/composables/useDialog'
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: rgb(var(--text-primary));
+  color: var(--text-primary);
   opacity: 0.8;
 }
 </style>

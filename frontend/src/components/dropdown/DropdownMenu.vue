@@ -156,8 +156,8 @@ watch(
     min-width: 160px;
     max-height: 400px;
     overflow-y: auto;
-    background-color: rgb(var(--bg-primary));
-    border: 1px solid rgba(var(--border-color), 0.2);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow:
         0 4px 12px rgba(15, 15, 20, 0.08),
@@ -182,19 +182,19 @@ watch(
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb {
-    background: rgba(var(--border-color), 0.2);
+    background: var(--border-color);
     border-radius: 4px;
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--border-color), 0.35);
+    background: var(--border-color);
 }
 
 .dropdown-label {
     padding: 5px 10px 3px;
     font-size: 10px;
     font-weight: 700;
-    color: rgba(var(--text-primary), 0.35);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     cursor: default;

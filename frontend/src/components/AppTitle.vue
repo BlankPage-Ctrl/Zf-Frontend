@@ -176,8 +176,8 @@ onMounted(() => {
     align-items: center;
     padding-left: 12px;
     gap: 6px;
-    background: rgb(var(--bg-secondary));
-    border-bottom: 1px solid rgba(var(--border-color), 0.12);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
     -webkit-app-region: drag;
 }
@@ -186,7 +186,7 @@ onMounted(() => {
     font-family: var(--font-serif);
     font-size: 13px;
     font-weight: 700;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.55;
     letter-spacing: -0.01em;
     user-select: none;
@@ -209,7 +209,7 @@ onMounted(() => {
 
 .ws-trigger:hover,
 .ws-trigger--open {
-    background: rgba(var(--border-color), 0.15);
+    background: var(--border-color);
 }
 
 .ws-trigger__label {
@@ -217,7 +217,7 @@ onMounted(() => {
     min-width: 0;
     font-size: 12px;
     font-weight: 500;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.75;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -225,7 +225,7 @@ onMounted(() => {
 }
 
 .ws-trigger__chevron {
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
     transition: transform 120ms ease;
 }
 
@@ -242,7 +242,7 @@ onMounted(() => {
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: rgba(var(--text-primary), 0.5);
+    color: var(--text-primary);
     cursor: pointer;
     -webkit-app-region: no-drag;
     transition:
@@ -251,15 +251,15 @@ onMounted(() => {
 }
 
 .ws-add-btn:hover {
-    background: rgba(var(--border-color), 0.15);
-    color: rgba(var(--text-primary), 0.8);
+    background: var(--border-color);
+    color: var(--text-primary);
 }
 
 .ws-settings-btn {
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
 }
 
 .ws-settings-btn:hover {
-    color: rgba(var(--text-primary), 0.7);
+    color: var(--text-primary);
 }
 </style>

@@ -102,9 +102,9 @@ function handleImportTheme() {
 
 .theme-card {
     width: 160px;
-    border: 1px solid rgba(var(--border-color), 0.2);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
-    background: rgb(var(--bg-secondary));
+    background: var(--bg-secondary);
     padding: 12px;
     cursor: pointer;
     transition:
@@ -116,12 +116,12 @@ function handleImportTheme() {
 }
 
 .theme-card:hover {
-    border-color: rgba(var(--border-color), 0.5);
+    border-color: var(--border-color);
 }
 
 .theme-card.active {
-    border-color: rgb(var(--border-color));
-    box-shadow: 0 0 0 1.5px rgb(var(--border-color));
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 1.5px var(--border-color);
 }
 
 .theme-swatches {
@@ -133,7 +133,7 @@ function handleImportTheme() {
     width: 28px;
     height: 28px;
     border-radius: 6px;
-    border: 1px solid rgba(var(--border-color), 0.25);
+    border: 1px solid var(--border-color);
 }
 
 .theme-card-body {
@@ -146,7 +146,7 @@ function handleImportTheme() {
 .theme-name {
     font-size: 13px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .theme-card-actions {
@@ -154,16 +154,16 @@ function handleImportTheme() {
     gap: 4px;
     align-items: center;
     padding-top: 8px;
-    border-top: 1px solid rgba(var(--border-color), 0.12);
+    border-top: 1px solid var(--border-color);
 }
 
 .active-label {
     font-size: 10px;
     font-weight: 500;
-    color: rgb(var(--color-success));
+    color: var(--color-success);
     padding: 2px 6px;
     border-radius: 4px;
-    background: rgba(var(--color-success), 0.1);
+    background: var(--color-success);
 }
 
 .theme-actions-row {

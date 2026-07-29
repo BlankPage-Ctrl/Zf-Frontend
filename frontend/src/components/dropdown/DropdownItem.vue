@@ -90,7 +90,7 @@ const showIconArea = computed(() => {
     gap: 8px;
     padding: 6px 10px;
     font-size: 12px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
@@ -104,15 +104,15 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--focused {
-    background-color: rgba(var(--border-color), 0.22);
+    background-color: var(--border-color);
 }
 
 .dropdown-item--danger {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
 }
 
 .dropdown-item--danger.dropdown-item--focused {
-    background-color: rgba(var(--color-danger), 0.12);
+    background-color: var(--color-danger);
 }
 
 .dropdown-item--disabled {
@@ -121,7 +121,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--selected {
-    background-color: rgba(var(--border-color), 0.1);
+    background-color: var(--border-color);
 }
 
 .dropdown-item__icon {
@@ -136,19 +136,19 @@ const showIconArea = computed(() => {
 .dropdown-item__svg {
     width: 16px;
     height: 16px;
-    color: rgba(var(--text-primary), 0.6);
+    color: var(--text-primary);
 }
 
 .dropdown-item--danger .dropdown-item__svg {
-    color: rgba(var(--color-danger), 0.7);
+    color: var(--color-danger);
 }
 
 .dropdown-item__check {
-    color: rgba(var(--text-primary), 0.6);
+    color: var(--text-primary);
 }
 
 .dropdown-item--selected .dropdown-item__check {
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .dropdown-item__label {
@@ -160,7 +160,7 @@ const showIconArea = computed(() => {
 
 .dropdown-item__shortcut {
     font-size: 10px;
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
     margin-left: auto;
     padding-left: 12px;
     letter-spacing: 0.02em;
@@ -182,17 +182,17 @@ const showIconArea = computed(() => {
 .dropdown-item__right-svg {
     width: 14px;
     height: 14px;
-    color: rgba(var(--color-danger), 0.7);
+    color: var(--color-danger);
 }
 
 .dropdown-item__right-svg:hover {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
 }
 
 .dropdown-item__arrow {
     display: flex;
     align-items: center;
-    color: rgba(var(--text-primary), 0.35);
+    color: var(--text-primary);
     margin-left: 4px;
 }
 </style>

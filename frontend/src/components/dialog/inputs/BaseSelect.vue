@@ -97,7 +97,7 @@ const selectedValue = computed({
     gap: 4px;
     font-size: 10px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.55;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -107,12 +107,12 @@ const selectedValue = computed({
 }
 
 .label-error {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
     opacity: 0.8;
 }
 
 .required-indicator {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
 }
 
 .select-wrapper {
@@ -126,9 +126,9 @@ const selectedValue = computed({
     padding: 0 32px 0 10px;
     font-size: 12px;
     border-radius: 6px;
-    border: 1px solid rgba(var(--border-color), 0.3);
-    background: rgb(var(--bg-primary));
-    color: rgb(var(--text-primary));
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     appearance: none;
     cursor: pointer;
     transition:
@@ -138,12 +138,12 @@ const selectedValue = computed({
 }
 
 .base-select:hover:not(:disabled) {
-    border-color: rgba(var(--border-color), 0.6);
+    border-color: var(--border-color);
 }
 
 .base-select:focus:not(:disabled) {
-    border-color: rgb(var(--border-color));
-    box-shadow: 0 0 0 2px rgba(var(--border-color), 0.15);
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 2px var(--border-color);
     outline: none;
 }
 
@@ -154,22 +154,22 @@ const selectedValue = computed({
 }
 
 .select-placeholder {
-    color: rgba(var(--text-primary), 0.3);
+    color: var(--text-primary);
 }
 
 .select-error {
-    border-color: rgb(var(--color-danger)) !important;
+    border-color: var(--color-danger) !important;
 }
 
 .select-error:focus:not(:disabled) {
-    box-shadow: 0 0 0 2px rgba(var(--color-danger), 0.15) !important;
+    box-shadow: 0 0 0 2px var(--color-danger) !important;
 }
 
 .select-disabled {
-    background-color: rgba(var(--bg-secondary), 0.4);
-    color: rgba(var(--text-primary), 0.45);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     cursor: not-allowed;
-    border-color: rgba(var(--border-color), 0.15);
+    border-color: var(--border-color);
 }
 
 .select-arrow {
@@ -177,7 +177,7 @@ const selectedValue = computed({
     top: 50%;
     right: 12px;
     transform: translateY(-50%);
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
     pointer-events: none;
     display: flex;
     align-items: center;
@@ -185,7 +185,7 @@ const selectedValue = computed({
 }
 
 .base-select:focus ~ .select-arrow {
-    color: rgb(var(--border-color));
+    color: var(--border-color);
 }
 
 .message-container {
@@ -197,14 +197,14 @@ const selectedValue = computed({
     display: block;
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
     line-height: 1.2;
 }
 
 .helper-text {
     display: block;
     font-size: 11px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.45;
     line-height: 1.2;
 }

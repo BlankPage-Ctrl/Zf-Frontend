@@ -161,10 +161,10 @@ function handleSetDefault(provider: Provider, model: Model) {
 }
 
 .provider-card {
-    border: 1px solid rgba(var(--border-color), 0.15);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
-    background: rgb(var(--bg-secondary));
+    background: var(--bg-secondary);
 }
 
 .provider-card-header {
@@ -180,7 +180,7 @@ function handleSetDefault(provider: Provider, model: Model) {
     font-family: var(--font-serif);
     font-size: 12px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .provider-type-badge {
@@ -188,8 +188,8 @@ function handleSetDefault(provider: Provider, model: Model) {
     font-weight: 500;
     padding: 1px 5px;
     border-radius: 9999px;
-    background: rgba(var(--border-color), 0.15);
-    color: rgb(var(--text-primary));
+    background: var(--border-color);
+    color: var(--text-primary);
     opacity: 0.6;
     white-space: nowrap;
 }
@@ -197,14 +197,14 @@ function handleSetDefault(provider: Provider, model: Model) {
 .provider-key {
     font-size: 10px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.35;
 }
 
 .provider-url {
     font-size: 10px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.35;
     white-space: nowrap;
     overflow: hidden;
@@ -221,13 +221,13 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .provider-models {
     padding: 0 10px 6px;
-    border-top: 1px solid rgba(var(--border-color), 0.1);
+    border-top: 1px solid var(--border-color);
 }
 
 .model-empty {
     padding: 6px 0 2px;
     font-size: 11px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.4;
 }
 
@@ -247,7 +247,7 @@ function handleSetDefault(provider: Provider, model: Model) {
     bottom: 0;
     right: 0;
     height: 1px;
-    background: rgba(var(--border-color), 0.08);
+    background: var(--border-color);
 }
 
 .model-info {
@@ -260,13 +260,13 @@ function handleSetDefault(provider: Provider, model: Model) {
 .model-name {
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .model-id {
     font-size: 10px;
     font-family: var(--font-serif);
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.35;
 }
 
@@ -275,8 +275,8 @@ function handleSetDefault(provider: Provider, model: Model) {
     font-weight: 500;
     padding: 1px 5px;
     border-radius: 9999px;
-    background: rgba(var(--color-success), 0.12);
-    color: rgb(var(--color-success));
+    background: var(--color-success);
+    color: var(--color-success);
     white-space: nowrap;
 }
 
@@ -307,7 +307,7 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .empty-text {
     font-size: 12px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.5;
 }
 </style>

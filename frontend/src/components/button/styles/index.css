@@ -34,63 +34,63 @@
 /* ── Variants ──────────────────────────────────────────────── */
 
 .btn--solid {
-    background: rgb(var(--border-color));
-    color: rgb(var(--bg-primary));
+    background: var(--border-color);
+    color: var(--bg-primary);
 }
 
 .btn--solid:hover:not(:disabled):not(.btn--disabled) {
-    background: rgba(var(--text-primary), 0.08);
-    box-shadow: inset 0 0 0 1px rgba(var(--text-primary), 0.06);
+    background: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--text-primary);
 }
 
 .btn--outline {
-    border: 1px solid rgba(var(--border-color), 0.2);
-    color: rgb(var(--text-primary));
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     opacity: 0.65;
 }
 
 .btn--outline:hover:not(:disabled):not(.btn--disabled) {
-    background: rgba(var(--border-color), 0.15);
-    border-color: rgba(var(--border-color), 0.6);
+    background: var(--border-color);
+    border-color: var(--border-color);
     opacity: 1;
 }
 
 .btn--ghost {
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.4;
 }
 
 .btn--ghost:hover:not(:disabled):not(.btn--disabled) {
     opacity: 1;
-    background: rgba(var(--border-color), 0.2);
+    background: var(--border-color);
 }
 
 .btn--soft {
-    background: rgba(var(--bg-secondary), 0.4);
-    color: rgb(var(--text-primary));
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     opacity: 0.7;
 }
 
 .btn--soft:hover:not(:disabled):not(.btn--disabled) {
-    background: rgba(var(--bg-secondary), 1);
-    box-shadow: inset 0 0 0 1px rgba(var(--border-color), 0.3);
+    background: var(--bg-secondary);
+    box-shadow: inset 0 0 0 1px var(--border-color);
     opacity: 1;
 }
 
 .btn--link {
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
 .btn--link:hover:not(:disabled):not(.btn--disabled) {
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 1;
 }
 
 /* Danger overrides */
 .btn--danger.btn--solid {
-    background: rgb(var(--color-danger));
+    background: var(--color-danger);
     color: #fff;
 }
 
@@ -100,8 +100,8 @@
 }
 
 .btn--danger.btn--ghost:hover:not(:disabled):not(.btn--disabled) {
-    background: rgba(var(--color-danger), 0.12);
-    color: rgb(var(--color-danger));
+    background: var(--color-danger);
+    color: var(--color-danger);
     opacity: 1;
 }
 

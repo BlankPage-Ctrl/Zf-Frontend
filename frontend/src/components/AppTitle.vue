@@ -117,8 +117,6 @@ onMounted(() => {
 
 <template>
     <div class="app-title">
-        <span class="app-title-text">Zf</span>
-
         <DropdownRoot
             :items="wsDropdownItems"
             mode="menu"
@@ -171,26 +169,15 @@ onMounted(() => {
 
 <style scoped>
 .app-title {
-    height: 30px;
+    height: 48px;
     display: flex;
     align-items: center;
-    padding-left: 12px;
+    padding: 8px 12px;
     gap: 6px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
     -webkit-app-region: drag;
-}
-
-.app-title-text {
-    font-family: var(--font-serif);
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary);
-    opacity: 0.55;
-    letter-spacing: -0.01em;
-    user-select: none;
-    -webkit-app-region: no-drag;
 }
 
 .ws-trigger {
@@ -237,8 +224,8 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: 4px;
     background: transparent;

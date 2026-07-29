@@ -117,44 +117,60 @@ onMounted(() => {
 
 <template>
     <div class="app-title">
-        <DropdownRoot
-            :items="wsDropdownItems"
-            mode="menu"
-            placement="bottom"
-            :offset="6"
-            :dense="true"
-            @select="handleSelect"
-            @action="handleAction"
-        >
-            <template #trigger="{ isOpen, toggle }">
-                <div
-                    class="ws-trigger"
-                    :class="{ 'ws-trigger--open': isOpen }"
-                    @click="toggle"
-                    role="button"
-                    tabindex="0"
-                    aria-haspopup="true"
-                    :aria-expanded="isOpen"
-                >
-                    <span class="ws-trigger__label">{{ selectedWsName }}</span>
-                    <NavArrowDown
-                        width="12"
-                        height="12"
-                        class="ws-trigger__chevron"
-                        :class="{ 'ws-trigger__chevron--open': isOpen }"
-                    />
-                </div>
-            </template>
-        </DropdownRoot>
+        <div class="ws-group">
+            <DropdownRoot
+                :items="wsDropdownItems"
+                mode="menu"
+                placement="bottom"
+                :width="{ mode: 'fixed', width: 166 }"
+                :offset="6"
+                :dense="true"
+                :style="{
+                    menu: {
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        padding: '2px',
+                    },
+                    item: {
+                        borderRadius: '4px',
+                        hoverBackground: 'rgba(var(--raw-border-color), 0.3)',
+                        selectedBackground: 'rgba(var(--raw-border-color), 0.3)',
+                    },
+                }"
+                @select="handleSelect"
+                @action="handleAction"
+            >
+                <template #trigger="{ isOpen, toggle }">
+                    <div
+                        class="ws-trigger"
+                        :class="{ 'ws-trigger--open': isOpen }"
+                        @click="toggle"
+                        role="button"
+                        tabindex="0"
+                        aria-haspopup="true"
+                        :aria-expanded="isOpen"
+                    >
+                        <span class="ws-trigger__label">{{ selectedWsName }}</span>
+                        <NavArrowDown
+                            width="12"
+                            height="12"
+                            class="ws-trigger__chevron"
+                            :class="{ 'ws-trigger__chevron--open': isOpen }"
+                        />
+                    </div>
+                </template>
+            </DropdownRoot>
 
-        <button
-            class="ws-add-btn"
-            @click="handleAction({ type: 'command', command: 'add-workspace', args: {} })"
-            title="New workspace"
-            aria-label="New workspace"
-        >
-            <Plus width="14" height="14" />
-        </button>
+            <button
+                class="ws-add-btn"
+                @click="handleAction({ type: 'command', command: 'add-workspace', args: {} })"
+                title="New workspace"
+                aria-label="New workspace"
+            >
+                <Plus width="14" height="14" />
+            </button>
+        </div>
 
         <button
             class="ws-add-btn ws-settings-btn"
@@ -169,10 +185,10 @@ onMounted(() => {
 
 <style scoped>
 .app-title {
-    height: 48px;
+    height: 35px;
     display: flex;
     align-items: center;
-    padding: 8px 12px;
+    padding: 1px 5px;
     gap: 6px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
@@ -180,23 +196,31 @@ onMounted(() => {
     -webkit-app-region: drag;
 }
 
+.ws-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    -webkit-app-region: no-drag;
+}
+
 .ws-trigger {
     display: flex;
     align-items: center;
     gap: 4px;
     padding: 2px 8px;
-    border-radius: 4px;
     cursor: pointer;
     user-select: none;
     -webkit-app-region: no-drag;
     transition: background-color 80ms ease;
     width: 140px;
     flex-shrink: 0;
+    border-radius: 4px 0 0 4px;
 }
 
 .ws-trigger:hover,
 .ws-trigger--open {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .ws-trigger__label {
@@ -226,8 +250,8 @@ onMounted(() => {
     justify-content: center;
     width: 24px;
     height: 24px;
-    border: none;
-    border-radius: 4px;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0 4px 4px 0;
     background: transparent;
     color: var(--text-primary);
     cursor: pointer;

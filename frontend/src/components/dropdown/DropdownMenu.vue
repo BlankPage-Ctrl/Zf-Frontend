@@ -177,8 +177,8 @@ watch(
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow:
-        0 4px 12px rgba(15, 15, 20, 0.08),
-        0 8px 24px rgba(15, 15, 20, 0.06);
+        0 2px 5px rgba(15, 15, 20, 0.08),
+        0 4px 5px rgba(15, 15, 20, 0.06);
 }
 
 .dropdown-menu--dense {

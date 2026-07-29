@@ -8,7 +8,7 @@ import {
     autoUpdate,
     type Placement,
 } from '@floating-ui/vue'
-import type { DropdownItemConfig, DropdownMode } from './types.ts'
+import type { DropdownItemConfig, DropdownMode, StyleConfig } from './types.ts'
 import DropdownItem from './DropdownItem.vue'
 import DropdownSeparator from './DropdownSeparator.vue'
 import { filterVisible } from './utils.ts'
@@ -24,6 +24,7 @@ type Props = {
     maxHeight?: number
     minWidth?: number
     level?: number
+    styleConfig?: StyleConfig
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -39,6 +40,19 @@ const hoveredItem = ref<DropdownItemConfig | null>(null)
 const submenuOpen = ref(false)
 
 const visibleItems = computed(() => filterVisible(props.items))
+
+const itemStyle = computed(() => props.styleConfig?.item)
+
+const menuStyle = computed(() => {
+    const s: Record<string, string> = {}
+    const m = props.styleConfig?.menu
+    if (m?.background) s.backgroundColor = m.background
+    if (m?.border) s.border = m.border
+    if (m?.borderRadius) s.borderRadius = m.borderRadius
+    if (m?.shadow) s.boxShadow = m.shadow
+    if (m?.padding) s.padding = m.padding
+    return s
+})
 
 const parentEl = computed(() => props.parentRef)
 
@@ -99,6 +113,7 @@ watch(
         class="dropdown-menu"
         :class="{ 'dropdown-menu--dense': dense }"
         :style="{
+            ...menuStyle,
             maxHeight: maxHeight ? `${maxHeight}px` : undefined,
             minWidth: minWidth ? `${minWidth}px` : undefined,
         }"
@@ -121,6 +136,7 @@ watch(
                     ) || item.action?.type === 'submenu'
                 "
                 :mode="mode"
+                :item-style="itemStyle"
                 @click="handleItemClick"
                 @mouseenter="handleItemMouseEnter"
                 @right-click="onItemClick"
@@ -142,6 +158,7 @@ watch(
                 :on-item-click="onItemClick"
                 :focused-index="-1"
                 :level="level + 1"
+                :style-config="styleConfig"
             />
         </div>
     </div>

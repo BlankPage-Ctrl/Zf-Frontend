@@ -41,6 +41,30 @@ export type WidthStrategy =
     | { mode: 'match-trigger'; padding?: number }
     | { mode: 'fixed'; width: number }
 
+export interface MenuStyle {
+    background?: string
+    border?: string
+    borderRadius?: string
+    shadow?: string
+    padding?: string
+}
+
+export interface ItemStyle {
+    padding?: string
+    fontSize?: string
+    color?: string
+    borderRadius?: string
+    hoverBackground?: string
+    focusedBackground?: string
+    selectedBackground?: string
+    disabledOpacity?: number
+}
+
+export interface StyleConfig {
+    menu?: MenuStyle
+    item?: ItemStyle
+}
+
 export interface DropdownProps<T = string> {
     items: DropdownItemConfig<T>[]
     modelValue?: T | T[] | null
@@ -53,6 +77,7 @@ export interface DropdownProps<T = string> {
     dense?: boolean
     disabled?: boolean
     offset?: number
+    style?: StyleConfig
 }
 
 export interface DropdownEmits<T = string> {

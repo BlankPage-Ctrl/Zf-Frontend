@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Check, NavArrowRight } from '@iconoir/vue'
-import type { DropdownItemConfig, DropdownMode } from './types'
+import type { DropdownItemConfig, DropdownMode, ItemStyle } from './types'
 
 defineOptions({ inheritAttrs: false })
 
@@ -12,6 +12,7 @@ type Props = {
     selected?: boolean
     hasSubmenu?: boolean
     mode?: DropdownMode
+    itemStyle?: ItemStyle
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -27,6 +28,21 @@ const emit = defineEmits<{
     (e: 'mouseenter', item: DropdownItemConfig): void
     (e: 'right-click', item: DropdownItemConfig): void
 }>()
+
+const itemAttrsStyle = computed(() => {
+    if (!props.itemStyle) return undefined
+    const s: Record<string, string> = {}
+    const is = props.itemStyle
+    if (is.padding) s.padding = is.padding
+    if (is.fontSize) s.fontSize = is.fontSize
+    if (is.color) s.color = is.color
+    if (is.borderRadius) s.borderRadius = is.borderRadius
+    if (is.disabledOpacity !== undefined) s['--dropdown-item-disabled-opacity'] = String(is.disabledOpacity)
+    if (is.hoverBackground) s['--dropdown-item-hover-bg'] = is.hoverBackground
+    if (is.focusedBackground) s['--dropdown-item-focused-bg'] = is.focusedBackground
+    if (is.selectedBackground) s['--dropdown-item-selected-bg'] = is.selectedBackground
+    return Object.keys(s).length > 0 ? s : undefined
+})
 
 const showIconArea = computed(() => {
     return !!(
@@ -49,6 +65,7 @@ const showIconArea = computed(() => {
             'dropdown-item--dense': dense,
             'dropdown-item--has-submenu': hasSubmenu,
         }"
+        :style="itemAttrsStyle"
         role="menuitem"
         :aria-disabled="item.enabled === false"
         @click="item.enabled !== false && emit('click', item)"
@@ -104,7 +121,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--focused {
-    background-color: var(--border-color);
+    background-color: var(--dropdown-item-focused-bg, var(--border-color));
 }
 
 .dropdown-item--danger {
@@ -112,16 +129,20 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--danger.dropdown-item--focused {
-    background-color: var(--color-danger);
+    background-color: var(--color-danger, var(--dropdown-item-focused-bg));
 }
 
 .dropdown-item--disabled {
-    opacity: 0.4;
+    opacity: var(--dropdown-item-disabled-opacity, 0.4);
     cursor: not-allowed;
 }
 
 .dropdown-item--selected {
-    background-color: var(--border-color);
+    background-color: var(--dropdown-item-selected-bg, var(--border-color));
+}
+
+.dropdown-item:hover {
+    background-color: var(--dropdown-item-hover-bg);
 }
 
 .dropdown-item__icon {

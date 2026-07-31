@@ -239,7 +239,7 @@ watch(
     max-height: 90vh;
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 4px;
     box-shadow:
         0 4px 8px rgba(15, 15, 20, 0.06),
         0 12px 24px rgba(15, 15, 20, 0.05);
@@ -344,7 +344,7 @@ watch(
     gap: 6px;
     height: 30px;
     padding: 0 12px;
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: var(--border-color);
     color: var(--text-primary);
     font-size: 12px;
@@ -370,7 +370,7 @@ watch(
     justify-content: center;
     height: 30px;
     padding: 0 10px;
-    border-radius: 5px;
+    border-radius: 4px;
     border: 1px solid var(--border-color);
     background-color: transparent;
     color: var(--text-primary);

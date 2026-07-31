@@ -61,7 +61,7 @@ function onScaleInput(e: Event) {
 <style scoped>
 .appearance-card {
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 4px;
     background: var(--bg-secondary);
     padding: 14px 18px;
     display: flex;
@@ -102,7 +102,7 @@ function onScaleInput(e: Event) {
     font-size: 11px;
     font-weight: 500;
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: 4px;
     border: none;
     background: transparent;
     color: var(--text-primary);

@@ -125,7 +125,7 @@ const selectedValue = computed({
     height: 32px;
     padding: 0 32px 0 10px;
     font-size: 12px;
-    border-radius: 6px;
+    border-radius: 4px;
     border: 1px solid var(--border-color);
     background: var(--bg-primary);
     color: var(--text-primary);

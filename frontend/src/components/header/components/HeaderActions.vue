@@ -43,7 +43,7 @@ function renderIcon(icon: Component) {
     gap: 4px;
     padding: 4px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     background: transparent;
     color: var(--text-primary);
     cursor: pointer;

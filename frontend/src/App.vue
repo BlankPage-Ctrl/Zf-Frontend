@@ -421,7 +421,7 @@ function handleSetActiveTheme(id: string) {
     max-height: 90vh;
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 4px;
     box-shadow:
         0 4px 8px rgba(15, 15, 20, 0.06),
         0 12px 24px rgba(15, 15, 20, 0.05);

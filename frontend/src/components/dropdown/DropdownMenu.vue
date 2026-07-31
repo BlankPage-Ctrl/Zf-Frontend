@@ -175,7 +175,7 @@ watch(
     overflow-y: auto;
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow:
         0 2px 5px rgba(15, 15, 20, 0.08),
         0 4px 5px rgba(15, 15, 20, 0.06);

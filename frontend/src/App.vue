@@ -178,7 +178,7 @@ async function handleAddProvider() {
         title: 'Add provider',
         schema: providerFormSchema,
         confirmLabel: 'Create',
-        submit: async (data: any) => {
+        submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
             await providerStore.createProvider({
                 name: String(row.name ?? ''),
@@ -203,7 +203,7 @@ async function handleEditProvider(provider: { id: string; name: string; type: Pr
             },
         },
         confirmLabel: 'Save',
-        submit: async (data: any) => {
+        submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
             await providerStore.updateProvider(provider.id, {
                 name: String(row.name ?? ''),
@@ -220,11 +220,11 @@ async function handleDeleteProvider(id: string) {
 }
 
 async function handleAddModel(providerId: string) {
-    const result = await dialog.spawn({
+    await dialog.spawn({
         title: 'New model',
         schema: modelFormSchema,
         confirmLabel: 'Create',
-        submit: async (data: any) => {
+        submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
             await providerStore.createModel(providerId, {
                 modelId: String(row.modelId ?? ''),

@@ -24,7 +24,11 @@ const emit = defineEmits<{
     'edit-provider': [provider: Provider]
     'delete-provider': [id: string]
     'add-model': [providerId: string]
-    'edit-model': [providerId: string, modelId: string, data: { modelId: string; displayName?: string }]
+    'edit-model': [
+        providerId: string,
+        modelId: string,
+        data: { modelId: string; displayName?: string },
+    ]
     'delete-model': [providerId: string, modelId: string]
     'set-default': [providerId: string, modelId: string]
     'update-preset': [preset: string]
@@ -34,14 +38,21 @@ const emit = defineEmits<{
     'export-theme': [id: string]
     'remove-theme': [id: string]
     'set-active-theme': [id: string]
-    'close': []
+    close: []
 }>()
 </script>
 
 <template>
     <div class="settings-panel">
         <section class="settings-section">
-            <Header :schema="{ title: 'Model and Provider', height: 'auto', padding: 'none', border: true }" />
+            <Header
+                :schema="{
+                    title: 'Model and Provider',
+                    height: 'auto',
+                    padding: 'none',
+                    border: true,
+                }"
+            />
             <ProviderSection
                 :providers="providers"
                 :loading="loading"
@@ -59,7 +70,14 @@ const emit = defineEmits<{
         </section>
 
         <section class="settings-section section-appearance">
-            <Header :schema="{ title: 'Appearance & Theme', height: 'auto', padding: 'none', border: true }" />
+            <Header
+                :schema="{
+                    title: 'Appearance & Theme',
+                    height: 'auto',
+                    padding: 'none',
+                    border: true,
+                }"
+            />
             <AppearanceSection
                 :preset="preset"
                 :font-size="fontSize"

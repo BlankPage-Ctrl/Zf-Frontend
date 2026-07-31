@@ -33,10 +33,9 @@ function onScaleInput(e: Event) {
                 >
                     {{ p.label }}
                 </button>
-                <span
-                    class="preset-custom-tag"
-                    :class="{ active: preset === 'Custom' }"
-                >Custom</span>
+                <span class="preset-custom-tag" :class="{ active: preset === 'Custom' }"
+                    >Custom</span
+                >
             </div>
         </div>
 
@@ -108,7 +107,9 @@ function onScaleInput(e: Event) {
     color: var(--text-primary);
     opacity: 0.5;
     cursor: pointer;
-    transition: opacity 100ms ease, background 100ms ease;
+    transition:
+        opacity 100ms ease,
+        background 100ms ease;
 }
 
 .preset-btn:hover {

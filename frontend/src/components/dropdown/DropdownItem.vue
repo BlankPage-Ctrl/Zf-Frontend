@@ -37,7 +37,8 @@ const itemAttrsStyle = computed(() => {
     if (is.fontSize) s.fontSize = is.fontSize
     if (is.color) s.color = is.color
     if (is.borderRadius) s.borderRadius = is.borderRadius
-    if (is.disabledOpacity !== undefined) s['--dropdown-item-disabled-opacity'] = String(is.disabledOpacity)
+    if (is.disabledOpacity !== undefined)
+        s['--dropdown-item-disabled-opacity'] = String(is.disabledOpacity)
     if (is.hoverBackground) s['--dropdown-item-hover-bg'] = is.hoverBackground
     if (is.focusedBackground) s['--dropdown-item-focused-bg'] = is.focusedBackground
     if (is.selectedBackground) s['--dropdown-item-selected-bg'] = is.selectedBackground

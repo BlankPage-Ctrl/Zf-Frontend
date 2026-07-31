@@ -65,7 +65,11 @@ function handleSelect(value: string) {
     workspaceSelect(value)
 }
 
-async function handleAction(action: { type: 'command'; command: string; args?: Record<string, unknown> }) {
+async function handleAction(action: {
+    type: 'command'
+    command: string
+    args?: Record<string, unknown>
+}) {
     if (action.command === 'add-workspace') {
         await dialog.spawn({
             title: 'New workspace',

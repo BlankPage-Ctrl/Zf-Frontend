@@ -147,7 +147,7 @@ const settingsThemes = computed<SettingsTheme[]>(() =>
     themeStore.availableThemes.map((t) => ({
         ...t,
         swatches: themePreviewColors(t.id),
-    }))
+    })),
 )
 
 function themePreviewColors(id: string): string[] {
@@ -190,7 +190,13 @@ async function handleAddProvider() {
     })
 }
 
-async function handleEditProvider(provider: { id: string; name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }) {
+async function handleEditProvider(provider: {
+    id: string
+    name: string
+    type: ProviderDto['type']
+    apiKey?: string
+    baseURL?: string
+}) {
     await dialog.spawn({
         title: 'Edit provider',
         schema: providerFormSchema,
@@ -234,7 +240,11 @@ async function handleAddModel(providerId: string) {
     })
 }
 
-async function handleEditModel(providerId: string, modelId: string, data: { modelId: string; displayName?: string }) {
+async function handleEditModel(
+    providerId: string,
+    modelId: string,
+    data: { modelId: string; displayName?: string },
+) {
     await providerStore.updateModel(providerId, modelId, {
         modelId: data.modelId,
         displayName: data.displayName,
@@ -338,7 +348,11 @@ function handleSetActiveTheme(id: string) {
 
         <!-- Settings Dialog -->
         <transition name="dialog-fade">
-            <div v-if="settingsDialog.visible" class="dialog-overlay" @click="settingsDialog.hide()">
+            <div
+                v-if="settingsDialog.visible"
+                class="dialog-overlay"
+                @click="settingsDialog.hide()"
+            >
                 <div class="dialog-panel width-xl" @click.stop>
                     <div class="dialog-header">
                         <h3 class="dialog-title">Settings</h3>

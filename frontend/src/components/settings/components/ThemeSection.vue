@@ -67,12 +67,24 @@ function handleImportTheme() {
                 <div class="theme-card-actions">
                     <span v-if="isActive(t.id)" class="active-label">Active</span>
                     <pButton
-                        :schema="{ variant: 'ghost', size: 'xs', icon: DownloadIcon, iconPosition: 'only', ariaLabel: 'Export theme' }"
+                        :schema="{
+                            variant: 'ghost',
+                            size: 'xs',
+                            icon: DownloadIcon,
+                            iconPosition: 'only',
+                            ariaLabel: 'Export theme',
+                        }"
                         @click.stop="handleThemeExport(t.id)"
                     />
                     <pButton
                         v-if="!t.builtIn"
-                        :schema="{ preset: 'danger', size: 'xs', icon: TrashIcon, overrides: { variant: 'ghost', iconPosition: 'only' }, ariaLabel: 'Delete theme' }"
+                        :schema="{
+                            preset: 'danger',
+                            size: 'xs',
+                            icon: TrashIcon,
+                            overrides: { variant: 'ghost', iconPosition: 'only' },
+                            ariaLabel: 'Delete theme',
+                        }"
                         @click.stop="handleThemeRemove(t.id)"
                     />
                 </div>

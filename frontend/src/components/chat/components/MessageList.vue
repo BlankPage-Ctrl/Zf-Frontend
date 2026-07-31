@@ -3,7 +3,10 @@ import { onUnmounted, ref, watch, nextTick } from 'vue'
 import { ChatBubbleEmpty } from '@iconoir/vue'
 import type { ResolvedMessageList } from '../types/resolved.ts'
 import BaseMessageBubble from './MessageBubble.vue'
-import { createPartSlotObserver, providePartSlotObserver } from '../../../composables/usePartSlotObserver.ts'
+import {
+    createPartSlotObserver,
+    providePartSlotObserver,
+} from '../../../composables/usePartSlotObserver.ts'
 
 defineProps<{
     resolved: ResolvedMessageList

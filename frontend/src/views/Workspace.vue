@@ -241,9 +241,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     size: 'sm',
     activeKey: 'id',
     activeId: activeChatId.value ?? undefined,
-    fields: [
-        { key: 'title', class: 'title' },
-    ],
+    fields: [{ key: 'title', class: 'title' }],
     actions: [
         { icon: EditIcon, ariaLabel: 'Edit', variant: 'ghost', size: 'xs', onClick: openChatEdit },
         {
@@ -268,7 +266,9 @@ async function openChatEdit(chat: Chat) {
         initialData: { chat: { title: chat.title } },
         confirmLabel: 'Save',
         submit: async (data) => {
-            await chatStore.updateChat(workspaceId.value, chat.id, { title: String(data.chat!.title ?? '') })
+            await chatStore.updateChat(workspaceId.value, chat.id, {
+                title: String(data.chat!.title ?? ''),
+            })
         },
     })
 }
@@ -338,32 +338,39 @@ watch(routeWsId, (id) => {
     }
 })
 
-watch(() => wsStore.selectedWorkspaceId, (id) => {
-    if (id && route.name === 'home' && !routeWsId.value) {
-        router.replace({ name: 'workspace', params: { id } })
-    }
-})
+watch(
+    () => wsStore.selectedWorkspaceId,
+    (id) => {
+        if (id && route.name === 'home' && !routeWsId.value) {
+            router.replace({ name: 'workspace', params: { id } })
+        }
+    },
+)
 
-watch(workspaceId, async (newId, oldId) => {
-    if (!newId) {
+watch(
+    workspaceId,
+    async (newId, oldId) => {
+        if (!newId) {
+            cleanupWorkspace()
+            return
+        }
+
+        if (newId === oldId) return
+
         cleanupWorkspace()
-        return
-    }
+        activeChatId.value = null
+        await chatStore.fetchChats(newId)
+        providerStore.fetchProviders()
+        await setupFileExplorer()
+        setupWatchEvents()
 
-    if (newId === oldId) return
-
-    cleanupWorkspace()
-    activeChatId.value = null
-    await chatStore.fetchChats(newId)
-    providerStore.fetchProviders()
-    await setupFileExplorer()
-    setupWatchEvents()
-
-    const chatId = route.query.chat as string | undefined
-    if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
-        activeChatId.value = chatId
-    }
-}, { immediate: true })
+        const chatId = route.query.chat as string | undefined
+        if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
+            activeChatId.value = chatId
+        }
+    },
+    { immediate: true },
+)
 
 onUnmounted(() => {
     cleanupWorkspace()
@@ -440,8 +447,6 @@ onUnmounted(() => {
             }}
         </p>
     </div>
-
-
 </template>
 
 <style>

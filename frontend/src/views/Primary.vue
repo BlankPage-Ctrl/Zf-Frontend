@@ -280,8 +280,6 @@ watch(
                 </div>
             </template>
         </ContainerGrid>
-
-
     </div>
 </template>
 

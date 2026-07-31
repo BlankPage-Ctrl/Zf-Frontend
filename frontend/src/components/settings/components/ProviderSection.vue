@@ -12,7 +12,11 @@ const emit = defineEmits<{
     'edit-provider': [provider: Provider]
     'delete-provider': [id: string]
     'add-model': [providerId: string]
-    'edit-model': [providerId: string, modelId: string, data: { modelId: string; displayName?: string }]
+    'edit-model': [
+        providerId: string,
+        modelId: string,
+        data: { modelId: string; displayName?: string },
+    ]
     'delete-model': [providerId: string, modelId: string]
     'set-default': [providerId: string, modelId: string]
 }>()
@@ -93,19 +97,39 @@ function handleSetDefault(provider: Provider, model: Model) {
                 <div class="provider-card-header" @click="toggleProviderExpand(provider.id)">
                     <span class="provider-name">{{ provider.name }}</span>
                     <span class="provider-type-badge">{{ provider.type }}</span>
-                    <span v-if="provider.apiKey" class="provider-key">{{ maskKey(provider.apiKey) }}</span>
+                    <span v-if="provider.apiKey" class="provider-key">{{
+                        maskKey(provider.apiKey)
+                    }}</span>
                     <span v-if="provider.baseURL" class="provider-url">{{ provider.baseURL }}</span>
                     <div class="provider-actions" @click.stop>
                         <pButton
-                            :schema="{ variant: 'ghost', size: 'xs', icon: PlusIcon, iconPosition: 'only', ariaLabel: 'Add model' }"
+                            :schema="{
+                                variant: 'ghost',
+                                size: 'xs',
+                                icon: PlusIcon,
+                                iconPosition: 'only',
+                                ariaLabel: 'Add model',
+                            }"
                             @click="handleModelAdd(provider.id)"
                         />
                         <pButton
-                            :schema="{ variant: 'ghost', size: 'xs', icon: EditIcon, iconPosition: 'only', ariaLabel: 'Edit' }"
+                            :schema="{
+                                variant: 'ghost',
+                                size: 'xs',
+                                icon: EditIcon,
+                                iconPosition: 'only',
+                                ariaLabel: 'Edit',
+                            }"
                             @click="handleProviderEdit(provider)"
                         />
                         <pButton
-                            :schema="{ preset: 'danger', size: 'xs', icon: TrashIcon, overrides: { variant: 'ghost', iconPosition: 'only' }, ariaLabel: 'Delete' }"
+                            :schema="{
+                                preset: 'danger',
+                                size: 'xs',
+                                icon: TrashIcon,
+                                overrides: { variant: 'ghost', iconPosition: 'only' },
+                                ariaLabel: 'Delete',
+                            }"
                             @click="handleProviderDelete(provider)"
                         />
                     </div>
@@ -116,21 +140,43 @@ function handleSetDefault(provider: Provider, model: Model) {
                     <div v-for="model in provider.models" :key="model.id" class="model-row">
                         <div class="model-info">
                             <span class="model-name">{{ model.displayName || model.modelId }}</span>
-                            <span v-if="model.displayName" class="model-id">{{ model.modelId }}</span>
-                            <span v-if="isDefault(provider, model)" class="default-badge">Default</span>
+                            <span v-if="model.displayName" class="model-id">{{
+                                model.modelId
+                            }}</span>
+                            <span v-if="isDefault(provider, model)" class="default-badge"
+                                >Default</span
+                            >
                         </div>
                         <div class="model-actions">
                             <pButton
                                 v-if="!isDefault(provider, model)"
-                                :schema="{ variant: 'ghost', size: 'xs', icon: StarIcon, iconPosition: 'only', ariaLabel: 'Set as default' }"
+                                :schema="{
+                                    variant: 'ghost',
+                                    size: 'xs',
+                                    icon: StarIcon,
+                                    iconPosition: 'only',
+                                    ariaLabel: 'Set as default',
+                                }"
                                 @click="handleSetDefault(provider, model)"
                             />
                             <pButton
-                                :schema="{ variant: 'ghost', size: 'xs', icon: EditIcon, iconPosition: 'only', ariaLabel: 'Edit' }"
+                                :schema="{
+                                    variant: 'ghost',
+                                    size: 'xs',
+                                    icon: EditIcon,
+                                    iconPosition: 'only',
+                                    ariaLabel: 'Edit',
+                                }"
                                 @click="handleModelEdit(provider.id, model)"
                             />
                             <pButton
-                                :schema="{ preset: 'danger', size: 'xs', icon: TrashIcon, overrides: { variant: 'ghost', iconPosition: 'only' }, ariaLabel: 'Delete' }"
+                                :schema="{
+                                    preset: 'danger',
+                                    size: 'xs',
+                                    icon: TrashIcon,
+                                    overrides: { variant: 'ghost', iconPosition: 'only' },
+                                    ariaLabel: 'Delete',
+                                }"
                                 @click="handleModelDelete(provider.id, model)"
                             />
                         </div>

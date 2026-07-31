@@ -48,7 +48,9 @@ const itemClass = computed(() =>
 )
 
 const textSizeStyle = computed(() =>
-    typeof props.textSize === 'number' ? { '--dl-text-size': `${props.textSize}px` } as Record<string, string> : undefined,
+    typeof props.textSize === 'number'
+        ? ({ '--dl-text-size': `${props.textSize}px` } as Record<string, string>)
+        : undefined,
 )
 
 const visibleFields = computed(() =>

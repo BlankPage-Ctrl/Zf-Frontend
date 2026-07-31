@@ -43,16 +43,16 @@ function renderIcon(icon: Component) {
     gap: 4px;
     padding: 4px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     background: transparent;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     cursor: pointer;
     transition: background 100ms ease;
     opacity: 0.35;
 }
 
 .header-action-btn:hover {
-    background: rgba(var(--border-color), 0.2);
+    background: var(--border-color);
     opacity: 1;
 }
 

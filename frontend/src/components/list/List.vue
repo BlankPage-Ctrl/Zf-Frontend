@@ -58,6 +58,7 @@ function handleHoverSelect(value: string) {
             :actions="schema.actions"
             :active="isActive(item)"
             :size="schema.size ?? 'sm'"
+            :text-size="schema.textSize"
             :variant="schema.variant ?? 'sidebar'"
             :hover-menu-items="getHoverItems(item)"
             :icon="schema.icon"

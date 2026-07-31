@@ -6,15 +6,15 @@ import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/v
 import { pButton } from '@/components/button'
 import { Header } from '@/components/header'
 import type { HeaderSchema } from '@/components/header'
-import ContainerGrid from '@/components/container/ContainerGrid.vue'
-import type { ContainerSchema } from '@/components/container/types'
-import DialogGrid from '@/components/dialog/GridDialog.vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
+import { ContainerGrid, type ContainerSchema } from '@/components/container'
+import type { DialogGridSchema } from '@/components/dialog/types'
+import { useDialog } from '@/composables/useDialog'
+import { useSettingsDialog } from '@/composables/useSettingsDialog'
 import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
-import type { Workspace, WorkspaceDto } from '@/services/workspace'
+import type { Workspace } from '@/services/workspace'
 import type { Chat } from '@/services/chat'
 
 const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
@@ -22,9 +22,11 @@ const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const dialog = useDialog()
+const settingsDialog = useSettingsDialog()
 
 function goToSettings() {
-    router.push({ name: 'settings' })
+    settingsDialog.show()
 }
 
 // --- Header schemas ---
@@ -63,8 +65,8 @@ const containerPrimary = ref<ContainerSchema[]>([
                 maxWidth: 400,
                 cell: {
                     padding: 0,
-                    background: 'rgb(var(--bg-secondary))',
-                    borderColor: 'rgba(var(--border-color), 0.25)',
+                    background: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: 1,
                     borderStyle: 'solid',
                     radius: 0,
@@ -75,8 +77,8 @@ const containerPrimary = ref<ContainerSchema[]>([
                 width: '1fr',
                 cell: {
                     padding: 0,
-                    background: 'rgb(var(--bg-primary))',
-                    borderColor: 'rgba(var(--border-color), 0.15)',
+                    background: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: 1,
                     borderStyle: 'solid',
                     radius: 0,
@@ -147,79 +149,56 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
 }))
 
 // --- Workspace form ---
-const showWsDialog = ref(false)
-const editingWs = ref<Workspace | null>(null)
-const wsFormLoading = ref(false)
-
-const wsInitialData = computed<DynamicGridDataOutput | undefined>(() => {
-    if (!editingWs.value) return undefined
-    const w = editingWs.value
-    return {
-        ws: {
-            name: w.name,
-            description: w.description ?? '',
-            projectPath: w.projectPath,
-        },
-    }
-})
-
 function openWsCreate() {
-    editingWs.value = null
-    showWsDialog.value = true
+    dialog.spawn({
+        title: 'New workspace',
+        schema: wsFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const ws = data.ws!
+            await wsStore.createWorkspace({
+                name: String(ws.name ?? ''),
+                description: String(ws.description ?? ''),
+                projectPath: String(ws.projectPath ?? ''),
+            })
+        },
+    })
 }
 
 function openWsEdit(ws: Workspace) {
-    editingWs.value = ws
-    showWsDialog.value = true
-}
-
-function cancelWsForm() {
-    showWsDialog.value = false
-    editingWs.value = null
-}
-
-async function submitWsForm(data: DynamicGridDataOutput) {
-    const ws = data.ws!
-    const payload: WorkspaceDto = {
-        name: String(ws.name ?? ''),
-        description: String(ws.description ?? ''),
-        projectPath: String(ws.projectPath ?? ''),
-    }
-    wsFormLoading.value = true
-    try {
-        if (editingWs.value) {
-            await wsStore.updateWorkspace(editingWs.value.id, payload)
-        } else {
-            await wsStore.createWorkspace(payload)
-        }
-        showWsDialog.value = false
-        editingWs.value = null
-    } catch {
-        /* error handled by store */
-    } finally {
-        wsFormLoading.value = false
-    }
+    dialog.spawn({
+        title: 'Edit workspace',
+        schema: wsFormSchema,
+        initialData: {
+            ws: {
+                name: ws.name,
+                description: ws.description ?? '',
+                projectPath: ws.projectPath,
+            },
+        },
+        confirmLabel: 'Save',
+        submit: async (data) => {
+            const w = data.ws!
+            await wsStore.updateWorkspace(ws.id, {
+                name: String(w.name ?? ''),
+                description: String(w.description ?? ''),
+                projectPath: String(w.projectPath ?? ''),
+            })
+        },
+    })
 }
 
 // --- Workspace delete ---
-const showWsDeleteDialog = ref(false)
-const deletingWs = ref<Workspace | null>(null)
-
 function confirmDeleteWs(ws: Workspace) {
-    deletingWs.value = ws
-    showWsDeleteDialog.value = true
-}
-
-async function executeDeleteWs() {
-    if (!deletingWs.value) return
-    await wsStore.deleteWorkspace(deletingWs.value.id)
-    showWsDeleteDialog.value = false
-    deletingWs.value = null
-}
-
-function cancelWsDelete() {
-    showWsDeleteDialog.value = false
-    deletingWs.value = null
+    dialog.spawn({
+        title: 'Delete workspace',
+        message: `Delete "${ws.name}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            await wsStore.deleteWorkspace(ws.id)
+        },
+    })
 }
 
 function openWorkspace() {
@@ -301,30 +280,6 @@ watch(
                 </div>
             </template>
         </ContainerGrid>
-
-        <!-- Workspace Form Dialog -->
-        <DialogGrid
-            v-model="showWsDialog"
-            :schema="wsFormSchema"
-            :title="editingWs ? 'Edit workspace' : 'New workspace'"
-            :confirm-label="editingWs ? 'Save' : 'Create'"
-            :initial-data="wsInitialData"
-            :loading="wsFormLoading"
-            @submit="submitWsForm"
-            @cancel="cancelWsForm"
-        />
-
-        <!-- Workspace Delete Dialog -->
-        <DialogGrid
-            v-model="showWsDeleteDialog"
-            title="Delete workspace"
-            confirm-label="Delete"
-            confirm-variant="danger"
-            @submit="executeDeleteWs"
-            @cancel="cancelWsDelete"
-        >
-            <span class="confirm-message">Delete "{{ deletingWs?.name }}"?</span>
-        </DialogGrid>
     </div>
 </template>
 
@@ -367,20 +322,20 @@ watch(
 
 .welcome-icon {
     margin-bottom: 16px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .welcome-title {
     font-family: var(--font-serif);
     font-size: 18px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     margin: 0 0 6px;
 }
 
 .welcome-desc {
     font-size: 13px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.5;
     max-width: 300px;
     line-height: 1.5;

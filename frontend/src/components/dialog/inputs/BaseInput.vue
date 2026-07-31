@@ -104,7 +104,7 @@ const handleFocus = (e: FocusEvent) => {
     gap: 4px;
     font-size: 10px;
     font-weight: 600;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.55;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -114,12 +114,12 @@ const handleFocus = (e: FocusEvent) => {
 }
 
 .label-error {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
     opacity: 0.8;
 }
 
 .required-indicator {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
 }
 
 .input-wrapper {
@@ -132,10 +132,10 @@ const handleFocus = (e: FocusEvent) => {
     height: 32px;
     padding: 0 10px;
     font-size: 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(var(--border-color), 0.3);
-    background: rgb(var(--bg-primary));
-    color: rgb(var(--text-primary));
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     transition:
         border-color 150ms ease,
         box-shadow 150ms ease,
@@ -143,13 +143,13 @@ const handleFocus = (e: FocusEvent) => {
 }
 
 .base-input:hover:not(:disabled) {
-    border-color: rgba(var(--border-color), 0.6);
+    border-color: var(--border-color);
 }
 
 .base-input:focus:not(:disabled) {
-    border-color: rgb(var(--border-color));
-    box-shadow: 0 0 0 2px rgba(var(--border-color), 0.15);
-    background: rgb(var(--bg-primary));
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 2px var(--border-color);
+    background: var(--bg-primary);
 }
 
 .input-dense {
@@ -159,18 +159,18 @@ const handleFocus = (e: FocusEvent) => {
 }
 
 .input-error {
-    border-color: rgb(var(--color-danger)) !important;
+    border-color: var(--color-danger) !important;
 }
 
 .input-error:focus:not(:disabled) {
-    box-shadow: 0 0 0 2px rgba(var(--color-danger), 0.15) !important;
+    box-shadow: 0 0 0 2px var(--color-danger) !important;
 }
 
 .input-disabled {
-    background-color: rgba(var(--bg-secondary), 0.4);
-    color: rgba(var(--text-primary), 0.45);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     cursor: not-allowed;
-    border-color: rgba(var(--border-color), 0.15);
+    border-color: var(--border-color);
 }
 
 .message-container {
@@ -182,14 +182,14 @@ const handleFocus = (e: FocusEvent) => {
     display: block;
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
     line-height: 1.2;
 }
 
 .helper-text {
     display: block;
     font-size: 11px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.45;
     line-height: 1.2;
 }

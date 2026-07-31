@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Check, NavArrowRight } from '@iconoir/vue'
-import type { DropdownItemConfig, DropdownMode } from './types'
+import type { DropdownItemConfig, DropdownMode, ItemStyle } from './types'
 
 defineOptions({ inheritAttrs: false })
 
@@ -12,6 +12,7 @@ type Props = {
     selected?: boolean
     hasSubmenu?: boolean
     mode?: DropdownMode
+    itemStyle?: ItemStyle
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +26,24 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     (e: 'click', item: DropdownItemConfig): void
     (e: 'mouseenter', item: DropdownItemConfig): void
+    (e: 'right-click', item: DropdownItemConfig): void
 }>()
+
+const itemAttrsStyle = computed(() => {
+    if (!props.itemStyle) return undefined
+    const s: Record<string, string> = {}
+    const is = props.itemStyle
+    if (is.padding) s.padding = is.padding
+    if (is.fontSize) s.fontSize = is.fontSize
+    if (is.color) s.color = is.color
+    if (is.borderRadius) s.borderRadius = is.borderRadius
+    if (is.disabledOpacity !== undefined)
+        s['--dropdown-item-disabled-opacity'] = String(is.disabledOpacity)
+    if (is.hoverBackground) s['--dropdown-item-hover-bg'] = is.hoverBackground
+    if (is.focusedBackground) s['--dropdown-item-focused-bg'] = is.focusedBackground
+    if (is.selectedBackground) s['--dropdown-item-selected-bg'] = is.selectedBackground
+    return Object.keys(s).length > 0 ? s : undefined
+})
 
 const showIconArea = computed(() => {
     return !!(
@@ -48,6 +66,7 @@ const showIconArea = computed(() => {
             'dropdown-item--dense': dense,
             'dropdown-item--has-submenu': hasSubmenu,
         }"
+        :style="itemAttrsStyle"
         role="menuitem"
         :aria-disabled="item.enabled === false"
         @click="item.enabled !== false && emit('click', item)"
@@ -66,6 +85,14 @@ const showIconArea = computed(() => {
 
         <span class="dropdown-item__label">{{ item.label }}</span>
 
+        <div
+            v-if="item.rightIcon"
+            class="dropdown-item__right-icon"
+            @click.stop="emit('right-click', item)"
+        >
+            <component :is="item.rightIcon" class="dropdown-item__right-svg" />
+        </div>
+
         <span v-if="item.shortcut" class="dropdown-item__shortcut">{{ item.shortcut }}</span>
 
         <div v-if="hasSubmenu" class="dropdown-item__arrow">
@@ -81,7 +108,7 @@ const showIconArea = computed(() => {
     gap: 8px;
     padding: 6px 10px;
     font-size: 12px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
@@ -95,24 +122,28 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item--focused {
-    background-color: rgba(var(--border-color), 0.22);
+    background-color: var(--dropdown-item-focused-bg, var(--border-color));
 }
 
 .dropdown-item--danger {
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
 }
 
 .dropdown-item--danger.dropdown-item--focused {
-    background-color: rgba(var(--color-danger), 0.12);
+    background-color: var(--color-danger, var(--dropdown-item-focused-bg));
 }
 
 .dropdown-item--disabled {
-    opacity: 0.4;
+    opacity: var(--dropdown-item-disabled-opacity, 0.4);
     cursor: not-allowed;
 }
 
 .dropdown-item--selected {
-    background-color: rgba(var(--border-color), 0.1);
+    background-color: var(--dropdown-item-selected-bg, var(--border-color));
+}
+
+.dropdown-item:hover {
+    background-color: var(--dropdown-item-hover-bg);
 }
 
 .dropdown-item__icon {
@@ -127,19 +158,19 @@ const showIconArea = computed(() => {
 .dropdown-item__svg {
     width: 16px;
     height: 16px;
-    color: rgba(var(--text-primary), 0.6);
+    color: var(--text-primary);
 }
 
 .dropdown-item--danger .dropdown-item__svg {
-    color: rgba(var(--color-danger), 0.7);
+    color: var(--color-danger);
 }
 
 .dropdown-item__check {
-    color: rgba(var(--text-primary), 0.6);
+    color: var(--text-primary);
 }
 
 .dropdown-item--selected .dropdown-item__check {
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .dropdown-item__label {
@@ -151,16 +182,39 @@ const showIconArea = computed(() => {
 
 .dropdown-item__shortcut {
     font-size: 10px;
-    color: rgba(var(--text-primary), 0.4);
+    color: var(--text-primary);
     margin-left: auto;
     padding-left: 12px;
     letter-spacing: 0.02em;
 }
 
+.dropdown-item__right-icon {
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 80ms ease;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.dropdown-item:hover .dropdown-item__right-icon {
+    opacity: 1;
+}
+
+.dropdown-item__right-svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-danger);
+}
+
+.dropdown-item__right-svg:hover {
+    color: var(--color-danger);
+}
+
 .dropdown-item__arrow {
     display: flex;
     align-items: center;
-    color: rgba(var(--text-primary), 0.35);
+    color: var(--text-primary);
     margin-left: 4px;
 }
 </style>

@@ -33,7 +33,7 @@ const emit = defineEmits<{
 .fe-tree__empty {
     padding: 8px 16px;
     font-size: 12px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.35;
 }
 </style>

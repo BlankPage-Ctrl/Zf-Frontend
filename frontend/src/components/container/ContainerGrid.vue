@@ -143,11 +143,11 @@ const getRowStyle = (row: ContainerSchema) => {
 }
 
 :deep(.container-cell::-webkit-scrollbar-thumb) {
-    background: rgba(var(--shadow-color), 0.3);
+    background: var(--shadow-color);
     border-radius: 2px;
 }
 
 :deep(.container-cell::-webkit-scrollbar-thumb:hover) {
-    background: rgba(var(--shadow-color), 0.5);
+    background: var(--shadow-color);
 }
 </style>

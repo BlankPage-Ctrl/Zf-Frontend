@@ -81,8 +81,8 @@ const isChecked = computed({
     width: 30px;
     height: 18px;
     border-radius: 9999px;
-    background-color: rgba(var(--border-color), 0.25);
-    border: 1px solid rgba(var(--border-color), 0.15);
+    background-color: var(--border-color);
+    border: 1px solid var(--border-color);
     transition:
         background-color 180ms ease,
         border-color 180ms ease;
@@ -90,12 +90,12 @@ const isChecked = computed({
 }
 
 .custom-switch-checked {
-    background-color: rgb(var(--border-color)) !important;
-    border-color: rgb(var(--border-color)) !important;
+    background-color: var(--border-color) !important;
+    border-color: var(--border-color) !important;
 }
 
 .custom-switch-error {
-    border-color: rgb(var(--color-danger)) !important;
+    border-color: var(--color-danger) !important;
 }
 
 .switch-thumb {
@@ -105,7 +105,7 @@ const isChecked = computed({
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: rgb(var(--bg-primary));
+    background-color: var(--bg-primary);
     transition: transform 180ms cubic-bezier(0.2, 0, 0, 1);
     box-shadow: 0 1px 2px rgba(15, 15, 20, 0.15);
 }
@@ -117,7 +117,7 @@ const isChecked = computed({
 .label-text {
     font-size: 12px;
     font-weight: 500;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
 }
 
 .switch-disabled {
@@ -126,12 +126,12 @@ const isChecked = computed({
 }
 
 .switch-disabled .custom-switch {
-    background-color: rgba(var(--bg-secondary), 0.4);
-    border-color: rgba(var(--border-color), 0.1);
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 .switch-disabled .custom-switch-checked {
-    background-color: rgba(var(--border-color), 0.35) !important;
+    background-color: var(--border-color) !important;
 }
 
 .message-container {
@@ -143,14 +143,14 @@ const isChecked = computed({
     display: block;
     font-size: 11px;
     font-weight: 500;
-    color: rgb(var(--color-danger));
+    color: var(--color-danger);
     line-height: 1.2;
 }
 
 .helper-text {
     display: block;
     font-size: 11px;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     opacity: 0.45;
     line-height: 1.2;
 }

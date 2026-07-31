@@ -2,12 +2,16 @@ package main
 
 import (
 	"context"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	"myproject/internal/categories"
 	"myproject/internal/chats"
 	"myproject/internal/client"
 	"myproject/internal/files"
 	"myproject/internal/messages"
+	"myproject/internal/mockapi"
 	"myproject/internal/models"
 	"myproject/internal/notes"
 	"myproject/internal/providers"
@@ -33,7 +37,14 @@ type App struct {
 }
 
 func NewApp() *App {
+	_ = godotenv.Load()
+
 	c := client.New()
+
+	if os.Getenv("USE_MOCK") == "true" {
+		mockapi.EnableMock(c)
+	}
+
 	return &App{
 		Client:     c,
 		Workspaces: workspaces.NewService(c),

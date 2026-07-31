@@ -11,6 +11,6 @@
 
 .dropdown-separator__line {
     height: 1px;
-    background-color: rgba(var(--border-color), 0.15);
+    background-color: var(--border-color);
 }
 </style>

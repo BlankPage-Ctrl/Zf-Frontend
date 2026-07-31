@@ -16,6 +16,7 @@ import type {
     WidthStrategy,
     TriggerMode,
     CommandAction,
+    StyleConfig,
 } from './types.ts'
 import DropdownMenu from './DropdownMenu.vue'
 
@@ -34,6 +35,7 @@ type Props<T = string> = {
     disabled?: boolean
     offset?: number
     block?: boolean
+    style?: StyleConfig
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -193,6 +195,13 @@ function handleItemClick(item: DropdownItemConfig) {
     }
 }
 
+function handleRightClick(item: DropdownItemConfig) {
+    if (item.rightAction) {
+        emit('action', item.rightAction)
+    }
+    close()
+}
+
 function handleKeydown(e: KeyboardEvent) {
     if (!isOpen.value) return
 
@@ -275,6 +284,8 @@ function handleTriggerKeydown(e: KeyboardEvent) {
                         :on-item-click="handleItemClick"
                         :max-height="maxHeight"
                         :min-width="minWidth"
+                        :style-config="style"
+                        @right-click="handleRightClick"
                     />
                 </div>
             </div>

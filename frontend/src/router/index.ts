@@ -6,22 +6,17 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: () => import('@/views/Primary.vue'),
+            component: () => import('@/views/Workspace.vue'),
         },
         {
             path: '/primary',
             name: 'primary',
-            component: () => import('@/views/Primary.vue'),
+            redirect: '/',
         },
         {
-            path: '/workspace/:id',
+            path: '/workspace/:id?',
             name: 'workspace',
             component: () => import('@/views/Workspace.vue'),
-        },
-        {
-            path: '/settings',
-            name: 'settings',
-            component: () => import('@/views/Settings.vue'),
         },
     ],
 })

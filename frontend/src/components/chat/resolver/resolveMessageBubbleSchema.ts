@@ -7,7 +7,7 @@ export function resolveMessageBubbleSchema(schema: MessageBubbleSchema): Resolve
         role: schema.role,
         roleLabel: schema.role === 'user' ? 'You' : 'Assistant',
         avatarLabel: schema.role === 'user' ? 'U' : 'AI',
-        parts: schema.parts.map(resolveMessagePart),
+        parts: (schema.parts ?? []).map(resolveMessagePart),
         contentWidth: schema.contentWidth,
     }
 }

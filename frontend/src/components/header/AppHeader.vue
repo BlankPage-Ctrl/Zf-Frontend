@@ -110,7 +110,7 @@ const borderClass = computed(() => (props.schema.border ? 'header--border' : '')
 }
 
 .header--border {
-    border-bottom: 1px solid rgba(var(--border-color), 0.12);
+    border-bottom: 1px solid var(--border-color);
 }
 
 /* --- Variant: sidebar --- */

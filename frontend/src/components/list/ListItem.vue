@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
 import { ref, computed, type Component } from 'vue'
-import type { ListItemField, ListItemAction } from './types'
+import type { ListItemField, ListItemAction, ListTextSize } from './types'
 import type { DropdownItemConfig } from '@/components/dropdown/types'
 import { pButton } from '@/components/button'
 
@@ -12,6 +12,7 @@ type Props = {
     actions?: ListItemAction<T>[]
     active?: boolean
     size?: 'xs' | 'sm' | 'md'
+    textSize?: ListTextSize
     variant?: 'sidebar' | 'content' | 'compact'
     onSelect?: (item: T) => void
     hoverMenuItems?: DropdownItemConfig[]
@@ -39,9 +40,17 @@ const itemClass = computed(() =>
         props.active ? 'dl-item--active' : '',
         `dl-item--${props.variant}`,
         isHovered.value && hasHoverMenu.value ? 'dl-item--hover' : '',
+        typeof props.textSize === 'string' ? `dl-item--text-${props.textSize}` : '',
+        typeof props.textSize === 'number' ? 'dl-item--text-custom' : '',
     ]
         .filter(Boolean)
         .join(' '),
+)
+
+const textSizeStyle = computed(() =>
+    typeof props.textSize === 'number'
+        ? ({ '--dl-text-size': `${props.textSize}px` } as Record<string, string>)
+        : undefined,
 )
 
 const visibleFields = computed(() =>
@@ -74,7 +83,7 @@ function onChatClick(chatId: string) {
 
 <template>
     <div class="dl-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
-        <div :class="itemClass" @click="onSelect?.(item)">
+        <div :class="itemClass" :style="textSizeStyle" @click="onSelect?.(item)">
             <component :is="itemIcon" v-if="itemIcon" class="dl-item__icon" />
             <div class="dl-item__body">
                 <span

@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { onUnmounted, ref, watch, nextTick } from 'vue'
 import { ChatBubbleEmpty } from '@iconoir/vue'
 import type { ResolvedMessageList } from '../types/resolved.ts'
 import BaseMessageBubble from './MessageBubble.vue'
+import {
+    createPartSlotObserver,
+    providePartSlotObserver,
+} from '../../../composables/usePartSlotObserver.ts'
 
 defineProps<{
     resolved: ResolvedMessageList
@@ -10,6 +14,13 @@ defineProps<{
 
 const listRef = ref<HTMLElement | null>(null)
 const autoScroll = ref(true)
+
+const observer = createPartSlotObserver(() => listRef.value)
+providePartSlotObserver(observer)
+
+onUnmounted(() => {
+    observer.disconnect()
+})
 
 function scrollToBottom() {
     if (listRef.value && autoScroll.value) {

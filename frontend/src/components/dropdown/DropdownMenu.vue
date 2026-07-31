@@ -8,7 +8,7 @@ import {
     autoUpdate,
     type Placement,
 } from '@floating-ui/vue'
-import type { DropdownItemConfig, DropdownMode } from './types.ts'
+import type { DropdownItemConfig, DropdownMode, StyleConfig } from './types.ts'
 import DropdownItem from './DropdownItem.vue'
 import DropdownSeparator from './DropdownSeparator.vue'
 import { filterVisible } from './utils.ts'
@@ -24,6 +24,7 @@ type Props = {
     maxHeight?: number
     minWidth?: number
     level?: number
+    styleConfig?: StyleConfig
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -39,6 +40,19 @@ const hoveredItem = ref<DropdownItemConfig | null>(null)
 const submenuOpen = ref(false)
 
 const visibleItems = computed(() => filterVisible(props.items))
+
+const itemStyle = computed(() => props.styleConfig?.item)
+
+const menuStyle = computed(() => {
+    const s: Record<string, string> = {}
+    const m = props.styleConfig?.menu
+    if (m?.background) s.backgroundColor = m.background
+    if (m?.border) s.border = m.border
+    if (m?.borderRadius) s.borderRadius = m.borderRadius
+    if (m?.shadow) s.boxShadow = m.shadow
+    if (m?.padding) s.padding = m.padding
+    return s
+})
 
 const parentEl = computed(() => props.parentRef)
 
@@ -99,6 +113,7 @@ watch(
         class="dropdown-menu"
         :class="{ 'dropdown-menu--dense': dense }"
         :style="{
+            ...menuStyle,
             maxHeight: maxHeight ? `${maxHeight}px` : undefined,
             minWidth: minWidth ? `${minWidth}px` : undefined,
         }"
@@ -121,8 +136,10 @@ watch(
                     ) || item.action?.type === 'submenu'
                 "
                 :mode="mode"
+                :item-style="itemStyle"
                 @click="handleItemClick"
                 @mouseenter="handleItemMouseEnter"
+                @right-click="onItemClick"
             />
         </template>
 
@@ -141,6 +158,7 @@ watch(
                 :on-item-click="onItemClick"
                 :focused-index="-1"
                 :level="level + 1"
+                :style-config="styleConfig"
             />
         </div>
     </div>
@@ -155,12 +173,12 @@ watch(
     min-width: 160px;
     max-height: 400px;
     overflow-y: auto;
-    background-color: rgb(var(--bg-primary));
-    border: 1px solid rgba(var(--border-color), 0.2);
-    border-radius: 8px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     box-shadow:
-        0 4px 12px rgba(15, 15, 20, 0.08),
-        0 8px 24px rgba(15, 15, 20, 0.06);
+        0 2px 5px rgba(15, 15, 20, 0.08),
+        0 4px 5px rgba(15, 15, 20, 0.06);
 }
 
 .dropdown-menu--dense {
@@ -181,19 +199,19 @@ watch(
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb {
-    background: rgba(var(--border-color), 0.2);
+    background: var(--border-color);
     border-radius: 4px;
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--border-color), 0.35);
+    background: var(--border-color);
 }
 
 .dropdown-label {
     padding: 5px 10px 3px;
     font-size: 10px;
     font-weight: 700;
-    color: rgba(var(--text-primary), 0.35);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     cursor: default;

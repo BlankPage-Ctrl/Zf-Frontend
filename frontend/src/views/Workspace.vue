@@ -1,10 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue'
+import { ref, computed, watch, onUnmounted, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChatBubbleEmpty, EditPencil, Folder, NavArrowLeft, Plus, Trash } from '@iconoir/vue'
-import DialogGrid from '@/components/dialog/GridDialog.vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
+import { Album, ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
+import type { DialogGridSchema } from '@/components/dialog/types'
+import { useDialog } from '@/composables/useDialog'
 import { AppList } from '@/components/list'
 import type { ListSchema } from '@/components/list'
 import { IconRails } from '@/components/icon-rails'
@@ -13,7 +13,7 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import { useChatStore } from '@/stores/chat'
 import { useProviderStore } from '@/stores/provider'
 import { useAppearanceStore } from '@/stores/appearance'
-import type { Chat, ChatDto } from '@/services/chat'
+import type { Chat } from '@/services/chat'
 import ChatTab from '@/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/components/chat/types/schema'
 import { useChatSession } from '@/composables/useChatSession'
@@ -29,13 +29,18 @@ const wsStore = useWorkspaceStore()
 const chatStore = useChatStore()
 const providerStore = useProviderStore()
 const appearanceStore = useAppearanceStore()
+const dialog = useDialog()
 
-function goBack() {
-    router.push({ name: 'primary' })
-}
+const routeWsId = computed(() => route.params.id as string | undefined)
 
-const workspaceId = computed(() => route.params.id as string)
-const workspace = computed(() => wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null)
+const workspaceId = computed(() => {
+    return routeWsId.value || wsStore.selectedWorkspaceId || ''
+})
+
+const workspace = computed(() => {
+    if (!workspaceId.value) return null
+    return wsStore.workspaces.find((w) => w.id === workspaceId.value) ?? null
+})
 
 const sidebarCollapsed = ref(false)
 const sidebarPanelWidth = ref(240)
@@ -88,8 +93,8 @@ const workspaceSchema = computed(() => [
                 width: 48,
                 resizable: false,
                 cell: {
-                    background: 'rgb(var(--bg-secondary))',
-                    borderColor: 'rgba(var(--border-color), 0.25)',
+                    background: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: '0 1px 0 0',
                     borderStyle: 'solid' as const,
                     overflow: 'hidden' as const,
@@ -104,8 +109,8 @@ const workspaceSchema = computed(() => [
                 minWidth: 180,
                 maxWidth: 480,
                 cell: {
-                    background: 'rgb(var(--bg-secondary))',
-                    borderColor: 'rgba(var(--border-color), 0.25)',
+                    background: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-color)',
                     borderWidth: '0 1px 0 0',
                     borderStyle: 'solid' as const,
                     overflow: 'hidden' as const,
@@ -116,7 +121,7 @@ const workspaceSchema = computed(() => [
                 width: '1fr',
                 resizable: false,
                 cell: {
-                    background: 'rgb(var(--bg-primary))',
+                    background: 'var(--bg-primary)',
                     overflow: 'hidden' as const,
                 },
             },
@@ -207,29 +212,15 @@ const chatFormSchema: DialogGridSchema = {
     },
 }
 
-const showChatCreate = ref(false)
-const chatCreateLoading = ref(false)
-
-function openChatCreate() {
-    showChatCreate.value = true
-}
-
-function cancelChatCreate() {
-    showChatCreate.value = false
-}
-
-async function submitChatCreate(data: DynamicGridDataOutput) {
-    const d = data.chat!
-    const payload: ChatDto = { title: String(d.title ?? '') }
-    chatCreateLoading.value = true
-    try {
-        await chatStore.createChat(workspaceId.value, payload)
-        showChatCreate.value = false
-    } catch {
-        /* handled by store */
-    } finally {
-        chatCreateLoading.value = false
-    }
+async function openChatCreate() {
+    await dialog.spawn({
+        title: 'New chat',
+        schema: chatFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            await chatStore.createChat(workspaceId.value, { title: String(data.chat!.title ?? '') })
+        },
+    })
 }
 
 const editChatFormSchema: DialogGridSchema = {
@@ -250,10 +241,7 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     size: 'sm',
     activeKey: 'id',
     activeId: activeChatId.value ?? undefined,
-    fields: [
-        { key: 'title', class: 'title' },
-        // { key: 'createdAt', class: 'date', format: fmtDate },
-    ],
+    fields: [{ key: 'title', class: 'title' }],
     actions: [
         { icon: EditIcon, ariaLabel: 'Edit', variant: 'ghost', size: 'xs', onClick: openChatEdit },
         {
@@ -271,63 +259,34 @@ const chatListSchema = computed<ListSchema<Chat>>(() => ({
     },
 }))
 
-const showChatEdit = ref(false)
-const editingChat = ref<Chat | null>(null)
-const chatEditLoading = ref(false)
-
-const editChatInitialData = computed<DynamicGridDataOutput | undefined>(() => {
-    if (!editingChat.value) return undefined
-    return { chat: { title: editingChat.value.title } }
-})
-
-function openChatEdit(chat: Chat) {
-    editingChat.value = chat
-    showChatEdit.value = true
+async function openChatEdit(chat: Chat) {
+    await dialog.spawn({
+        title: 'Edit chat',
+        schema: editChatFormSchema,
+        initialData: { chat: { title: chat.title } },
+        confirmLabel: 'Save',
+        submit: async (data) => {
+            await chatStore.updateChat(workspaceId.value, chat.id, {
+                title: String(data.chat!.title ?? ''),
+            })
+        },
+    })
 }
 
-function cancelChatEdit() {
-    showChatEdit.value = false
-    editingChat.value = null
-}
-
-async function submitChatEdit(data: DynamicGridDataOutput) {
-    if (!editingChat.value) return
-    const d = data.chat!
-    const payload: Partial<ChatDto> = { title: String(d.title ?? '') }
-    chatEditLoading.value = true
-    try {
-        await chatStore.updateChat(workspaceId.value, editingChat.value.id, payload)
-        showChatEdit.value = false
-        editingChat.value = null
-    } catch {
-        /* handled by store */
-    } finally {
-        chatEditLoading.value = false
-    }
-}
-
-const showChatDelete = ref(false)
-const deletingChat = ref<Chat | null>(null)
-
-function confirmDeleteChat(chat: Chat) {
-    deletingChat.value = chat
-    showChatDelete.value = true
-}
-
-function cancelChatDelete() {
-    showChatDelete.value = false
-    deletingChat.value = null
-}
-
-async function executeChatDelete() {
-    if (!deletingChat.value) return
-    if (activeChatId.value === deletingChat.value.id) {
-        activeChatId.value = null
-    }
-    removeSession(deletingChat.value.id)
-    await chatStore.deleteChat(workspaceId.value, deletingChat.value.id)
-    showChatDelete.value = false
-    deletingChat.value = null
+async function confirmDeleteChat(chat: Chat) {
+    await dialog.spawn({
+        title: 'Delete chat',
+        message: `Delete "${chat.title}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            if (activeChatId.value === chat.id) {
+                activeChatId.value = null
+            }
+            removeSession(chat.id)
+            await chatStore.deleteChat(workspaceId.value, chat.id)
+        },
+    })
 }
 
 async function onRequestChildren(path: string) {
@@ -365,22 +324,56 @@ function setupWatchEvents() {
     )
 }
 
-onMounted(async () => {
-    if (workspaceId.value) {
-        wsStore.selectWorkspace(workspaceId.value)
-        await chatStore.fetchChats(workspaceId.value)
+function cleanupWorkspace() {
+    chatSessions.forEach((s) => s.cleanup())
+    chatSessions.clear()
+    watchCleanup.value?.()
+    watchCleanup.value = null
+    fileExplorerInitialData.value = { requestedPath: '.', nodes: [] }
+}
+
+watch(routeWsId, (id) => {
+    if (id && id !== wsStore.selectedWorkspaceId) {
+        wsStore.selectWorkspace(id)
+    }
+})
+
+watch(
+    () => wsStore.selectedWorkspaceId,
+    (id) => {
+        if (id && route.name === 'home' && !routeWsId.value) {
+            router.replace({ name: 'workspace', params: { id } })
+        }
+    },
+)
+
+watch(
+    workspaceId,
+    async (newId, oldId) => {
+        if (!newId) {
+            cleanupWorkspace()
+            return
+        }
+
+        if (newId === oldId) return
+
+        cleanupWorkspace()
+        activeChatId.value = null
+        await chatStore.fetchChats(newId)
         providerStore.fetchProviders()
         await setupFileExplorer()
         setupWatchEvents()
+
         const chatId = route.query.chat as string | undefined
         if (chatId && chatStore.chats.some((c) => c.id === chatId)) {
             activeChatId.value = chatId
         }
-    }
-})
+    },
+    { immediate: true },
+)
 
 onUnmounted(() => {
-    watchCleanup.value?.()
+    cleanupWorkspace()
 })
 </script>
 
@@ -394,14 +387,6 @@ onUnmounted(() => {
             <template #panel>
                 <div class="ws-sidebar__panel">
                     <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <button
-                            class="ws-back-btn"
-                            @click="goBack"
-                            title="Back to workspaces"
-                            aria-label="Back"
-                        >
-                            <NavArrowLeft width="16" height="16" />
-                        </button>
                         <span class="ws-sidebar__title">{{ workspace.name }}</span>
                         <button
                             class="ws-sidebar__action"
@@ -447,44 +432,21 @@ onUnmounted(() => {
         </ContainerGrid>
     </div>
 
-    <div v-else class="ws-layout ws-layout--not-found">
-        <span class="text-muted">Workspace not found</span>
+    <div v-else class="ws-layout ws-layout--empty">
+        <div class="ws-empty-icon">
+            <Album width="48" height="48" style="opacity: 0.3" />
+        </div>
+        <h2 class="ws-empty-title">
+            {{ wsStore.workspaces.length ? 'Select a workspace' : 'No workspaces yet' }}
+        </h2>
+        <p class="ws-empty-desc">
+            {{
+                wsStore.workspaces.length
+                    ? 'Choose a workspace from the top bar to get started.'
+                    : 'Create a workspace from the top bar to get started.'
+            }}
+        </p>
     </div>
-
-    <!-- Chat Create Dialog -->
-    <DialogGrid
-        v-model="showChatCreate"
-        :schema="chatFormSchema"
-        title="New chat"
-        confirm-label="Create"
-        :loading="chatCreateLoading"
-        @submit="submitChatCreate"
-        @cancel="cancelChatCreate"
-    />
-
-    <!-- Chat Edit Dialog -->
-    <DialogGrid
-        v-model="showChatEdit"
-        :schema="editChatFormSchema"
-        title="Edit chat"
-        confirm-label="Save"
-        :initial-data="editChatInitialData"
-        :loading="chatEditLoading"
-        @submit="submitChatEdit"
-        @cancel="cancelChatEdit"
-    />
-
-    <!-- Chat Delete Dialog -->
-    <DialogGrid
-        v-model="showChatDelete"
-        title="Delete chat"
-        confirm-label="Delete"
-        confirm-variant="danger"
-        @submit="executeChatDelete"
-        @cancel="cancelChatDelete"
-    >
-        <span class="confirm-message">Delete "{{ deletingChat?.title }}"?</span>
-    </DialogGrid>
 </template>
 
 <style>

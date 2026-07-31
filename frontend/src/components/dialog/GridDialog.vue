@@ -237,9 +237,9 @@ watch(
     flex-direction: column;
     width: 100%;
     max-height: 90vh;
-    background-color: rgb(var(--bg-primary));
-    border: 1px solid rgba(var(--border-color), 0.25);
-    border-radius: 12px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     box-shadow:
         0 4px 8px rgba(15, 15, 20, 0.06),
         0 12px 24px rgba(15, 15, 20, 0.05);
@@ -265,7 +265,7 @@ watch(
     align-items: center;
     justify-content: space-between;
     padding: 10px 20px 8px;
-    border-bottom: 1px solid rgba(var(--border-color), 0.1);
+    border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
 }
 
@@ -274,7 +274,7 @@ watch(
     font-size: 15px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -285,7 +285,7 @@ watch(
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    color: rgba(var(--text-primary), 0.5);
+    color: var(--text-primary);
     cursor: pointer;
     transition:
         background-color 150ms ease,
@@ -293,8 +293,8 @@ watch(
 }
 
 .btn-close:hover:not(:disabled) {
-    background-color: rgba(var(--border-color), 0.15);
-    color: rgb(var(--text-primary));
+    background-color: var(--border-color);
+    color: var(--text-primary);
 }
 
 .btn-close:disabled {
@@ -317,11 +317,11 @@ watch(
     background: transparent;
 }
 .dialog-body::-webkit-scrollbar-thumb {
-    background: rgba(var(--border-color), 0.25);
+    background: var(--border-color);
     border-radius: 4px;
 }
 .dialog-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--border-color), 0.45);
+    background: var(--border-color);
 }
 
 /* Footer */
@@ -331,8 +331,8 @@ watch(
     justify-content: flex-end;
     gap: 8px;
     padding: 10px 20px 14px;
-    border-top: 1px solid rgba(var(--border-color), 0.1);
-    background-color: rgba(var(--bg-secondary), 0.15);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
     flex-shrink: 0;
 }
 
@@ -344,9 +344,9 @@ watch(
     gap: 6px;
     height: 30px;
     padding: 0 12px;
-    border-radius: 5px;
-    background-color: rgb(var(--border-color));
-    color: rgb(var(--text-primary));
+    border-radius: 4px;
+    background-color: var(--border-color);
+    color: var(--text-primary);
     font-size: 12px;
     font-weight: 600;
     opacity: 0.6;
@@ -370,10 +370,10 @@ watch(
     justify-content: center;
     height: 30px;
     padding: 0 10px;
-    border-radius: 5px;
-    border: 1px solid rgba(var(--border-color), 0.2);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
     background-color: transparent;
-    color: rgb(var(--text-primary));
+    color: var(--text-primary);
     font-size: 12px;
     font-weight: 500;
     opacity: 0.5;
@@ -384,8 +384,8 @@ watch(
 }
 
 .btn-cancel:hover:not(:disabled) {
-    background-color: rgba(var(--border-color), 0.12);
-    border-color: rgba(var(--border-color), 0.55);
+    background-color: var(--border-color);
+    border-color: var(--border-color);
     opacity: 1;
 }
 
@@ -395,21 +395,21 @@ watch(
 }
 
 .btn-confirm.btn-danger {
-    background-color: rgb(var(--color-danger));
+    background-color: var(--color-danger);
     opacity: 0.7;
 }
 
 .btn-confirm.btn-danger:hover:not(:disabled) {
-    background-color: rgb(var(--color-danger));
+    background-color: var(--color-danger);
     opacity: 1;
 }
 
 .spinner-inline {
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(var(--bg-primary), 0.3);
+    border: 2px solid var(--bg-primary);
     border-radius: 50%;
-    border-top-color: rgb(var(--bg-primary));
+    border-top-color: var(--bg-primary);
     animation: spin 800ms linear infinite;
 }
 

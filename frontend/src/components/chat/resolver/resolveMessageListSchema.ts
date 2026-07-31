@@ -6,7 +6,7 @@ export function resolveMessageListSchema(schema: MessageListSchema): ResolvedMes
     return {
         messages: schema.messages.map((msg) => ({
             role: msg.role as 'user' | 'assistant',
-            parts: msg.parts.map(resolveMessagePart),
+            parts: (msg.parts ?? []).map(resolveMessagePart),
         })),
         loading: !!schema.loading,
         contentWidth: schema.contentWidth,

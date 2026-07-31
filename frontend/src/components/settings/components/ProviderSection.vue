@@ -2,14 +2,14 @@
 import { ref, h } from 'vue'
 import { EditPencil, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/components/button'
-import type { Provider, Model, ProviderDto } from '@/services/provider'
+import type { Provider, Model } from '@/services/provider'
 import type { ProviderSectionProps } from '../types'
 
 const props = defineProps<ProviderSectionProps>()
 
 const emit = defineEmits<{
-    'add-provider': [data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }]
-    'edit-provider': [id: string, data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }]
+    'add-provider': []
+    'edit-provider': [provider: Provider]
     'delete-provider': [id: string]
     'add-model': [providerId: string]
     'edit-model': [providerId: string, modelId: string, data: { modelId: string; displayName?: string }]
@@ -49,15 +49,10 @@ function maskKey(key?: string): string {
 }
 
 function handleProviderAdd() {
-    emit('add-provider', { name: '', type: 'openai' as const, apiKey: '', baseURL: '' })
+    emit('add-provider')
 }
 function handleProviderEdit(p: Provider) {
-    emit('edit-provider', p.id, {
-        name: p.name,
-        type: p.type,
-        apiKey: p.apiKey ?? '',
-        baseURL: p.baseURL ?? '',
-    })
+    emit('edit-provider', p)
 }
 function handleProviderDelete(p: Provider) {
     emit('delete-provider', p.id)
@@ -144,7 +139,7 @@ function handleSetDefault(provider: Provider, model: Model) {
             </div>
         </div>
 
-        <div v-if="providers.length" class="section-footer">
+        <div class="section-footer">
             <pButton
                 :schema="{ variant: 'ghost', size: 'sm', icon: PlusIcon, label: 'Add provider' }"
                 @click="handleProviderAdd"

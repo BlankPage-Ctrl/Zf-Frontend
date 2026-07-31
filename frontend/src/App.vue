@@ -173,12 +173,46 @@ onMounted(async () => {
     await providerStore.fetchDefaultProvider()
 })
 
-async function handleAddProvider(data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }) {
-    await providerStore.createProvider(data)
+async function handleAddProvider() {
+    await dialog.spawn({
+        title: 'Add provider',
+        schema: providerFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data: any) => {
+            const row = data.row!
+            await providerStore.createProvider({
+                name: String(row.name ?? ''),
+                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
 }
 
-async function handleEditProvider(id: string, data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }) {
-    await providerStore.updateProvider(id, data)
+async function handleEditProvider(provider: { id: string; name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }) {
+    await dialog.spawn({
+        title: 'Edit provider',
+        schema: providerFormSchema,
+        initialData: {
+            row: {
+                name: provider.name,
+                type: provider.type,
+                apiKey: provider.apiKey ?? '',
+                baseURL: provider.baseURL ?? '',
+            },
+        },
+        confirmLabel: 'Save',
+        submit: async (data: any) => {
+            const row = data.row!
+            await providerStore.updateProvider(provider.id, {
+                name: String(row.name ?? ''),
+                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
 }
 
 async function handleDeleteProvider(id: string) {

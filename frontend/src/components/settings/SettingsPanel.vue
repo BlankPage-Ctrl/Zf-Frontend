@@ -3,7 +3,7 @@ import { Header } from '@/components/header'
 import ProviderSection from './components/ProviderSection.vue'
 import AppearanceSection from './components/AppearanceSection.vue'
 import ThemeSection from './components/ThemeSection.vue'
-import type { Provider, ProviderDto } from '@/services/provider'
+import type { Provider } from '@/services/provider'
 import type { SettingsTheme } from './types'
 
 defineProps<{
@@ -20,8 +20,8 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-    'add-provider': [data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }]
-    'edit-provider': [id: string, data: { name: string; type: ProviderDto['type']; apiKey?: string; baseURL?: string }]
+    'add-provider': []
+    'edit-provider': [provider: Provider]
     'delete-provider': [id: string]
     'add-model': [providerId: string]
     'edit-model': [providerId: string, modelId: string, data: { modelId: string; displayName?: string }]
@@ -48,8 +48,8 @@ const emit = defineEmits<{
                 :error="error"
                 :default-provider-id="defaultProviderId"
                 :default-model-id="defaultModelId"
-                @add-provider="emit('add-provider', $event)"
-                @edit-provider="(id, data) => emit('edit-provider', id, data)"
+                @add-provider="emit('add-provider')"
+                @edit-provider="(provider) => emit('edit-provider', provider)"
                 @delete-provider="(id) => emit('delete-provider', id)"
                 @add-model="(id) => emit('add-model', id)"
                 @edit-model="(pid, mid, data) => emit('edit-model', pid, mid, data)"

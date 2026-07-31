@@ -302,6 +302,10 @@
     text-align: right;
 }
 
+.part-slot {
+    min-width: 0;
+}
+
 .text-part {
     color: var(--text-primary);
 }

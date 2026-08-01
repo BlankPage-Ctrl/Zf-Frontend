@@ -24,7 +24,7 @@ import {
 import type { Chat } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
-import { useChatSession } from '@/presentation/composables/useChatSession'
+import { useSessionCache } from '@/presentation/composables/useSessionCache'
 import { ContainerGrid } from '@/presentation/components/container'
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/presentation/components/file-explorer'
@@ -36,6 +36,7 @@ const chatStorer = useChatStorer()
 const providerStorer = useProviderStorer()
 const appearanceStorer = useAppearanceStorer()
 const dialog = useDialog()
+const { getSession, removeSession, clearSessions } = useSessionCache(() => workspaceId.value)
 
 const routeWsId = computed(() => route.params.id as string | undefined)
 
@@ -142,30 +143,11 @@ const contentView = computed<ContentView>(() => {
 })
 
 watch(activeChatId, (newId) => {
-    if (newId) ensureSession(newId)
+    if (newId) getSession(newId)
 })
 
-const chatSessions = new Map<string, ReturnType<typeof useChatSession>>()
-
-function ensureSession(chatId: string) {
-    if (!chatSessions.has(chatId)) {
-        const session = useChatSession(workspaceId.value, chatId)
-        chatSessions.set(chatId, session)
-        session.loadHistory()
-    }
-    return chatSessions.get(chatId)!
-}
-
-function removeSession(chatId: string) {
-    const session = chatSessions.get(chatId)
-    if (session) {
-        session.cleanup()
-        chatSessions.delete(chatId)
-    }
-}
-
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
-    const session = ensureSession(chat.id)
+    const session = getSession(chat.id)
     return {
         title: chat.title,
         messages: session.messages.value,
@@ -298,8 +280,7 @@ function onFileSelect(path: string | null) {
 }
 
 function cleanupWorkspace() {
-    chatSessions.forEach((s) => s.cleanup())
-    chatSessions.clear()
+    clearSessions()
     fileExplorerActions.stopWatch()
 }
 

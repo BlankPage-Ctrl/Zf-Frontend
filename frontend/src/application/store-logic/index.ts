@@ -1,14 +1,9 @@
-export { createWorkspaceLogic, type WorkspaceStoreLogic } from './workspace.logic'
-export { createChatLogic, type ChatStoreLogic } from './chat.logic'
+export { createWorkspaceStoreLogic, type WorkspaceStoreLogic } from './workspace.logic'
+export { createChatStoreLogic, type ChatStoreLogic } from './chat.logic'
+export { createProviderStoreLogic, type ProviderStoreLogic } from './provider.logic'
+export { createThemeStoreLogic, type ThemeStoreLogic } from './theme.logic'
+export { createAppearanceStoreLogic, type AppearanceStoreLogic } from './appearance.logic'
 export {
-    createProviderLogic,
-    type ProviderStoreLogic,
-    type ProviderLogicDeps,
-} from './provider.logic'
-export { createThemeLogic, type ThemeStoreLogic } from './theme.logic'
-export { createAppearanceLogic, type AppearanceStoreLogic } from './appearance.logic'
-export {
-    createFileExplorerLogic,
+    createFileExplorerStoreLogic,
     type FileExplorerStoreLogic,
-    type FileExplorerLogicDeps,
 } from './file-explorer.logic'

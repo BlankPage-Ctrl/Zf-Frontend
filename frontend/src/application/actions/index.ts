@@ -18,12 +18,19 @@ import {
 } from '@/data/services'
 import { chatStream, fileWatch } from '@/data/stream'
 
-import { createWorkspaceLogic } from '../store-logic/workspace.logic'
-import { createChatLogic } from '../store-logic/chat.logic'
-import { createProviderLogic } from '../store-logic/provider.logic'
-import { createThemeLogic } from '../store-logic/theme.logic'
-import { createAppearanceLogic } from '../store-logic/appearance.logic'
-import { createFileExplorerLogic } from '../store-logic/file-explorer.logic'
+import { createWorkspaceStoreLogic } from '../store-logic/workspace.logic'
+import { createChatStoreLogic } from '../store-logic/chat.logic'
+import { createProviderStoreLogic } from '../store-logic/provider.logic'
+import { createThemeStoreLogic } from '../store-logic/theme.logic'
+import { createAppearanceStoreLogic } from '../store-logic/appearance.logic'
+import { createFileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
+
+import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
+import { createChatBusinessLogic } from '../business-logic/chat.logic'
+import { createProviderBusinessLogic } from '../business-logic/provider.logic'
+import { createThemeBusinessLogic } from '../business-logic/theme.logic'
+import { createAppearanceBusinessLogic } from '../business-logic/appearance.logic'
+import { createFileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -33,33 +40,50 @@ import { createAppearanceActions } from './appearance.actions'
 import { createFileExplorerActions } from './file-explorer.actions'
 import { createChatSessionActions } from './chat-session.actions'
 
+const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
+const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
+
 export const workspaceActions = createWorkspaceActions(
-    createWorkspaceLogic(() => useWorkspaceStorer(), workspacesRepository),
+    workspaceStoreLogic,
+    workspaceBusinessLogic,
 )
 
-export const chatActions = createChatActions(createChatLogic(() => useChatStorer(), chatsRepository))
+const chatStoreLogic = createChatStoreLogic(() => useChatStorer())
+const chatBusinessLogic = createChatBusinessLogic(chatsRepository)
 
-export const providerActions = createProviderActions(
-    createProviderLogic(() => useProviderStorer(), {
-        providersRepo: providersRepository,
-        modelsRepo: modelsRepository,
-        settingsRepo: settingsRepository,
-    }),
-)
+export const chatActions = createChatActions(chatStoreLogic, chatBusinessLogic)
 
-export const themeActions = createThemeActions(
-    createThemeLogic(() => useThemeStorer(), settingsRepository),
-)
+const providerStoreLogic = createProviderStoreLogic(() => useProviderStorer())
+const providerBusinessLogic = createProviderBusinessLogic({
+    providersRepo: providersRepository,
+    modelsRepo: modelsRepository,
+    settingsRepo: settingsRepository,
+})
+
+export const providerActions = createProviderActions(providerStoreLogic, providerBusinessLogic)
+
+const themeStoreLogic = createThemeStoreLogic(() => useThemeStorer())
+const themeBusinessLogic = createThemeBusinessLogic(settingsRepository)
+
+export const themeActions = createThemeActions(themeStoreLogic, themeBusinessLogic)
+
+const appearanceStoreLogic = createAppearanceStoreLogic(() => useAppearanceStorer())
+const appearanceBusinessLogic = createAppearanceBusinessLogic(settingsRepository)
 
 export const appearanceActions = createAppearanceActions(
-    createAppearanceLogic(() => useAppearanceStorer(), settingsRepository),
+    appearanceStoreLogic,
+    appearanceBusinessLogic,
 )
 
+const fileExplorerStoreLogic = createFileExplorerStoreLogic(() => useFileExplorerStorer())
+const fileExplorerBusinessLogic = createFileExplorerBusinessLogic({
+    fileRepo: filesRepository,
+    watch: fileWatch,
+})
+
 export const fileExplorerActions = createFileExplorerActions(
-    createFileExplorerLogic(() => useFileExplorerStorer(), {
-        fileRepo: filesRepository,
-        watch: fileWatch,
-    }),
+    fileExplorerStoreLogic,
+    fileExplorerBusinessLogic,
 )
 
 export const chatSessionActions = createChatSessionActions({

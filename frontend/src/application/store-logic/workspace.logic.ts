@@ -1,68 +1,48 @@
-import type { WorkspaceRepository } from '@/core/repositories'
-import type { WorkspaceDto } from '@/core/entities'
-import { toMessage } from '@/shared/utils/error.utils'
+import type { Workspace } from '@/core/entities'
 import type { WorkspaceStorer } from '../stores/workspace.storer'
 
 export interface WorkspaceStoreLogic {
-    fetchWorkspaces(): Promise<void>
-    createWorkspace(dto: WorkspaceDto): Promise<void>
-    updateWorkspace(id: string, dto: Partial<WorkspaceDto>): Promise<void>
-    deleteWorkspace(id: string): Promise<void>
+    beginLoad(): void
+    endLoad(): void
+    setError(message: string): void
+    clearError(): void
+    setWorkspaces(list: Workspace[]): void
+    upsertWorkspace(ws: Workspace): void
+    removeWorkspace(id: string): void
     selectWorkspace(id: string | null): void
 }
 
-export function createWorkspaceLogic(
+export function createWorkspaceStoreLogic(
     getStorer: () => WorkspaceStorer,
-    repo: WorkspaceRepository,
 ): WorkspaceStoreLogic {
-    async function fetchWorkspaces(): Promise<void> {
+    function beginLoad(): void {
         const storer = getStorer()
         storer.setLoading(true)
         storer.clearError()
-        try {
-            storer.setWorkspaces(await repo.list())
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to load workspaces')
-        } finally {
-            storer.setLoading(false)
-        }
     }
 
-    async function createWorkspace(dto: WorkspaceDto): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            const ws = await repo.create(dto)
-            storer.upsertWorkspace(ws)
-            storer.setSelectedId(ws.id)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to create workspace')
-            throw e
-        }
+    function endLoad(): void {
+        getStorer().setLoading(false)
     }
 
-    async function updateWorkspace(id: string, dto: Partial<WorkspaceDto>): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            const updated = await repo.update(id, dto)
-            storer.upsertWorkspace(updated)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to update workspace')
-            throw e
-        }
+    function setError(message: string): void {
+        getStorer().setError(message)
     }
 
-    async function deleteWorkspace(id: string): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            await repo.remove(id)
-            storer.removeWorkspace(id)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to delete workspace')
-            throw e
-        }
+    function clearError(): void {
+        getStorer().clearError()
+    }
+
+    function setWorkspaces(list: Workspace[]): void {
+        getStorer().setWorkspaces(list)
+    }
+
+    function upsertWorkspace(ws: Workspace): void {
+        getStorer().upsertWorkspace(ws)
+    }
+
+    function removeWorkspace(id: string): void {
+        getStorer().removeWorkspace(id)
     }
 
     function selectWorkspace(id: string | null): void {
@@ -70,10 +50,13 @@ export function createWorkspaceLogic(
     }
 
     return {
-        fetchWorkspaces,
-        createWorkspace,
-        updateWorkspace,
-        deleteWorkspace,
+        beginLoad,
+        endLoad,
+        setError,
+        clearError,
+        setWorkspaces,
+        upsertWorkspace,
+        removeWorkspace,
         selectWorkspace,
     }
 }

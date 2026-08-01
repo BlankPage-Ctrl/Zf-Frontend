@@ -1,155 +1,80 @@
-import type { ProviderRepository, ModelRepository, SettingsRepository } from '@/core/repositories'
-import type { ProviderDto, ModelDto } from '@/core/entities'
-import { toMessage } from '@/shared/utils/error.utils'
+import type { Provider, Model } from '@/core/entities'
 import type { ProviderStorer } from '../stores/provider.storer'
 
-export interface ProviderLogicDeps {
-    providersRepo: ProviderRepository
-    modelsRepo: ModelRepository
-    settingsRepo: SettingsRepository
-}
-
 export interface ProviderStoreLogic {
-    fetchProviders(): Promise<void>
-    createProvider(dto: ProviderDto): Promise<void>
-    updateProvider(id: string, dto: Partial<ProviderDto>): Promise<void>
-    deleteProvider(id: string): Promise<void>
-    createModel(providerId: string, dto: ModelDto): Promise<void>
-    updateModel(providerId: string, modelId: string, dto: Partial<ModelDto>): Promise<void>
-    deleteModel(providerId: string, modelId: string): Promise<void>
-    fetchDefaultProvider(): Promise<void>
-    setDefaultProvider(providerId: string, modelId: string): Promise<void>
+    beginLoad(): void
+    endLoad(): void
+    setError(message: string): void
+    clearError(): void
+    setProviders(list: Provider[]): void
+    upsertProvider(provider: Provider): void
+    removeProvider(id: string): void
+    upsertModel(providerId: string, model: Model): void
+    removeModel(providerId: string, modelId: string): void
+    setDefault(providerId: string | null, modelId: string | null): void
 }
 
-export function createProviderLogic(
-    getStorer: () => ProviderStorer,
-    deps: ProviderLogicDeps,
-): ProviderStoreLogic {
-    async function fetchProviders(): Promise<void> {
+export function createProviderStoreLogic(getStorer: () => ProviderStorer): ProviderStoreLogic {
+    function beginLoad(): void {
         const storer = getStorer()
         storer.setLoading(true)
         storer.clearError()
-        try {
-            storer.setProviders(await deps.providersRepo.list())
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to load providers')
-        } finally {
-            storer.setLoading(false)
-        }
     }
 
-    async function createProvider(dto: ProviderDto): Promise<void> {
+    function endLoad(): void {
+        getStorer().setLoading(false)
+    }
+
+    function setError(message: string): void {
+        getStorer().setError(message)
+    }
+
+    function clearError(): void {
+        getStorer().clearError()
+    }
+
+    function setProviders(list: Provider[]): void {
+        getStorer().setProviders(list)
+    }
+
+    function upsertProvider(provider: Provider): void {
+        getStorer().upsertProvider(provider)
+    }
+
+    function removeProvider(id: string): void {
         const storer = getStorer()
-        storer.clearError()
-        try {
-            const provider = await deps.providersRepo.create(dto)
-            storer.upsertProvider(provider)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to create provider')
-            throw e
+        storer.removeProvider(id)
+        if (storer.defaultProviderId === id) {
+            storer.setDefault(null, null)
         }
     }
 
-    async function updateProvider(id: string, dto: Partial<ProviderDto>): Promise<void> {
+    function upsertModel(providerId: string, model: Model): void {
+        getStorer().upsertModel(providerId, model)
+    }
+
+    function removeModel(providerId: string, modelId: string): void {
         const storer = getStorer()
-        storer.clearError()
-        try {
-            const updated = await deps.providersRepo.update(id, dto)
-            storer.upsertProvider(updated)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to update provider')
-            throw e
+        storer.removeModel(providerId, modelId)
+        if (storer.defaultModelId === modelId) {
+            storer.setDefault(storer.defaultProviderId, null)
         }
     }
 
-    async function deleteProvider(id: string): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            await deps.providersRepo.remove(id)
-            storer.removeProvider(id)
-            if (storer.defaultProviderId === id) {
-                storer.setDefault(null, null)
-            }
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to delete provider')
-            throw e
-        }
-    }
-
-    async function createModel(providerId: string, dto: ModelDto): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            const model = await deps.modelsRepo.create(providerId, dto)
-            storer.upsertModel(providerId, model)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to create model')
-            throw e
-        }
-    }
-
-    async function updateModel(
-        providerId: string,
-        modelId: string,
-        dto: Partial<ModelDto>,
-    ): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            const updated = await deps.modelsRepo.update(providerId, modelId, dto)
-            storer.upsertModel(providerId, updated)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to update model')
-            throw e
-        }
-    }
-
-    async function deleteModel(providerId: string, modelId: string): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            await deps.modelsRepo.remove(providerId, modelId)
-            storer.removeModel(providerId, modelId)
-            if (storer.defaultModelId === modelId) {
-                storer.setDefault(storer.defaultProviderId, null)
-            }
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to delete model')
-            throw e
-        }
-    }
-
-    async function fetchDefaultProvider(): Promise<void> {
-        try {
-            const data = await deps.settingsRepo.getDefaultProvider()
-            getStorer().setDefault(data.providerId, data.modelId)
-        } catch {
-            /* ignore */
-        }
-    }
-
-    async function setDefaultProvider(providerId: string, modelId: string): Promise<void> {
-        const storer = getStorer()
-        storer.clearError()
-        try {
-            await deps.settingsRepo.setDefaultProvider(providerId, modelId)
-            storer.setDefault(providerId, modelId)
-        } catch (e: unknown) {
-            storer.setError(toMessage(e) || 'Failed to set default provider')
-            throw e
-        }
+    function setDefault(providerId: string | null, modelId: string | null): void {
+        getStorer().setDefault(providerId, modelId)
     }
 
     return {
-        fetchProviders,
-        createProvider,
-        updateProvider,
-        deleteProvider,
-        createModel,
-        updateModel,
-        deleteModel,
-        fetchDefaultProvider,
-        setDefaultProvider,
+        beginLoad,
+        endLoad,
+        setError,
+        clearError,
+        setProviders,
+        upsertProvider,
+        removeProvider,
+        upsertModel,
+        removeModel,
+        setDefault,
     }
 }

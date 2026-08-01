@@ -285,7 +285,6 @@ watch(
 </template>
 
 <style scoped>
-/* --- Sidebar --- */
 .ws-sidebar {
     display: flex;
     flex-direction: column;
@@ -293,7 +292,6 @@ watch(
     overflow: hidden;
 }
 
-/* --- Chat content --- */
 .chat-content {
     display: flex;
     flex-direction: column;
@@ -301,7 +299,6 @@ watch(
     overflow: hidden;
 }
 
-/* --- Empty / Welcome --- */
 .ws-empty {
     display: flex;
     flex-direction: column;

@@ -1,5 +1,7 @@
 import type { ProviderStoreLogic } from '../store-logic/provider.logic'
+import type { ProviderBusinessLogic } from '../business-logic/provider.logic'
 import type { ProviderDto, ModelDto } from '@/core/entities'
+import { toMessage } from '@/shared/utils/error.utils'
 
 export interface ProviderActions {
     fetchProviders(): Promise<void>
@@ -13,16 +15,119 @@ export interface ProviderActions {
     setDefaultProvider(providerId: string, modelId: string): Promise<void>
 }
 
-export function createProviderActions(logic: ProviderStoreLogic): ProviderActions {
+export function createProviderActions(
+    storeLogic: ProviderStoreLogic,
+    businessLogic: ProviderBusinessLogic,
+): ProviderActions {
+    async function fetchProviders(): Promise<void> {
+        storeLogic.beginLoad()
+        try {
+            storeLogic.setProviders(await businessLogic.listProviders())
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to load providers')
+        } finally {
+            storeLogic.endLoad()
+        }
+    }
+
+    async function createProvider(dto: ProviderDto): Promise<void> {
+        storeLogic.clearError()
+        try {
+            storeLogic.upsertProvider(await businessLogic.createProvider(dto))
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to create provider')
+            throw e
+        }
+    }
+
+    async function updateProvider(id: string, dto: Partial<ProviderDto>): Promise<void> {
+        storeLogic.clearError()
+        try {
+            storeLogic.upsertProvider(await businessLogic.updateProvider(id, dto))
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to update provider')
+            throw e
+        }
+    }
+
+    async function deleteProvider(id: string): Promise<void> {
+        storeLogic.clearError()
+        try {
+            await businessLogic.removeProvider(id)
+            storeLogic.removeProvider(id)
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to delete provider')
+            throw e
+        }
+    }
+
+    async function createModel(providerId: string, dto: ModelDto): Promise<void> {
+        storeLogic.clearError()
+        try {
+            storeLogic.upsertModel(providerId, await businessLogic.createModel(providerId, dto))
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to create model')
+            throw e
+        }
+    }
+
+    async function updateModel(
+        providerId: string,
+        modelId: string,
+        dto: Partial<ModelDto>,
+    ): Promise<void> {
+        storeLogic.clearError()
+        try {
+            storeLogic.upsertModel(
+                providerId,
+                await businessLogic.updateModel(providerId, modelId, dto),
+            )
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to update model')
+            throw e
+        }
+    }
+
+    async function deleteModel(providerId: string, modelId: string): Promise<void> {
+        storeLogic.clearError()
+        try {
+            await businessLogic.removeModel(providerId, modelId)
+            storeLogic.removeModel(providerId, modelId)
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to delete model')
+            throw e
+        }
+    }
+
+    async function fetchDefaultProvider(): Promise<void> {
+        try {
+            const data = await businessLogic.getDefaultProvider()
+            storeLogic.setDefault(data.providerId, data.modelId)
+        } catch {
+            /* ignore */
+        }
+    }
+
+    async function setDefaultProvider(providerId: string, modelId: string): Promise<void> {
+        storeLogic.clearError()
+        try {
+            await businessLogic.setDefaultProvider(providerId, modelId)
+            storeLogic.setDefault(providerId, modelId)
+        } catch (e: unknown) {
+            storeLogic.setError(toMessage(e) || 'Failed to set default provider')
+            throw e
+        }
+    }
+
     return {
-        fetchProviders: logic.fetchProviders,
-        createProvider: logic.createProvider,
-        updateProvider: logic.updateProvider,
-        deleteProvider: logic.deleteProvider,
-        createModel: logic.createModel,
-        updateModel: logic.updateModel,
-        deleteModel: logic.deleteModel,
-        fetchDefaultProvider: logic.fetchDefaultProvider,
-        setDefaultProvider: logic.setDefaultProvider,
+        fetchProviders,
+        createProvider,
+        updateProvider,
+        deleteProvider,
+        createModel,
+        updateModel,
+        deleteModel,
+        fetchDefaultProvider,
+        setDefaultProvider,
     }
 }

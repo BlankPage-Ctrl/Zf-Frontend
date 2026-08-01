@@ -1,23 +1,38 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
-import AppTitle from '@/components/AppTitle.vue'
-import DialogContainer from '@/components/dialog/DialogContainer.vue'
-import SettingsPanel from '@/components/settings/SettingsPanel.vue'
-import type { SettingsTheme } from '@/components/settings/types'
+import AppTitle from '@/presentation/components/AppTitle.vue'
+import DialogContainer from '@/presentation/components/dialog/DialogContainer.vue'
+import SettingsPanel from '@/presentation/components/settings/SettingsPanel.vue'
+import type { SettingsTheme } from '@/presentation/components/settings/types'
 import { Xmark } from '@iconoir/vue'
-import { useAppearanceStore } from '@/stores/appearance'
-import { useThemeStore } from '@/stores/theme'
-import { useProviderStore } from '@/stores/provider'
-import { useSettingsDialog } from '@/composables/useSettingsDialog'
-import { useDialog } from '@/composables/useDialog'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/components/dialog/types'
-import type { ThemeSchema } from '@/stores/theme'
-import type { ProviderDto } from '@/services/provider'
+import {
+    useWorkspaceStorer,
+    useAppearanceStorer,
+    useThemeStorer,
+    useProviderStorer,
+} from '@/application/stores'
+import {
+    workspaceActions,
+    appearanceActions,
+    themeActions,
+    providerActions,
+} from '@/application/actions'
+import { useSettingsDialog } from '@/presentation/composables/useSettingsDialog'
+import { useDialog } from '@/presentation/composables/useDialog'
+import type { DialogGridSchema, DynamicGridDataOutput } from '@/presentation/components/dialog/types'
+import {
+    APPEARANCE_PRESETS,
+    type ThemeSchema,
+    type ProviderDto,
+} from '@/core/entities'
 
-const appearanceStore = useAppearanceStore()
-const themeStore = useThemeStore()
-const providerStore = useProviderStore()
+const router = useRouter()
+const wsStorer = useWorkspaceStorer()
+const appearanceStorer = useAppearanceStorer()
+const themeStorer = useThemeStorer()
+const providerStorer = useProviderStorer()
 const settingsDialog = useSettingsDialog()
 const dialog = useDialog()
 
@@ -141,17 +156,41 @@ const themeFormSchema: DialogGridSchema = {
     },
 }
 
+const wsFormSchema: DialogGridSchema = {
+    ws: {
+        columns: {
+            name: {
+                type: 'text-short',
+                label: 'Name',
+                placeholder: 'My workspace',
+                metadata: { require: true },
+            },
+            description: {
+                type: 'text-short',
+                label: 'Description',
+                placeholder: 'Optional description',
+            },
+            projectPath: {
+                type: 'text-short',
+                label: 'Project path',
+                placeholder: '/path/to/project',
+                metadata: { require: true },
+            },
+        },
+    },
+}
+
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const settingsThemes = computed<SettingsTheme[]>(() =>
-    themeStore.availableThemes.map((t) => ({
+    themeStorer.availableThemes.map((t) => ({
         ...t,
         swatches: themePreviewColors(t.id),
     })),
 )
 
 function themePreviewColors(id: string): string[] {
-    const colors = themeStore.getThemePreview(id)
+    const colors = themeActions.getThemePreview(id)
     if (!colors) return []
     return [
         normalizeRgb(colors.bgPrimary),
@@ -167,12 +206,65 @@ function normalizeRgb(rgb: string): string {
 }
 
 onMounted(async () => {
-    appearanceStore.load()
-    await themeStore.load()
-    await providerStore.fetchProviders()
-    await providerStore.fetchDefaultProvider()
+    appearanceActions.load()
+    await themeActions.load()
+    await providerActions.fetchProviders()
+    await providerActions.fetchDefaultProvider()
+    workspaceActions.fetchWorkspaces()
 })
 
+// --- AppTitle (title bar) orchestration ---
+function onSelectWorkspace(id: string) {
+    workspaceActions.selectWorkspace(id)
+    router.push({ name: 'workspace', params: { id } })
+}
+
+async function onCreateWorkspace() {
+    await dialog.spawn({
+        title: 'New workspace',
+        schema: wsFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const d = data.ws!
+            await workspaceActions.createWorkspace({
+                name: String(d.name ?? ''),
+                description: String(d.description ?? ''),
+                projectPath: String(d.projectPath ?? ''),
+            })
+            if (wsStorer.selectedWorkspaceId) {
+                router.push({
+                    name: 'workspace',
+                    params: { id: wsStorer.selectedWorkspaceId },
+                })
+            }
+        },
+    })
+}
+
+async function onDeleteWorkspace(id: string) {
+    const ws = wsStorer.workspaces.find((w) => w.id === id)
+    if (!ws) return
+    await dialog.spawn({
+        title: 'Delete workspace',
+        message: `Delete "${ws.name}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            await workspaceActions.deleteWorkspace(id)
+            if (wsStorer.selectedWorkspaceId !== id) return
+            const first = wsStorer.workspaces[0]
+            if (first) {
+                workspaceActions.selectWorkspace(first.id)
+                router.push({ name: 'workspace', params: { id: first.id } })
+            } else {
+                workspaceActions.selectWorkspace(null)
+                router.push({ name: 'home' })
+            }
+        },
+    })
+}
+
+// --- Provider handlers ---
 async function handleAddProvider() {
     await dialog.spawn({
         title: 'Add provider',
@@ -180,7 +272,7 @@ async function handleAddProvider() {
         confirmLabel: 'Create',
         submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
-            await providerStore.createProvider({
+            await providerActions.createProvider({
                 name: String(row.name ?? ''),
                 type: String(row.type ?? 'openai') as ProviderDto['type'],
                 apiKey: row.apiKey ? String(row.apiKey) : undefined,
@@ -211,7 +303,7 @@ async function handleEditProvider(provider: {
         confirmLabel: 'Save',
         submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
-            await providerStore.updateProvider(provider.id, {
+            await providerActions.updateProvider(provider.id, {
                 name: String(row.name ?? ''),
                 type: String(row.type ?? 'openai') as ProviderDto['type'],
                 apiKey: row.apiKey ? String(row.apiKey) : undefined,
@@ -222,7 +314,7 @@ async function handleEditProvider(provider: {
 }
 
 async function handleDeleteProvider(id: string) {
-    await providerStore.deleteProvider(id)
+    await providerActions.deleteProvider(id)
 }
 
 async function handleAddModel(providerId: string) {
@@ -232,7 +324,7 @@ async function handleAddModel(providerId: string) {
         confirmLabel: 'Create',
         submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
-            await providerStore.createModel(providerId, {
+            await providerActions.createModel(providerId, {
                 modelId: String(row.modelId ?? ''),
                 displayName: row.displayName ? String(row.displayName) : undefined,
             })
@@ -245,28 +337,30 @@ async function handleEditModel(
     modelId: string,
     data: { modelId: string; displayName?: string },
 ) {
-    await providerStore.updateModel(providerId, modelId, {
+    await providerActions.updateModel(providerId, modelId, {
         modelId: data.modelId,
         displayName: data.displayName,
     })
 }
 
 async function handleDeleteModel(providerId: string, modelId: string) {
-    await providerStore.deleteModel(providerId, modelId)
+    await providerActions.deleteModel(providerId, modelId)
 }
 
 async function handleSetDefault(providerId: string, modelId: string) {
-    await providerStore.setDefaultProvider(providerId, modelId)
+    await providerActions.setDefaultProvider(providerId, modelId)
 }
 
+// --- Appearance handlers ---
 function handleUpdatePreset(preset: string) {
-    appearanceStore.setPreset(preset)
+    appearanceActions.setPreset(preset)
 }
 
 function handleUpdateFontSize(size: number) {
-    appearanceStore.fontSize = size
+    appearanceActions.setFontSize(size)
 }
 
+// --- Theme handlers ---
 async function handleAddTheme() {
     await dialog.spawn({
         title: 'Create Theme',
@@ -288,7 +382,7 @@ async function handleAddTheme() {
                     shadow: String(row.shadow ?? ''),
                 },
             }
-            themeStore.addCustomTheme(theme)
+            themeActions.addCustomTheme(theme)
         },
     })
 }
@@ -305,8 +399,8 @@ function handleFileImport(event: Event) {
     reader.onload = () => {
         try {
             const parsed = JSON.parse(reader.result as string)
-            const schema = themeStore.importTheme(parsed)
-            themeStore.addCustomTheme(schema)
+            const schema = themeActions.importTheme(parsed)
+            themeActions.addCustomTheme(schema)
         } catch (e) {
             alert(e instanceof Error ? e.message : 'Invalid theme file')
         }
@@ -316,7 +410,7 @@ function handleFileImport(event: Event) {
 }
 
 function handleExportTheme(id: string) {
-    const schema = themeStore.exportTheme(id)
+    const schema = themeActions.exportTheme(id)
     if (!schema) return
     const blob = new Blob([JSON.stringify(schema, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -328,17 +422,25 @@ function handleExportTheme(id: string) {
 }
 
 async function handleRemoveTheme(id: string) {
-    await themeStore.removeCustomTheme(id)
+    themeActions.removeCustomTheme(id)
 }
 
 function handleSetActiveTheme(id: string) {
-    themeStore.setTheme(id)
+    themeActions.setTheme(id)
 }
 </script>
 
 <template>
     <div class="app-shell">
-        <AppTitle />
+        <AppTitle
+            :workspaces="wsStorer.workspaces"
+            :selected-workspace-id="wsStorer.selectedWorkspaceId"
+            :loading="wsStorer.loading"
+            @select-workspace="onSelectWorkspace"
+            @create-workspace="onCreateWorkspace"
+            @delete-workspace="onDeleteWorkspace"
+            @open-settings="settingsDialog.show()"
+        />
         <RouterView v-slot="{ Component }">
             <div class="router-view">
                 <component :is="Component" />
@@ -362,16 +464,16 @@ function handleSetActiveTheme(id: string) {
                     </div>
                     <div class="dialog-body">
                         <SettingsPanel
-                            :providers="providerStore.providers"
-                            :loading="providerStore.loading"
-                            :error="providerStore.error"
-                            :default-provider-id="providerStore.defaultProviderId"
-                            :default-model-id="providerStore.defaultModelId"
-                            :preset="appearanceStore.preset"
-                            :font-size="appearanceStore.fontSize"
+                            :providers="providerStorer.providers"
+                            :loading="providerStorer.loading"
+                            :error="providerStorer.error"
+                            :default-provider-id="providerStorer.defaultProviderId"
+                            :default-model-id="providerStorer.defaultModelId"
+                            :preset="appearanceStorer.preset"
+                            :font-size="appearanceStorer.fontSize"
                             :themes="settingsThemes"
-                            :active-theme-id="themeStore.activeThemeId"
-                            :presets="appearanceStore.PRESETS"
+                            :active-theme-id="themeStorer.activeThemeId"
+                            :presets="APPEARANCE_PRESETS"
                             @add-provider="handleAddProvider"
                             @edit-provider="handleEditProvider"
                             @delete-provider="handleDeleteProvider"

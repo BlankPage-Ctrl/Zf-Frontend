@@ -1,14 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, h } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, EditPencil, Folder, Plus, Trash } from '@iconoir/vue'
-import type { DialogGridSchema } from '@/presentation/components/dialog/types'
+import { Album, ChatBubbleEmpty, Plus } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
-import type { ListSchema } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'
-import type { IconRailsSchema } from '@/presentation/components/icon-rails'
 import {
     useWorkspaceStorer,
     useChatStorer,
@@ -28,6 +25,13 @@ import { useSessionCache } from '@/presentation/composables/useSessionCache'
 import { ContainerGrid } from '@/presentation/components/container'
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
 import { FileExplorer } from '@/presentation/components/file-explorer'
+import {
+    chatFormSchema,
+    createSidebarChatListSchema,
+    createChatTabSchema,
+    createChatRailsSchema,
+    createWorkspaceLayout,
+} from '@/presentation/schemas'
 
 const route = useRoute()
 const router = useRouter()
@@ -62,71 +66,20 @@ function showPanel(view: 'chat' | 'files') {
     sidebarCollapsed.value = false
 }
 
-const iconRailsSchema = computed<IconRailsSchema>(() => ({
-    items: [
-        {
-            id: 'chat',
-            icon: ChatBubbleEmpty,
-            ariaLabel: 'Chat',
-            tooltip: 'Chat',
-            active: !showFileExplorer.value,
-            onClick: () => showPanel('chat'),
-        },
-        {
-            id: 'files',
-            icon: Folder,
-            ariaLabel: 'File Explorer',
-            tooltip: 'File Explorer',
-            active: showFileExplorer.value,
-            onClick: () => showPanel('files'),
-        },
-    ],
-}))
+const iconRailsSchema = computed(() =>
+    createChatRailsSchema({
+        showFiles: showFileExplorer.value,
+        onChat: () => showPanel('chat'),
+        onFiles: () => showPanel('files'),
+    }),
+)
 
-const workspaceSchema = computed(() => [
-    {
-        id: 'workspace',
-        columns: [
-            {
-                id: 'rail',
-                width: 48,
-                resizable: false,
-                cell: {
-                    background: 'var(--bg-secondary)',
-                    borderColor: 'var(--border-color)',
-                    borderWidth: '0 1px 0 0',
-                    borderStyle: 'solid' as const,
-                    overflow: 'hidden' as const,
-                },
-            },
-            {
-                id: 'panel',
-                width: sidebarPanelWidth.value,
-                visible: !sidebarCollapsed.value,
-                resizable: true,
-                resizeMode: 'edge' as const,
-                minWidth: 180,
-                maxWidth: 480,
-                cell: {
-                    background: 'var(--bg-secondary)',
-                    borderColor: 'var(--border-color)',
-                    borderWidth: '0 1px 0 0',
-                    borderStyle: 'solid' as const,
-                    overflow: 'hidden' as const,
-                },
-            },
-            {
-                id: 'content',
-                width: '1fr',
-                resizable: false,
-                cell: {
-                    background: 'var(--bg-primary)',
-                    overflow: 'hidden' as const,
-                },
-            },
-        ],
-    },
-])
+const workspaceSchema = computed(() =>
+    createWorkspaceLayout({
+        panelWidth: sidebarPanelWidth.value,
+        collapsed: sidebarCollapsed.value,
+    }),
+)
 
 const activeChatId = ref<string | null>(null)
 
@@ -147,25 +100,16 @@ watch(activeChatId, (newId) => {
 })
 
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
-    const session = getSession(chat.id)
-    return {
-        title: chat.title,
-        messages: session.messages.value,
-        loading: session.isLoading.value,
+    return createChatTabSchema({
+        chat,
+        session: getSession(chat.id),
         providers: providerStorer.providers,
-        modelId: chat.modelId,
-        providerId: chat.providerId,
         contentWidth: appearanceStorer.contentWidth,
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
-        onSend: session.sendMessage,
-        onStop: session.stop,
-        onSelectModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
-    }
+        onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
+    })
 }
-
-const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
-const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 
 function getChatById(chatId: string): Chat | undefined {
     return chatStorer.chats.find((c) => c.id === chatId)
@@ -177,19 +121,6 @@ async function onUpdateChat(chatId: string, payload: { modelId?: string; provide
     } catch {
         /* handled by logic */
     }
-}
-
-const chatFormSchema: DialogGridSchema = {
-    chat: {
-        columns: {
-            title: {
-                type: 'text-short',
-                label: 'Title',
-                placeholder: 'Chat title',
-                metadata: { require: true },
-            },
-        },
-    },
 }
 
 async function openChatCreate() {
@@ -205,46 +136,22 @@ async function openChatCreate() {
     })
 }
 
-const editChatFormSchema: DialogGridSchema = {
-    chat: {
-        columns: {
-            title: {
-                type: 'text-short',
-                label: 'Title',
-                placeholder: 'Chat title',
-                metadata: { require: true },
-            },
+const chatListSchema = computed(() =>
+    createSidebarChatListSchema({
+        activeChatId: activeChatId.value ?? undefined,
+        onSelect: (chat) => {
+            activeChatId.value = chat.id
         },
-    },
-}
-
-const chatListSchema = computed<ListSchema<Chat>>(() => ({
-    variant: 'sidebar',
-    size: 'sm',
-    activeKey: 'id',
-    activeId: activeChatId.value ?? undefined,
-    fields: [{ key: 'title', class: 'title' }],
-    actions: [
-        { icon: EditIcon, ariaLabel: 'Edit', variant: 'ghost', size: 'xs', onClick: openChatEdit },
-        {
-            icon: TrashIcon,
-            ariaLabel: 'Delete',
-            variant: 'danger',
-            size: 'xs',
-            onClick: confirmDeleteChat,
-        },
-    ],
-    emptyMessage: 'No chats yet',
-    emptyAction: { label: 'Create your first chat', onClick: openChatCreate },
-    onSelect: (chat) => {
-        activeChatId.value = chat.id
-    },
-}))
+        onEdit: openChatEdit,
+        onDelete: confirmDeleteChat,
+        onCreate: openChatCreate,
+    }),
+)
 
 async function openChatEdit(chat: Chat) {
     await dialog.spawn({
         title: 'Edit chat',
-        schema: editChatFormSchema,
+        schema: chatFormSchema,
         initialData: { chat: { title: chat.title } },
         confirmLabel: 'Save',
         submit: async (data) => {

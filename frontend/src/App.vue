@@ -21,7 +21,13 @@ import {
 } from '@/application/actions'
 import { useSettingsDialog } from '@/presentation/composables/useSettingsDialog'
 import { useDialog } from '@/presentation/composables/useDialog'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/presentation/components/dialog/types'
+import type { DynamicGridDataOutput } from '@/presentation/components/dialog/types'
+import {
+    workspaceFormSchema,
+    providerFormSchema,
+    modelFormSchema,
+    themeFormSchema,
+} from '@/presentation/schemas'
 import {
     APPEARANCE_PRESETS,
     type ThemeSchema,
@@ -35,150 +41,6 @@ const themeStorer = useThemeStorer()
 const providerStorer = useProviderStorer()
 const settingsDialog = useSettingsDialog()
 const dialog = useDialog()
-
-const providerFormSchema: DialogGridSchema = {
-    row: {
-        columns: {
-            name: {
-                type: 'text-short',
-                label: 'Name',
-                placeholder: 'e.g. OpenAI',
-                span: 6,
-                metadata: { require: true },
-            },
-            type: {
-                type: 'select',
-                label: 'Type',
-                span: 6,
-                metadata: {
-                    require: true,
-                    options: [
-                        { label: 'OpenAI', value: 'openai' },
-                        { label: 'OpenAI Compatible', value: 'openai-compatible' },
-                    ],
-                },
-            },
-            apiKey: { type: 'text-short', label: 'API key', placeholder: 'sk-...', span: 12 },
-            baseURL: {
-                type: 'text-short',
-                label: 'Base URL',
-                placeholder: 'https://api.example.com/v1',
-                span: 12,
-            },
-        },
-    },
-}
-
-const modelFormSchema: DialogGridSchema = {
-    row: {
-        columns: {
-            modelId: {
-                type: 'text-short',
-                label: 'Model ID',
-                placeholder: 'e.g. gpt-4o',
-                span: 6,
-                metadata: { require: true },
-            },
-            displayName: {
-                type: 'text-short',
-                label: 'Display name',
-                placeholder: 'e.g. GPT-4o',
-                span: 6,
-            },
-        },
-    },
-}
-
-const themeFormSchema: DialogGridSchema = {
-    row: {
-        columns: {
-            name: {
-                type: 'text-short',
-                label: 'Theme Name',
-                span: 12,
-                metadata: { require: true },
-            },
-            description: {
-                type: 'text-short',
-                label: 'Description',
-                span: 12,
-            },
-            bgPrimary: {
-                type: 'text-short',
-                label: 'Background (R, G, B)',
-                span: 6,
-                placeholder: '255, 250, 243',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            bgSecondary: {
-                type: 'text-short',
-                label: 'Surface (R, G, B)',
-                span: 6,
-                placeholder: '255, 242, 219',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            border: {
-                type: 'text-short',
-                label: 'Border (R, G, B)',
-                span: 6,
-                placeholder: '255, 229, 191',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            textPrimary: {
-                type: 'text-short',
-                label: 'Text (R, G, B)',
-                span: 6,
-                placeholder: '19, 16, 16',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            success: {
-                type: 'text-short',
-                label: 'Success (R, G, B)',
-                span: 6,
-                placeholder: '34, 197, 93',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            danger: {
-                type: 'text-short',
-                label: 'Danger (R, G, B)',
-                span: 6,
-                placeholder: '246, 36, 64',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-            shadow: {
-                type: 'text-short',
-                label: 'Shadow (R, G, B)',
-                span: 6,
-                placeholder: '200, 180, 150',
-                metadata: { require: true, pattern: '^\\d{1,3},\\s*\\d{1,3},\\s*\\d{1,3}$' },
-            },
-        },
-    },
-}
-
-const wsFormSchema: DialogGridSchema = {
-    ws: {
-        columns: {
-            name: {
-                type: 'text-short',
-                label: 'Name',
-                placeholder: 'My workspace',
-                metadata: { require: true },
-            },
-            description: {
-                type: 'text-short',
-                label: 'Description',
-                placeholder: 'Optional description',
-            },
-            projectPath: {
-                type: 'text-short',
-                label: 'Project path',
-                placeholder: '/path/to/project',
-                metadata: { require: true },
-            },
-        },
-    },
-}
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
@@ -222,7 +84,7 @@ function onSelectWorkspace(id: string) {
 async function onCreateWorkspace() {
     await dialog.spawn({
         title: 'New workspace',
-        schema: wsFormSchema,
+        schema: workspaceFormSchema,
         confirmLabel: 'Create',
         submit: async (data) => {
             const d = data.ws!

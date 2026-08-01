@@ -1,25 +1,28 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, h } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Album, EditPencil, Plus, Settings, Trash, ChatBubble } from '@iconoir/vue'
+import { Album } from '@iconoir/vue'
 import { pButton } from '@/presentation/components/button'
 import { Header } from '@/presentation/components/header'
 import type { HeaderSchema } from '@/presentation/components/header'
-import { ContainerGrid, type ContainerSchema } from '@/presentation/components/container'
-import type { DialogGridSchema } from '@/presentation/components/dialog/types'
+import { ContainerGrid } from '@/presentation/components/container'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { useSettingsDialog } from '@/presentation/composables/useSettingsDialog'
 import { AppList } from '@/presentation/components/list'
-import type { ListSchema } from '@/presentation/components/list'
 import { useWorkspaceStorer } from '@/application/stores'
 import { useChatStorer } from '@/application/stores'
 import { workspaceActions, chatActions } from '@/application/actions'
 import type { Workspace } from '@/core/entities'
-import type { Chat } from '@/core/entities'
+import {
+    workspaceFormSchema,
+    chatListContentSchema,
+    createWorkspaceListSchema,
+    createWorkspacesHeaderSchema,
+    createChatHeaderSchema,
+    primaryLayout,
+} from '@/presentation/schemas'
 
-const EditIcon = () => h(EditPencil, { width: 14, height: 14 })
-const TrashIcon = () => h(Trash, { width: 14, height: 14 })
 const wsStorer = useWorkspaceStorer()
 const chatStorer = useChatStorer()
 const router = useRouter()
@@ -31,129 +34,40 @@ function goToSettings() {
 }
 
 // --- Header schemas ---
-const wsHeaderSchema = computed<HeaderSchema>(() => ({
-    title: 'Workspaces',
-    height: 'sm',
-    padding: 'md',
-    actions: [
-        { icon: Settings, ariaLabel: 'Settings', onClick: goToSettings },
-        { icon: Plus, ariaLabel: 'New workspace', onClick: openWsCreate },
-    ],
-}))
+const wsHeaderSchema = computed(() =>
+    createWorkspacesHeaderSchema({
+        onSettings: goToSettings,
+        onCreate: openWsCreate,
+    }),
+)
 
 const chatHeaderSchema = computed<HeaderSchema | null>(() => {
     if (!wsStorer.selectedWorkspace) return null
-    return {
+    return createChatHeaderSchema({
         title: wsStorer.selectedWorkspace.name,
         subtitle: `${chatStorer.chats.length} chat${chatStorer.chats.length !== 1 ? 's' : ''}`,
-        height: 'md',
-        padding: 'md',
-        border: true,
-        actions: [{ icon: ChatBubble, ariaLabel: 'Open', label: 'Open', onClick: openWorkspace }],
-    }
+        onOpen: openWorkspace,
+    })
 })
 
-const containerPrimary = ref<ContainerSchema[]>([
-    {
-        id: 'row-1',
-        height: '1fr',
-        columns: [
-            {
-                id: 'cell-1-1',
-                width: 200,
-                resizable: true,
-                minWidth: 150,
-                maxWidth: 400,
-                cell: {
-                    padding: 0,
-                    background: 'var(--bg-secondary)',
-                    borderColor: 'var(--border-color)',
-                    borderWidth: 1,
-                    borderStyle: 'solid',
-                    radius: 0,
-                },
-            },
-            {
-                id: 'cell-1-2',
-                width: '1fr',
-                cell: {
-                    padding: 0,
-                    background: 'var(--bg-primary)',
-                    borderColor: 'var(--border-color)',
-                    borderWidth: 1,
-                    borderStyle: 'solid',
-                    radius: 0,
-                },
-            },
-        ],
-    },
-])
-
-const wsFormSchema: DialogGridSchema = {
-    ws: {
-        columns: {
-            name: {
-                type: 'text-short',
-                label: 'Name',
-                placeholder: 'My workspace',
-                metadata: { require: true },
-            },
-            description: {
-                type: 'text-short',
-                label: 'Description',
-                placeholder: 'Optional description',
-            },
-            projectPath: {
-                type: 'text-short',
-                label: 'Project path',
-                placeholder: '/path/to/project',
-                metadata: { require: true },
-            },
-        },
-    },
-}
+const containerPrimary = ref(primaryLayout)
 
 // --- List schemas ---
-const wsListSchema = computed<ListSchema<Workspace>>(() => ({
-    variant: 'sidebar',
-    size: 'sm',
-    activeKey: 'id',
-    activeId: wsStorer.selectedWorkspaceId,
-    fields: [
-        { key: 'name', class: 'title' },
-        { key: 'description', class: 'subtitle', visible: (ws) => !!ws.description },
-        { key: 'projectPath', class: 'meta' },
-    ],
-    actions: [
-        { icon: EditIcon, ariaLabel: 'Edit', variant: 'ghost', size: 'xs', onClick: openWsEdit },
-        {
-            icon: TrashIcon,
-            ariaLabel: 'Delete',
-            variant: 'danger',
-            size: 'xs',
-            onClick: confirmDeleteWs,
-        },
-    ],
-    emptyMessage: 'No workspaces yet',
-    emptyAction: { label: 'Create your first workspace', onClick: openWsCreate },
-    onSelect: (ws) => workspaceActions.selectWorkspace(ws.id),
-}))
-
-const chatListSchema = computed<ListSchema<Chat>>(() => ({
-    variant: 'content',
-    size: 'md',
-    fields: [
-        { key: 'title', class: 'title' },
-        { key: 'createdAt', class: 'date', format: fmtDate },
-    ],
-    emptyMessage: 'No chats yet',
-}))
+const wsListSchema = computed(() =>
+    createWorkspaceListSchema({
+        activeWorkspaceId: wsStorer.selectedWorkspaceId,
+        onSelect: (ws) => workspaceActions.selectWorkspace(ws.id),
+        onEdit: openWsEdit,
+        onDelete: confirmDeleteWs,
+        onCreate: openWsCreate,
+    }),
+)
 
 // --- Workspace form ---
 function openWsCreate() {
     dialog.spawn({
         title: 'New workspace',
-        schema: wsFormSchema,
+        schema: workspaceFormSchema,
         confirmLabel: 'Create',
         submit: async (data) => {
             const ws = data.ws!
@@ -169,7 +83,7 @@ function openWsCreate() {
 function openWsEdit(ws: Workspace) {
     dialog.spawn({
         title: 'Edit workspace',
-        schema: wsFormSchema,
+        schema: workspaceFormSchema,
         initialData: {
             ws: {
                 name: ws.name,
@@ -206,11 +120,6 @@ function openWorkspace() {
     if (wsStorer.selectedWorkspaceId) {
         router.push({ name: 'workspace', params: { id: wsStorer.selectedWorkspaceId } })
     }
-}
-
-// --- Date formatting ---
-function fmtDate(iso: unknown): string {
-    return new Date(String(iso)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 onMounted(() => {
@@ -276,7 +185,7 @@ watch(
                         <Header v-if="chatHeaderSchema" :schema="chatHeaderSchema" />
 
                         <!-- Chat list -->
-                        <AppList :schema="chatListSchema" :items="chatStorer.chats" />
+                        <AppList :schema="chatListContentSchema" :items="chatStorer.chats" />
                     </template>
                 </div>
             </template>

@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Folder, Plus, Trash, NavArrowDown, Settings as SettingsIcon } from '@iconoir/vue'
+import { NavArrowDown, Plus, Settings as SettingsIcon } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
-import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
+import type { CommandAction } from '@/presentation/components/dropdown/types'
 import type { Workspace } from '@/core/entities'
+import {
+    createWorkspaceDropdownItems,
+    workspaceDropdownProps,
+    WORKSPACE_COMMANDS,
+} from '@/presentation/schemas'
 
 const props = defineProps<{
     workspaces: Workspace[]
@@ -23,30 +28,21 @@ const selectedWsName = computed(() => {
     return ws ? ws.name : 'Select workspace'
 })
 
-const wsDropdownItems = computed<DropdownItemConfig[]>(() =>
-    props.workspaces.map((ws) => ({
-        id: ws.id,
-        label: ws.name,
-        icon: Folder,
-        value: ws.id,
-        selected: ws.id === props.selectedWorkspaceId,
-        rightIcon: Trash,
-        rightAction: { type: 'command', command: 'delete-workspace', args: { id: ws.id } },
-    })),
+const wsDropdownItems = computed(() =>
+    createWorkspaceDropdownItems({
+        workspaces: props.workspaces,
+        selectedWorkspaceId: props.selectedWorkspaceId,
+    }),
 )
 
 function handleSelect(value: string) {
     emit('select-workspace', value)
 }
 
-function handleAction(action: {
-    type: 'command'
-    command: string
-    args?: Record<string, unknown>
-}) {
-    if (action.command === 'add-workspace') {
+function handleAction(action: CommandAction) {
+    if (action.command === WORKSPACE_COMMANDS.ADD) {
         emit('create-workspace')
-    } else if (action.command === 'delete-workspace') {
+    } else if (action.command === WORKSPACE_COMMANDS.DELETE) {
         const id = action.args?.id as string
         if (id) emit('delete-workspace', id)
     }
@@ -62,24 +58,7 @@ function openSettings() {
         <div class="ws-group">
             <DropdownRoot
                 :items="wsDropdownItems"
-                mode="menu"
-                placement="bottom"
-                :width="{ mode: 'fixed', width: 166 }"
-                :offset="6"
-                :dense="true"
-                :style="{
-                    menu: {
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '4px',
-                        padding: '2px',
-                    },
-                    item: {
-                        borderRadius: '4px',
-                        hoverBackground: 'rgba(var(--raw-border-color), 0.3)',
-                        selectedBackground: 'rgba(var(--raw-border-color), 0.3)',
-                    },
-                }"
+                v-bind="workspaceDropdownProps"
                 @select="handleSelect"
                 @action="handleAction"
             >

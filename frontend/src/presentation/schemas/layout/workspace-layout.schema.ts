@@ -12,7 +12,7 @@ export function createWorkspaceLayout(params: WorkspaceLayoutParams): ContainerS
             columns: [
                 {
                     id: 'rail',
-                    width: 48,
+                    width: 40,
                     resizable: false,
                     cell: {
                         background: 'var(--bg-secondary)',

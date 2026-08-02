@@ -288,7 +288,7 @@ async function handleControlClick(key: string, item?: SelectOption) {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 4px;
     overflow: clip;
 }
 
@@ -305,9 +305,9 @@ async function handleControlClick(key: string, item?: SelectOption) {
     height: 39px;
     min-height: 39px;
     box-sizing: border-box;
-    background: var(--bg-primary);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(var(--raw-bg-primary), 0.7);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: -8px;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
 import AppTitle from '@/presentation/components/AppTitle.vue'
@@ -26,13 +26,8 @@ import {
     workspaceFormSchema,
     providerFormSchema,
     modelFormSchema,
-    themeFormSchema,
 } from '@/presentation/schemas'
-import {
-    APPEARANCE_PRESETS,
-    type ThemeSchema,
-    type ProviderDto,
-} from '@/core/entities'
+import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
@@ -41,8 +36,6 @@ const themeStorer = useThemeStorer()
 const providerStorer = useProviderStorer()
 const settingsDialog = useSettingsDialog()
 const dialog = useDialog()
-
-const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const settingsThemes = computed<SettingsTheme[]>(() =>
     themeStorer.availableThemes.map((t) => ({
@@ -223,70 +216,6 @@ function handleUpdateFontSize(size: number) {
 }
 
 // --- Theme handlers ---
-async function handleAddTheme() {
-    await dialog.spawn({
-        title: 'Create Theme',
-        schema: themeFormSchema,
-        confirmLabel: 'Create',
-        submit: async (data: DynamicGridDataOutput) => {
-            const row = data.row ?? {}
-            const theme: ThemeSchema = {
-                id: crypto.randomUUID(),
-                name: String(row.name ?? ''),
-                description: row.description ? String(row.description) : undefined,
-                colors: {
-                    bgPrimary: String(row.bgPrimary ?? ''),
-                    bgSecondary: String(row.bgSecondary ?? ''),
-                    border: String(row.border ?? ''),
-                    textPrimary: String(row.textPrimary ?? ''),
-                    success: String(row.success ?? ''),
-                    danger: String(row.danger ?? ''),
-                    shadow: String(row.shadow ?? ''),
-                },
-            }
-            themeActions.addCustomTheme(theme)
-        },
-    })
-}
-
-function handleImportTheme() {
-    fileInputRef.value?.click()
-}
-
-function handleFileImport(event: Event) {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-        try {
-            const parsed = JSON.parse(reader.result as string)
-            const schema = themeActions.importTheme(parsed)
-            themeActions.addCustomTheme(schema)
-        } catch (e) {
-            alert(e instanceof Error ? e.message : 'Invalid theme file')
-        }
-    }
-    reader.readAsText(file)
-    input.value = ''
-}
-
-function handleExportTheme(id: string) {
-    const schema = themeActions.exportTheme(id)
-    if (!schema) return
-    const blob = new Blob([JSON.stringify(schema, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${schema.id}-theme.json`
-    a.click()
-    URL.revokeObjectURL(url)
-}
-
-async function handleRemoveTheme(id: string) {
-    themeActions.removeCustomTheme(id)
-}
-
 function handleSetActiveTheme(id: string) {
     themeActions.setTheme(id)
 }
@@ -345,10 +274,6 @@ function handleSetActiveTheme(id: string) {
                             @set-default="handleSetDefault"
                             @update-preset="handleUpdatePreset"
                             @update-font-size="handleUpdateFontSize"
-                            @add-theme="handleAddTheme"
-                            @import-theme="handleImportTheme"
-                            @export-theme="handleExportTheme"
-                            @remove-theme="handleRemoveTheme"
                             @set-active-theme="handleSetActiveTheme"
                             @close="settingsDialog.hide()"
                         />
@@ -356,14 +281,6 @@ function handleSetActiveTheme(id: string) {
                 </div>
             </div>
         </transition>
-
-        <input
-            ref="fileInputRef"
-            type="file"
-            accept=".json"
-            style="display: none"
-            @change="handleFileImport"
-        />
     </div>
 </template>
 

@@ -2,7 +2,6 @@ export { chatFormSchema } from './dialog/chat-form.schema'
 export { workspaceFormSchema } from './dialog/workspace-form.schema'
 export { providerFormSchema } from './dialog/provider-form.schema'
 export { modelFormSchema } from './dialog/model-form.schema'
-export { themeFormSchema } from './dialog/theme-form.schema'
 export { createSidebarChatListSchema, chatListContentSchema } from './list/chat-list.schema'
 export { createWorkspaceListSchema } from './list/workspace-list.schema'
 export {

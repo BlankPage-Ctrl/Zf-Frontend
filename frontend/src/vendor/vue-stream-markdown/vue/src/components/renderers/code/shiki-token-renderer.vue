@@ -53,7 +53,7 @@ export default defineComponent({
                             {
                                 'data-stream-markdown': 'code-line',
                                 class: props.showLineNumbers
-                                    ? 'relative block min-h-4 text-sm before:inline-block before:mr-4 before:w-4 before:select-none before:text-right before:font-mono before:text-[13px] before:text-muted-foreground/50 before:content-[counter(line)] before:[counter-increment:line]'
+                                    ? 'relative block min-h-4 text-sm before:inline-block before:mr-4 before:w-4 before:select-none before:text-right before:font-mono before:text-[13px] before:content-[counter(line)] before:[counter-increment:line]'
                                     : 'relative block min-h-4 text-sm',
                                 key: index,
                             },
@@ -77,3 +77,9 @@ export default defineComponent({
     },
 })
 </script>
+
+<style>
+[data-stream-markdown='code-line']::before {
+    color: color-mix(in srgb, var(--markdown-muted-foreground) 50%, transparent);
+}
+</style>

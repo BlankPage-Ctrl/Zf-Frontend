@@ -33,10 +33,6 @@ const emit = defineEmits<{
     'set-default': [providerId: string, modelId: string]
     'update-preset': [preset: string]
     'update-font-size': [size: number]
-    'add-theme': []
-    'import-theme': []
-    'export-theme': [id: string]
-    'remove-theme': [id: string]
     'set-active-theme': [id: string]
     close: []
 }>()
@@ -88,10 +84,6 @@ const emit = defineEmits<{
             <ThemeSection
                 :themes="themes"
                 :active-theme-id="activeThemeId"
-                @add-theme="emit('add-theme')"
-                @import-theme="emit('import-theme')"
-                @export-theme="(id) => emit('export-theme', id)"
-                @remove-theme="(id) => emit('remove-theme', id)"
                 @set-active-theme="(id) => emit('set-active-theme', id)"
             />
         </section>

@@ -63,7 +63,7 @@ function onDropdownClick(event: MouseEvent, item: SelectOption) {
             v-bind="$attrs"
             data-stream-markdown="button"
             type="button"
-            class="text-xs text-muted-foreground p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--default-transition-duration)] items-center justify-center hover:text-foreground hover:bg-accent"
+            class="text-xs p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--markdown-transition-duration)] items-center justify-center"
             :class="[buttonClass]"
             :style="buttonStyle"
             @click="onClick"
@@ -77,7 +77,7 @@ function onDropdownClick(event: MouseEvent, item: SelectOption) {
         v-bind="$attrs"
         data-stream-markdown="button"
         type="button"
-        class="text-xs text-muted-foreground p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--default-transition-duration)] items-center justify-center hover:text-foreground hover:bg-accent"
+        class="text-xs p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--markdown-transition-duration)] items-center justify-center"
         :class="[buttonClass]"
         :style="buttonStyle"
         @click="onClick"
@@ -98,7 +98,7 @@ function onDropdownClick(event: MouseEvent, item: SelectOption) {
         <button
             data-stream-markdown="button"
             type="button"
-            class="text-xs text-muted-foreground p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--default-transition-duration)] items-center justify-center hover:text-foreground hover:bg-accent"
+            class="text-xs p-2 rounded-md border-none bg-transparent flex gap-1 cursor-pointer transition-colors duration-[var(--markdown-transition-duration)] items-center justify-center"
             :class="[buttonClass]"
             :style="buttonStyle"
             @click="onClick"
@@ -109,3 +109,14 @@ function onDropdownClick(event: MouseEvent, item: SelectOption) {
         </button>
     </component>
 </template>
+
+<style scoped>
+button[data-stream-markdown='button'] {
+    color: var(--markdown-muted-foreground);
+}
+
+button[data-stream-markdown='button']:hover:not(:disabled) {
+    color: var(--markdown-foreground);
+    background-color: var(--markdown-accent);
+}
+</style>

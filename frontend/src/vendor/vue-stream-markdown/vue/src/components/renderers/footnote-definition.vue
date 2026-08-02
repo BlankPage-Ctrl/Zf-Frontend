@@ -31,7 +31,7 @@ function scrollToReference() {
     <a
         :id="`footnote-definition-${id}`"
         data-stream-markdown="footnote-definition"
-        class="text-muted-foreground block [&_p]:inline"
+        class="block [&_p]:inline"
     >
         <span
             data-stream-markdown="footnote-definition-label"
@@ -46,7 +46,7 @@ function scrollToReference() {
             :name="t('button.back')"
             icon="cornerDownLeft"
             :icon-style="{
-                color: 'var(--primary)',
+                color: 'var(--markdown-primary)',
             }"
             :button-style="{
                 padding: '0.25rem',
@@ -55,3 +55,9 @@ function scrollToReference() {
         />
     </a>
 </template>
+
+<style scoped>
+a[data-stream-markdown='footnote-definition'] {
+    color: var(--markdown-muted-foreground);
+}
+</style>

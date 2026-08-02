@@ -1,9 +1,8 @@
 @layer base {
     .stream-markdown {
-        --default-transition-duration: 150ms;
         --stream-markdown-animation-duration: 500ms;
 
-        color: var(--foreground);
+        color: var(--markdown-foreground);
         line-height: 1.5;
 
         & * {
@@ -37,11 +36,11 @@
         }
 
         & ::-webkit-scrollbar-thumb {
-            background: var(--border);
+            background: var(--markdown-border);
             border-radius: 3px;
 
             &:hover {
-                background: var(--border);
+                background: var(--markdown-border);
                 opacity: 0.5;
             }
         }
@@ -96,7 +95,7 @@
 
     .stream-markdown-code-switch-enter-active,
     .stream-markdown-code-switch-leave-active {
-        transition: opacity var(--default-transition-duration) ease;
+        transition: opacity var(--markdown-transition-duration) ease;
     }
     .stream-markdown-code-switch-enter-from,
     .stream-markdown-code-switch-leave-to {
@@ -115,8 +114,8 @@
     .stream-markdown-modal-enter-active,
     .stream-markdown-modal-leave-active {
         transition:
-            opacity var(--default-transition-duration) ease,
-            transform var(--default-transition-duration) ease;
+            opacity var(--markdown-transition-duration) ease,
+            transform var(--markdown-transition-duration) ease;
     }
 
     @keyframes stream-markdown-spin {

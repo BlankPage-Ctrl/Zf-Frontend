@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import type { AppearanceSectionProps } from '../types'
+import type { ResolvedAppearanceSection } from '../types/resolved'
 
-defineProps<AppearanceSectionProps>()
-
-const emit = defineEmits<{
-    'update-preset': [preset: string]
-    'update-font-size': [size: number]
+const props = defineProps<{
+    resolved: ResolvedAppearanceSection
 }>()
 
 function onPresetClick(label: string) {
-    emit('update-preset', label)
+    props.resolved.onUpdatePreset?.(label)
 }
 
 function onScaleInput(e: Event) {
     const value = Number((e.target as HTMLInputElement).value)
-    emit('update-font-size', value)
+    props.resolved.onUpdateFontSize?.(value)
 }
 </script>
 
@@ -24,16 +21,16 @@ function onScaleInput(e: Event) {
             <label class="appearance-label">Preset</label>
             <div class="preset-group">
                 <button
-                    v-for="p in presets"
+                    v-for="p in resolved.presets"
                     :key="p.label"
                     class="preset-btn"
-                    :class="{ active: preset === p.label }"
-                    :aria-pressed="preset === p.label ? 'true' : 'false'"
+                    :class="{ active: resolved.preset === p.label }"
+                    :aria-pressed="resolved.preset === p.label ? 'true' : 'false'"
                     @click="onPresetClick(p.label)"
                 >
                     {{ p.label }}
                 </button>
-                <span class="preset-custom-tag" :class="{ active: preset === 'Custom' }"
+                <span class="preset-custom-tag" :class="{ active: resolved.preset === 'Custom' }"
                     >Custom</span
                 >
             </div>
@@ -42,7 +39,7 @@ function onScaleInput(e: Event) {
         <div class="appearance-row">
             <label class="appearance-label">
                 Scale
-                <span class="scale-value">{{ fontSize }}px</span>
+                <span class="scale-value">{{ resolved.fontSize }}px</span>
             </label>
             <input
                 type="range"
@@ -50,7 +47,7 @@ function onScaleInput(e: Event) {
                 min="12"
                 max="20"
                 step="1"
-                :value="fontSize"
+                :value="resolved.fontSize"
                 @input="onScaleInput"
             />
         </div>

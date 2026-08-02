@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import type { ThemeSectionProps } from '../types'
+import type { ResolvedThemeSection } from '../types/resolved'
 
-defineProps<ThemeSectionProps>()
-
-const emit = defineEmits<{
-    'set-active-theme': [id: string]
+const props = defineProps<{
+    resolved: ResolvedThemeSection
 }>()
 
 function isActive(activeThemeId: string | null, id: string): boolean {
@@ -12,7 +10,7 @@ function isActive(activeThemeId: string | null, id: string): boolean {
 }
 
 function handleThemeSetActive(id: string) {
-    emit('set-active-theme', id)
+    props.resolved.onSetActiveTheme?.(id)
 }
 </script>
 
@@ -20,10 +18,10 @@ function handleThemeSetActive(id: string) {
     <div>
         <div class="theme-grid">
             <div
-                v-for="t in themes"
+                v-for="t in resolved.themes"
                 :key="t.id"
                 class="theme-card"
-                :class="{ active: isActive(activeThemeId, t.id) }"
+                :class="{ active: isActive(resolved.activeThemeId, t.id) }"
                 @click="handleThemeSetActive(t.id)"
             >
                 <div class="theme-swatches">
@@ -38,7 +36,9 @@ function handleThemeSetActive(id: string) {
                     <span class="theme-name">{{ t.name }}</span>
                 </div>
                 <div class="theme-card-actions">
-                    <span v-if="isActive(activeThemeId, t.id)" class="active-label">Active</span>
+                    <span v-if="isActive(resolved.activeThemeId, t.id)" class="active-label"
+                        >Active</span
+                    >
                 </div>
             </div>
         </div>

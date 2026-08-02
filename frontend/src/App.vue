@@ -1,64 +1,24 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
 import AppTitle from '@/presentation/components/AppTitle.vue'
 import DialogContainer from '@/presentation/components/dialog/DialogContainer.vue'
-import SettingsPanel from '@/presentation/components/settings/SettingsPanel.vue'
-import type { SettingsTheme } from '@/presentation/components/settings/types'
-import { Xmark } from '@iconoir/vue'
-import {
-    useWorkspaceStorer,
-    useAppearanceStorer,
-    useThemeStorer,
-    useProviderStorer,
-} from '@/application/stores'
+import { useWorkspaceStorer } from '@/application/stores'
 import {
     workspaceActions,
     appearanceActions,
     themeActions,
     providerActions,
 } from '@/application/actions'
-import { useSettingsDialog } from '@/presentation/composables/useSettingsDialog'
+import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { useDialog } from '@/presentation/composables/useDialog'
-import type { DynamicGridDataOutput } from '@/presentation/components/dialog/types'
-import {
-    workspaceFormSchema,
-    providerFormSchema,
-    modelFormSchema,
-} from '@/presentation/schemas'
-import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
+import { workspaceFormSchema } from '@/presentation/schemas'
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
-const appearanceStorer = useAppearanceStorer()
-const themeStorer = useThemeStorer()
-const providerStorer = useProviderStorer()
-const settingsDialog = useSettingsDialog()
+const settingsTab = useSettingsTab()
 const dialog = useDialog()
-
-const settingsThemes = computed<SettingsTheme[]>(() =>
-    themeStorer.availableThemes.map((t) => ({
-        ...t,
-        swatches: themePreviewColors(t.id),
-    })),
-)
-
-function themePreviewColors(id: string): string[] {
-    const colors = themeActions.getThemePreview(id)
-    if (!colors) return []
-    return [
-        normalizeRgb(colors.bgPrimary),
-        normalizeRgb(colors.bgSecondary),
-        normalizeRgb(colors.border),
-        normalizeRgb(colors.textPrimary),
-    ]
-}
-
-function normalizeRgb(rgb: string): string {
-    const parts = rgb.split(',').map((s) => s.trim())
-    return `rgb(${parts.join(',')})`
-}
 
 onMounted(async () => {
     appearanceActions.load()
@@ -118,107 +78,6 @@ async function onDeleteWorkspace(id: string) {
         },
     })
 }
-
-// --- Provider handlers ---
-async function handleAddProvider() {
-    await dialog.spawn({
-        title: 'Add provider',
-        schema: providerFormSchema,
-        confirmLabel: 'Create',
-        submit: async (data: DynamicGridDataOutput) => {
-            const row = data.row!
-            await providerActions.createProvider({
-                name: String(row.name ?? ''),
-                type: String(row.type ?? 'openai') as ProviderDto['type'],
-                apiKey: row.apiKey ? String(row.apiKey) : undefined,
-                baseURL: row.baseURL ? String(row.baseURL) : undefined,
-            })
-        },
-    })
-}
-
-async function handleEditProvider(provider: {
-    id: string
-    name: string
-    type: ProviderDto['type']
-    apiKey?: string
-    baseURL?: string
-}) {
-    await dialog.spawn({
-        title: 'Edit provider',
-        schema: providerFormSchema,
-        initialData: {
-            row: {
-                name: provider.name,
-                type: provider.type,
-                apiKey: provider.apiKey ?? '',
-                baseURL: provider.baseURL ?? '',
-            },
-        },
-        confirmLabel: 'Save',
-        submit: async (data: DynamicGridDataOutput) => {
-            const row = data.row!
-            await providerActions.updateProvider(provider.id, {
-                name: String(row.name ?? ''),
-                type: String(row.type ?? 'openai') as ProviderDto['type'],
-                apiKey: row.apiKey ? String(row.apiKey) : undefined,
-                baseURL: row.baseURL ? String(row.baseURL) : undefined,
-            })
-        },
-    })
-}
-
-async function handleDeleteProvider(id: string) {
-    await providerActions.deleteProvider(id)
-}
-
-async function handleAddModel(providerId: string) {
-    await dialog.spawn({
-        title: 'New model',
-        schema: modelFormSchema,
-        confirmLabel: 'Create',
-        submit: async (data: DynamicGridDataOutput) => {
-            const row = data.row!
-            await providerActions.createModel(providerId, {
-                modelId: String(row.modelId ?? ''),
-                displayName: row.displayName ? String(row.displayName) : undefined,
-            })
-        },
-    })
-}
-
-async function handleEditModel(
-    providerId: string,
-    modelId: string,
-    data: { modelId: string; displayName?: string },
-) {
-    await providerActions.updateModel(providerId, modelId, {
-        modelId: data.modelId,
-        displayName: data.displayName,
-    })
-}
-
-async function handleDeleteModel(providerId: string, modelId: string) {
-    await providerActions.deleteModel(providerId, modelId)
-}
-
-async function handleSetDefault(providerId: string, modelId: string) {
-    await providerActions.setDefaultProvider(providerId, modelId)
-}
-
-// --- Appearance handlers ---
-function handleUpdatePreset(preset: string) {
-    appearanceActions.setPreset(preset)
-}
-
-function handleUpdateFontSize(size: number) {
-    appearanceActions.setFontSize(size)
-}
-
-// --- Theme handlers ---
-function handleSetActiveTheme(id: string) {
-    themeActions.setTheme(id)
-}
 </script>
 
 <template>
@@ -230,7 +89,7 @@ function handleSetActiveTheme(id: string) {
             @select-workspace="onSelectWorkspace"
             @create-workspace="onCreateWorkspace"
             @delete-workspace="onDeleteWorkspace"
-            @open-settings="settingsDialog.show()"
+            @open-settings="settingsTab.requestOpen()"
         />
         <RouterView v-slot="{ Component }">
             <div class="router-view">
@@ -238,49 +97,6 @@ function handleSetActiveTheme(id: string) {
             </div>
         </RouterView>
         <DialogContainer />
-
-        <!-- Settings Dialog -->
-        <transition name="dialog-fade">
-            <div
-                v-if="settingsDialog.visible"
-                class="dialog-overlay"
-                @click="settingsDialog.hide()"
-            >
-                <div class="dialog-panel width-xl" @click.stop>
-                    <div class="dialog-header">
-                        <h3 class="dialog-title">Settings</h3>
-                        <button class="btn-close" @click="settingsDialog.hide()" title="Close">
-                            <Xmark width="18" height="18" />
-                        </button>
-                    </div>
-                    <div class="dialog-body">
-                        <SettingsPanel
-                            :providers="providerStorer.providers"
-                            :loading="providerStorer.loading"
-                            :error="providerStorer.error"
-                            :default-provider-id="providerStorer.defaultProviderId"
-                            :default-model-id="providerStorer.defaultModelId"
-                            :preset="appearanceStorer.preset"
-                            :font-size="appearanceStorer.fontSize"
-                            :themes="settingsThemes"
-                            :active-theme-id="themeStorer.activeThemeId"
-                            :presets="APPEARANCE_PRESETS"
-                            @add-provider="handleAddProvider"
-                            @edit-provider="handleEditProvider"
-                            @delete-provider="handleDeleteProvider"
-                            @add-model="handleAddModel"
-                            @edit-model="handleEditModel"
-                            @delete-model="handleDeleteModel"
-                            @set-default="handleSetDefault"
-                            @update-preset="handleUpdatePreset"
-                            @update-font-size="handleUpdateFontSize"
-                            @set-active-theme="handleSetActiveTheme"
-                            @close="settingsDialog.hide()"
-                        />
-                    </div>
-                </div>
-            </div>
-        </transition>
     </div>
 </template>
 
@@ -294,105 +110,5 @@ function handleSetActiveTheme(id: string) {
 .router-view {
     flex: 1;
     min-height: 0;
-}
-
-.dialog-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    background-color: rgba(15, 15, 20, 0.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-
-.dialog-panel {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-height: 90vh;
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    box-shadow:
-        0 4px 8px rgba(15, 15, 20, 0.06),
-        0 12px 24px rgba(15, 15, 20, 0.05);
-    overflow: hidden;
-}
-
-.width-xl {
-    max-width: 960px;
-}
-
-.dialog-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px 8px;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
-}
-
-.dialog-title {
-    font-family: var(--font-serif);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.btn-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition:
-        background-color 150ms ease,
-        color 150ms ease;
-    border: none;
-    background: transparent;
-}
-
-.btn-close:hover:not(:disabled) {
-    background-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-.dialog-body {
-    padding: 14px 20px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.dialog-body::-webkit-scrollbar {
-    width: 4px;
-}
-.dialog-body::-webkit-scrollbar-track {
-    background: transparent;
-}
-.dialog-body::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-.dialog-body::-webkit-scrollbar-thumb:hover {
-    background: var(--border-color);
-}
-
-.dialog-fade-enter-active,
-.dialog-fade-leave-active {
-    transition: opacity 200ms ease;
-}
-
-.dialog-fade-enter-from,
-.dialog-fade-leave-to {
-    opacity: 0;
 }
 </style>

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, Plus } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Plus, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'
@@ -11,17 +11,28 @@ import {
     useChatStorer,
     useProviderStorer,
     useAppearanceStorer,
+    useThemeStorer,
 } from '@/application/stores'
 import {
     workspaceActions,
     chatActions,
     providerActions,
     fileExplorerActions,
+    appearanceActions,
+    themeActions,
 } from '@/application/actions'
 import type { Chat } from '@/core/entities'
+import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
+import SettingsTab from '@/presentation/components/settings/SettingsTab.vue'
+import type {
+    SettingsTabSchema,
+    SettingsTheme,
+} from '@/presentation/components/settings/types/schema'
+import type { DynamicGridDataOutput } from '@/presentation/components/dialog/types'
 import { useSessionCache } from '@/presentation/composables/useSessionCache'
+import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { ContainerGrid } from '@/presentation/components/container'
 import { TabStrip } from '@/presentation/components/tabs'
 import type { TabStripSchema } from '@/presentation/components/tabs'
@@ -30,11 +41,16 @@ import { useTabs } from '@/presentation/composables/useTabs'
 import { FileExplorer } from '@/presentation/components/file-explorer'
 import {
     chatFormSchema,
+    providerFormSchema,
+    modelFormSchema,
     createSidebarChatListSchema,
     createChatTabSchema,
     createChatRailsSchema,
     createWorkspaceLayout,
+    createSettingsTabSchema,
 } from '@/presentation/schemas'
+
+const SETTINGS_TAB_ID = '__settings__'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,7 +58,9 @@ const wsStorer = useWorkspaceStorer()
 const chatStorer = useChatStorer()
 const providerStorer = useProviderStorer()
 const appearanceStorer = useAppearanceStorer()
+const themeStorer = useThemeStorer()
 const dialog = useDialog()
+const settingsTab = useSettingsTab()
 const { getSession, removeSession, clearSessions } = useSessionCache(() => workspaceId.value)
 
 const routeWsId = computed(() => route.params.id as string | undefined)
@@ -87,34 +105,54 @@ const workspaceSchema = computed(() =>
 const { order: openChatIds, activeId: activeChatId, isOpen, open, close, reset } =
     useTabs<string>()
 
+watch(() => settingsTab.requestCount, () => {
+    if (workspace.value) open(SETTINGS_TAB_ID)
+})
+
 const activeChat = computed(() => {
-    if (!activeChatId.value) return null
+    if (!activeChatId.value || activeChatId.value === SETTINGS_TAB_ID) return null
     return getChatById(activeChatId.value)
 })
 
-type ContentView = { type: 'chat'; chatId: string } | { type: 'none' }
+type ContentView = { type: 'chat'; chatId: string } | { type: 'settings' } | { type: 'none' }
 
 const contentView = computed<ContentView>(() => {
+    if (activeChatId.value === SETTINGS_TAB_ID) return { type: 'settings' }
     if (activeChatId.value) return { type: 'chat', chatId: activeChatId.value }
     return { type: 'none' }
 })
 
 watch(activeChatId, (newId) => {
-    if (newId) getSession(newId)
+    if (newId && newId !== SETTINGS_TAB_ID) getSession(newId)
 })
 
-const chatTabStripSchema = computed<TabStripSchema<string>>(() => ({
-    tabs: openChatIds.value.map((id) => ({
-        id,
-        title: getChatById(id)?.title ?? 'Untitled chat',
-        icon: ChatBubbleEmpty,
+const TabStripSchema = computed<TabStripSchema<string>>(() => {
+    const tabs = openChatIds.value
+        .filter((id) => id !== SETTINGS_TAB_ID)
+        .map((id) => ({
+            id,
+            title: getChatById(id)?.title ?? 'Untitled chat',
+            icon: ChatBubbleEmpty,
+            closable: true,
+        }))
+
+    if (isOpen(SETTINGS_TAB_ID)) {
+        tabs.push({
+            id: SETTINGS_TAB_ID,
+            title: 'Settings',
+            icon: SettingsIcon,
+            closable: true,
+        })
+    }
+
+    return {
+        tabs,
+        activeId: activeChatId.value,
         closable: true,
-    })),
-    activeId: activeChatId.value,
-    closable: true,
-    onSelect: (id) => open(id),
-    onClose: (id) => close(id),
-}))
+        onSelect: (id) => open(id),
+        onClose: (id) => close(id),
+    }
+})
 
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
     return createChatTabSchema({
@@ -203,10 +241,158 @@ function onFileSelect(path: string | null) {
     fileExplorerActions.select(path)
 }
 
+const settingsThemes = computed<SettingsTheme[]>(() =>
+    themeStorer.availableThemes.map((t) => ({
+        ...t,
+        swatches: themePreviewColors(t.id),
+    })),
+)
+
+function themePreviewColors(id: string): string[] {
+    const colors = themeActions.getThemePreview(id)
+    if (!colors) return []
+    return [
+        normalizeRgb(colors.bgPrimary),
+        normalizeRgb(colors.bgSecondary),
+        normalizeRgb(colors.border),
+        normalizeRgb(colors.textPrimary),
+    ]
+}
+
+function normalizeRgb(rgb: string): string {
+    const parts = rgb.split(',').map((s) => s.trim())
+    return `rgb(${parts.join(',')})`
+}
+
+async function handleAddProvider() {
+    await dialog.spawn({
+        title: 'Add provider',
+        schema: providerFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data: DynamicGridDataOutput) => {
+            const row = data.row!
+            await providerActions.createProvider({
+                name: String(row.name ?? ''),
+                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
+}
+
+async function handleEditProvider(provider: {
+    id: string
+    name: string
+    type: ProviderDto['type']
+    apiKey?: string
+    baseURL?: string
+}) {
+    await dialog.spawn({
+        title: 'Edit provider',
+        schema: providerFormSchema,
+        initialData: {
+            row: {
+                name: provider.name,
+                type: provider.type,
+                apiKey: provider.apiKey ?? '',
+                baseURL: provider.baseURL ?? '',
+            },
+        },
+        confirmLabel: 'Save',
+        submit: async (data: DynamicGridDataOutput) => {
+            const row = data.row!
+            await providerActions.updateProvider(provider.id, {
+                name: String(row.name ?? ''),
+                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                apiKey: row.apiKey ? String(row.apiKey) : undefined,
+                baseURL: row.baseURL ? String(row.baseURL) : undefined,
+            })
+        },
+    })
+}
+
+async function handleAddModel(providerId: string) {
+    await dialog.spawn({
+        title: 'New model',
+        schema: modelFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data: DynamicGridDataOutput) => {
+            const row = data.row!
+            await providerActions.createModel(providerId, {
+                modelId: String(row.modelId ?? ''),
+                displayName: row.displayName ? String(row.displayName) : undefined,
+            })
+        },
+    })
+}
+
+async function handleEditModel(
+    providerId: string,
+    modelId: string,
+    data: { modelId: string; displayName?: string },
+) {
+    await providerActions.updateModel(providerId, modelId, {
+        modelId: data.modelId,
+        displayName: data.displayName,
+    })
+}
+
+function buildSettingsTabSchema(): SettingsTabSchema {
+    return createSettingsTabSchema({
+        providers: providerStorer.providers,
+        loading: providerStorer.loading,
+        error: providerStorer.error,
+        defaultProviderId: providerStorer.defaultProviderId,
+        defaultModelId: providerStorer.defaultModelId,
+        preset: appearanceStorer.preset,
+        fontSize: appearanceStorer.fontSize,
+        themes: settingsThemes.value,
+        activeThemeId: themeStorer.activeThemeId,
+        presets: APPEARANCE_PRESETS,
+        onAddProvider: handleAddProvider,
+        onEditProvider: handleEditProvider,
+        onDeleteProvider: handleDeleteProvider,
+        onAddModel: handleAddModel,
+        onEditModel: handleEditModel,
+        onDeleteModel: handleDeleteModel,
+        onSetDefault: handleSetDefault,
+        onUpdatePreset: handleUpdatePreset,
+        onUpdateFontSize: handleUpdateFontSize,
+        onSetActiveTheme: handleSetActiveTheme,
+    })
+}
+
+async function handleDeleteModel(providerId: string, modelId: string) {
+    await providerActions.deleteModel(providerId, modelId)
+}
+
+async function handleSetDefault(providerId: string, modelId: string) {
+    await providerActions.setDefaultProvider(providerId, modelId)
+}
+
+async function handleDeleteProvider(id: string) {
+    await providerActions.deleteProvider(id)
+}
+
+
 function cleanupWorkspace() {
     clearSessions()
     fileExplorerActions.stopWatch()
 }
+
+function handleUpdatePreset(preset: string) {
+    appearanceActions.setPreset(preset)
+}
+
+function handleUpdateFontSize(size: number) {
+    appearanceActions.setFontSize(size)
+}
+
+function handleSetActiveTheme(id: string) {
+    themeActions.setTheme(id)
+}
+
 
 watch(routeWsId, (id) => {
     if (id && id !== wsStorer.selectedWorkspaceId) {
@@ -295,7 +481,7 @@ onUnmounted(() => {
 
             <template #content>
                 <div class="ws-content">
-                    <TabStrip v-if="openChatIds.length" :schema="chatTabStripSchema" />
+                    <TabStrip v-if="openChatIds.length" :schema="TabStripSchema" />
                     <div class="ws-content__body">
                         <KeepAlive>
                             <ChatTab
@@ -304,6 +490,10 @@ onUnmounted(() => {
                                 :schema="buildChatTabSchema(activeChat)"
                             />
                         </KeepAlive>
+                        <SettingsTab
+                            v-if="contentView.type === 'settings'"
+                            :schema="buildSettingsTabSchema()"
+                        />
                         <div v-if="!openChatIds.length" class="ws-content__empty">
                             <div class="ws-empty__icon">
                                 <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />

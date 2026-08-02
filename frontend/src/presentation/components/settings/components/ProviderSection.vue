@@ -3,22 +3,10 @@ import { ref, h } from 'vue'
 import { EditPencil, Plus, Star, Trash } from '@iconoir/vue'
 import { pButton } from '@/presentation/components/button'
 import type { Provider, Model } from '@/core/entities'
-import type { ProviderSectionProps } from '../types'
+import type { ResolvedProviderSection } from '../types/resolved'
 
-const props = defineProps<ProviderSectionProps>()
-
-const emit = defineEmits<{
-    'add-provider': []
-    'edit-provider': [provider: Provider]
-    'delete-provider': [id: string]
-    'add-model': [providerId: string]
-    'edit-model': [
-        providerId: string,
-        modelId: string,
-        data: { modelId: string; displayName?: string },
-    ]
-    'delete-model': [providerId: string, modelId: string]
-    'set-default': [providerId: string, modelId: string]
+const props = defineProps<{
+    resolved: ResolvedProviderSection
 }>()
 
 const PlusIcon = () => h(Plus, { width: 14, height: 14 })
@@ -43,7 +31,7 @@ function toggleProviderExpand(providerId: string) {
 }
 
 function isDefault(p: Provider, m: Model): boolean {
-    return props.defaultProviderId === p.id && props.defaultModelId === m.id
+    return props.resolved.defaultProviderId === p.id && props.resolved.defaultModelId === m.id
 }
 
 function maskKey(key?: string): string {
@@ -53,47 +41,47 @@ function maskKey(key?: string): string {
 }
 
 function handleProviderAdd() {
-    emit('add-provider')
+    props.resolved.onAddProvider?.()
 }
 function handleProviderEdit(p: Provider) {
-    emit('edit-provider', p)
+    props.resolved.onEditProvider?.(p)
 }
 function handleProviderDelete(p: Provider) {
-    emit('delete-provider', p.id)
+    props.resolved.onDeleteProvider?.(p.id)
 }
 function handleModelAdd(providerId: string) {
-    emit('add-model', providerId)
+    props.resolved.onAddModel?.(providerId)
 }
 function handleModelEdit(providerId: string, m: Model) {
-    emit('edit-model', providerId, m.id, {
+    props.resolved.onEditModel?.(providerId, m.id, {
         modelId: m.modelId,
         displayName: m.displayName ?? '',
     })
 }
 function handleModelDelete(providerId: string, m: Model) {
-    emit('delete-model', providerId, m.id)
+    props.resolved.onDeleteModel?.(providerId, m.id)
 }
 function handleSetDefault(provider: Provider, model: Model) {
-    emit('set-default', provider.id, model.id)
+    props.resolved.onSetDefault?.(provider.id, model.id)
 }
 </script>
 
 <template>
     <div>
-        <div v-if="loading && !providers.length" class="section-empty">
+        <div v-if="resolved.loading && !resolved.providers.length" class="section-empty">
             <span class="text-muted">Loading...</span>
         </div>
 
-        <div v-else-if="error && !providers.length" class="section-empty">
-            <span class="text-muted">{{ error }}</span>
+        <div v-else-if="resolved.error && !resolved.providers.length" class="section-empty">
+            <span class="text-muted">{{ resolved.error }}</span>
         </div>
 
-        <div v-else-if="!providers.length" class="section-empty">
+        <div v-else-if="!resolved.providers.length" class="section-empty">
             <span class="empty-text">No providers yet</span>
         </div>
 
         <div v-else class="provider-list">
-            <div v-for="provider in providers" :key="provider.id" class="provider-card">
+            <div v-for="provider in resolved.providers" :key="provider.id" class="provider-card">
                 <div class="provider-card-header" @click="toggleProviderExpand(provider.id)">
                     <span class="provider-name">{{ provider.name }}</span>
                     <span class="provider-type-badge">{{ provider.type }}</span>

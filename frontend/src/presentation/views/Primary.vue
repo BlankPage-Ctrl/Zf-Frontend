@@ -8,7 +8,7 @@ import { Header } from '@/presentation/components/header'
 import type { HeaderSchema } from '@/presentation/components/header'
 import { ContainerGrid } from '@/presentation/components/container'
 import { useDialog } from '@/presentation/composables/useDialog'
-import { useSettingsDialog } from '@/presentation/composables/useSettingsDialog'
+import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { AppList } from '@/presentation/components/list'
 import { useWorkspaceStorer } from '@/application/stores'
 import { useChatStorer } from '@/application/stores'
@@ -27,10 +27,10 @@ const wsStorer = useWorkspaceStorer()
 const chatStorer = useChatStorer()
 const router = useRouter()
 const dialog = useDialog()
-const settingsDialog = useSettingsDialog()
+const settingsTab = useSettingsTab()
 
 function goToSettings() {
-    settingsDialog.show()
+    settingsTab.requestOpen()
 }
 
 // --- Header schemas ---

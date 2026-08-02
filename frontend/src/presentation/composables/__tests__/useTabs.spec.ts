@@ -100,4 +100,46 @@ describe('useTabs', () => {
         tabs.activate('b')
         expect(tabs.activeTab.value).toBe('b')
     })
+
+    it('stores metadata when opening with meta', () => {
+        const tabs = useTabs<string, { chatId: string }>()
+        tabs.open('a', { chatId: 'chat-a' })
+        expect(tabs.getMeta('a')).toEqual({ chatId: 'chat-a' })
+    })
+
+    it('activeMeta follows the active tab', () => {
+        const tabs = useTabs<string, { kind: string }>()
+        tabs.open('a', { kind: 'chat' })
+        expect(tabs.activeMeta.value).toEqual({ kind: 'chat' })
+        tabs.open('b', { kind: 'settings' })
+        expect(tabs.activeMeta.value).toEqual({ kind: 'settings' })
+    })
+
+    it('activeMeta is null with no active tab', () => {
+        const tabs = useTabs<string, { kind: string }>()
+        expect(tabs.activeMeta.value).toBeNull()
+    })
+
+    it('opening without meta keeps existing metadata', () => {
+        const tabs = useTabs<string, { kind: string }>()
+        tabs.open('a', { kind: 'chat' })
+        tabs.activate('b')
+        tabs.open('a')
+        expect(tabs.getMeta('a')).toEqual({ kind: 'chat' })
+    })
+
+    it('closing a tab removes its metadata', () => {
+        const tabs = useTabs<string, { chatId: string }>()
+        tabs.open('a', { chatId: 'chat-a' })
+        tabs.close('a')
+        expect(tabs.getMeta('a')).toBeUndefined()
+        expect(tabs.activeMeta.value).toBeNull()
+    })
+
+    it('reset clears all metadata', () => {
+        const tabs = useTabs<string, { kind: string }>()
+        tabs.open('a', { kind: 'chat' })
+        tabs.reset()
+        expect(tabs.getMeta('a')).toBeUndefined()
+    })
 })

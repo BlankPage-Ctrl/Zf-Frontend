@@ -35,7 +35,7 @@ import { useSessionCache } from '@/presentation/composables/useSessionCache'
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { ContainerGrid } from '@/presentation/components/container'
 import { TabStrip } from '@/presentation/components/tabs'
-import type { TabStripSchema } from '@/presentation/components/tabs'
+import type { TabStripSchema as WsTabStripSchema } from '@/presentation/components/tabs'
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
 import { useTabs } from '@/presentation/composables/useTabs'
 import { FileExplorer } from '@/presentation/components/file-explorer'
@@ -51,6 +51,12 @@ import {
 } from '@/presentation/schemas'
 
 const SETTINGS_TAB_ID = '__settings__'
+
+type TabMeta = { kind: 'chat'; chatId: string } | { kind: 'settings' }
+
+function chatTabMeta(chatId: string): TabMeta {
+    return { kind: 'chat', chatId }
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -102,23 +108,25 @@ const workspaceSchema = computed(() =>
     }),
 )
 
-const { order: openChatIds, activeId: activeChatId, isOpen, open, close, reset } =
-    useTabs<string>()
+const { order: openChatIds, activeId: activeChatId, activeMeta, isOpen, open, close, reset } =
+    useTabs<string, TabMeta>()
 
 watch(() => settingsTab.requestCount, () => {
-    if (workspace.value) open(SETTINGS_TAB_ID)
+    if (workspace.value) open(SETTINGS_TAB_ID, { kind: 'settings' })
 })
 
 const activeChat = computed(() => {
-    if (!activeChatId.value || activeChatId.value === SETTINGS_TAB_ID) return null
-    return getChatById(activeChatId.value)
+    const meta = activeMeta.value
+    if (!meta || meta.kind !== 'chat') return null
+    return getChatById(meta.chatId)
 })
 
 type ContentView = { type: 'chat'; chatId: string } | { type: 'settings' } | { type: 'none' }
 
 const contentView = computed<ContentView>(() => {
-    if (activeChatId.value === SETTINGS_TAB_ID) return { type: 'settings' }
-    if (activeChatId.value) return { type: 'chat', chatId: activeChatId.value }
+    const meta = activeMeta.value
+    if (meta?.kind === 'settings') return { type: 'settings' }
+    if (meta?.kind === 'chat') return { type: 'chat', chatId: meta.chatId }
     return { type: 'none' }
 })
 
@@ -126,7 +134,7 @@ watch(activeChatId, (newId) => {
     if (newId && newId !== SETTINGS_TAB_ID) getSession(newId)
 })
 
-const TabStripSchema = computed<TabStripSchema<string>>(() => {
+const WsTabStripSchema = computed<WsTabStripSchema<string>>(() => {
     const tabs = openChatIds.value
         .filter((id) => id !== SETTINGS_TAB_ID)
         .map((id) => ({
@@ -195,7 +203,7 @@ const chatListSchema = computed(() =>
     createSidebarChatListSchema({
         activeChatId: activeChatId.value ?? undefined,
         onSelect: (chat) => {
-            open(chat.id)
+            open(chat.id, chatTabMeta(chat.id))
         },
         onEdit: openChatEdit,
         onDelete: confirmDeleteChat,
@@ -433,7 +441,7 @@ watch(
 
         const chatId = route.query.chat as string | undefined
         if (chatId && chatStorer.chats.some((c) => c.id === chatId)) {
-            open(chatId)
+            open(chatId, chatTabMeta(chatId))
         }
     },
     { immediate: true },
@@ -481,7 +489,7 @@ onUnmounted(() => {
 
             <template #content>
                 <div class="ws-content">
-                    <TabStrip v-if="openChatIds.length" :schema="TabStripSchema" />
+                    <TabStrip v-if="openChatIds.length" :schema="WsTabStripSchema" />
                     <div class="ws-content__body">
                         <KeepAlive>
                             <ChatTab

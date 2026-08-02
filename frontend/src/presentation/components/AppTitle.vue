@@ -93,14 +93,16 @@ function openSettings() {
             </button>
         </div>
 
-        <button
-            class="ws-add-btn ws-settings-btn"
-            @click="openSettings"
-            title="Settings"
-            aria-label="Settings"
-        >
-            <SettingsIcon width="14" height="14" />
-        </button>
+        <div class="title-actions">
+            <button
+                class="title-action-btn ws-settings-btn"
+                @click="openSettings"
+                title="Settings"
+                aria-label="Settings"
+            >
+                <SettingsIcon width="14" height="14" />
+            </button>
+        </div>
     </div>
 </template>
 
@@ -183,6 +185,35 @@ function openSettings() {
 }
 
 .ws-add-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.title-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    -webkit-app-region: no-drag;
+}
+
+.title-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    border: none;
+    transition:
+        background-color 80ms ease,
+        color 80ms ease;
+}
+
+.title-action-btn:hover {
     background: var(--border-color);
     color: var(--text-primary);
 }

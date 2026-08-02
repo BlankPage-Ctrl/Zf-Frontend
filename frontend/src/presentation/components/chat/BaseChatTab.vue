@@ -10,9 +10,9 @@ defineProps<{
 
 <template>
     <div class="chat-tab-content">
-        <div class="chat-tab-header">
+        <!-- <div class="chat-tab-header">
             <h2 class="chat-tab-title">{{ resolved.header.title }}</h2>
-        </div>
+        </div> -->
         <BaseMessageList :resolved="resolved.messageList" />
         <BaseChatInput :resolved="resolved.input" />
     </div>

@@ -23,7 +23,10 @@ import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
 import { useSessionCache } from '@/presentation/composables/useSessionCache'
 import { ContainerGrid } from '@/presentation/components/container'
+import { TabStrip } from '@/presentation/components/tabs'
+import type { TabStripSchema } from '@/presentation/components/tabs'
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
+import { useTabs } from '@/presentation/composables/useTabs'
 import { FileExplorer } from '@/presentation/components/file-explorer'
 import {
     chatFormSchema,
@@ -81,7 +84,8 @@ const workspaceSchema = computed(() =>
     }),
 )
 
-const activeChatId = ref<string | null>(null)
+const { order: openChatIds, activeId: activeChatId, isOpen, open, close, reset } =
+    useTabs<string>()
 
 const activeChat = computed(() => {
     if (!activeChatId.value) return null
@@ -98,6 +102,19 @@ const contentView = computed<ContentView>(() => {
 watch(activeChatId, (newId) => {
     if (newId) getSession(newId)
 })
+
+const chatTabStripSchema = computed<TabStripSchema<string>>(() => ({
+    tabs: openChatIds.value.map((id) => ({
+        id,
+        title: getChatById(id)?.title ?? 'Untitled chat',
+        icon: ChatBubbleEmpty,
+        closable: true,
+    })),
+    activeId: activeChatId.value,
+    closable: true,
+    onSelect: (id) => open(id),
+    onClose: (id) => close(id),
+}))
 
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
     return createChatTabSchema({
@@ -140,7 +157,7 @@ const chatListSchema = computed(() =>
     createSidebarChatListSchema({
         activeChatId: activeChatId.value ?? undefined,
         onSelect: (chat) => {
-            activeChatId.value = chat.id
+            open(chat.id)
         },
         onEdit: openChatEdit,
         onDelete: confirmDeleteChat,
@@ -169,8 +186,8 @@ async function confirmDeleteChat(chat: Chat) {
         confirmLabel: 'Delete',
         confirmVariant: 'danger',
         submit: async () => {
-            if (activeChatId.value === chat.id) {
-                activeChatId.value = null
+            if (isOpen(chat.id)) {
+                close(chat.id)
             }
             removeSession(chat.id)
             await chatActions.deleteChat(workspaceId.value, chat.id)
@@ -217,7 +234,7 @@ watch(
         if (newId === oldId) return
 
         cleanupWorkspace()
-        activeChatId.value = null
+        reset()
         await chatActions.fetchChats(newId)
         providerActions.fetchProviders()
 
@@ -230,7 +247,7 @@ watch(
 
         const chatId = route.query.chat as string | undefined
         if (chatId && chatStorer.chats.some((c) => c.id === chatId)) {
-            activeChatId.value = chatId
+            open(chatId)
         }
     },
     { immediate: true },
@@ -277,17 +294,26 @@ onUnmounted(() => {
             </template>
 
             <template #content>
-                <ChatTab
-                    v-if="contentView.type === 'chat' && activeChat"
-                    :key="activeChat.id"
-                    :schema="buildChatTabSchema(activeChat)"
-                />
-                <div v-else class="ws-content__empty">
-                    <div class="ws-empty__icon">
-                        <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
+                <div class="ws-content">
+                    <TabStrip v-if="openChatIds.length" :schema="chatTabStripSchema" />
+                    <div class="ws-content__body">
+                        <KeepAlive>
+                            <ChatTab
+                                v-if="contentView.type === 'chat' && activeChat"
+                                :key="activeChat.id"
+                                :schema="buildChatTabSchema(activeChat)"
+                            />
+                        </KeepAlive>
+                        <div v-if="!openChatIds.length" class="ws-content__empty">
+                            <div class="ws-empty__icon">
+                                <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
+                            </div>
+                            <h2 class="ws-empty__title">
+                                Just Select something on the sidebar, vro ✌🏻🥹
+                            </h2>
+                            <p class="ws-empty__desc">What will you have after 500 years!?.</p>
+                        </div>
                     </div>
-                    <h2 class="ws-empty__title">Just Select something on the sidebar, vro ✌🏻🥹</h2>
-                    <p class="ws-empty__desc">What will you have after 500 years!?.</p>
                 </div>
             </template>
         </ContainerGrid>

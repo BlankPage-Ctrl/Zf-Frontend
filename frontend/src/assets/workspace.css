@@ -61,6 +61,25 @@
 
 /* --- Content --- */
 
+.ws-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.ws-content__body {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.ws-content__body > * {
+    min-height: 0;
+}
+
 .ws-content__empty {
     display: flex;
     flex-direction: column;

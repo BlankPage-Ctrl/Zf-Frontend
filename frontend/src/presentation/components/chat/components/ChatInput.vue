@@ -19,7 +19,7 @@ const modelDropdownStyle: StyleConfig = {
     },
     item: {
         padding: '3px 8px',
-        fontSize: '11px',
+        fontSize: 'var(--type-xs)',
         borderRadius: '4px',
         hoverBackground: 'var(--border-color)',
         focusedBackground: 'var(--border-color)',

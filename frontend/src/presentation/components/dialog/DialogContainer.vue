@@ -30,7 +30,7 @@ import { dialogs, submitDialog, cancelDialog } from '@/presentation/composables/
 <style scoped>
 .dialog-message {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--type-md);
     line-height: 1.5;
     color: var(--text-primary);
     opacity: 0.8;

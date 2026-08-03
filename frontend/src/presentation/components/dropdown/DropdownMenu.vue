@@ -209,11 +209,11 @@ watch(
 
 .dropdown-label {
     padding: 5px 10px 3px;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: var(--type-2xs);
+    font-weight: 600;
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     cursor: default;
     user-select: none;
     white-space: nowrap;

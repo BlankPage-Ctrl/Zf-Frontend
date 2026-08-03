@@ -234,14 +234,14 @@ watch(
 
 .welcome-title {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: var(--type-2xl);
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 6px;
 }
 
 .welcome-desc {
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--text-primary);
     opacity: 0.5;
     max-width: 300px;

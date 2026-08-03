@@ -93,12 +93,12 @@ const handleFocus = (e: FocusEvent) => {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 10px;
+    font-size: var(--type-2xs);
     font-weight: 600;
     color: var(--text-primary);
     opacity: 0.55;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     margin-bottom: 4px;
     user-select: none;
     transition: color 150ms ease;
@@ -121,7 +121,7 @@ const handleFocus = (e: FocusEvent) => {
 .base-textarea {
     width: 100%;
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: var(--type-sm);
     border-radius: 4px;
     border: 1px solid var(--border-color);
     background: var(--bg-primary);
@@ -165,7 +165,7 @@ const handleFocus = (e: FocusEvent) => {
 
 .error-text {
     display: block;
-    font-size: 11px;
+    font-size: var(--type-xs);
     font-weight: 500;
     color: var(--color-danger);
     line-height: 1.2;
@@ -173,7 +173,7 @@ const handleFocus = (e: FocusEvent) => {
 
 .helper-text {
     display: block;
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.45;
     line-height: 1.2;

@@ -67,7 +67,7 @@
 
 .tabs-item__title {
     font-family: var(--font-serif);
-    font-size: 11px;
+    font-size: var(--type-xs);
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;

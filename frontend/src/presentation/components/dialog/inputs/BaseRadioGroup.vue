@@ -89,12 +89,12 @@ const selectedValue = computed({
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 10px;
+    font-size: var(--type-2xs);
     font-weight: 600;
     color: var(--text-primary);
     opacity: 0.55;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     margin-bottom: 6px;
     user-select: none;
     transition: color 150ms ease;
@@ -125,7 +125,7 @@ const selectedValue = computed({
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: var(--type-sm);
     color: var(--text-primary);
     cursor: pointer;
     user-select: none;
@@ -192,7 +192,7 @@ const selectedValue = computed({
 }
 
 .option-text {
-    font-size: 12px;
+    font-size: var(--type-sm);
     line-height: 1;
 }
 
@@ -203,7 +203,7 @@ const selectedValue = computed({
 
 .error-text {
     display: block;
-    font-size: 11px;
+    font-size: var(--type-xs);
     font-weight: 500;
     color: var(--color-danger);
     line-height: 1.2;
@@ -211,7 +211,7 @@ const selectedValue = computed({
 
 .helper-text {
     display: block;
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.45;
     line-height: 1.2;

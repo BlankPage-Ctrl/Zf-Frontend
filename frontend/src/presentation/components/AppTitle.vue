@@ -149,7 +149,7 @@ function openSettings() {
 .ws-trigger__label {
     flex: 1;
     min-width: 0;
-    font-size: 12px;
+    font-size: var(--type-sm);
     font-weight: 500;
     color: var(--text-primary);
     opacity: 0.75;

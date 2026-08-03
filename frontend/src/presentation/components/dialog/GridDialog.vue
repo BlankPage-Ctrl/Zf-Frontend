@@ -271,7 +271,7 @@ watch(
 
 .dialog-title {
     font-family: var(--font-serif);
-    font-size: 15px;
+    font-size: var(--type-xl);
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--text-primary);
@@ -347,7 +347,7 @@ watch(
     border-radius: 4px;
     background-color: var(--border-color);
     color: var(--text-primary);
-    font-size: 12px;
+    font-size: var(--type-sm);
     font-weight: 600;
     opacity: 0.6;
     transition:
@@ -374,7 +374,7 @@ watch(
     border: 1px solid var(--border-color);
     background-color: transparent;
     color: var(--text-primary);
-    font-size: 12px;
+    font-size: var(--type-sm);
     font-weight: 500;
     opacity: 0.5;
     transition:
@@ -466,7 +466,7 @@ watch(
 }
 
 .dialog-panel--dense .dialog-title {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 
 .dialog-panel--dense .btn-close {
@@ -487,14 +487,14 @@ watch(
     height: 26px;
     padding: 0 10px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 
 .dialog-panel--dense .btn-cancel {
     height: 26px;
     padding: 0 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 
 .dialog-panel--dense .spinner-inline {

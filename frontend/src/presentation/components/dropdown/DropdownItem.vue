@@ -107,7 +107,7 @@ const showIconArea = computed(() => {
     align-items: center;
     gap: 8px;
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: var(--type-sm);
     color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;
@@ -118,7 +118,7 @@ const showIconArea = computed(() => {
 
 .dropdown-item--dense {
     padding: 4px 8px;
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 
 .dropdown-item--focused {
@@ -181,7 +181,7 @@ const showIconArea = computed(() => {
 }
 
 .dropdown-item__shortcut {
-    font-size: 10px;
+    font-size: var(--type-2xs);
     color: var(--text-primary);
     margin-left: auto;
     padding-left: 12px;

@@ -119,7 +119,7 @@ const borderClass = computed(() => (props.schema.border ? 'header--border' : '')
 }
 
 .header--sidebar :deep(.header-title) {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 
 /* --- Variant: workspace --- */

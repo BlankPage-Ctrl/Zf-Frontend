@@ -60,7 +60,7 @@ const emit = defineEmits<{
     display: flex;
     align-items: center;
     height: 22px;
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--text-primary);
     cursor: default;
     user-select: none;
@@ -142,7 +142,7 @@ const emit = defineEmits<{
 
 .fe-item__symlink {
     margin-left: 4px;
-    font-size: 10px;
+    font-size: var(--type-2xs);
     opacity: 0.4;
     flex-shrink: 0;
 }

@@ -48,9 +48,9 @@ const workspaceDisplayName = computed(() => {
 }
 
 .fe-header__title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: var(--type-2xs);
+    font-weight: 600;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-primary);
     opacity: 0.5;

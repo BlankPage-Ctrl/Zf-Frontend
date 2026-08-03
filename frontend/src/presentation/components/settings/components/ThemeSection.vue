@@ -97,7 +97,7 @@ function handleThemeSetActive(id: string) {
 }
 
 .theme-name {
-    font-size: 13px;
+    font-size: var(--type-md);
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -111,7 +111,7 @@ function handleThemeSetActive(id: string) {
 }
 
 .active-label {
-    font-size: 10px;
+    font-size: var(--type-2xs);
     font-weight: 500;
     color: var(--color-success);
     padding: 2px 6px;

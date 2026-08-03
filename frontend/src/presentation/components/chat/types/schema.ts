@@ -39,6 +39,8 @@ export interface MessageListSchema {
     messages: UIMessage[]
     loading?: boolean
     contentWidth?: number
+    fontSize?: number
+    lineHeight?: number
     emptyMessage?: string
     emptyHint?: string
 }

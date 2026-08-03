@@ -145,12 +145,17 @@ function getToolToolName(part: unknown): string {
     return String(p.toolCallId ?? 'tool')
 }
 
-export function resolveMessagePart(part: UIMessage['parts'][number]): MessagePartSchema {
+export function resolveMessagePart(
+    part: UIMessage['parts'][number],
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema {
     if (isTextUIPart(part)) {
         return {
             type: 'text',
             text: part.text,
             state: 'state' in part ? (part.state as string | undefined) : undefined,
+            fontSize: defaults?.fontSize,
+            lineHeight: defaults?.lineHeight,
         }
     }
     if (isReasoningUIPart(part)) {

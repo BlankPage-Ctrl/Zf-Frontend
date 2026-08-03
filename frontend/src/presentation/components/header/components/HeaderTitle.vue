@@ -22,7 +22,7 @@ defineProps<{
 
 .header-title {
     font-family: var(--font-serif);
-    font-size: 14px;
+    font-size: var(--type-lg);
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--text-primary);
@@ -33,7 +33,7 @@ defineProps<{
 }
 
 .header-subtitle {
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.45;
 }

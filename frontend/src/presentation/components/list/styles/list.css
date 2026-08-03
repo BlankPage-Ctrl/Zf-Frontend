@@ -51,7 +51,7 @@
     background: var(--border-color);
 }
 
-.dl-item--active .dl-item__title {
+.dl-item--active .dl-item__field--title {
     font-weight: 700;
 }
 
@@ -97,30 +97,29 @@
 }
 
 .dl-item--xs .dl-item__field--title {
-    font-size: 12px;
+    font-size: var(--type-sm);
 }
 .dl-item--sm .dl-item__field--title {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 .dl-item--md .dl-item__field--title {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 
 .dl-item__field--subtitle {
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.55;
 }
 
 .dl-item__field--meta {
-    font-size: 10px;
-    font-family: var(--font-serif);
+    font-size: var(--type-2xs);
     color: var(--text-primary);
     opacity: 0.35;
 }
 
 .dl-item__field--date {
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.35;
 }
@@ -128,68 +127,68 @@
 /* --- Text size presets --- */
 
 .dl-item--text-xs .dl-item__field--title {
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 .dl-item--text-xs .dl-item__field--subtitle {
-    font-size: 10px;
+    font-size: var(--type-2xs);
 }
 .dl-item--text-xs .dl-item__field--meta {
-    font-size: 9px;
+    font-size: var(--type-2xs);
 }
 .dl-item--text-xs .dl-item__field--date {
-    font-size: 10px;
+    font-size: var(--type-2xs);
 }
 
 .dl-item--text-sm .dl-item__field--title {
-    font-size: 12px;
+    font-size: var(--type-sm);
 }
 .dl-item--text-sm .dl-item__field--subtitle {
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 .dl-item--text-sm .dl-item__field--meta {
-    font-size: 10px;
+    font-size: var(--type-2xs);
 }
 .dl-item--text-sm .dl-item__field--date {
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 
 .dl-item--text-md .dl-item__field--title {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 .dl-item--text-md .dl-item__field--subtitle {
-    font-size: 12px;
+    font-size: var(--type-sm);
 }
 .dl-item--text-md .dl-item__field--meta {
-    font-size: 11px;
+    font-size: var(--type-xs);
 }
 .dl-item--text-md .dl-item__field--date {
-    font-size: 12px;
+    font-size: var(--type-sm);
 }
 
 .dl-item--text-lg .dl-item__field--title {
-    font-size: 14px;
+    font-size: var(--type-lg);
 }
 .dl-item--text-lg .dl-item__field--subtitle {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 .dl-item--text-lg .dl-item__field--meta {
-    font-size: 12px;
+    font-size: var(--type-sm);
 }
 .dl-item--text-lg .dl-item__field--date {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 
 .dl-item--text-xl .dl-item__field--title {
-    font-size: 15px;
+    font-size: var(--type-xl);
 }
 .dl-item--text-xl .dl-item__field--subtitle {
-    font-size: 14px;
+    font-size: var(--type-lg);
 }
 .dl-item--text-xl .dl-item__field--meta {
-    font-size: 13px;
+    font-size: var(--type-md);
 }
 .dl-item--text-xl .dl-item__field--date {
-    font-size: 14px;
+    font-size: var(--type-lg);
 }
 
 .dl-item--text-custom .dl-item__field--title {
@@ -243,7 +242,7 @@
 }
 
 .dl-empty__message {
-    font-size: 12px;
+    font-size: var(--type-sm);
     color: var(--text-primary);
     opacity: 0.45;
 }
@@ -293,7 +292,7 @@
     border-radius: 4px;
     cursor: pointer;
     color: var(--text-primary);
-    font-size: 12px;
+    font-size: var(--type-sm);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -307,7 +306,7 @@
 .dl-sub-item--label {
     cursor: default;
     opacity: 0.45;
-    font-size: 11px;
+    font-size: var(--type-xs);
     font-style: italic;
 }
 

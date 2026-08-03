@@ -28,14 +28,14 @@
 
 .ws-empty-title {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: var(--type-2xl);
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
 
 .ws-empty-desc {
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--text-primary);
     opacity: 0.5;
     max-width: 300px;
@@ -97,14 +97,14 @@
 
 .ws-empty__title {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: var(--type-2xl);
     font-weight: 600;
     color: var(--ws-text);
     margin: 0 0 6px;
 }
 
 .ws-empty__desc {
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--ws-text);
     opacity: 0.5;
     max-width: 280px;
@@ -125,7 +125,7 @@
 .ws-sidebar__title {
     flex: 1;
     font-family: var(--font-serif);
-    font-size: 13px;
+    font-size: var(--type-md);
     font-weight: 600;
     color: var(--ws-text);
     white-space: nowrap;

@@ -207,13 +207,13 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .provider-name {
     font-family: var(--font-serif);
-    font-size: 12px;
+    font-size: var(--type-sm);
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .provider-type-badge {
-    font-size: 9px;
+    font-size: var(--type-2xs);
     font-weight: 500;
     padding: 1px 5px;
     border-radius: 9999px;
@@ -224,15 +224,15 @@ function handleSetDefault(provider: Provider, model: Model) {
 }
 
 .provider-key {
-    font-size: 10px;
-    font-family: var(--font-serif);
+    font-size: var(--type-2xs);
+    font-family: var(--font-mono);
     color: var(--text-primary);
     opacity: 0.35;
 }
 
 .provider-url {
-    font-size: 10px;
-    font-family: var(--font-serif);
+    font-size: var(--type-2xs);
+    font-family: var(--font-mono);
     color: var(--text-primary);
     opacity: 0.35;
     white-space: nowrap;
@@ -255,7 +255,7 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .model-empty {
     padding: 6px 0 2px;
-    font-size: 11px;
+    font-size: var(--type-xs);
     color: var(--text-primary);
     opacity: 0.4;
 }
@@ -287,20 +287,20 @@ function handleSetDefault(provider: Provider, model: Model) {
 }
 
 .model-name {
-    font-size: 11px;
+    font-size: var(--type-xs);
     font-weight: 500;
     color: var(--text-primary);
 }
 
 .model-id {
-    font-size: 10px;
-    font-family: var(--font-serif);
+    font-size: var(--type-2xs);
+    font-family: var(--font-mono);
     color: var(--text-primary);
     opacity: 0.35;
 }
 
 .default-badge {
-    font-size: 9px;
+    font-size: var(--type-2xs);
     font-weight: 500;
     padding: 1px 5px;
     border-radius: 9999px;
@@ -335,7 +335,7 @@ function handleSetDefault(provider: Provider, model: Model) {
 }
 
 .empty-text {
-    font-size: 12px;
+    font-size: var(--type-sm);
     color: var(--text-primary);
     opacity: 0.5;
 }

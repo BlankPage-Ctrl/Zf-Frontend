@@ -12,6 +12,8 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             messages: schema.messages,
             loading: schema.loading,
             contentWidth: schema.contentWidth,
+            fontSize: schema.fontSize,
+            lineHeight: schema.lineHeight,
             emptyMessage: schema.emptyMessage,
             emptyHint: schema.emptyHint,
         }),

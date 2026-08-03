@@ -12,9 +12,7 @@ export interface WorkspaceStoreLogic {
     selectWorkspace(id: string | null): void
 }
 
-export function createWorkspaceStoreLogic(
-    getStorer: () => WorkspaceStorer,
-): WorkspaceStoreLogic {
+export function createWorkspaceStoreLogic(getStorer: () => WorkspaceStorer): WorkspaceStoreLogic {
     function beginLoad(): void {
         const storer = getStorer()
         storer.setLoading(true)

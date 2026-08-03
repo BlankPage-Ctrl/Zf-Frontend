@@ -1,11 +1,7 @@
 export { default as SettingsTab } from './SettingsTab.vue'
 export { default as BaseSettingsTab } from './BaseSettingsTab.vue'
 
-export type {
-    SettingsTabSchema,
-    SettingsTheme,
-    PresetOption,
-} from './types/schema.ts'
+export type { SettingsTabSchema, SettingsTheme, PresetOption } from './types/schema.ts'
 export type {
     ResolvedSettingsTab,
     ResolvedProviderSection,

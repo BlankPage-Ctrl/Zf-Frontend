@@ -51,7 +51,7 @@ export function useTabs<Key, Meta = undefined>(initial: Key[] = []) {
     const activeTab = computed<Key | null>(() => activeId.value)
     const activeMeta = computed<Meta | null>(() => {
         const id = activeId.value
-        return id === null ? null : metas.get(id) ?? null
+        return id === null ? null : (metas.get(id) ?? null)
     })
 
     return {

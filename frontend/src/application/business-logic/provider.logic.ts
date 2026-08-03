@@ -28,8 +28,7 @@ export function createProviderBusinessLogic(
         updateProvider: (id, dto) => deps.providersRepo.update(id, dto),
         removeProvider: (id) => deps.providersRepo.remove(id),
         createModel: (providerId, dto) => deps.modelsRepo.create(providerId, dto),
-        updateModel: (providerId, modelId, dto) =>
-            deps.modelsRepo.update(providerId, modelId, dto),
+        updateModel: (providerId, modelId, dto) => deps.modelsRepo.update(providerId, modelId, dto),
         removeModel: (providerId, modelId) => deps.modelsRepo.remove(providerId, modelId),
         getDefaultProvider: () => deps.settingsRepo.getDefaultProvider(),
         setDefaultProvider: (providerId, modelId) =>

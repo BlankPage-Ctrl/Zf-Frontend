@@ -43,10 +43,7 @@ import { createChatSessionActions } from './chat-session.actions'
 const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
 const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
 
-export const workspaceActions = createWorkspaceActions(
-    workspaceStoreLogic,
-    workspaceBusinessLogic,
-)
+export const workspaceActions = createWorkspaceActions(workspaceStoreLogic, workspaceBusinessLogic)
 
 const chatStoreLogic = createChatStoreLogic(() => useChatStorer())
 const chatBusinessLogic = createChatBusinessLogic(chatsRepository)

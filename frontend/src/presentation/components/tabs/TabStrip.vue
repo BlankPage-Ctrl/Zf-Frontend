@@ -9,10 +9,7 @@ const props = defineProps<{
     schema: TabStripSchema
 }>()
 
-const rootClass = computed(() =>
-    ['tabs-root', props.schema.class ?? '']
-        .filter(Boolean)
-        .join(' '))
+const rootClass = computed(() => ['tabs-root', props.schema.class ?? ''].filter(Boolean).join(' '))
 </script>
 
 <style src="./styles/index.css"></style>

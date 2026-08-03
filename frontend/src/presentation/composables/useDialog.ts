@@ -1,5 +1,8 @@
 import { reactive } from 'vue'
-import type { DialogGridSchema, DynamicGridDataOutput } from '@/presentation/components/dialog/types'
+import type {
+    DialogGridSchema,
+    DynamicGridDataOutput,
+} from '@/presentation/components/dialog/types'
 
 export interface DialogOptions {
     title: string

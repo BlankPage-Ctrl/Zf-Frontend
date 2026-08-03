@@ -1,4 +1,8 @@
-import type { SettingsTabSchema, SettingsTheme, PresetOption } from '@/presentation/components/settings/types/schema'
+import type {
+    SettingsTabSchema,
+    SettingsTheme,
+    PresetOption,
+} from '@/presentation/components/settings/types/schema'
 import type { Provider } from '@/core/entities'
 
 export interface SettingsTabParams {

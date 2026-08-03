@@ -21,7 +21,11 @@
     --markdown-background: var(--markdown-bg-primary);
     --markdown-foreground: var(--markdown-text-primary);
     --markdown-muted: var(--markdown-bg-secondary);
-    --markdown-muted-foreground: color-mix(in srgb, var(--markdown-text-primary) 65%, var(--markdown-bg-primary));
+    --markdown-muted-foreground: color-mix(
+        in srgb,
+        var(--markdown-text-primary) 65%,
+        var(--markdown-bg-primary)
+    );
     --markdown-accent: var(--markdown-bg-secondary);
     --markdown-accent-foreground: var(--markdown-text-primary);
     --markdown-primary: var(--markdown-text-primary);

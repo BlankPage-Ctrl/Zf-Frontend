@@ -11,9 +11,7 @@ export interface ThemeBusinessLogic {
     saveCurrent(id: string): Promise<void>
 }
 
-export function createThemeBusinessLogic(
-    settingsRepo: SettingsRepository,
-): ThemeBusinessLogic {
+export function createThemeBusinessLogic(settingsRepo: SettingsRepository): ThemeBusinessLogic {
     async function load(): Promise<ThemePersistence> {
         const result: ThemePersistence = { currentId: null }
         try {

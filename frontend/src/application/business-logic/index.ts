@@ -1,7 +1,4 @@
-export {
-    createWorkspaceBusinessLogic,
-    type WorkspaceBusinessLogic,
-} from './workspace.logic'
+export { createWorkspaceBusinessLogic, type WorkspaceBusinessLogic } from './workspace.logic'
 export { createChatBusinessLogic, type ChatBusinessLogic } from './chat.logic'
 export {
     createProviderBusinessLogic,
@@ -13,10 +10,7 @@ export {
     type ThemeBusinessLogic,
     type ThemePersistence,
 } from './theme.logic'
-export {
-    createAppearanceBusinessLogic,
-    type AppearanceBusinessLogic,
-} from './appearance.logic'
+export { createAppearanceBusinessLogic, type AppearanceBusinessLogic } from './appearance.logic'
 export {
     createFileExplorerBusinessLogic,
     type FileExplorerBusinessLogic,

@@ -108,12 +108,22 @@ const workspaceSchema = computed(() =>
     }),
 )
 
-const { order: openChatIds, activeId: activeChatId, activeMeta, isOpen, open, close, reset } =
-    useTabs<string, TabMeta>()
+const {
+    order: openChatIds,
+    activeId: activeChatId,
+    activeMeta,
+    isOpen,
+    open,
+    close,
+    reset,
+} = useTabs<string, TabMeta>()
 
-watch(() => settingsTab.requestCount, () => {
-    if (workspace.value) open(SETTINGS_TAB_ID, { kind: 'settings' })
-})
+watch(
+    () => settingsTab.requestCount,
+    () => {
+        if (workspace.value) open(SETTINGS_TAB_ID, { kind: 'settings' })
+    },
+)
 
 const activeChat = computed(() => {
     const meta = activeMeta.value
@@ -383,7 +393,6 @@ async function handleDeleteProvider(id: string) {
     await providerActions.deleteProvider(id)
 }
 
-
 function cleanupWorkspace() {
     clearSessions()
     fileExplorerActions.stopWatch()
@@ -400,7 +409,6 @@ function handleUpdateFontSize(size: number) {
 function handleSetActiveTheme(id: string) {
     themeActions.setTheme(id)
 }
-
 
 watch(routeWsId, (id) => {
     if (id && id !== wsStorer.selectedWorkspaceId) {
@@ -433,10 +441,7 @@ watch(
         providerActions.fetchProviders()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)
-        fileExplorerActions.loadRoot(
-            newId,
-            ws ? { workspaceRoot: ws.projectPath } : undefined,
-        )
+        fileExplorerActions.loadRoot(newId, ws ? { workspaceRoot: ws.projectPath } : undefined)
         fileExplorerActions.startWatch(newId)
 
         const chatId = route.query.chat as string | undefined
@@ -478,11 +483,7 @@ onUnmounted(() => {
                             :schema="chatListSchema"
                             :items="chatStorer.chats"
                         />
-                        <FileExplorer
-                            v-else
-                            @toggle="onFileToggle"
-                            @select="onFileSelect"
-                        />
+                        <FileExplorer v-else @toggle="onFileToggle" @select="onFileSelect" />
                     </div>
                 </div>
             </template>

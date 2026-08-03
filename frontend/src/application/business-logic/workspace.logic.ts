@@ -8,9 +8,7 @@ export interface WorkspaceBusinessLogic {
     remove(id: string): Promise<void>
 }
 
-export function createWorkspaceBusinessLogic(
-    repo: WorkspaceRepository,
-): WorkspaceBusinessLogic {
+export function createWorkspaceBusinessLogic(repo: WorkspaceRepository): WorkspaceBusinessLogic {
     return {
         list: () => repo.list(),
         create: (dto) => repo.create(dto),

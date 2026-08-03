@@ -1,8 +1,4 @@
-export type {
-    SettingsTabSchema,
-    SettingsTheme,
-    PresetOption,
-} from './schema'
+export type { SettingsTabSchema, SettingsTheme, PresetOption } from './schema'
 
 export type {
     ResolvedSettingsTab,

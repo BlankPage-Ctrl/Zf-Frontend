@@ -1,10 +1,4 @@
-import type {
-    FEFileNode,
-    FELoadState,
-    FEListDirData,
-    FEMeta,
-    FEWatchEvent,
-} from '@/core/entities'
+import type { FEFileNode, FELoadState, FEListDirData, FEMeta, FEWatchEvent } from '@/core/entities'
 import type { FileExplorerStorer } from '../stores/file-explorer.storer'
 
 export interface FileExplorerStoreLogic {

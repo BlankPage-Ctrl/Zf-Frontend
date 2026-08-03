@@ -1,7 +1,4 @@
-import {
-    getThemePreview as coreGetThemePreview,
-    type ThemeColors,
-} from '@/core/entities'
+import { getThemePreview as coreGetThemePreview, type ThemeColors } from '@/core/entities'
 import type { ThemeStorer } from '../stores/theme.storer'
 
 export interface ThemeStoreLogic {

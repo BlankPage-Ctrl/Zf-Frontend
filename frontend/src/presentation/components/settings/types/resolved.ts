@@ -1,11 +1,7 @@
 import type { Provider } from '@/core/entities'
 import type { SettingsTheme, PresetOption } from './schema'
 
-export type {
-    SettingsTabSchema,
-    SettingsTheme,
-    PresetOption,
-} from './schema'
+export type { SettingsTabSchema, SettingsTheme, PresetOption } from './schema'
 
 export interface ResolvedSettingsTab {
     provider: ResolvedProviderSection

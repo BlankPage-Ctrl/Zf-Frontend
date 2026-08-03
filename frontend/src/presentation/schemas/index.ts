@@ -8,7 +8,10 @@ export {
     createWorkspaceDropdownItems,
     workspaceDropdownProps,
 } from './dropdown/workspace-dropdown.schema'
-export { createWorkspacesHeaderSchema, createChatHeaderSchema } from './header/workspace-header.schema'
+export {
+    createWorkspacesHeaderSchema,
+    createChatHeaderSchema,
+} from './header/workspace-header.schema'
 export { createWorkspaceLayout } from './layout/workspace-layout.schema'
 export { primaryLayout } from './layout/primary-layout.schema'
 export { createChatTabSchema } from './chat/chat-tab.schema'

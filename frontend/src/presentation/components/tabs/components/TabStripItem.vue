@@ -13,13 +13,15 @@ const props = defineProps<{
     onClose?: (item: TabItem) => void
 }>()
 
-const itemClass = computed(() => [
-    'tabs-item',
-    props.active ? 'tabs-item--active' : '',
-    props.item.closable === false ? 'tabs-item--pinned' : '',
-]
-    .filter(Boolean)
-    .join(' '))
+const itemClass = computed(() =>
+    [
+        'tabs-item',
+        props.active ? 'tabs-item--active' : '',
+        props.item.closable === false ? 'tabs-item--pinned' : '',
+    ]
+        .filter(Boolean)
+        .join(' '),
+)
 </script>
 
 <template>
@@ -34,12 +36,7 @@ const itemClass = computed(() => [
             <component :is="item.icon" width="13" height="13" />
         </span>
         <span class="tabs-item__title">{{ item.title }}</span>
-        <span
-            v-if="item.loading"
-            class="tabs-item__spinner"
-            role="status"
-            aria-label="Loading"
-        />
+        <span v-if="item.loading" class="tabs-item__spinner" role="status" aria-label="Loading" />
         <span
             v-if="closable && item.closable !== false"
             class="tabs-item__close"

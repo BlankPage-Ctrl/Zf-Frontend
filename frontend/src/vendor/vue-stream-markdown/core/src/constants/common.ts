@@ -12,7 +12,7 @@ export const STREAM_MARKDOWN_PREFIX = 'stream-markdown'
 
 export const STREAM_MARKDOWN_CSS_VARIABLES = {
     animationDuration: '--stream-markdown-animation-duration',
-    defaultTransitionDuration: '--default-transition-duration',
+    defaultTransitionDuration: '--markdown-transition-duration',
 } as const
 
 export const NODE_TRANSITION_EXCLUDED_TYPES = [

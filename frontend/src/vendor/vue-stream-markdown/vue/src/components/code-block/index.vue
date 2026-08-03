@@ -242,9 +242,9 @@ async function handleControlClick(key: string, item?: SelectOption) {
             :is="UI.Modal"
             v-model:open="fullscreen"
             :header-style="{
-                backgroundColor: 'color-mix(in oklab, var(--muted) 80%, transparent)',
-                color: 'var(--muted-foreground)',
-                borderBottom: '1px solid var(--border)',
+                backgroundColor: 'color-mix(in oklab, var(--markdown-muted) 80%, transparent)',
+                color: 'var(--markdown-muted-foreground)',
+                borderBottom: '1px solid var(--markdown-border)',
             }"
         >
             <template #title>
@@ -287,8 +287,8 @@ async function handleControlClick(key: string, item?: SelectOption) {
 .code-block-wrapper {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border: 1px solid var(--markdown-border);
+    border-radius: 4px;
     overflow: clip;
 }
 
@@ -305,10 +305,10 @@ async function handleControlClick(key: string, item?: SelectOption) {
     height: 39px;
     min-height: 39px;
     box-sizing: border-box;
-    background: var(--bg-primary);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(var(--markdown-raw-bg-primary), 0.7);
+    border-bottom: 1px solid var(--markdown-border);
     position: sticky;
     top: -8px;
     z-index: 5;
@@ -335,11 +335,11 @@ async function handleControlClick(key: string, item?: SelectOption) {
 
 .details-toggle {
     padding: 2px 8px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--markdown-border);
     border-radius: 4px;
     background: transparent;
     font-size: 11px;
-    color: var(--text-primary);
+    color: var(--markdown-text-primary);
     opacity: 0.5;
     cursor: pointer;
     transition: opacity 0.15s;

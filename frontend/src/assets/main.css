@@ -3,6 +3,7 @@
 @import '@fontsource/barlow/400.css';
 @import '@fontsource/barlow/500.css';
 @import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow/700.css';
 @import url('./utilities.css');
 
 @theme {
@@ -14,6 +15,17 @@
     --color-danger: var(--color-danger);
     --font-serif: 'Source Serif 4 Variable', serif;
     --font-body: 'Barlow', sans-serif;
+    --font-mono:
+        ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+    --type-2xs: 10px; /* eyebrow labels, badges, shortcuts */
+    --type-xs: 11px; /* captions, dense meta, tab labels */
+    --type-sm: 12px; /* ui base (inputs, dropdown items, buttons sm) */
+    --type-md: 13px; /* primary ui text (body, buttons md, list titles) */
+    --type-lg: 14px; /* emphasized / section titles */
+    --type-xl: 15px; /* panel / dialog titles */
+    --type-2xl: 18px; /* empty / welcome state titles */
+
     --animate-slide-in: slideIn 0.3s ease-out;
     --animate-fade-in: fadeIn 0.15s ease-out;
 }
@@ -114,7 +126,8 @@ html,
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
+    font-size: var(--type-md);
     color: var(--text-primary);
     background: var(--bg-primary);
     -webkit-font-smoothing: antialiased;

@@ -56,7 +56,7 @@ export function createSegmentedModel<TStyle = Record<string, unknown>>(options: 
         getButtonStyle(item: SelectOption) {
             return {
                 paddingBlock: '0.25rem',
-                backgroundColor: value === item.value ? 'var(--accent)' : undefined,
+                backgroundColor: value === item.value ? 'var(--markdown-accent)' : undefined,
                 ...(options.buttonStyle as Record<string, unknown> | undefined),
             }
         },

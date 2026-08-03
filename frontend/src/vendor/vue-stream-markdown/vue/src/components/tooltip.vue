@@ -59,7 +59,7 @@ defineExpose({ show, hide })
             ref="_floatingEl"
             :style="floatingStyle"
             data-stream-markdown="tooltip"
-            class="text-popover-foreground border border-border rounded-lg bg-popover z-[10000]"
+            class="border rounded-lg z-[10000]"
             @mouseenter="onFloatingEnter"
             @mouseleave="onFloatingLeave"
         >
@@ -71,3 +71,11 @@ defineExpose({ show, hide })
         </div>
     </Teleport>
 </template>
+
+<style scoped>
+[data-stream-markdown='tooltip'] {
+    color: var(--markdown-muted-foreground);
+    border: 1px solid var(--markdown-border);
+    background-color: var(--markdown-bg-secondary);
+}
+</style>

@@ -110,7 +110,7 @@ function handleMouseLeave() {
                 v-if="!isHardenUrl"
                 ref="maskRef"
                 data-stream-markdown="image-mask"
-                class="rounded-lg bg-[rgb(0_0_0_/_0.1)] opacity-0 pointer-events-none transition-opacity duration-[var(--default-transition-duration)] ease inset-0 absolute"
+                class="rounded-lg bg-[rgb(0_0_0_/_0.1)] opacity-0 pointer-events-none transition-opacity duration-[var(--markdown-transition-duration)] ease inset-0 absolute"
             >
                 <div
                     v-if="!isLoading && enableDownload"
@@ -126,7 +126,7 @@ function handleMouseLeave() {
                         :icon-height="16"
                         :button-style="{
                             backgroundColor:
-                                'color-mix(in oklab, var(--background) 90%, transparent)',
+                                'color-mix(in oklab, var(--markdown-background) 90%, transparent)',
                         }"
                         @click="() => handleDownload(imageSrc)"
                     />

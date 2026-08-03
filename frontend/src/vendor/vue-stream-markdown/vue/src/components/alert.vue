@@ -56,7 +56,7 @@ onMounted(() => {
         <div
             v-if="open"
             data-stream-markdown="alert"
-            class="p-6 border border-border rounded-xl bg-background flex flex-col gap-4 max-w-[28rem] w-full shadow-[0_20px_25px_-5px_rgb(0_0_0_/_0.1),0_8px_10px_-6px_rgb(0_0_0_/_0.1)] left-1/2 top-1/2 fixed -translate-x-1/2 -translate-y-1/2"
+            class="p-6 border rounded-xl flex flex-col gap-4 max-w-[28rem] w-full shadow-[0_20px_25px_-5px_rgb(0_0_0_/_0.1),0_8px_10px_-6px_rgb(0_0_0_/_0.1)] left-1/2 top-1/2 fixed -translate-x-1/2 -translate-y-1/2"
             :style="{ zIndex }"
             @click.stop
         >
@@ -68,7 +68,7 @@ onMounted(() => {
                     <component :is="UI.Icon" :icon="icon" :height="20" :width="20" />
                     {{ title }}
                 </div>
-                <div data-stream-markdown="alert-description" class="text-sm text-muted-foreground">
+                <div data-stream-markdown="alert-description" class="text-sm">
                     {{ description }}
                 </div>
                 <div class="absolute -right-3 -top-3">
@@ -92,7 +92,7 @@ onMounted(() => {
             <!-- Footer: Actions -->
             <div
                 data-stream-markdown="alert-footer"
-                class="flex gap-2 [&>button]:!text-sm [&>button:last-child]:!text-primary-foreground [&>button]:!text-foreground [&>button]:!border [&>button]:!border-border [&>button]:!rounded-lg [&>button]:!border-solid [&>button:last-child:hover]:!bg-primary/90 [&>button:last-child]:!bg-primary [&>button]:!gap-2 [&>button]:!w-full"
+                class="flex gap-2 [&>button]:!text-sm [&>button]:!gap-2 [&>button]:!w-full"
             >
                 <slot name="footer">
                     <component
@@ -132,3 +132,32 @@ onMounted(() => {
         </div>
     </Teleport>
 </template>
+
+<style scoped>
+[data-stream-markdown='alert'] {
+    border: 1px solid var(--markdown-border);
+    background-color: var(--markdown-background);
+}
+
+[data-stream-markdown='alert-description'] {
+    color: var(--markdown-muted-foreground);
+}
+
+[data-stream-markdown='alert-footer'] > button {
+    font-size: 14px;
+    border: 1px solid var(--markdown-border);
+    border-radius: 8px;
+    color: var(--markdown-foreground);
+    gap: 8px;
+    width: 100%;
+}
+
+[data-stream-markdown='alert-footer'] > button:last-child {
+    color: var(--markdown-primary-foreground) !important;
+    background-color: var(--markdown-primary) !important;
+}
+
+[data-stream-markdown='alert-footer'] > button:last-child:hover {
+    background-color: color-mix(in srgb, var(--markdown-primary) 90%, transparent) !important;
+}
+</style>

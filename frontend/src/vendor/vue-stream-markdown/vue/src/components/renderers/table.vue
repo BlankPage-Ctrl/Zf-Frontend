@@ -199,9 +199,9 @@ async function handleControlClick(key: string, item?: SelectOption) {
             :is="UI.Modal"
             v-model:open="fullscreen"
             :header-style="{
-                backgroundColor: 'color-mix(in oklab, var(--muted) 80%, transparent)',
-                color: 'var(--muted-foreground)',
-                borderBottom: '1px solid var(--border)',
+                backgroundColor: 'color-mix(in oklab, var(--markdown-muted) 80%, transparent)',
+                color: 'var(--markdown-muted-foreground)',
+                borderBottom: '1px solid var(--markdown-border)',
             }"
         >
             <template #title>

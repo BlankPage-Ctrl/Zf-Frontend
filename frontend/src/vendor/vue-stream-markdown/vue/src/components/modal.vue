@@ -44,7 +44,7 @@ onMounted(() => {
         <div
             v-if="open"
             data-stream-markdown="modal"
-            class="bg-background flex flex-col inset-0 fixed"
+            class="flex flex-col inset-0 fixed"
             :style="modalStyle"
         >
             <header
@@ -74,3 +74,9 @@ onMounted(() => {
         <ReuseTemplate v-else />
     </teleport>
 </template>
+
+<style scoped>
+[data-stream-markdown='modal'] {
+    background-color: var(--markdown-background);
+}
+</style>

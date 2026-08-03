@@ -14,7 +14,7 @@ const lineHeight = computed(() => model.value.lineHeight)
 <template>
     <p
         data-stream-markdown="paragraph"
-        class="my-4 align-middle transition-[height] duration-[var(--default-transition-duration)] ease"
+        class="my-4 align-middle transition-[height] duration-[var(--markdown-transition-duration)] ease"
         :style="{
             marginBottom,
             lineHeight,

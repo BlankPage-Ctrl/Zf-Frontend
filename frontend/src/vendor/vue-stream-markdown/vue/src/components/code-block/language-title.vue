@@ -28,8 +28,8 @@ withDefaults(
 .language-name {
     font-size: 12px;
     font-weight: 600;
-    font-family: var(--font-mono, ui-monospace, monospace);
-    color: var(--text-primary);
+    font-family: var(--markdown-font-mono, ui-monospace, monospace);
+    color: var(--markdown-text-primary);
     opacity: 0.85;
     text-transform: lowercase;
 }

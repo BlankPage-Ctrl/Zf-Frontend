@@ -89,7 +89,7 @@ function handleClose() {
             v-if="model.showLink"
             data-stream-markdown="link"
             :data-stream-markdown-loading="loading"
-            class="text-primary underline cursor-pointer [overflow-wrap:anywhere] data-[stream-markdown-loading=true]:no-underline data-[stream-markdown-loading=true]:cursor-default data-[stream-markdown-loading=true]:pointer-events-none data-[stream-markdown-loading=true]:relative"
+            class="underline cursor-pointer [overflow-wrap:anywhere] data-[stream-markdown-loading=true]:no-underline data-[stream-markdown-loading=true]:cursor-default data-[stream-markdown-loading=true]:pointer-events-none data-[stream-markdown-loading=true]:relative"
             rel="noreferrer"
             target="_blank"
             @click="handleClick"
@@ -111,7 +111,7 @@ function handleClose() {
         >
             <code
                 data-stream-markdown="link-url"
-                class="text-sm font-mono p-3 rounded-lg bg-muted w-full inline-block overflow-x-auto"
+                class="text-sm font-mono p-3 rounded-lg w-full inline-block overflow-x-auto"
             >
                 {{ transformedUrl }}
             </code>
@@ -139,3 +139,13 @@ function handleClose() {
         </component>
     </span>
 </template>
+
+<style scoped>
+[data-stream-markdown='link'] {
+    color: var(--markdown-primary);
+}
+
+[data-stream-markdown='link-url'] {
+    background-color: var(--markdown-muted);
+}
+</style>

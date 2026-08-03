@@ -133,7 +133,7 @@ function onTouchEnd(event: TouchEvent) {
         <div
             v-if="showControl && interactive"
             data-stream-markdown="zoom-controls"
-            class="p-1 border border-border rounded-xl bg-background flex gap-1 items-center absolute z-[1] max-lg:gap-0"
+            class="p-1 border rounded-xl flex gap-1 items-center absolute z-[1] max-lg:gap-0"
             :style="controlsPosition"
             @click.stop
         >
@@ -163,3 +163,10 @@ function onTouchEnd(event: TouchEvent) {
         </div>
     </div>
 </template>
+
+<style scoped>
+[data-stream-markdown='zoom-controls'] {
+    border: 1px solid var(--markdown-border);
+    background-color: var(--markdown-background);
+}
+</style>

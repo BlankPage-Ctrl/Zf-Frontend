@@ -1,8 +1,8 @@
 .ws-layout {
     --ws-text: var(--text-primary);
-    --ws-hover-bg: var(--border-color);
-    --ws-active-bg: var(--border-color);
-    --ws-icon-hover-bg: var(--border-color);
+    --ws-hover-bg: rgba(var(--raw-border-color), 0.3);
+    --ws-active-bg: rgba(var(--raw-border-color), 0.3);
+    --ws-icon-hover-bg: rgba(var(--raw-border-color), 0.3);
     --ws-transition: opacity 100ms ease, background 100ms ease;
 
     height: 100%;
@@ -28,14 +28,14 @@
 
 .ws-empty-title {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: var(--type-2xl);
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
 
 .ws-empty-desc {
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--text-primary);
     opacity: 0.5;
     max-width: 300px;
@@ -61,6 +61,25 @@
 
 /* --- Content --- */
 
+.ws-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.ws-content__body {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.ws-content__body > * {
+    min-height: 0;
+}
+
 .ws-content__empty {
     display: flex;
     flex-direction: column;
@@ -78,14 +97,14 @@
 
 .ws-empty__title {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: var(--type-2xl);
     font-weight: 600;
     color: var(--ws-text);
     margin: 0 0 6px;
 }
 
 .ws-empty__desc {
-    font-size: 13px;
+    font-size: var(--type-md);
     color: var(--ws-text);
     opacity: 0.5;
     max-width: 280px;
@@ -106,7 +125,7 @@
 .ws-sidebar__title {
     flex: 1;
     font-family: var(--font-serif);
-    font-size: 13px;
+    font-size: var(--type-md);
     font-weight: 600;
     color: var(--ws-text);
     white-space: nowrap;

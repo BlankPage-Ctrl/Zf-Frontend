@@ -17,7 +17,7 @@ const SEGMENTED_OPTIONS = computed(() => createPreviewSegmentedOptions(t))
         v-model:value="mode"
         :options="SEGMENTED_OPTIONS"
         :button-style="{
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--markdown-font-mono)',
         }"
         @change="() => (collapsed = false)"
     />

@@ -35,7 +35,7 @@ const isHarden = computed(() => model.value.isHarden)
 <template>
     <span
         data-stream-markdown="error-component"
-        class="text-sm text-muted-foreground font-mono inline-block [&_span]:flex-1 [&_span]:min-w-0 [&_span]:break-words"
+        class="text-sm font-mono inline-block [&_span]:flex-1 [&_span]:min-w-0 [&_span]:break-words"
     >
         <div
             v-if="showIcon"
@@ -49,3 +49,9 @@ const isHarden = computed(() => model.value.isHarden)
         [{{ message }}]
     </span>
 </template>
+
+<style scoped>
+[data-stream-markdown='error-component'] {
+    color: var(--markdown-muted-foreground);
+}
+</style>

@@ -256,7 +256,7 @@ export function createCodeBlockControlDescriptors(
             icon: 'collapse',
             iconStyle: {
                 transform: options.collapsed ? 'rotate(180deg)' : undefined,
-                transition: 'transform var(--default-transition-duration)',
+                transition: 'transform var(--markdown-transition-duration)',
             },
             visible: options.showCollapse,
         },

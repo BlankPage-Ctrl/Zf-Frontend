@@ -11,11 +11,11 @@ function getAlign(index: number) {
 <template>
     <table
         data-stream-markdown="table"
-        class="border border-border rounded-lg w-full overflow-hidden border-collapse [&_p]:m-0 [&_tr]:border-b [&_tr]:border-border"
+        class="border rounded-lg w-full overflow-hidden border-collapse [&_p]:m-0 [&_tr]:border-b"
     >
         <thead
             data-stream-markdown="table-header"
-            class="bg-muted/80 relative [&_th]:text-sm [&_th]:px-4 [&_th]:py-2 [&_th]:whitespace-nowrap"
+            class="relative [&_th]:text-sm [&_th]:px-4 [&_th]:py-2 [&_th]:whitespace-nowrap"
         >
             <tr>
                 <th
@@ -31,7 +31,7 @@ function getAlign(index: number) {
         </thead>
         <tbody
             data-stream-markdown="table-body"
-            class="font-semibold border-y border-border bg-muted/40 relative [&_td]:text-sm [&_td]:px-4 [&_td]:py-2"
+            class="font-semibold relative [&_td]:text-sm [&_td]:px-4 [&_td]:py-2"
         >
             <tr v-for="(row, rowIndex) in rows" :key="`${row}-${rowIndex}`">
                 <td
@@ -47,3 +47,24 @@ function getAlign(index: number) {
         </tbody>
     </table>
 </template>
+
+<style scoped>
+[data-stream-markdown='table'] {
+    border: 1px solid var(--markdown-border);
+    border-radius: 8px;
+}
+
+[data-stream-markdown='table'] tr {
+    border-bottom: 1px solid var(--markdown-border);
+}
+
+[data-stream-markdown='table-header'] {
+    background-color: color-mix(in srgb, var(--markdown-muted) 80%, transparent);
+}
+
+[data-stream-markdown='table-body'] {
+    border-top: 1px solid var(--markdown-border);
+    border-bottom: 1px solid var(--markdown-border);
+    background-color: color-mix(in srgb, var(--markdown-muted) 40%, transparent);
+}
+</style>

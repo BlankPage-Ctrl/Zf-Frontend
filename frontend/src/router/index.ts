@@ -6,7 +6,7 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: () => import('@/views/Workspace.vue'),
+            component: () => import('@/presentation/views/Workspace.vue'),
         },
         {
             path: '/primary',
@@ -16,7 +16,7 @@ const router = createRouter({
         {
             path: '/workspace/:id?',
             name: 'workspace',
-            component: () => import('@/views/Workspace.vue'),
+            component: () => import('@/presentation/views/Workspace.vue'),
         },
     ],
 })

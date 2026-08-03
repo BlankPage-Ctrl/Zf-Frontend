@@ -22,23 +22,23 @@
 
 .chat-input {
     flex-shrink: 0;
-    padding: 8px 16px 12px;
+    padding: 6px 6px 6px;
     border-top: 1px solid var(--border-color);
 }
 
 .input-container {
     display: flex;
     align-items: flex-end;
-    gap: 8px;
-    padding: 8px 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
+    gap: 6px;
+    padding: 5px 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     background: var(--bg-primary);
     transition: border-color 0.15s;
 }
 
 .input-container:focus-within {
-    border-color: var(--border-color);
+    border-color: var(--shadow-color);
 }
 
 .input-field {
@@ -47,12 +47,13 @@
     outline: none;
     background: transparent;
     font-family: inherit;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.45;
     color: var(--text-primary);
     resize: none;
-    max-height: 200px;
-    min-height: 24px;
+    max-height: 160px;
+    min-height: 20px;
+    padding: 1px 0;
 }
 
 .input-field::placeholder {
@@ -62,7 +63,7 @@
 .input-actions {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     flex-shrink: 0;
 }
 
@@ -70,8 +71,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -110,32 +111,34 @@
 .input-footer {
     display: flex;
     align-items: center;
-    margin-top: 6px;
+    /* margin-top: 4px; */
     padding: 0 2px;
 }
 
 .model-selector {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border: none;
+    gap: 3px;
+    width: 140px;
+    padding: 2px 6px;
+    border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
     color: var(--text-primary);
     font-size: 11px;
+    line-height: 1.4;
     cursor: pointer;
     transition: all 0.15s;
 }
 
 .model-selector:hover:not(:disabled) {
     background: var(--border-color);
-    color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
 .model-selector--open {
     background: var(--border-color);
-    color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
 .model-selector:disabled {
@@ -144,7 +147,8 @@
 }
 
 .model-selector__label {
-    max-width: 140px;
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -3,10 +3,29 @@ import { ref } from 'vue'
 import { Cube, NavArrowDown, SendDiagonal, Xmark } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import type { ResolvedChatInput } from '../types/resolved'
+import type { StyleConfig } from '@/presentation/components/dropdown/types'
 
 const props = defineProps<{
     resolved: ResolvedChatInput
 }>()
+
+const modelDropdownStyle: StyleConfig = {
+    menu: {
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '6px',
+        padding: '2px',
+        shadow: '0 4px 14px rgba(0, 0, 0, 0.14)',
+    },
+    item: {
+        padding: '3px 8px',
+        fontSize: '11px',
+        borderRadius: '4px',
+        hoverBackground: 'var(--border-color)',
+        focusedBackground: 'var(--border-color)',
+        selectedBackground: 'var(--border-color)',
+    },
+}
 
 const input = ref('')
 
@@ -77,7 +96,9 @@ function onModelSelect(value: string) {
                 mode="select"
                 :model-value="resolved.modelId"
                 dense
-                :offset="6"
+                :offset="4"
+                :width="{ mode: 'match-trigger' }"
+                :style="modelDropdownStyle"
                 @select="onModelSelect"
             >
                 <template #trigger="{ isOpen, toggle }">

@@ -121,7 +121,7 @@ function openSettings() {
 
 .ws-group {
     display: flex;
-    align-items: center;
+    height: 25px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     -webkit-app-region: no-drag;
@@ -185,7 +185,7 @@ function openSettings() {
 }
 
 .ws-add-btn:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     color: var(--text-primary);
 }
 
@@ -214,7 +214,7 @@ function openSettings() {
 }
 
 .title-action-btn:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     color: var(--text-primary);
 }
 

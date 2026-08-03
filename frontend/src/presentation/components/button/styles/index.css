@@ -50,7 +50,7 @@
 }
 
 .btn--outline:hover:not(:disabled):not(.btn--disabled) {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     border-color: var(--border-color);
     opacity: 1;
 }
@@ -62,7 +62,7 @@
 
 .btn--ghost:hover:not(:disabled):not(.btn--disabled) {
     opacity: 1;
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .btn--soft {

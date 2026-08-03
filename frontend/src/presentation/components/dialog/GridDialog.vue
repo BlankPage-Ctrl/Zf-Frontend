@@ -293,7 +293,7 @@ watch(
 }
 
 .btn-close:hover:not(:disabled) {
-    background-color: var(--border-color);
+    background-color: rgba(var(--raw-border-color), 0.3);
     color: var(--text-primary);
 }
 
@@ -384,7 +384,7 @@ watch(
 }
 
 .btn-cancel:hover:not(:disabled) {
-    background-color: var(--border-color);
+    background-color: rgba(var(--raw-border-color), 0.3);
     border-color: var(--border-color);
     opacity: 1;
 }

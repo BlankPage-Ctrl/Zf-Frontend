@@ -88,7 +88,7 @@
 }
 
 .send-btn:hover:not(:disabled) {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     opacity: 1;
 }
 
@@ -132,12 +132,12 @@
 }
 
 .model-selector:hover:not(:disabled) {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     border-color: var(--border-color);
 }
 
 .model-selector--open {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     border-color: var(--border-color);
 }
 
@@ -548,7 +548,7 @@
 }
 
 .source-part:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .source-icon {
@@ -583,7 +583,7 @@
 }
 
 .file-part:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .file-icon {
@@ -633,7 +633,7 @@
 }
 
 .data-toggle:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .data-label {

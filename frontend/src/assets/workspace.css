@@ -1,8 +1,8 @@
 .ws-layout {
     --ws-text: var(--text-primary);
-    --ws-hover-bg: var(--border-color);
-    --ws-active-bg: var(--border-color);
-    --ws-icon-hover-bg: var(--border-color);
+    --ws-hover-bg: rgba(var(--raw-border-color), 0.3);
+    --ws-active-bg: rgba(var(--raw-border-color), 0.3);
+    --ws-icon-hover-bg: rgba(var(--raw-border-color), 0.3);
     --ws-transition: opacity 100ms ease, background 100ms ease;
 
     height: 100%;

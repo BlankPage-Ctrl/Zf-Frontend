@@ -72,11 +72,11 @@ const emit = defineEmits<{
 }
 
 .fe-item:hover {
-    background-color: var(--border-color);
+    background-color: rgba(var(--raw-border-color), 0.3);
 }
 
 .fe-item--selected {
-    background-color: var(--border-color);
+    background-color: rgba(var(--raw-border-color), 0.3);
     color: var(--text-primary);
 }
 

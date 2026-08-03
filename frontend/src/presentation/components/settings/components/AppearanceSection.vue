@@ -116,7 +116,7 @@ function onScaleInput(e: Event) {
 .preset-btn.active,
 .preset-btn[aria-pressed='true'] {
     opacity: 1;
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .preset-custom-tag {

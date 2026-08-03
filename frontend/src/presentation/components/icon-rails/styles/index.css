@@ -45,12 +45,12 @@
 
 .ir-item:hover {
     opacity: 1;
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .ir-item--active {
     opacity: 1;
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
 }
 
 .ir-item--disabled {

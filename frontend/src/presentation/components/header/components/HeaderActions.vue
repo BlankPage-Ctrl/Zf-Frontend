@@ -52,7 +52,7 @@ function renderIcon(icon: Component) {
 }
 
 .header-action-btn:hover {
-    background: var(--border-color);
+    background: rgba(var(--raw-border-color), 0.3);
     opacity: 1;
 }
 

@@ -474,6 +474,8 @@ onUnmounted(() => {
                                 size: 'md',
                                 fullWidth: true,
                                 label: 'Create Chat',
+                                fontFamily: 'serif',
+                                fontWeight: 'medium',
                             }"
                             @click="openChatCreate"
                         />
@@ -509,7 +511,7 @@ onUnmounted(() => {
                                 <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
                             </div>
                             <h2 class="ws-empty__title">
-                                Just Select something on the sidebar, vro ✌🏻🥹
+                                Just Select something on the sidebar atp ✌🏻🥹.
                             </h2>
                             <p class="ws-empty__desc">What will you have after 500 years!?.</p>
                         </div>

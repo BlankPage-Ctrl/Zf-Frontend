@@ -2,6 +2,7 @@ export type {
     ListVariant,
     ListSize,
     ListTextSize,
+    ListFontWeight,
     ListItemField,
     ListItemAction,
     ListEmptyAction,

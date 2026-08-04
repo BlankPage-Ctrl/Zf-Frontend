@@ -62,6 +62,9 @@ function handleHoverSelect(value: string) {
             :variant="schema.variant ?? 'sidebar'"
             :hover-menu-items="getHoverItems(item)"
             :icon="schema.icon"
+            :font-family="schema.fontFamily"
+            :font-weight="schema.fontWeight"
+            :dim="schema.dim"
             :on-select="handleSelect"
             @hover-select="handleHoverSelect"
         />

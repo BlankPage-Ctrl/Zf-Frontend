@@ -36,6 +36,7 @@ export function createSidebarChatListSchema(handlers: SidebarChatListHandlers): 
         size: 'sm',
         activeKey: 'id',
         activeId: handlers.activeChatId,
+        dim: true,
         fields: [{ key: 'title', class: 'title' }],
         actions,
         emptyMessage: 'No chats yet',

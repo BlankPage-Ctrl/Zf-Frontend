@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
 import { ref, computed, type Component } from 'vue'
-import type { ListItemField, ListItemAction, ListTextSize } from './types'
+import type { ListItemField, ListItemAction, ListTextSize, ListFontWeight } from './types'
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
 import { pButton } from '@/presentation/components/button'
 
@@ -17,6 +17,9 @@ type Props = {
     onSelect?: (item: T) => void
     hoverMenuItems?: DropdownItemConfig[]
     icon?: (item: T) => Component
+    fontFamily?: 'serif' | 'sans' | 'mono' | string
+    fontWeight?: ListFontWeight
+    dim?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -42,6 +45,7 @@ const itemClass = computed(() =>
         isHovered.value && hasHoverMenu.value ? 'dl-item--hover' : '',
         typeof props.textSize === 'string' ? `dl-item--text-${props.textSize}` : '',
         typeof props.textSize === 'number' ? 'dl-item--text-custom' : '',
+        props.dim ? 'dl-item--dim' : '',
     ]
         .filter(Boolean)
         .join(' '),
@@ -50,6 +54,31 @@ const itemClass = computed(() =>
 const textSizeStyle = computed(() =>
     typeof props.textSize === 'number'
         ? ({ '--dl-text-size': `${props.textSize}px` } as Record<string, string>)
+        : undefined,
+)
+
+const titleStyle = computed(() => {
+    const style: Record<string, string> = {}
+    if (props.fontWeight) {
+        const weight =
+            ({ normal: 'var(--font-weight-normal)', medium: 'var(--font-weight-medium)', semibold: 'var(--font-weight-semibold)', bold: 'var(--font-weight-bold)' } as Record<string, string>)[
+                props.fontWeight
+            ] ?? props.fontWeight
+        style['--dl-title-weight'] = weight
+    }
+    if (props.fontFamily) {
+        const family =
+            ({ serif: 'var(--font-serif)', sans: 'var(--font-body)', mono: 'var(--font-mono)' } as Record<string, string>)[
+                props.fontFamily
+            ] ?? props.fontFamily
+        style['--dl-title-font'] = family
+    }
+    return Object.keys(style).length ? style : undefined
+})
+
+const itemStyle = computed(() =>
+    textSizeStyle.value || titleStyle.value
+        ? { ...textSizeStyle.value, ...titleStyle.value }
         : undefined,
 )
 
@@ -83,7 +112,11 @@ function onChatClick(chatId: string) {
 
 <template>
     <div class="dl-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
-        <div :class="itemClass" :style="textSizeStyle" @click="onSelect?.(item)">
+        <div
+            :class="itemClass"
+            :style="itemStyle"
+            @click="onSelect?.(item)"
+        >
             <component :is="itemIcon" v-if="itemIcon" class="dl-item__icon" />
             <div class="dl-item__body">
                 <span

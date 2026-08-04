@@ -42,8 +42,14 @@ export interface ResolvedMessageBubble {
     contentWidth?: number
 }
 
+export interface ResolvedMessage {
+    id: string
+    role: 'user' | 'assistant'
+    parts: MessagePartSchema[]
+}
+
 export interface ResolvedMessageList {
-    messages: { role: 'user' | 'assistant'; parts: MessagePartSchema[] }[]
+    messages: ResolvedMessage[]
     loading: boolean
     contentWidth?: number
     emptyMessage: string

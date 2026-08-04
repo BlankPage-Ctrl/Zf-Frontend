@@ -145,7 +145,36 @@ function getToolToolName(part: unknown): string {
     return String(p.toolCallId ?? 'tool')
 }
 
+interface PartCacheEntry {
+    defaults: { fontSize?: number; lineHeight?: number }
+    schema: MessagePartSchema
+}
+
+const partCache = new WeakMap<object, PartCacheEntry>()
+
 export function resolveMessagePart(
+    part: UIMessage['parts'][number],
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema {
+    const key = part as object
+    const cached = partCache.get(key)
+    if (
+        cached &&
+        cached.defaults.fontSize === defaults?.fontSize &&
+        cached.defaults.lineHeight === defaults?.lineHeight
+    ) {
+        return cached.schema
+    }
+
+    const schema = buildMessagePart(part, defaults)
+    partCache.set(key, {
+        defaults: { fontSize: defaults?.fontSize, lineHeight: defaults?.lineHeight },
+        schema,
+    })
+    return schema
+}
+
+function buildMessagePart(
     part: UIMessage['parts'][number],
     defaults?: { fontSize?: number; lineHeight?: number },
 ): MessagePartSchema {

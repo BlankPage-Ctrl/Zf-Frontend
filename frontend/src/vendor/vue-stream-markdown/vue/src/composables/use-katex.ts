@@ -13,6 +13,8 @@ interface UseKatexOptions {
     cdnOptions?: CdnOptions
 }
 
+let sharedKatexPreloadPromise: Promise<void> | null = null
+
 export function useKatex(options: UseKatexOptions) {
     const { mdastOptions, cdnOptions } = options ?? {}
 
@@ -36,7 +38,12 @@ export function useKatex(options: UseKatexOptions) {
 
     async function preload() {
         installed.value = await runtime.installed
-        if (installed.value) await runtime.preload()
+        if (installed.value) {
+            sharedKatexPreloadPromise ??= runtime.preload().finally(() => {
+                sharedKatexPreloadPromise = null
+            })
+            await sharedKatexPreloadPromise
+        }
     }
 
     watch(

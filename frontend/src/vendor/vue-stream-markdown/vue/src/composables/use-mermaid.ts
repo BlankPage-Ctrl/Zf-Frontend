@@ -17,6 +17,9 @@ interface UseMermaidOptions {
     isDark?: MaybeRefOrGetter<boolean>
 }
 
+const themeColorCache = new Map<string, Record<string, string> | null>()
+let sharedPreloadPromise: Promise<void> | null = null
+
 export function useMermaid(options?: UseMermaidOptions) {
     async function resolveThemeColorsFromShiki(): Promise<Record<string, string> | null> {
         try {
@@ -26,6 +29,9 @@ export function useMermaid(options?: UseMermaidOptions) {
             ]
             const currentShikiTheme =
                 (toValue(options?.isDark) ?? false) ? shikiTheme[1] : shikiTheme[0]
+            if (themeColorCache.has(currentShikiTheme)) {
+                return themeColorCache.get(currentShikiTheme) ?? null
+            }
             const shikiRuntime = createShikiRuntime({
                 cdnOptions: () => toValue(options?.cdnOptions),
                 isDark: () => toValue(options?.isDark) ?? false,
@@ -40,7 +46,9 @@ export function useMermaid(options?: UseMermaidOptions) {
                 shikiRuntime.getHighlighter(),
             ])
             const theme = highlighter.getTheme(currentShikiTheme ?? DEFAULT_SHIKI_LIGHT_THEME)
-            return fromShikiTheme(theme) as unknown as Record<string, string>
+            const colors = fromShikiTheme(theme) as unknown as Record<string, string>
+            themeColorCache.set(currentShikiTheme, colors)
+            return colors
         } catch {
             return null
         }
@@ -81,7 +89,12 @@ export function useMermaid(options?: UseMermaidOptions) {
 
     async function preload() {
         installed.value = await runtime.installed
-        if (installed.value) await runtime.preload()
+        if (installed.value) {
+            sharedPreloadPromise ??= runtime.preload().finally(() => {
+                sharedPreloadPromise = null
+            })
+            await sharedPreloadPromise
+        }
     }
 
     if (isClient()) {

@@ -22,6 +22,8 @@ export function disposeShikiHighlighter() {
     disposeSharedShikiHighlighter()
 }
 
+let sharedShikiPreloadPromise: Promise<void> | null = null
+
 export function useShiki(options?: UseShikiOptions) {
     const installed = ref<boolean>(false)
 
@@ -46,7 +48,12 @@ export function useShiki(options?: UseShikiOptions) {
 
     async function preload() {
         installed.value = await runtime.installed
-        if (installed.value) await runtime.preload()
+        if (installed.value) {
+            sharedShikiPreloadPromise ??= runtime.preload().finally(() => {
+                sharedShikiPreloadPromise = null
+            })
+            await sharedShikiPreloadPromise
+        }
     }
 
     if (isClient()) {

@@ -52,8 +52,9 @@ watch(() => listRef.value, scrollToBottom)
             <span class="empty-hint">{{ resolved.emptyHint }}</span>
         </div>
         <BaseMessageBubble
-            v-for="(msg, idx) in resolved.messages"
-            :key="idx"
+            v-for="msg in resolved.messages"
+            :key="msg.id"
+            v-memo="[msg]"
             :parts="msg.parts"
             :role="msg.role"
             :content-width="resolved.contentWidth"

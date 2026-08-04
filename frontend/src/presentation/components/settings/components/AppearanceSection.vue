@@ -73,7 +73,7 @@ function onScaleInput(e: Event) {
 
 .appearance-label {
     font-size: var(--type-xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-primary);
     display: flex;
     align-items: center;
@@ -84,7 +84,7 @@ function onScaleInput(e: Event) {
     font-family: var(--font-mono);
     font-size: var(--type-2xs);
     opacity: 0.5;
-    font-weight: 400;
+    font-weight: var(--font-weight-normal);
 }
 
 .preset-group {
@@ -96,7 +96,7 @@ function onScaleInput(e: Event) {
 
 .preset-btn {
     font-size: var(--type-xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     padding: 4px 10px;
     border-radius: 4px;
     border: none;
@@ -121,7 +121,7 @@ function onScaleInput(e: Event) {
 
 .preset-custom-tag {
     font-size: var(--type-2xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     padding: 2px 8px;
     border-radius: 9999px;
     background: var(--border-color);

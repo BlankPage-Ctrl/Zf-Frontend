@@ -98,7 +98,7 @@ function handleThemeSetActive(id: string) {
 
 .theme-name {
     font-size: var(--type-md);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
 }
 
@@ -112,7 +112,7 @@ function handleThemeSetActive(id: string) {
 
 .active-label {
     font-size: var(--type-2xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--color-success);
     padding: 2px 6px;
     border-radius: 4px;

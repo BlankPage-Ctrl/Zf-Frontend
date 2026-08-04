@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, Plus, Settings as SettingsIcon } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'

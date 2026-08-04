@@ -150,7 +150,7 @@ function openSettings() {
     flex: 1;
     min-width: 0;
     font-size: var(--type-sm);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-primary);
     opacity: 0.75;
     overflow: hidden;

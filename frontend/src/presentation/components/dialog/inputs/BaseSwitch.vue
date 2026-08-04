@@ -116,7 +116,7 @@ const isChecked = computed({
 
 .label-text {
     font-size: var(--type-sm);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-primary);
 }
 
@@ -142,7 +142,7 @@ const isChecked = computed({
 .error-text {
     display: block;
     font-size: var(--type-xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--color-danger);
     line-height: 1.2;
 }

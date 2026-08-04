@@ -23,7 +23,7 @@ defineProps<{
 .header-title {
     font-family: var(--font-serif);
     font-size: var(--type-lg);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     letter-spacing: -0.01em;
     color: var(--text-primary);
     margin: 0;

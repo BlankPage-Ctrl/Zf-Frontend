@@ -6,6 +6,7 @@ import { Album, ChatBubbleEmpty, Plus, Settings as SettingsIcon } from '@iconoir
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'
+import { pButton } from '@/presentation/components/button'
 import {
     useWorkspaceStorer,
     useChatStorer,
@@ -467,15 +468,15 @@ onUnmounted(() => {
             <template #panel>
                 <div class="ws-sidebar__panel">
                     <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <span class="ws-sidebar__title">{{ workspace.name }}</span>
-                        <button
-                            class="ws-sidebar__action"
+                        <pButton
+                            :schema="{
+                                variant: 'outline',
+                                size: 'md',
+                                fullWidth: true,
+                                label: 'Create Chat',
+                            }"
                             @click="openChatCreate"
-                            title="New chat"
-                            aria-label="New chat"
-                        >
-                            <Plus width="14" height="14" />
-                        </button>
+                        />
                     </div>
                     <div class="ws-sidebar__body">
                         <AppList

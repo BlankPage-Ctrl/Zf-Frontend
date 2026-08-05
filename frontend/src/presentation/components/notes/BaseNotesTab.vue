@@ -77,13 +77,13 @@ function changeCategory(categoryId: string) {
                     @commit="commitName"
                 />
                 <NoteDescField :value="draft.desc" @commit="commitDesc" />
-                <div class="note-tab__pickers">
+                <!-- <div class="note-tab__pickers">
                     <NoteCategoryPicker
                         :value="draft.category_id"
                         :categories="resolved.categories"
                         @change="changeCategory"
                     />
-                </div>
+                </div> -->
             </div>
 
             <div class="note-tab__details">

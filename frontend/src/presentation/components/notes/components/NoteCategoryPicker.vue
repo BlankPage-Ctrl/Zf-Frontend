@@ -9,7 +9,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     change: [categoryId: string]
-    createCategory: []
 }>()
 
 const selected = computed({
@@ -27,14 +26,6 @@ const selected = computed({
                     {{ c.name }}
                 </option>
             </select>
-            <button
-                type="button"
-                class="note-category__new"
-                title="New category"
-                @click="emit('createCategory')"
-            >
-                +
-            </button>
         </div>
     </div>
 </template>

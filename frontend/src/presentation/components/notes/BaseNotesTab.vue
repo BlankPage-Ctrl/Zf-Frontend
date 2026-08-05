@@ -82,7 +82,6 @@ function changeCategory(categoryId: string) {
                         :value="draft.category_id"
                         :categories="resolved.categories"
                         @change="changeCategory"
-                        @create-category="resolved.onCreateCategory?.()"
                     />
                 </div>
             </div>

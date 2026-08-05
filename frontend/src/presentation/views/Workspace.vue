@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, Notes, Settings as SettingsIcon } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Label, Notes, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'
@@ -413,7 +413,7 @@ function buildNotesTabSchema(note: Note): NotesTabSchema {
     })
 }
 
-async function openCategoryCreate(note: Note) {
+async function openCategoryCreate(note?: Note) {
     await dialog.spawn({
         title: 'New category',
         schema: categoryFormSchema,
@@ -421,7 +421,9 @@ async function openCategoryCreate(note: Note) {
         submit: async (data) => {
             const name = String(data.category!.name ?? '')
             const id = await noteActions.createCategory({ name })
-            queueSave(note.id, { category_id: id })
+            if (note) {
+                queueSave(note.id, { category_id: id })
+            }
         },
     })
 }
@@ -656,18 +658,23 @@ onUnmounted(() => {
                             }"
                             @click="openChatCreate"
                         />
-                        <pButton
-                            v-else
-                            :schema="{
-                                variant: 'outline',
-                                size: 'md',
-                                fullWidth: true,
-                                label: 'Create Note',
-                                fontFamily: 'serif',
-                                fontWeight: 'medium',
-                            }"
-                            @click="openNoteCreate"
-                        />
+                        <div v-else class="ws-sidebar__split-btn">
+                            <button
+                                type="button"
+                                class="ws-sidebar__split-main"
+                                @click="openNoteCreate"
+                            >
+                                Create Note
+                            </button>
+                            <button
+                                type="button"
+                                class="ws-sidebar__split-icon"
+                                title="New category"
+                                @click="openCategoryCreate(null as any)"
+                            >
+                                <Label />
+                            </button>
+                        </div>
                     </div>
                     <div class="ws-sidebar__body">
                         <AppList

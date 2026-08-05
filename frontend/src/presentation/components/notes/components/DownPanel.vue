@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { pButton } from '@/presentation/components/button'
+import type { Priority } from '@/core/entities'
+import NotePriorityPicker from './NotePriorityPicker.vue'
 
 const props = defineProps<{
     dirty: boolean
     saving: boolean
     savedAt: string | null
+    priority: Priority
 }>()
 
 const emit = defineEmits<{
     save: []
+    'priority-change': [priority: Priority]
 }>()
 
 const statusText = computed(() => {
@@ -18,13 +22,20 @@ const statusText = computed(() => {
     if (props.savedAt) return 'Saved'
     return ''
 })
+
+function handlePriorityChange(priority: Priority) {
+    emit('priority-change', priority)
+}
 </script>
 
 <template>
     <div class="note-save-panel">
-        <span class="note-save-panel__status" :class="{ 'note-save-panel__status--dirty': dirty }">
-            {{ statusText }}
-        </span>
+        <div class="note-save-panel__left">
+            <NotePriorityPicker :value="priority" @change="handlePriorityChange" />
+            <span class="note-save-panel__status" :class="{ 'note-save-panel__status--dirty': dirty }">
+                {{ statusText }}
+            </span>
+        </div>
         <pButton
             :schema="{
                 variant: 'solid',

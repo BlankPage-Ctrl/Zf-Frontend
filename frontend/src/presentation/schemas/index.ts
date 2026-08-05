@@ -11,6 +11,12 @@ export {
     workspaceDropdownProps,
 } from './dropdown/workspace-dropdown.schema'
 export {
+    createPriorityDropdownItems,
+    priorityDropdownProps,
+    PRIORITY_OPTIONS,
+    PRIORITY_TRIGGER_LABELS,
+} from './dropdown/priority-dropdown.schema'
+export {
     createWorkspacesHeaderSchema,
     createChatHeaderSchema,
 } from './header/workspace-header.schema'

@@ -22,6 +22,14 @@ export interface NoteDto {
     position?: { before?: string; after?: string }
 }
 
+export interface NoteUpdateDto {
+    name?: string
+    category_id?: string | null
+    desc?: string
+    details?: string
+    priority?: Priority
+}
+
 export interface NoteFilter {
     category?: string
     priority?: string

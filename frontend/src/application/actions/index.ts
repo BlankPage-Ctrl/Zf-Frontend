@@ -5,6 +5,7 @@ import {
     useThemeStorer,
     useAppearanceStorer,
     useFileExplorerStorer,
+    useNoteStorer,
 } from '../stores'
 
 import {
@@ -15,6 +16,8 @@ import {
     settingsRepository,
     messagesRepository,
     filesRepository,
+    notesRepository,
+    categoriesRepository,
 } from '@/data/services'
 import { chatStream, fileWatch } from '@/data/stream'
 
@@ -24,6 +27,7 @@ import { createProviderStoreLogic } from '../store-logic/provider.logic'
 import { createThemeStoreLogic } from '../store-logic/theme.logic'
 import { createAppearanceStoreLogic } from '../store-logic/appearance.logic'
 import { createFileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
+import { createNoteStoreLogic } from '../store-logic/note.logic'
 
 import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
 import { createChatBusinessLogic } from '../business-logic/chat.logic'
@@ -31,6 +35,7 @@ import { createProviderBusinessLogic } from '../business-logic/provider.logic'
 import { createThemeBusinessLogic } from '../business-logic/theme.logic'
 import { createAppearanceBusinessLogic } from '../business-logic/appearance.logic'
 import { createFileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
+import { createNoteBusinessLogic } from '../business-logic/note.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -39,6 +44,7 @@ import { createThemeActions } from './theme.actions'
 import { createAppearanceActions } from './appearance.actions'
 import { createFileExplorerActions } from './file-explorer.actions'
 import { createChatSessionActions } from './chat-session.actions'
+import { createNoteActions } from './note.actions'
 
 const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
 const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
@@ -88,6 +94,14 @@ export const chatSessionActions = createChatSessionActions({
     stream: chatStream,
 })
 
+const noteStoreLogic = createNoteStoreLogic(() => useNoteStorer())
+const noteBusinessLogic = createNoteBusinessLogic({
+    notes: notesRepository,
+    categories: categoriesRepository,
+})
+
+export const noteActions = createNoteActions(noteStoreLogic, noteBusinessLogic)
+
 export type { WorkspaceActions } from './workspace.actions'
 export type { ChatActions } from './chat.actions'
 export type { ProviderActions } from './provider.actions'
@@ -95,3 +109,4 @@ export type { ThemeActions } from './theme.actions'
 export type { AppearanceActions } from './appearance.actions'
 export type { FileExplorerActions } from './file-explorer.actions'
 export type { ChatSessionActions } from './chat-session.actions'
+export type { NoteActions } from './note.actions'

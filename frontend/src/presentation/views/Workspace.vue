@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Album, ChatBubbleEmpty, Label, Notes, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
@@ -363,6 +363,7 @@ async function confirmDeleteNote(note: Note) {
 const autofocusNameId = ref<string | null>(null)
 const pendingSaves = new Map<string, Record<string, unknown>>()
 let saveTimer: ReturnType<typeof setTimeout> | null = null
+let saveInterval: ReturnType<typeof setInterval> | null = null
 const savingNote = ref(false)
 const lastSavedAt = ref<number | null>(null)
 
@@ -372,7 +373,7 @@ function queueSave(noteId: string, patch: Record<string, unknown>) {
     if (saveTimer) clearTimeout(saveTimer)
     saveTimer = setTimeout(() => {
         flushSaves()
-    }, 500)
+    }, 3000)
 }
 
 async function flushSaves() {
@@ -577,6 +578,8 @@ async function handleDeleteProvider(id: string) {
 function cleanupWorkspace() {
     clearSessions()
     fileExplorerActions.stopWatch()
+    flushSaves()
+    stopAutoSaveInterval()
 }
 
 function handleUpdatePreset(preset: string) {
@@ -622,6 +625,7 @@ watch(
         providerActions.fetchProviders()
         noteActions.fetchNotes()
         noteActions.fetchCategories()
+        startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)
         fileExplorerActions.loadRoot(newId, ws ? { workspaceRoot: ws.projectPath } : undefined)
@@ -634,6 +638,36 @@ watch(
     },
     { immediate: true },
 )
+
+watch(
+    activeMeta,
+    (meta, oldMeta) => {
+        const wasNote = oldMeta?.kind === 'note'
+        const isNote = meta?.kind === 'note'
+        if (wasNote || (!isNote && pendingSaves.size)) {
+            flushSaves()
+        }
+    },
+)
+
+function startAutoSaveInterval() {
+    if (saveInterval) return
+    saveInterval = setInterval(() => {
+        if (pendingSaves.size) flushSaves()
+    }, 30_000)
+}
+
+function stopAutoSaveInterval() {
+    if (saveInterval) {
+        clearInterval(saveInterval)
+        saveInterval = null
+    }
+}
+
+onBeforeUnmount(() => {
+    flushSaves()
+    stopAutoSaveInterval()
+})
 
 onUnmounted(() => {
     cleanupWorkspace()

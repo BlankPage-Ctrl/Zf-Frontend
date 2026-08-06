@@ -34,7 +34,6 @@ export function createChatSession(
 
     let chat: Chat<UIMessage> | null = null
     let statusInterval: ReturnType<typeof setInterval> | null = null
-    let lastSynced: UIMessage[] | null = null
 
     async function loadHistory(): Promise<void> {
         try {
@@ -71,8 +70,7 @@ export function createChatSession(
         if (!chat) return
         status.value = chat.status
         const next = chat.messages
-        if (next && next !== lastSynced) {
-            lastSynced = next
+        if (next) {
             messages.value = [...next]
         }
         isLoading.value = chat.status === 'submitted' || chat.status === 'streaming'

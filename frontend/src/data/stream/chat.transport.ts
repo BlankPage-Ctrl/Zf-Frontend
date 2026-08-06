@@ -1,7 +1,7 @@
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { StartStream, CancelStream } from '../../../wailsjs/go/stream/ChatStreamService'
-import { EventsOn, EventsOff } from '../../../wailsjs/runtime'
+import { EventsOn, EventsOff, LogInfo, LogError } from '../../../wailsjs/runtime'
 import type { ChatStreamPort } from '@/core/repositories'
 
 export function createWailsChatTransport(workspaceId: string, chatId: string) {
@@ -19,16 +19,36 @@ export function createWailsChatTransport(workspaceId: string, chatId: string) {
             const stream = new ReadableStream<Uint8Array>({
                 start(controller) {
                     const encoder = new TextEncoder()
+                    let eventCount = 0
+                    let droppedBeforeId = 0
 
                     const onChunk = (sid: string, line: string) => {
-                        if (sid !== streamId) return
+                        eventCount++
+                        if (sid !== streamId) {
+                            droppedBeforeId++
+                            if (droppedBeforeId <= 5 || droppedBeforeId % 50 === 0) {
+                                LogInfo(
+                                    `[chattransport] chunk DROPPED sid=${sid} streamId=${streamId} dropped=${droppedBeforeId} line=${line.slice(0, 80)}`,
+                                )
+                            }
+                            return
+                        }
+                        if (eventCount <= 3 || eventCount % 50 === 0) {
+                            LogInfo(
+                                `[chattransport] chunk#${eventCount} sid=${sid} OK enqueue line=${line.slice(0, 100)}`,
+                            )
+                        }
                         controller.enqueue(encoder.encode(line + '\n'))
                     }
                     const onDone = (sid: string) => {
+                        LogInfo(
+                            `[chattransport] onDone sid=${sid} streamId=${streamId} totalEvents=${eventCount} dropped=${droppedBeforeId}`,
+                        )
                         if (sid !== streamId) return
                         controller.close()
                     }
                     const onError = (sid: string, err: string) => {
+                        LogError(`[chattransport] onError sid=${sid} streamId=${streamId} err=${err}`)
                         if (sid !== streamId) return
                         controller.error(new Error(err))
                     }
@@ -39,11 +59,14 @@ export function createWailsChatTransport(workspaceId: string, chatId: string) {
                         EventsOn('chat:stream-error', onError),
                     ]
 
+                    LogInfo(`[chattransport] calling StartStream body=${messageBody.slice(0, 120)}`)
                     StartStream(workspaceId, chatId, messageBody)
                         .then((id) => {
                             streamId = id
+                            LogInfo(`[chattransport] streamId set = ${id}`)
                         })
                         .catch((err: Error) => {
+                            LogError(`[chattransport] StartStream rejected ${err}`)
                             controller.error(err)
                         })
                 },

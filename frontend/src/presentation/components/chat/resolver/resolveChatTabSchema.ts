@@ -21,10 +21,12 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             disabled: schema.loading,
             modelId: schema.modelId,
             providerId: schema.providerId,
+            thinkingMode: schema.thinkingMode,
             providers: schema.providers,
             onSend: schema.onSend,
             onStop: schema.onStop,
             onSelectModel: schema.onSelectModel,
+            onChangeThinkingMode: schema.onChangeThinkingMode,
         }),
     }
 }

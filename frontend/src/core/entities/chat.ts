@@ -3,6 +3,7 @@ export interface ChatDto {
     modelId?: string
     providerId?: string
     systemPrompt?: string
+    thinkingMode?: string
 }
 
 export interface Chat {
@@ -11,6 +12,7 @@ export interface Chat {
     providerId?: string
     modelId?: string
     systemPrompt?: string
+    thinkingMode?: string
     workspaceId: string
     createdAt: string
     updatedAt: string

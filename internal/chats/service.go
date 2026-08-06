@@ -8,6 +8,7 @@ type Chat struct {
 	ProviderID   *string `json:"providerId"`
 	ModelID      *string `json:"modelId"`
 	SystemPrompt *string `json:"systemPrompt"`
+	ThinkingMode string  `json:"thinkingMode"`
 	WorkspaceID  string  `json:"workspaceId"`
 	CreatedAt    string  `json:"createdAt"`
 	UpdatedAt    string  `json:"updatedAt"`
@@ -18,6 +19,7 @@ type ChatDto struct {
 	ModelID      *string `json:"modelId,omitempty"`
 	ProviderID   *string `json:"providerId,omitempty"`
 	SystemPrompt *string `json:"systemPrompt,omitempty"`
+	ThinkingMode *string `json:"thinkingMode,omitempty"`
 }
 
 type Service struct {

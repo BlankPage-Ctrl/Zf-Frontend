@@ -27,11 +27,13 @@ export interface ResolvedChatInput {
     disabled: boolean
     modelId?: string
     providerId?: string
+    thinkingMode?: string
     modelItems: DropdownItemConfig[]
     selectedLabel: string
     onSend?: (text: string) => void
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
+    onChangeThinkingMode?: (mode: string) => void
 }
 
 export interface ResolvedMessageBubble {

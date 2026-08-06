@@ -45,6 +45,7 @@ export namespace chats {
 	    providerId?: string;
 	    modelId?: string;
 	    systemPrompt?: string;
+	    thinkingMode: string;
 	    workspaceId: string;
 	    createdAt: string;
 	    updatedAt: string;
@@ -60,6 +61,7 @@ export namespace chats {
 	        this.providerId = source["providerId"];
 	        this.modelId = source["modelId"];
 	        this.systemPrompt = source["systemPrompt"];
+	        this.thinkingMode = source["thinkingMode"];
 	        this.workspaceId = source["workspaceId"];
 	        this.createdAt = source["createdAt"];
 	        this.updatedAt = source["updatedAt"];
@@ -70,6 +72,7 @@ export namespace chats {
 	    modelId?: string;
 	    providerId?: string;
 	    systemPrompt?: string;
+	    thinkingMode?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ChatDto(source);
@@ -81,6 +84,7 @@ export namespace chats {
 	        this.modelId = source["modelId"];
 	        this.providerId = source["providerId"];
 	        this.systemPrompt = source["systemPrompt"];
+	        this.thinkingMode = source["thinkingMode"];
 	    }
 	}
 

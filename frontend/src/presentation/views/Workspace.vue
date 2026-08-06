@@ -224,6 +224,7 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
+        onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
     })
 }
 
@@ -231,7 +232,10 @@ function getChatById(chatId: string): Chat | undefined {
     return chatStorer.chats.find((c) => c.id === chatId)
 }
 
-async function onUpdateChat(chatId: string, payload: { modelId?: string; providerId?: string }) {
+async function onUpdateChat(
+    chatId: string,
+    payload: { modelId?: string; providerId?: string; thinkingMode?: string },
+) {
     try {
         await chatActions.updateChat(workspaceId.value, chatId, payload)
     } catch {

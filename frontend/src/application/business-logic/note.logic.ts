@@ -17,8 +17,7 @@ export function createNoteBusinessLogic(repo: {
     return {
         list: () => repo.notes.list(),
         create: (dto) => repo.notes.create(dto),
-        update: (id, dto) =>
-            repo.notes.update(id, dto as unknown as Record<string, unknown>),
+        update: (id, dto) => repo.notes.update(id, dto as unknown as Record<string, unknown>),
         remove: (id) => repo.notes.remove(id),
         listCategories: () => repo.categories.list(),
         createCategory: (dto) => repo.categories.create(dto),

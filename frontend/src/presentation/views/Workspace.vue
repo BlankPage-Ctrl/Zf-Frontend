@@ -61,7 +61,10 @@ import {
 
 const SETTINGS_TAB_ID = '__settings__'
 
-type TabMeta = { kind: 'chat'; chatId: string } | { kind: 'settings' } | { kind: 'note'; noteId: string }
+type TabMeta =
+    | { kind: 'chat'; chatId: string }
+    | { kind: 'settings' }
+    | { kind: 'note'; noteId: string }
 
 function chatTabMeta(chatId: string): TabMeta {
     return { kind: 'chat', chatId }
@@ -705,16 +708,13 @@ watch(
     { immediate: true },
 )
 
-watch(
-    activeMeta,
-    (meta, oldMeta) => {
-        const wasNote = oldMeta?.kind === 'note'
-        const isNote = meta?.kind === 'note'
-        if (wasNote || (!isNote && pendingSaves.size)) {
-            flushSaves()
-        }
-    },
-)
+watch(activeMeta, (meta, oldMeta) => {
+    const wasNote = oldMeta?.kind === 'note'
+    const isNote = meta?.kind === 'note'
+    if (wasNote || (!isNote && pendingSaves.size)) {
+        flushSaves()
+    }
+})
 
 function startAutoSaveInterval() {
     if (saveInterval) return

@@ -61,16 +61,25 @@ const titleStyle = computed(() => {
     const style: Record<string, string> = {}
     if (props.fontWeight) {
         const weight =
-            ({ normal: 'var(--font-weight-normal)', medium: 'var(--font-weight-medium)', semibold: 'var(--font-weight-semibold)', bold: 'var(--font-weight-bold)' } as Record<string, string>)[
-                props.fontWeight
-            ] ?? props.fontWeight
+            (
+                {
+                    normal: 'var(--font-weight-normal)',
+                    medium: 'var(--font-weight-medium)',
+                    semibold: 'var(--font-weight-semibold)',
+                    bold: 'var(--font-weight-bold)',
+                } as Record<string, string>
+            )[props.fontWeight] ?? props.fontWeight
         style['--dl-title-weight'] = weight
     }
     if (props.fontFamily) {
         const family =
-            ({ serif: 'var(--font-serif)', sans: 'var(--font-body)', mono: 'var(--font-mono)' } as Record<string, string>)[
-                props.fontFamily
-            ] ?? props.fontFamily
+            (
+                {
+                    serif: 'var(--font-serif)',
+                    sans: 'var(--font-body)',
+                    mono: 'var(--font-mono)',
+                } as Record<string, string>
+            )[props.fontFamily] ?? props.fontFamily
         style['--dl-title-font'] = family
     }
     return Object.keys(style).length ? style : undefined
@@ -112,11 +121,7 @@ function onChatClick(chatId: string) {
 
 <template>
     <div class="dl-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
-        <div
-            :class="itemClass"
-            :style="itemStyle"
-            @click="onSelect?.(item)"
-        >
+        <div :class="itemClass" :style="itemStyle" @click="onSelect?.(item)">
             <component :is="itemIcon" v-if="itemIcon" class="dl-item__icon" />
             <div class="dl-item__body">
                 <span

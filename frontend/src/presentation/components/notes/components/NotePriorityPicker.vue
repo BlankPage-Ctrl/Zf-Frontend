@@ -17,9 +17,7 @@ const emit = defineEmits<{
     change: [priority: Priority]
 }>()
 
-const items = computed(() =>
-    createPriorityDropdownItems({ currentPriority: props.value }),
-)
+const items = computed(() => createPriorityDropdownItems({ currentPriority: props.value }))
 
 const triggerLabel = computed(() => PRIORITY_TRIGGER_LABELS[props.value])
 
@@ -30,11 +28,7 @@ function handleSelect(val: string) {
 
 <template>
     <div class="note-priority">
-        <DropdownRoot
-            :items="items"
-            v-bind="priorityDropdownProps"
-            @select="handleSelect"
-        >
+        <DropdownRoot :items="items" v-bind="priorityDropdownProps" @select="handleSelect">
             <template #trigger="{ isOpen, toggle }">
                 <button
                     type="button"
@@ -79,7 +73,9 @@ function handleSelect(val: string) {
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
-    transition: background 80ms ease, box-shadow 80ms ease;
+    transition:
+        background 80ms ease,
+        box-shadow 80ms ease;
 }
 
 .note-priority__trigger:hover {

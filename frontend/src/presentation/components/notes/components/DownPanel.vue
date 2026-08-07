@@ -34,7 +34,10 @@ function handlePriorityChange(priority: Priority) {
     <div class="note-save-panel">
         <div class="note-save-panel__left">
             <NotePriorityPicker :value="priority" @change="handlePriorityChange" />
-            <span class="note-save-panel__status" :class="{ 'note-save-panel__status--dirty': dirty }">
+            <span
+                class="note-save-panel__status"
+                :class="{ 'note-save-panel__status--dirty': dirty }"
+            >
                 {{ statusText }}
             </span>
         </div>

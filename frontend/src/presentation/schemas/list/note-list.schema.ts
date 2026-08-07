@@ -10,9 +10,7 @@ export interface SidebarNoteListHandlers {
     onCreate?: () => void
 }
 
-export function createSidebarNoteListSchema(
-    handlers: SidebarNoteListHandlers,
-): ListSchema<Note> {
+export function createSidebarNoteListSchema(handlers: SidebarNoteListHandlers): ListSchema<Note> {
     const actions: NonNullable<ListSchema<Note>['actions']> = []
     if (handlers.onEdit) {
         actions.push({

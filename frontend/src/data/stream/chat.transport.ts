@@ -48,7 +48,9 @@ export function createWailsChatTransport(workspaceId: string, chatId: string) {
                         controller.close()
                     }
                     const onError = (sid: string, err: string) => {
-                        LogError(`[chattransport] onError sid=${sid} streamId=${streamId} err=${err}`)
+                        LogError(
+                            `[chattransport] onError sid=${sid} streamId=${streamId} err=${err}`,
+                        )
                         if (sid !== streamId) return
                         controller.error(new Error(err))
                     }

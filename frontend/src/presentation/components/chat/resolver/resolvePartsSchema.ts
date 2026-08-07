@@ -149,6 +149,13 @@ export function resolveMessagePart(
     part: UIMessage['parts'][number],
     defaults?: { fontSize?: number; lineHeight?: number },
 ): MessagePartSchema {
+    return buildMessagePart(part, defaults)
+}
+
+function buildMessagePart(
+    part: UIMessage['parts'][number],
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema {
     if (isTextUIPart(part)) {
         return {
             type: 'text',

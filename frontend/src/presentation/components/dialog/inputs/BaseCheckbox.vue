@@ -170,7 +170,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
     align-items: center;
     gap: 4px;
     font-size: var(--type-2xs);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     opacity: 0.55;
     text-transform: uppercase;
@@ -274,7 +274,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 }
 
 .single-label-text {
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
 }
 
 .message-container {
@@ -285,7 +285,7 @@ const toggleGroupItem = (val: unknown, checked: boolean) => {
 .error-text {
     display: block;
     font-size: var(--type-xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--color-danger);
     line-height: 1.2;
 }

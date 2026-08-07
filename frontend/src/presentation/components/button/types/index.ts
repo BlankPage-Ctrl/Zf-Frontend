@@ -5,6 +5,9 @@ export type {
     ButtonType,
     IconPosition,
     ButtonTag,
+    ButtonFontFamily,
+    ButtonFontSize,
+    ButtonFontWeight,
     ButtonSchema,
 } from './schema'
 

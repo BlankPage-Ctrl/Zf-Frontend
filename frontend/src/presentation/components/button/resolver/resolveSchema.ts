@@ -15,6 +15,9 @@ type RequiredSchema = Required<
         | 'ariaExpanded'
         | 'ariaPressed'
         | 'ariaDescribedby'
+        | 'fontFamily'
+        | 'fontSize'
+        | 'fontWeight'
     >
 >
 
@@ -31,6 +34,29 @@ const DEFAULT_SCHEMA: RequiredSchema = {
     disabled: false,
     ripple: false,
     pressScale: false,
+}
+
+const FONT_FAMILY_MAP: Record<string, string> = {
+    serif: 'var(--font-serif)',
+    sans: 'var(--font-body)',
+    mono: 'var(--font-mono)',
+}
+
+const FONT_SIZE_MAP: Record<string, string> = {
+    '2xs': 'var(--type-2xs)',
+    xs: 'var(--type-xs)',
+    sm: 'var(--type-sm)',
+    md: 'var(--type-md)',
+    lg: 'var(--type-lg)',
+    xl: 'var(--type-xl)',
+    '2xl': 'var(--type-2xl)',
+}
+
+const FONT_WEIGHT_MAP: Record<string, string> = {
+    normal: 'var(--font-weight-normal)',
+    medium: 'var(--font-weight-medium)',
+    semibold: 'var(--font-weight-semibold)',
+    bold: 'var(--font-weight-bold)',
 }
 
 export function resolveButtonSchema(schema: ButtonSchema): ResolvedButton {
@@ -55,11 +81,12 @@ export function resolveButtonSchema(schema: ButtonSchema): ResolvedButton {
 
     const tagAttrs = computeTagAttrs(merged, isDisabled)
     const ariaAttrs = computeAriaAttrs(merged, isDisabled)
+    const style = computeStyle(merged)
     const classes = computeClasses(merged, isIconOnly)
 
     return {
         tag: merged.tag!,
-        attrs: { ...ariaAttrs, ...tagAttrs },
+        attrs: { ...ariaAttrs, ...tagAttrs, ...(style ? { style } : {}) },
         classes,
         content: {
             label: merged.label,
@@ -128,4 +155,24 @@ function computeClasses(merged: ButtonSchema, isIconOnly: boolean): ButtonClasse
         icon: 'btn__icon',
         spinner: 'btn__spinner',
     }
+}
+
+function computeStyle(merged: ButtonSchema): Record<string, string> | undefined {
+    const style: Record<string, string> = {}
+
+    const fontFamily = mapToken(merged.fontFamily, FONT_FAMILY_MAP)
+    if (fontFamily) style.fontFamily = fontFamily
+
+    const fontSize = mapToken(merged.fontSize, FONT_SIZE_MAP)
+    if (fontSize) style.fontSize = fontSize
+
+    const fontWeight = mapToken(merged.fontWeight, FONT_WEIGHT_MAP)
+    if (fontWeight) style.fontWeight = fontWeight
+
+    return Object.keys(style).length ? style : undefined
+}
+
+function mapToken(value: string | undefined, map: Record<string, string>): string | undefined {
+    if (value == null || value === '') return undefined
+    return map[value] ?? value
 }

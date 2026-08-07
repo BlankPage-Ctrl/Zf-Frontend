@@ -235,7 +235,7 @@ watch(
 .welcome-title {
     font-family: var(--font-serif);
     font-size: var(--type-2xl);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     margin: 0 0 6px;
 }

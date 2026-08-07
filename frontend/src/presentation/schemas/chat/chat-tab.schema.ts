@@ -11,6 +11,7 @@ export interface ChatTabParams {
     fontSize?: number
     lineHeight?: number
     onUpdateModel?: (modelId: string, providerId: string) => void
+    onChangeThinkingMode?: (mode: string) => void
 }
 
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
@@ -21,11 +22,13 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         providers: params.providers,
         modelId: params.chat.modelId,
         providerId: params.chat.providerId,
+        thinkingMode: params.chat.thinkingMode,
         contentWidth: params.contentWidth,
         fontSize: params.fontSize,
         lineHeight: params.lineHeight,
         onSend: params.session.sendMessage,
         onStop: params.session.stop,
         onSelectModel: params.onUpdateModel,
+        onChangeThinkingMode: params.onChangeThinkingMode,
     }
 }

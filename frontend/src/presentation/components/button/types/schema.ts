@@ -7,6 +7,9 @@ export type ButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full'
 export type ButtonType = 'button' | 'submit' | 'reset'
 export type IconPosition = 'left' | 'right' | 'only'
 export type ButtonTag = 'button' | 'a' | 'router-link'
+export type ButtonFontFamily = 'serif' | 'sans' | 'mono' | (string & {})
+export type ButtonFontSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | (string & {})
+export type ButtonFontWeight = 'normal' | 'medium' | 'semibold' | 'bold' | (string & {})
 
 export interface ButtonSchema {
     readonly label?: string
@@ -17,6 +20,10 @@ export interface ButtonSchema {
     readonly size?: ButtonSize
     readonly radius?: ButtonRadius
     readonly fullWidth?: boolean
+
+    readonly fontFamily?: ButtonFontFamily
+    readonly fontSize?: ButtonFontSize
+    readonly fontWeight?: ButtonFontWeight
 
     readonly tag?: ButtonTag
     readonly type?: ButtonType

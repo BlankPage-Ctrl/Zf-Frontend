@@ -28,6 +28,7 @@ func (s *Store) handleCreateChat(w http.ResponseWriter, r *http.Request) {
 		ProviderID   *string `json:"providerId"`
 		ModelID      *string `json:"modelId"`
 		SystemPrompt *string `json:"systemPrompt"`
+		ThinkingMode string  `json:"thinkingMode"`
 	}
 	if err := readBody(r, &body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid body")
@@ -40,6 +41,7 @@ func (s *Store) handleCreateChat(w http.ResponseWriter, r *http.Request) {
 		ProviderID:   body.ProviderID,
 		ModelID:      body.ModelID,
 		SystemPrompt: body.SystemPrompt,
+		ThinkingMode: body.ThinkingMode,
 		WorkspaceID:  wsID,
 		CreatedAt:    now,
 		UpdatedAt:    now,
@@ -68,6 +70,9 @@ func (s *Store) handleUpdateChat(w http.ResponseWriter, r *http.Request) {
 		}
 		if v, ok := body["systemPrompt"].(string); ok {
 			chat.SystemPrompt = &v
+		}
+		if v, ok := body["thinkingMode"].(string); ok {
+			chat.ThinkingMode = v
 		}
 		chat.UpdatedAt = ts()
 	})

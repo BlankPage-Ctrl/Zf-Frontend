@@ -33,6 +33,7 @@ export interface DropdownItemConfig<T = string> {
     action?: ItemAction
     children?: DropdownItemConfig<T>[]
     value?: T
+    providerId?: string
     selected?: boolean
 }
 

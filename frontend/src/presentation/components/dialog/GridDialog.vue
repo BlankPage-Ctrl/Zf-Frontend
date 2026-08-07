@@ -272,7 +272,7 @@ watch(
 .dialog-title {
     font-family: var(--font-serif);
     font-size: var(--type-xl);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     letter-spacing: -0.01em;
     color: var(--text-primary);
     margin: 0;
@@ -348,7 +348,7 @@ watch(
     background-color: var(--border-color);
     color: var(--text-primary);
     font-size: var(--type-sm);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     opacity: 0.6;
     transition:
         opacity 150ms ease,
@@ -375,7 +375,7 @@ watch(
     background-color: transparent;
     color: var(--text-primary);
     font-size: var(--type-sm);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     opacity: 0.5;
     transition:
         opacity 150ms ease,

@@ -41,6 +41,8 @@ const dirty = computed(() => {
     )
 })
 
+const detailsValid = computed(() => draft.details.trim().length > 0)
+
 function commitName(name: string) {
     draft.name = name
     props.resolved.onNameCommit?.(name)
@@ -96,6 +98,7 @@ function changeCategory(categoryId: string) {
             :saving="resolved.saving"
             :saved-at="resolved.savedAt"
             :priority="draft.priority"
+            :details-valid="detailsValid"
             @save="resolved.onSave?.()"
             @priority-change="changePriority"
         />

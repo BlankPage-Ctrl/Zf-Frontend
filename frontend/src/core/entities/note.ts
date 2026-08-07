@@ -28,6 +28,7 @@ export interface NoteUpdateDto {
     desc?: string
     details?: string
     priority?: Priority
+    version?: number
 }
 
 export interface NoteFilter {

@@ -9,6 +9,7 @@ const props = defineProps<{
     saving: boolean
     savedAt: string | null
     priority: Priority
+    detailsValid?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 
 const statusText = computed(() => {
     if (props.saving) return 'Saving...'
+    if (props.detailsValid === false) return 'Details are required'
     if (props.dirty) return 'Unsaved changes'
     if (props.savedAt) return 'Saved'
     return ''
@@ -43,6 +45,7 @@ function handlePriorityChange(priority: Priority) {
                 radius: 'md',
                 label: 'Save',
                 loading: saving,
+                disabled: detailsValid === false,
             }"
             @click="emit('save')"
         />

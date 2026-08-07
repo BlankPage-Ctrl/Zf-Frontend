@@ -334,15 +334,56 @@ const noteListSchema = computed(() =>
 )
 
 async function openNoteCreate() {
-    const id = await noteActions.createNote({
-        name: 'Untitled note',
+    const id = crypto.randomUUID()
+    const now = new Date().toISOString()
+    noteActions.upsertLocalNote({
+        id,
+        name: 'Untitled',
         desc: '',
         details: '',
+        category_id: '',
         priority: 'medium',
+        rank: '',
+        created_at: now,
+        updated_at: now,
+        version: 1,
     })
+    draftNoteIds.value.add(id)
     autofocusNameId.value = id
     showPanel('notes')
     open(id, noteTabMeta(id))
+}
+
+function applyLocalNotePatch(noteId: string, patch: Partial<Note>) {
+    const current = noteStorer.notes.find((n) => n.id === noteId)
+    if (!current) return
+    noteActions.upsertLocalNote({
+        ...current,
+        ...patch,
+        updated_at: new Date().toISOString(),
+    })
+}
+
+async function persistDraft(noteId: string) {
+    const draft = noteStorer.notes.find((n) => n.id === noteId)
+    if (!draft) return
+    savingNote.value = true
+    let realId: string
+    try {
+        realId = await noteActions.createNote({
+            name: draft.name.trim() || 'Untitled',
+            desc: draft.desc,
+            details: draft.details,
+            priority: draft.priority,
+        })
+    } finally {
+        savingNote.value = false
+    }
+    noteActions.removeLocalNote(noteId)
+    draftNoteIds.value.delete(noteId)
+    if (autofocusNameId.value === noteId) autofocusNameId.value = null
+    close(noteId)
+    open(realId, noteTabMeta(realId))
 }
 
 async function confirmDeleteNote(note: Note) {
@@ -361,6 +402,7 @@ async function confirmDeleteNote(note: Note) {
 }
 
 const autofocusNameId = ref<string | null>(null)
+const draftNoteIds = ref<Set<string>>(new Set())
 const pendingSaves = new Map<string, Record<string, unknown>>()
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 let saveInterval: ReturnType<typeof setInterval> | null = null
@@ -386,8 +428,10 @@ async function flushSaves() {
     pendingSaves.clear()
     savingNote.value = true
     for (const [id, patch] of entries) {
+        const current = noteStorer.notes.find((n) => n.id === id)
+        if (!current) continue
         try {
-            await noteActions.updateNote(id, patch)
+            await noteActions.updateNote(id, { ...patch, version: current.version })
         } catch {
             /* handled by logic */
         }
@@ -397,6 +441,7 @@ async function flushSaves() {
 }
 
 function buildNotesTabSchema(note: Note): NotesTabSchema {
+    const isDraft = draftNoteIds.value.has(note.id)
     return createNotesTabSchema({
         note,
         categories: noteStorer.categories,
@@ -405,15 +450,32 @@ function buildNotesTabSchema(note: Note): NotesTabSchema {
         autofocusName: note.id === autofocusNameId.value,
         onNameCommit: (name) => {
             if (autofocusNameId.value === note.id) autofocusNameId.value = null
-            queueSave(note.id, { name })
+            if (isDraft) applyLocalNotePatch(note.id, { name })
+            else queueSave(note.id, { name })
         },
-        onDescCommit: (desc) => queueSave(note.id, { desc }),
-        onDetailsCommit: (details) => queueSave(note.id, { details }),
-        onPriorityChange: (priority) => queueSave(note.id, { priority }),
-        onCategoryChange: (categoryId) => queueSave(note.id, { category_id: categoryId }),
+        onDescCommit: (desc) => {
+            if (isDraft) applyLocalNotePatch(note.id, { desc })
+            else queueSave(note.id, { desc })
+        },
+        onDetailsCommit: (details) => {
+            if (isDraft) applyLocalNotePatch(note.id, { details })
+            else queueSave(note.id, { details })
+        },
+        onPriorityChange: (priority) => {
+            if (isDraft) applyLocalNotePatch(note.id, { priority })
+            else queueSave(note.id, { priority })
+        },
+        onCategoryChange: (categoryId) => {
+            if (isDraft) applyLocalNotePatch(note.id, { category_id: categoryId })
+            else queueSave(note.id, { category_id: categoryId })
+        },
         onCreateCategory: () => openCategoryCreate(note),
-        onSave: () => {
-            flushSaves()
+        onSave: async () => {
+            if (isDraft) {
+                await persistDraft(note.id)
+            } else {
+                flushSaves()
+            }
         },
     })
 }
@@ -427,7 +489,11 @@ async function openCategoryCreate(note?: Note) {
             const name = String(data.category!.name ?? '')
             const id = await noteActions.createCategory({ name })
             if (note) {
-                queueSave(note.id, { category_id: id })
+                if (draftNoteIds.value.has(note.id)) {
+                    applyLocalNotePatch(note.id, { category_id: id })
+                } else {
+                    queueSave(note.id, { category_id: id })
+                }
             }
         },
     })

@@ -1,6 +1,6 @@
 import type { NoteStoreLogic } from '../store-logic/note.logic'
 import type { NoteBusinessLogic } from '../business-logic/note.logic'
-import type { NoteDto, NoteUpdateDto, CategoryDto } from '@/core/entities'
+import type { Note, NoteDto, NoteUpdateDto, CategoryDto } from '@/core/entities'
 import { toMessage } from '@/shared/utils/error.utils'
 
 export interface NoteActions {
@@ -10,6 +10,8 @@ export interface NoteActions {
     deleteNote(id: string): Promise<void>
     fetchCategories(): Promise<void>
     createCategory(dto: CategoryDto): Promise<string>
+    upsertLocalNote(note: Note): void
+    removeLocalNote(id: string): void
 }
 
 export function createNoteActions(
@@ -80,6 +82,14 @@ export function createNoteActions(
         }
     }
 
+    function upsertLocalNote(note: Note): void {
+        storeLogic.upsertNote(note)
+    }
+
+    function removeLocalNote(id: string): void {
+        storeLogic.removeNote(id)
+    }
+
     return {
         fetchNotes,
         createNote,
@@ -87,5 +97,7 @@ export function createNoteActions(
         deleteNote,
         fetchCategories,
         createCategory,
+        upsertLocalNote,
+        removeLocalNote,
     }
 }

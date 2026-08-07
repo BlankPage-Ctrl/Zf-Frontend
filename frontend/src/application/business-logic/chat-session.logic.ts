@@ -63,11 +63,30 @@ export function createChatSession(
             },
         })
 
+        startPolling()
+    }
+
+    function syncChat(): void {
+        if (!chat) return
+        status.value = chat.status
+        const next = chat.messages
+        if (next) {
+            messages.value = [...next]
+        }
+        isLoading.value = chat.status === 'submitted' || chat.status === 'streaming'
+    }
+
+    function startPolling(): void {
+        if (statusInterval) return
+        syncChat()
         statusInterval = setInterval(() => {
-            if (chat) {
-                status.value = chat.status
-                messages.value = chat.messages ? [...chat.messages] : []
-                isLoading.value = chat.status === 'submitted' || chat.status === 'streaming'
+            if (!chat) return
+            syncChat()
+            if (chat.status !== 'submitted' && chat.status !== 'streaming') {
+                if (statusInterval) {
+                    clearInterval(statusInterval)
+                    statusInterval = null
+                }
             }
         }, 100)
     }
@@ -76,6 +95,7 @@ export function createChatSession(
         if (!chat || !text.trim()) return
         error.value = undefined
         isLoading.value = true
+        startPolling()
         try {
             await chat.sendMessage({ text })
         } catch (e: unknown) {
@@ -96,6 +116,7 @@ export function createChatSession(
         if (!chat) return
         error.value = undefined
         isLoading.value = true
+        startPolling()
         try {
             await chat.regenerate()
         } catch (e: unknown) {

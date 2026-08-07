@@ -52,7 +52,30 @@
 }
 
 .dl-item--active .dl-item__field--title {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
+}
+
+/* --- Dim mode, faded text -> pekat on hover/active --- */
+
+.dl-item--dim .dl-item__field--title,
+.dl-item--dim .dl-item__icon {
+    opacity: 0.6;
+    transition: opacity 120ms ease;
+}
+
+.dl-item--dim .dl-item__field--title {
+    font-weight: var(--font-weight-normal);
+}
+
+.dl-item--dim:hover .dl-item__field--title,
+.dl-item--dim.dl-item--active .dl-item__field--title {
+    opacity: 1;
+    font-weight: var(--font-weight-medium);
+}
+
+.dl-item--dim:hover .dl-item__icon,
+.dl-item--dim.dl-item--active .dl-item__icon {
+    opacity: 1;
 }
 
 /* --- Icon --- */
@@ -91,8 +114,8 @@
 }
 
 .dl-item__field--title {
-    font-family: var(--font-serif);
-    font-weight: 600;
+    font-family: var(--dl-title-font, var(--font-serif));
+    font-weight: var(--dl-title-weight, var(--font-weight-semibold));
     color: var(--text-primary);
 }
 

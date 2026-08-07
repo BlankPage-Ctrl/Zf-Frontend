@@ -17,6 +17,7 @@ export function resolveChatInputSchema(schema: ChatInputSchema): ResolvedChatInp
                 id: model.id,
                 label: model.displayName || model.modelId,
                 value: model.id,
+                providerId: provider.id,
                 selected: model.id === schema.modelId,
             })
         })
@@ -50,10 +51,12 @@ export function resolveChatInputSchema(schema: ChatInputSchema): ResolvedChatInp
         disabled: !!schema.disabled,
         modelId: schema.modelId,
         providerId: schema.providerId,
+        thinkingMode: schema.thinkingMode,
         modelItems,
         selectedLabel,
         onSend: schema.onSend,
         onStop: schema.onStop,
         onSelectModel: schema.onSelectModel,
+        onChangeThinkingMode: schema.onChangeThinkingMode,
     }
 }

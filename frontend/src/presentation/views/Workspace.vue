@@ -1,17 +1,19 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, Plus, Settings as SettingsIcon } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Label, Notes, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import { IconRails } from '@/presentation/components/icon-rails'
+import { pButton } from '@/presentation/components/button'
 import {
     useWorkspaceStorer,
     useChatStorer,
     useProviderStorer,
     useAppearanceStorer,
     useThemeStorer,
+    useNoteStorer,
 } from '@/application/stores'
 import {
     workspaceActions,
@@ -20,11 +22,14 @@ import {
     fileExplorerActions,
     appearanceActions,
     themeActions,
+    noteActions,
 } from '@/application/actions'
-import type { Chat } from '@/core/entities'
+import type { Chat, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
+import NotesTab from '@/presentation/components/notes/NotesTab.vue'
+import type { NotesTabSchema } from '@/presentation/components/notes'
 import SettingsTab from '@/presentation/components/settings/SettingsTab.vue'
 import type {
     SettingsTabSchema,
@@ -39,12 +44,16 @@ import type { TabStripSchema as WsTabStripSchema } from '@/presentation/componen
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
 import { useTabs } from '@/presentation/composables/useTabs'
 import { FileExplorer } from '@/presentation/components/file-explorer'
+import { NoteGroup } from '@/presentation/components/note-group'
 import {
     chatFormSchema,
     providerFormSchema,
     modelFormSchema,
+    categoryFormSchema,
     createSidebarChatListSchema,
+    createSidebarNoteListSchema,
     createChatTabSchema,
+    createNotesTabSchema,
     createChatRailsSchema,
     createWorkspaceLayout,
     createSettingsTabSchema,
@@ -52,10 +61,17 @@ import {
 
 const SETTINGS_TAB_ID = '__settings__'
 
-type TabMeta = { kind: 'chat'; chatId: string } | { kind: 'settings' }
+type TabMeta =
+    | { kind: 'chat'; chatId: string }
+    | { kind: 'settings' }
+    | { kind: 'note'; noteId: string }
 
 function chatTabMeta(chatId: string): TabMeta {
     return { kind: 'chat', chatId }
+}
+
+function noteTabMeta(noteId: string): TabMeta {
+    return { kind: 'note', noteId }
 }
 
 const route = useRoute()
@@ -65,6 +81,7 @@ const chatStorer = useChatStorer()
 const providerStorer = useProviderStorer()
 const appearanceStorer = useAppearanceStorer()
 const themeStorer = useThemeStorer()
+const noteStorer = useNoteStorer()
 const dialog = useDialog()
 const settingsTab = useSettingsTab()
 const { getSession, removeSession, clearSessions } = useSessionCache(() => workspaceId.value)
@@ -83,21 +100,25 @@ const workspace = computed(() => {
 const sidebarCollapsed = ref(false)
 const sidebarPanelWidth = ref(240)
 const showFileExplorer = ref(false)
+const showNotes = ref(false)
 
 useSidebarKeyboard(() => {
     sidebarCollapsed.value = !sidebarCollapsed.value
 })
 
-function showPanel(view: 'chat' | 'files') {
+function showPanel(view: 'chat' | 'files' | 'notes') {
     showFileExplorer.value = view === 'files'
+    showNotes.value = view === 'notes'
     sidebarCollapsed.value = false
 }
 
 const iconRailsSchema = computed(() =>
     createChatRailsSchema({
         showFiles: showFileExplorer.value,
+        showNotes: showNotes.value,
         onChat: () => showPanel('chat'),
         onFiles: () => showPanel('files'),
+        onNotes: () => showPanel('notes'),
     }),
 )
 
@@ -116,6 +137,7 @@ const {
     open,
     close,
     reset,
+    getMeta,
 } = useTabs<string, TabMeta>()
 
 watch(
@@ -131,28 +153,52 @@ const activeChat = computed(() => {
     return getChatById(meta.chatId)
 })
 
-type ContentView = { type: 'chat'; chatId: string } | { type: 'settings' } | { type: 'none' }
+const activeNote = computed(() => {
+    const meta = activeMeta.value
+    if (!meta || meta.kind !== 'note') return null
+    return getNoteById(meta.noteId)
+})
+
+type ContentView =
+    | { type: 'chat'; chatId: string }
+    | { type: 'settings' }
+    | { type: 'note'; noteId: string }
+    | { type: 'none' }
 
 const contentView = computed<ContentView>(() => {
     const meta = activeMeta.value
     if (meta?.kind === 'settings') return { type: 'settings' }
     if (meta?.kind === 'chat') return { type: 'chat', chatId: meta.chatId }
+    if (meta?.kind === 'note') return { type: 'note', noteId: meta.noteId }
     return { type: 'none' }
 })
 
 watch(activeChatId, (newId) => {
-    if (newId && newId !== SETTINGS_TAB_ID) getSession(newId)
+    const meta = activeMeta.value
+    if (newId && newId !== SETTINGS_TAB_ID && meta?.kind === 'chat') getSession(newId)
 })
 
 const WsTabStripSchema = computed<WsTabStripSchema<string>>(() => {
     const tabs = openChatIds.value
         .filter((id) => id !== SETTINGS_TAB_ID)
-        .map((id) => ({
-            id,
-            title: getChatById(id)?.title ?? 'Untitled chat',
-            icon: ChatBubbleEmpty,
-            closable: true,
-        }))
+        .map((id) => {
+            const meta = getMeta(id)
+            if (meta?.kind === 'note') {
+                const note = getNoteById(id)
+                return {
+                    id,
+                    title: note?.name ?? 'Untitled note',
+                    icon: Notes,
+                    closable: true,
+                }
+            }
+            return {
+                id,
+                title: getChatById(id)?.title ?? 'Untitled chat',
+                icon: ChatBubbleEmpty,
+                closable: true,
+            }
+        })
 
     if (isOpen(SETTINGS_TAB_ID)) {
         tabs.push({
@@ -181,6 +227,7 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
+        onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
     })
 }
 
@@ -188,7 +235,10 @@ function getChatById(chatId: string): Chat | undefined {
     return chatStorer.chats.find((c) => c.id === chatId)
 }
 
-async function onUpdateChat(chatId: string, payload: { modelId?: string; providerId?: string }) {
+async function onUpdateChat(
+    chatId: string,
+    payload: { modelId?: string; providerId?: string; thinkingMode?: string },
+) {
     try {
         await chatActions.updateChat(workspaceId.value, chatId, payload)
     } catch {
@@ -247,6 +297,207 @@ async function confirmDeleteChat(chat: Chat) {
             }
             removeSession(chat.id)
             await chatActions.deleteChat(workspaceId.value, chat.id)
+        },
+    })
+}
+
+function getNoteById(noteId: string): Note | undefined {
+    return noteStorer.notes.find((n) => n.id === noteId)
+}
+
+const noteGroups = computed(() => {
+    const cats = noteStorer.categories
+    const map = new Map<string, Note[]>()
+    for (const note of noteStorer.notes) {
+        const key = note.category_id || '__uncategorized__'
+        if (!map.has(key)) map.set(key, [])
+        map.get(key)!.push(note)
+    }
+    return [...map.entries()].map(([categoryId, notes]) => ({
+        id: categoryId,
+        name: cats.find((c) => c.id === categoryId)?.name ?? 'Uncategorized',
+        notes,
+    }))
+})
+
+const activeNoteId = computed(() => {
+    const meta = activeMeta.value
+    return meta?.kind === 'note' ? meta.noteId : undefined
+})
+
+const noteListSchema = computed(() =>
+    createSidebarNoteListSchema({
+        activeNoteId: activeNoteId.value,
+        onSelect: (note) => {
+            open(note.id, noteTabMeta(note.id))
+        },
+        onDelete: confirmDeleteNote,
+        onCreate: openNoteCreate,
+    }),
+)
+
+async function openNoteCreate() {
+    const id = crypto.randomUUID()
+    const now = new Date().toISOString()
+    noteActions.upsertLocalNote({
+        id,
+        name: 'Untitled',
+        desc: '',
+        details: '',
+        category_id: '',
+        priority: 'medium',
+        rank: '',
+        created_at: now,
+        updated_at: now,
+        version: 1,
+    })
+    draftNoteIds.value.add(id)
+    autofocusNameId.value = id
+    showPanel('notes')
+    open(id, noteTabMeta(id))
+}
+
+function applyLocalNotePatch(noteId: string, patch: Partial<Note>) {
+    const current = noteStorer.notes.find((n) => n.id === noteId)
+    if (!current) return
+    noteActions.upsertLocalNote({
+        ...current,
+        ...patch,
+        updated_at: new Date().toISOString(),
+    })
+}
+
+async function persistDraft(noteId: string) {
+    const draft = noteStorer.notes.find((n) => n.id === noteId)
+    if (!draft) return
+    savingNote.value = true
+    let realId: string
+    try {
+        realId = await noteActions.createNote({
+            name: draft.name.trim() || 'Untitled',
+            desc: draft.desc,
+            details: draft.details,
+            priority: draft.priority,
+        })
+    } finally {
+        savingNote.value = false
+    }
+    noteActions.removeLocalNote(noteId)
+    draftNoteIds.value.delete(noteId)
+    if (autofocusNameId.value === noteId) autofocusNameId.value = null
+    close(noteId)
+    open(realId, noteTabMeta(realId))
+}
+
+async function confirmDeleteNote(note: Note) {
+    await dialog.spawn({
+        title: 'Delete note',
+        message: `Delete "${note.name}"?`,
+        confirmLabel: 'Delete',
+        confirmVariant: 'danger',
+        submit: async () => {
+            if (isOpen(note.id)) {
+                close(note.id)
+            }
+            await noteActions.deleteNote(note.id)
+        },
+    })
+}
+
+const autofocusNameId = ref<string | null>(null)
+const draftNoteIds = ref<Set<string>>(new Set())
+const pendingSaves = new Map<string, Record<string, unknown>>()
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+let saveInterval: ReturnType<typeof setInterval> | null = null
+const savingNote = ref(false)
+const lastSavedAt = ref<number | null>(null)
+
+function queueSave(noteId: string, patch: Record<string, unknown>) {
+    const existing = pendingSaves.get(noteId) ?? {}
+    pendingSaves.set(noteId, { ...existing, ...patch })
+    if (saveTimer) clearTimeout(saveTimer)
+    saveTimer = setTimeout(() => {
+        flushSaves()
+    }, 3000)
+}
+
+async function flushSaves() {
+    if (saveTimer) {
+        clearTimeout(saveTimer)
+        saveTimer = null
+    }
+    if (!pendingSaves.size) return
+    const entries = [...pendingSaves.entries()]
+    pendingSaves.clear()
+    savingNote.value = true
+    for (const [id, patch] of entries) {
+        const current = noteStorer.notes.find((n) => n.id === id)
+        if (!current) continue
+        try {
+            await noteActions.updateNote(id, { ...patch, version: current.version })
+        } catch {
+            /* handled by logic */
+        }
+    }
+    savingNote.value = false
+    lastSavedAt.value = Date.now()
+}
+
+function buildNotesTabSchema(note: Note): NotesTabSchema {
+    const isDraft = draftNoteIds.value.has(note.id)
+    return createNotesTabSchema({
+        note,
+        categories: noteStorer.categories,
+        saving: savingNote.value,
+        savedAt: lastSavedAt.value ? new Date(lastSavedAt.value).toISOString() : null,
+        autofocusName: note.id === autofocusNameId.value,
+        onNameCommit: (name) => {
+            if (autofocusNameId.value === note.id) autofocusNameId.value = null
+            if (isDraft) applyLocalNotePatch(note.id, { name })
+            else queueSave(note.id, { name })
+        },
+        onDescCommit: (desc) => {
+            if (isDraft) applyLocalNotePatch(note.id, { desc })
+            else queueSave(note.id, { desc })
+        },
+        onDetailsCommit: (details) => {
+            if (isDraft) applyLocalNotePatch(note.id, { details })
+            else queueSave(note.id, { details })
+        },
+        onPriorityChange: (priority) => {
+            if (isDraft) applyLocalNotePatch(note.id, { priority })
+            else queueSave(note.id, { priority })
+        },
+        onCategoryChange: (categoryId) => {
+            if (isDraft) applyLocalNotePatch(note.id, { category_id: categoryId })
+            else queueSave(note.id, { category_id: categoryId })
+        },
+        onCreateCategory: () => openCategoryCreate(note),
+        onSave: async () => {
+            if (isDraft) {
+                await persistDraft(note.id)
+            } else {
+                flushSaves()
+            }
+        },
+    })
+}
+
+async function openCategoryCreate(note?: Note) {
+    await dialog.spawn({
+        title: 'New category',
+        schema: categoryFormSchema,
+        confirmLabel: 'Create',
+        submit: async (data) => {
+            const name = String(data.category!.name ?? '')
+            const id = await noteActions.createCategory({ name })
+            if (note) {
+                if (draftNoteIds.value.has(note.id)) {
+                    applyLocalNotePatch(note.id, { category_id: id })
+                } else {
+                    queueSave(note.id, { category_id: id })
+                }
+            }
         },
     })
 }
@@ -396,6 +647,8 @@ async function handleDeleteProvider(id: string) {
 function cleanupWorkspace() {
     clearSessions()
     fileExplorerActions.stopWatch()
+    flushSaves()
+    stopAutoSaveInterval()
 }
 
 function handleUpdatePreset(preset: string) {
@@ -439,6 +692,9 @@ watch(
         reset()
         await chatActions.fetchChats(newId)
         providerActions.fetchProviders()
+        noteActions.fetchNotes()
+        noteActions.fetchCategories()
+        startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)
         fileExplorerActions.loadRoot(newId, ws ? { workspaceRoot: ws.projectPath } : undefined)
@@ -451,6 +707,33 @@ watch(
     },
     { immediate: true },
 )
+
+watch(activeMeta, (meta, oldMeta) => {
+    const wasNote = oldMeta?.kind === 'note'
+    const isNote = meta?.kind === 'note'
+    if (wasNote || (!isNote && pendingSaves.size)) {
+        flushSaves()
+    }
+})
+
+function startAutoSaveInterval() {
+    if (saveInterval) return
+    saveInterval = setInterval(() => {
+        if (pendingSaves.size) flushSaves()
+    }, 30_000)
+}
+
+function stopAutoSaveInterval() {
+    if (saveInterval) {
+        clearInterval(saveInterval)
+        saveInterval = null
+    }
+}
+
+onBeforeUnmount(() => {
+    flushSaves()
+    stopAutoSaveInterval()
+})
 
 onUnmounted(() => {
     cleanupWorkspace()
@@ -467,22 +750,54 @@ onUnmounted(() => {
             <template #panel>
                 <div class="ws-sidebar__panel">
                     <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <span class="ws-sidebar__title">{{ workspace.name }}</span>
-                        <button
-                            class="ws-sidebar__action"
+                        <pButton
+                            v-if="!showNotes"
+                            :schema="{
+                                variant: 'outline',
+                                size: 'md',
+                                fullWidth: true,
+                                label: 'Create Chat',
+                                fontFamily: 'serif',
+                                fontWeight: 'medium',
+                            }"
                             @click="openChatCreate"
-                            title="New chat"
-                            aria-label="New chat"
-                        >
-                            <Plus width="14" height="14" />
-                        </button>
+                        />
+                        <div v-else class="ws-sidebar__split-btn">
+                            <button
+                                type="button"
+                                class="ws-sidebar__split-main"
+                                @click="openNoteCreate"
+                            >
+                                Create Note
+                            </button>
+                            <button
+                                type="button"
+                                class="ws-sidebar__split-icon"
+                                title="New category"
+                                @click="openCategoryCreate(null as any)"
+                            >
+                                <Label />
+                            </button>
+                        </div>
                     </div>
                     <div class="ws-sidebar__body">
                         <AppList
-                            v-if="!showFileExplorer"
+                            v-if="!showFileExplorer && !showNotes"
                             :schema="chatListSchema"
                             :items="chatStorer.chats"
                         />
+                        <div v-else-if="!showFileExplorer && showNotes" class="ws-note-groups">
+                            <div v-if="!noteStorer.notes.length" class="ws-note-groups__empty">
+                                No notes yet
+                            </div>
+                            <NoteGroup
+                                v-for="group in noteGroups"
+                                :key="group.id"
+                                :title="group.name"
+                                :schema="noteListSchema"
+                                :notes="group.notes"
+                            />
+                        </div>
                         <FileExplorer v-else @toggle="onFileToggle" @select="onFileSelect" />
                     </div>
                 </div>
@@ -499,6 +814,13 @@ onUnmounted(() => {
                                 :schema="buildChatTabSchema(activeChat)"
                             />
                         </KeepAlive>
+                        <KeepAlive>
+                            <NotesTab
+                                v-if="contentView.type === 'note' && activeNote"
+                                :key="activeNote.id"
+                                :schema="buildNotesTabSchema(activeNote)"
+                            />
+                        </KeepAlive>
                         <SettingsTab
                             v-if="contentView.type === 'settings'"
                             :schema="buildSettingsTabSchema()"
@@ -508,7 +830,7 @@ onUnmounted(() => {
                                 <ChatBubbleEmpty width="48" height="48" style="opacity: 0.3" />
                             </div>
                             <h2 class="ws-empty__title">
-                                Just Select something on the sidebar, vro ✌🏻🥹
+                                Just Select something on the sidebar atp ✌🏻🥹.
                             </h2>
                             <p class="ws-empty__desc">What will you have after 500 years!?.</p>
                         </div>

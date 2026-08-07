@@ -8,7 +8,7 @@ import {
     providePartSlotObserver,
 } from '../../../composables/usePartSlotObserver.ts'
 
-defineProps<{
+const props = defineProps<{
     resolved: ResolvedMessageList
 }>()
 
@@ -40,6 +40,21 @@ function onScroll() {
 }
 
 watch(() => listRef.value, scrollToBottom)
+
+watch(
+    () => {
+        const msgs = props.resolved.messages
+        const last = msgs[msgs.length - 1]
+        if (!last) return 0
+        let textLen = 0
+        for (const part of last.parts) {
+            if (part.type === 'text') textLen += (part.text ?? '').length
+        }
+        return msgs.length * 1000000 + last.parts.length * 1000 + textLen
+    },
+    () => scrollToBottom(),
+    { flush: 'post' },
+)
 </script>
 
 <template>
@@ -52,8 +67,9 @@ watch(() => listRef.value, scrollToBottom)
             <span class="empty-hint">{{ resolved.emptyHint }}</span>
         </div>
         <BaseMessageBubble
-            v-for="(msg, idx) in resolved.messages"
-            :key="idx"
+            v-for="msg in resolved.messages"
+            :key="msg.id"
+            v-memo="[msg]"
             :parts="msg.parts"
             :role="msg.role"
             :content-width="resolved.contentWidth"

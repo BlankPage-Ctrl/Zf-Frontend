@@ -4,6 +4,7 @@ import type { DropdownItemConfig } from '@/presentation/components/dropdown/type
 export type ListVariant = 'sidebar' | 'content' | 'compact'
 export type ListSize = 'xs' | 'sm' | 'md'
 export type ListTextSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
+export type ListFontWeight = 'normal' | 'medium' | 'semibold' | 'bold' | (string & {})
 
 export interface ListItemField<T = unknown> {
     key: string
@@ -38,6 +39,9 @@ export interface ListSchema<T = unknown> {
     emptyAction?: ListEmptyAction
     onSelect?: (item: T) => void
     class?: string
+    fontFamily?: 'serif' | 'sans' | 'mono' | (string & {})
+    fontWeight?: ListFontWeight
+    dim?: boolean
     hoverMenu?: {
         items: (item: T) => DropdownItemConfig[]
         onSelect: (value: string) => void

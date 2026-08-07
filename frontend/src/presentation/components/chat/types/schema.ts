@@ -8,6 +8,7 @@ export interface ChatTabSchema {
     providers: Provider[]
     modelId?: string
     providerId?: string
+    thinkingMode?: string
     contentWidth?: number
     fontSize?: number
     lineHeight?: number
@@ -16,17 +17,20 @@ export interface ChatTabSchema {
     onSend?: (text: string) => void
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
+    onChangeThinkingMode?: (mode: string) => void
 }
 
 export interface ChatInputSchema {
     disabled?: boolean
     modelId?: string
     providerId?: string
+    thinkingMode?: string
     providers: Provider[]
     placeholder?: string
     onSend?: (text: string) => void
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
+    onChangeThinkingMode?: (mode: string) => void
 }
 
 export interface MessageBubbleSchema {

@@ -208,13 +208,13 @@ function handleSetDefault(provider: Provider, model: Model) {
 .provider-name {
     font-family: var(--font-serif);
     font-size: var(--type-sm);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
 }
 
 .provider-type-badge {
     font-size: var(--type-2xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     padding: 1px 5px;
     border-radius: 9999px;
     background: var(--border-color);
@@ -288,7 +288,7 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .model-name {
     font-size: var(--type-xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--text-primary);
 }
 
@@ -301,7 +301,7 @@ function handleSetDefault(provider: Provider, model: Model) {
 
 .default-badge {
     font-size: var(--type-2xs);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     padding: 1px 5px;
     border-radius: 9999px;
     background: var(--color-success);

@@ -210,7 +210,7 @@ watch(
 .dropdown-label {
     padding: 5px 10px 3px;
     font-size: var(--type-2xs);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.05em;

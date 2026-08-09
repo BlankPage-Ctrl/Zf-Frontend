@@ -17,7 +17,7 @@ func (s *Store) handleGetDefaultProvider(w http.ResponseWriter, r *http.Request)
 	if mid == "" {
 		dp.ModelID = nil
 	}
-	writeJSON(w, http.StatusOK, dp)
+	writeJSON(w, r, http.StatusOK, dp)
 }
 
 func (s *Store) handleSetDefaultProvider(w http.ResponseWriter, r *http.Request) {
@@ -26,12 +26,12 @@ func (s *Store) handleSetDefaultProvider(w http.ResponseWriter, r *http.Request)
 		ModelID    string `json:"modelId"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	s.Settings["defaultProviderId"] = body.ProviderID
 	s.Settings["defaultModelId"] = body.ModelID
-	writeJSON(w, http.StatusOK, DefaultProvider{
+	writeJSON(w, r, http.StatusOK, DefaultProvider{
 		ProviderID: &body.ProviderID,
 		ModelID:    &body.ModelID,
 	})
@@ -44,7 +44,7 @@ func (s *Store) handleGetSetting(w http.ResponseWriter, r *http.Request) {
 	if val != "" {
 		v = &val
 	}
-	writeJSON(w, http.StatusOK, SettingValue{Key: key, Value: v})
+	writeJSON(w, r, http.StatusOK, SettingValue{Key: key, Value: v})
 }
 
 func (s *Store) handleSetSetting(w http.ResponseWriter, r *http.Request) {
@@ -53,9 +53,9 @@ func (s *Store) handleSetSetting(w http.ResponseWriter, r *http.Request) {
 		Value string `json:"value"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	s.Settings[key] = body.Value
-	writeJSON(w, http.StatusOK, SettingValue{Key: key, Value: &body.Value})
+	writeJSON(w, r, http.StatusOK, SettingValue{Key: key, Value: &body.Value})
 }

@@ -5,14 +5,65 @@ import (
 	"net/http"
 )
 
-func writeJSON(w http.ResponseWriter, status int, v interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(v)
+type apiError struct {
+	Code    string          `json:"code"`
+	Message string          `json:"message"`
+	Issues  json.RawMessage `json:"issues,omitempty"`
 }
 
-func writeError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+type envelope struct {
+	RequestID  string      `json:"requestId"`
+	ResponseID string      `json:"responseId"`
+	Status     int         `json:"status"`
+	Timestamp  string      `json:"timestamp"`
+	Data       interface{} `json:"data"`
+	Error      *apiError   `json:"error,omitempty"`
+}
+
+func codeForStatus(status int) string {
+	switch status {
+	case http.StatusBadRequest:
+		return "BAD_REQUEST"
+	case http.StatusUnauthorized:
+		return "UNAUTHORIZED"
+	case http.StatusForbidden:
+		return "FORBIDDEN"
+	case http.StatusNotFound:
+		return "NOT_FOUND"
+	case http.StatusConflict:
+		return "CONFLICT"
+	default:
+		return "INTERNAL_ERROR"
+	}
+}
+
+func requestID(r *http.Request) string {
+	return r.Header.Get("X-Request-Id")
+}
+
+func writeEnvelope(w http.ResponseWriter, r *http.Request, status int, env envelope) {
+	env.Status = status
+	env.Timestamp = ts()
+	env.RequestID = requestID(r)
+	if env.RequestID == "" {
+		env.RequestID = newRequestID()
+	}
+	env.ResponseID = newResponseID()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Request-Id", env.RequestID)
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(env)
+}
+
+func writeJSON(w http.ResponseWriter, r *http.Request, status int, v interface{}) {
+	writeEnvelope(w, r, status, envelope{Data: v})
+}
+
+func writeError(w http.ResponseWriter, r *http.Request, status int, msg string) {
+	writeEnvelope(w, r, status, envelope{
+		Error: &apiError{Code: codeForStatus(status), Message: msg},
+	})
 }
 
 func writeNoContent(w http.ResponseWriter) {
@@ -76,5 +127,5 @@ func (s *Store) NewHandler() http.Handler {
 
 func readBody(r *http.Request, v interface{}) error {
 	defer r.Body.Close()
-	return 	json.NewDecoder(r.Body).Decode(v)
+	return json.NewDecoder(r.Body).Decode(v)
 }

@@ -32,6 +32,14 @@ func newID() string {
 	return string(b)
 }
 
+func newRequestID() string {
+	return "req-" + newID()
+}
+
+func newResponseID() string {
+	return "resp-" + newID()
+}
+
 type Collection[T any] struct {
 	items []T
 }
@@ -91,16 +99,16 @@ func (c *Collection[T]) Remove(fn func(T) bool) bool {
 }
 
 type Store struct {
-	Workspaces    *Collection[Workspace]
-	Providers     *Collection[Provider]
-	Models        *Collection[ProviderModel]
-	Chats         *Collection[Chat]
-	Notes         *Collection[Note]
-	Categories    *Collection[Category]
-	Settings      map[string]string
-	Messages      []mockMessage
-	FileTree      FileNode
-	FileContents  map[string]string
+	Workspaces   *Collection[Workspace]
+	Providers    *Collection[Provider]
+	Models       *Collection[ProviderModel]
+	Chats        *Collection[Chat]
+	Notes        *Collection[Note]
+	Categories   *Collection[Category]
+	Settings     map[string]string
+	Messages     []mockMessage
+	FileTree     FileNode
+	FileContents map[string]string
 }
 
 func rawToFileNode(r rawFileNode) FileNode {

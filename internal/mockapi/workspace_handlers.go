@@ -5,17 +5,17 @@ import (
 )
 
 func (s *Store) handleListWorkspaces(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, s.Workspaces.All())
+	writeJSON(w, r, http.StatusOK, s.Workspaces.All())
 }
 
 func (s *Store) handleGetWorkspace(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	ws, ok := s.Workspaces.Find(func(w Workspace) bool { return w.ID == id })
 	if !ok {
-		writeError(w, http.StatusNotFound, "Workspace "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Workspace "+id+" not found")
 		return
 	}
-	writeJSON(w, http.StatusOK, ws)
+	writeJSON(w, r, http.StatusOK, ws)
 }
 
 func (s *Store) handleCreateWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func (s *Store) handleCreateWorkspace(w http.ResponseWriter, r *http.Request) {
 		ProjectPath string  `json:"projectPath"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	now := ts()
@@ -38,14 +38,14 @@ func (s *Store) handleCreateWorkspace(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   now,
 	}
 	s.Workspaces.Add(ws)
-	writeJSON(w, http.StatusCreated, ws)
+	writeJSON(w, r, http.StatusCreated, ws)
 }
 
 func (s *Store) handleUpdateWorkspace(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	var body map[string]interface{}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Workspaces.Update(func(w Workspace) bool { return w.ID == id }, func(ws *Workspace) {
@@ -61,17 +61,17 @@ func (s *Store) handleUpdateWorkspace(w http.ResponseWriter, r *http.Request) {
 		ws.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusNotFound, "Workspace "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Workspace "+id+" not found")
 		return
 	}
 	ws, _ := s.Workspaces.Find(func(w Workspace) bool { return w.ID == id })
-	writeJSON(w, http.StatusOK, ws)
+	writeJSON(w, r, http.StatusOK, ws)
 }
 
 func (s *Store) handleDeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if !s.Workspaces.Remove(func(w Workspace) bool { return w.ID == id }) {
-		writeError(w, http.StatusNotFound, "Workspace "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Workspace "+id+" not found")
 		return
 	}
 	writeNoContent(w)

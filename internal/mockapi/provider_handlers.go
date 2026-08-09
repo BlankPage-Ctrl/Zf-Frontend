@@ -10,17 +10,17 @@ func (s *Store) handleListProviders(w http.ResponseWriter, r *http.Request) {
 	for i, p := range providers {
 		result[i] = s.providerWithModels(p)
 	}
-	writeJSON(w, http.StatusOK, result)
+	writeJSON(w, r, http.StatusOK, result)
 }
 
 func (s *Store) handleGetProvider(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	p, ok := s.Providers.Find(func(p Provider) bool { return p.ID == id })
 	if !ok {
-		writeError(w, http.StatusNotFound, "Provider "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Provider "+id+" not found")
 		return
 	}
-	writeJSON(w, http.StatusOK, s.providerWithModels(p))
+	writeJSON(w, r, http.StatusOK, s.providerWithModels(p))
 }
 
 func (s *Store) handleCreateProvider(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func (s *Store) handleCreateProvider(w http.ResponseWriter, r *http.Request) {
 		BaseURL *string `json:"baseURL"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	now := ts()
@@ -45,14 +45,14 @@ func (s *Store) handleCreateProvider(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: now,
 	}
 	s.Providers.Add(p)
-	writeJSON(w, http.StatusCreated, s.providerWithModels(p))
+	writeJSON(w, r, http.StatusCreated, s.providerWithModels(p))
 }
 
 func (s *Store) handleUpdateProvider(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	var body map[string]interface{}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Providers.Update(func(p Provider) bool { return p.ID == id }, func(p *Provider) {
@@ -71,17 +71,17 @@ func (s *Store) handleUpdateProvider(w http.ResponseWriter, r *http.Request) {
 		p.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusNotFound, "Provider "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Provider "+id+" not found")
 		return
 	}
 	p, _ := s.Providers.Find(func(p Provider) bool { return p.ID == id })
-	writeJSON(w, http.StatusOK, s.providerWithModels(p))
+	writeJSON(w, r, http.StatusOK, s.providerWithModels(p))
 }
 
 func (s *Store) handleDeleteProvider(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if !s.Providers.Remove(func(p Provider) bool { return p.ID == id }) {
-		writeError(w, http.StatusNotFound, "Provider "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Provider "+id+" not found")
 		return
 	}
 	writeNoContent(w)
@@ -90,7 +90,7 @@ func (s *Store) handleDeleteProvider(w http.ResponseWriter, r *http.Request) {
 func (s *Store) handleListModels(w http.ResponseWriter, r *http.Request) {
 	pvID := r.PathValue("providerId")
 	models := s.Models.Filter(func(m ProviderModel) bool { return m.ProviderID == pvID })
-	writeJSON(w, http.StatusOK, models)
+	writeJSON(w, r, http.StatusOK, models)
 }
 
 func (s *Store) handleCreateModel(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +100,7 @@ func (s *Store) handleCreateModel(w http.ResponseWriter, r *http.Request) {
 		DisplayName *string `json:"displayName"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	now := ts()
@@ -113,14 +113,14 @@ func (s *Store) handleCreateModel(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   now,
 	}
 	s.Models.Add(m)
-	writeJSON(w, http.StatusCreated, m)
+	writeJSON(w, r, http.StatusCreated, m)
 }
 
 func (s *Store) handleUpdateModel(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	var body map[string]interface{}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Models.Update(func(m ProviderModel) bool { return m.ID == id }, func(m *ProviderModel) {
@@ -133,17 +133,17 @@ func (s *Store) handleUpdateModel(w http.ResponseWriter, r *http.Request) {
 		m.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusNotFound, "Model "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Model "+id+" not found")
 		return
 	}
 	md, _ := s.Models.Find(func(m ProviderModel) bool { return m.ID == id })
-	writeJSON(w, http.StatusOK, md)
+	writeJSON(w, r, http.StatusOK, md)
 }
 
 func (s *Store) handleDeleteModel(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if !s.Models.Remove(func(m ProviderModel) bool { return m.ID == id }) {
-		writeError(w, http.StatusNotFound, "Model "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Model "+id+" not found")
 		return
 	}
 	writeNoContent(w)

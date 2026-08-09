@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from './types.ts'
 
 import BaseInput from './inputs/BaseInput.vue'
+import BaseFolderPicker from './inputs/BaseFolderPicker.vue'
 import BaseTextarea from './inputs/BaseTextarea.vue'
 import BaseSelect from './inputs/BaseSelect.vue'
 import BaseRadioGroup from './inputs/BaseRadioGroup.vue'
@@ -217,6 +218,18 @@ defineExpose({
                 <BaseInput
                     v-if="col.type === 'text-short' || col.type === 'number'"
                     :type="col.type === 'number' ? 'number' : 'text'"
+                    v-model="formData[rowKey]![colKey]"
+                    :label="col.label"
+                    :placeholder="col.placeholder"
+                    :required="col.metadata?.require || col.metadata?.required"
+                    :dense="dense"
+                    :error="errors[rowKey]?.[colKey]"
+                    @input="clearError(rowKey, colKey)"
+                />
+
+                <!-- Folder Picker -->
+                <BaseFolderPicker
+                    v-else-if="col.type === 'folder'"
                     v-model="formData[rowKey]![colKey]"
                     :label="col.label"
                     :placeholder="col.placeholder"

@@ -7,6 +7,7 @@ export type FieldType =
     | 'checkbox'
     | 'switch'
     | 'date'
+    | 'folder'
 
 export interface OptionItem {
     label: string

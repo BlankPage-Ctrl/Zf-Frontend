@@ -1,4 +1,4 @@
-export type ProviderType = 'openai' | 'openai-compatible'
+export type ProviderType = 'openai' | 'openai-compatible' | 'openrouter'
 
 export interface ProviderDto {
     name: string

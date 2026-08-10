@@ -245,6 +245,19 @@ export namespace messages {
 	    type: string;
 	    text?: string;
 	    content?: string;
+	    state?: string;
+	    toolCallId?: string;
+	    input?: any;
+	    output?: any;
+	    errorText?: string;
+	    providerExecuted?: boolean;
+	    sourceId?: string;
+	    url?: string;
+	    title?: string;
+	    mediaType?: string;
+	    filename?: string;
+	    data?: any;
+	    id?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UIMessagePart(source);
@@ -255,6 +268,19 @@ export namespace messages {
 	        this.type = source["type"];
 	        this.text = source["text"];
 	        this.content = source["content"];
+	        this.state = source["state"];
+	        this.toolCallId = source["toolCallId"];
+	        this.input = source["input"];
+	        this.output = source["output"];
+	        this.errorText = source["errorText"];
+	        this.providerExecuted = source["providerExecuted"];
+	        this.sourceId = source["sourceId"];
+	        this.url = source["url"];
+	        this.title = source["title"];
+	        this.mediaType = source["mediaType"];
+	        this.filename = source["filename"];
+	        this.data = source["data"];
+	        this.id = source["id"];
 	    }
 	}
 	export class UIMessage {

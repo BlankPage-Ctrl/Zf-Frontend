@@ -53,7 +53,7 @@ func (s *ChatStreamService) streamLoop(ctx context.Context, streamID, workspaceI
 		cancel()
 	}()
 
-	resp, err := s.c.Do("POST", "/workspaces/"+workspaceID+"/chats/"+chatID+"/messages", json.RawMessage(bodyJSON), nil)
+	resp, err := s.c.DoStream("POST", "/workspaces/"+workspaceID+"/chats/"+chatID+"/messages", json.RawMessage(bodyJSON), nil)
 	if err != nil {
 		runtime.EventsEmit(s.appCtx, "chat:stream-error", streamID, err.Error())
 		return

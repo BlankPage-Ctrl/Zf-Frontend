@@ -28,6 +28,7 @@ type Client struct {
 	ClientID  string
 	SecretKey string
 	HTTP      *http.Client
+	Stream    *http.Client
 }
 
 func New() *Client {
@@ -36,6 +37,7 @@ func New() *Client {
 		ClientID:  DefaultClientID,
 		SecretKey: DefaultSecretKey,
 		HTTP:      &http.Client{Timeout: 30 * time.Second},
+		Stream:    &http.Client{},
 	}
 }
 
@@ -134,6 +136,14 @@ func hmacSha256Hex(secret, data string) string {
 }
 
 func (c *Client) Do(method, path string, body any, queryParams map[string]string) (*http.Response, error) {
+	return c.do(c.HTTP, method, path, body, queryParams)
+}
+
+func (c *Client) DoStream(method, path string, body any, queryParams map[string]string) (*http.Response, error) {
+	return c.do(c.Stream, method, path, body, queryParams)
+}
+
+func (c *Client) do(httpClient *http.Client, method, path string, body any, queryParams map[string]string) (*http.Response, error) {
 	u, err := url.Parse(c.BaseURL + path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid url: %w", err)
@@ -171,7 +181,7 @@ func (c *Client) Do(method, path string, body any, queryParams map[string]string
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	return c.HTTP.Do(req)
+	return httpClient.Do(req)
 }
 
 func toAPIError(raw []byte, status int, env *Envelope) error {

@@ -15,9 +15,9 @@ export const workspaceFormSchema: DialogGridSchema = {
                 placeholder: 'Optional description',
             },
             projectPath: {
-                type: 'text-short',
+                type: 'folder',
                 label: 'Project path',
-                placeholder: '/path/to/project',
+                placeholder: 'No folder selected',
                 metadata: { require: true },
             },
         },

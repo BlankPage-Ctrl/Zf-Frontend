@@ -10,6 +10,14 @@ export function ListDir(arg1, arg2) {
   return window['go']['files']['Service']['ListDir'](arg1, arg2);
 }
 
+export function PickDirectory(arg1, arg2) {
+  return window['go']['files']['Service']['PickDirectory'](arg1, arg2);
+}
+
 export function ReadFile(arg1, arg2, arg3) {
   return window['go']['files']['Service']['ReadFile'](arg1, arg2, arg3);
+}
+
+export function SetAppContext(arg1) {
+  return window['go']['files']['Service']['SetAppContext'](arg1);
 }

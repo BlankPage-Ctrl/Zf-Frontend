@@ -29,7 +29,7 @@ func writeSSE(w http.ResponseWriter, data map[string]interface{}) {
 	fmt.Fprintf(w, "data: %s\n\n", b)
 }
 
-func streamMessageSSE(w http.ResponseWriter, msg mockMessage) {
+func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -37,7 +37,7 @@ func streamMessageSSE(w http.ResponseWriter, msg mockMessage) {
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		writeError(w, http.StatusInternalServerError, "streaming not supported")
+		writeError(w, r, http.StatusInternalServerError, "streaming not supported")
 		return
 	}
 
@@ -76,9 +76,9 @@ func streamMessageSSE(w http.ResponseWriter, msg mockMessage) {
 			if len(part.Type) > 5 && part.Type[:5] == "tool-" {
 				toolName := part.Type[5:]
 				sendEvent(map[string]interface{}{
-					"type":        "tool-input-start",
-					"toolCallId":  part.ToolCallID,
-					"toolName":    toolName,
+					"type":       "tool-input-start",
+					"toolCallId": part.ToolCallID,
+					"toolName":   toolName,
 				})
 				if part.Input != nil {
 					sendEvent(map[string]interface{}{
@@ -119,7 +119,7 @@ func streamFileEventsSSE(w http.ResponseWriter, r *http.Request, root FileNode) 
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		writeError(w, http.StatusInternalServerError, "streaming not supported")
+		writeError(w, r, http.StatusInternalServerError, "streaming not supported")
 		return
 	}
 

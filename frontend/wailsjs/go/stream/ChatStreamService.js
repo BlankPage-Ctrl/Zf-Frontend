@@ -10,6 +10,6 @@ export function SetAppContext(arg1) {
   return window['go']['stream']['ChatStreamService']['SetAppContext'](arg1);
 }
 
-export function StartStream(arg1, arg2, arg3) {
-  return window['go']['stream']['ChatStreamService']['StartStream'](arg1, arg2, arg3);
+export function StartStream(arg1, arg2, arg3, arg4) {
+  return window['go']['stream']['ChatStreamService']['StartStream'](arg1, arg2, arg3, arg4);
 }

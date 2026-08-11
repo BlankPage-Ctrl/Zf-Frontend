@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -20,11 +21,14 @@ const DefaultBaseURL = "http://localhost:4567"
 const DefaultClientID = "default-client"
 const DefaultSecretKey = "default-01KY288BNYMXFXEK5GF3N82MT8"
 
+const RequestIDHeader = "X-Request-Id"
+
 type Client struct {
 	BaseURL   string
 	ClientID  string
 	SecretKey string
 	HTTP      *http.Client
+	Stream    *http.Client
 }
 
 func New() *Client {
@@ -33,7 +37,48 @@ func New() *Client {
 		ClientID:  DefaultClientID,
 		SecretKey: DefaultSecretKey,
 		HTTP:      &http.Client{Timeout: 30 * time.Second},
+		Stream:    &http.Client{},
 	}
+}
+
+type Envelope struct {
+	RequestID  string          `json:"requestId"`
+	ResponseID string          `json:"responseId"`
+	Status     int             `json:"status"`
+	Timestamp  string          `json:"timestamp"`
+	Data       json.RawMessage `json:"data"`
+	Error      *APIError       `json:"error"`
+}
+
+type APIError struct {
+	Code       string          `json:"code"`
+	Message    string          `json:"message"`
+	Issues     json.RawMessage `json:"issues,omitempty"`
+	Status     int             `json:"-"`
+	RequestID  string          `json:"-"`
+	ResponseID string          `json:"-"`
+}
+
+func (e *APIError) Error() string {
+	if e == nil {
+		return "api error"
+	}
+	msg := e.Message
+	if msg == "" {
+		msg = "request failed"
+	}
+	if e.Code == "" {
+		return fmt.Sprintf("request failed (%d) requestId=%s: %s", e.Status, e.RequestID, msg)
+	}
+	return fmt.Sprintf("request failed (%d) [%s] requestId=%s: %s", e.Status, e.Code, e.RequestID, msg)
+}
+
+func newRequestID() string {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "req-" + strconv.FormatInt(time.Now().UnixNano(), 16)
+	}
+	return "req-" + hex.EncodeToString(b[:])
 }
 
 func sortQueryString(qs string) string {
@@ -42,12 +87,10 @@ func sortQueryString(qs string) string {
 	}
 	parts := strings.Split(qs, "&")
 	sort.Strings(parts)
-	return strings.Join(parts, ",")
+	return strings.Join(parts, "&")
 }
 
-func (c *Client) buildAuthHeaders(method, path, queryString, body string) map[string]string {
-	ts := strconv.FormatInt(time.Now().Unix(), 10)
-
+func buildCanonical(method, path, queryString, timestamp, requestID, body string) string {
 	canonicalPath := path
 	if !strings.HasPrefix(canonicalPath, "/") {
 		canonicalPath = "/" + canonicalPath
@@ -56,21 +99,28 @@ func (c *Client) buildAuthHeaders(method, path, queryString, body string) map[st
 	bodyHash := sha256Hex(body)
 	sortedQuery := sortQueryString(queryString)
 
-	canonical := strings.Join([]string{
+	return strings.Join([]string{
 		strings.ToUpper(method),
 		canonicalPath,
 		sortedQuery,
-		ts,
+		timestamp,
+		requestID,
 		bodyHash,
 	}, "\n")
+}
+
+func (c *Client) buildAuthHeaders(method, path, queryString, body, requestID string) map[string]string {
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+	canonical := buildCanonical(method, path, queryString, ts, requestID, body)
 
 	stringToSign := "HMAC-SHA256\n" + sha256Hex(canonical)
 	signature := hmacSha256Hex(c.SecretKey, stringToSign)
 
 	return map[string]string{
-		"X-Client-Id": c.ClientID,
-		"X-Timestamp": ts,
-		"X-Signature": "HMAC-SHA256=" + signature,
+		"X-Client-Id":  c.ClientID,
+		"X-Timestamp":  ts,
+		"X-Request-Id": requestID,
+		"X-Signature":  "HMAC-SHA256=" + signature,
 	}
 }
 
@@ -86,6 +136,14 @@ func hmacSha256Hex(secret, data string) string {
 }
 
 func (c *Client) Do(method, path string, body any, queryParams map[string]string) (*http.Response, error) {
+	return c.do(c.HTTP, method, path, body, queryParams)
+}
+
+func (c *Client) DoStream(method, path string, body any, queryParams map[string]string) (*http.Response, error) {
+	return c.do(c.Stream, method, path, body, queryParams)
+}
+
+func (c *Client) do(httpClient *http.Client, method, path string, body any, queryParams map[string]string) (*http.Response, error) {
 	u, err := url.Parse(c.BaseURL + path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid url: %w", err)
@@ -108,7 +166,8 @@ func (c *Client) Do(method, path string, body any, queryParams map[string]string
 		bodyReader = bytes.NewReader(b)
 	}
 
-	headers := c.buildAuthHeaders(method, u.Path, u.RawQuery, bodyStr)
+	requestID := newRequestID()
+	headers := c.buildAuthHeaders(method, u.Path, u.RawQuery, bodyStr, requestID)
 
 	req, err := http.NewRequest(method, u.String(), bodyReader)
 	if err != nil {
@@ -122,7 +181,34 @@ func (c *Client) Do(method, path string, body any, queryParams map[string]string
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	return c.HTTP.Do(req)
+	return httpClient.Do(req)
+}
+
+func toAPIError(raw []byte, status int, env *Envelope) error {
+	if env != nil && env.Error != nil {
+		e := env.Error
+		e.Status = status
+		e.RequestID = env.RequestID
+		e.ResponseID = env.ResponseID
+		return e
+	}
+
+	msg := string(raw)
+	var legacy struct {
+		Error string `json:"error"`
+	}
+	if json.Unmarshal(raw, &legacy) == nil && legacy.Error != "" {
+		msg = legacy.Error
+	}
+	reqID := ""
+	if env != nil {
+		reqID = env.RequestID
+	}
+	return &APIError{
+		Status:    status,
+		Message:   msg,
+		RequestID: reqID,
+	}
 }
 
 func DoOK[T any](c *Client, method, path string, body any, queryParams map[string]string) (T, error) {
@@ -142,23 +228,37 @@ func DoOK[T any](c *Client, method, path string, body any, queryParams map[strin
 		return zero, nil
 	}
 
+	var env Envelope
+	hasEnvelope := json.Unmarshal(raw, &env) == nil &&
+		(env.Data != nil || env.Error != nil)
+
 	if resp.StatusCode >= 400 {
-		var errResp struct {
-			Error string `json:"error"`
-		}
-		if json.Unmarshal(raw, &errResp) == nil && errResp.Error != "" {
-			return zero, fmt.Errorf("api error (%d): %s", resp.StatusCode, errResp.Error)
-		}
-		return zero, fmt.Errorf("request failed (%d): %s", resp.StatusCode, string(raw))
+		return zero, toAPIError(raw, resp.StatusCode, &env)
 	}
 
 	if len(raw) == 0 {
 		return zero, nil
 	}
 
+	if !hasEnvelope {
+		var result T
+		if err := json.Unmarshal(raw, &result); err != nil {
+			return zero, fmt.Errorf("unmarshal: %w", err)
+		}
+		return result, nil
+	}
+
+	if env.Error != nil {
+		return zero, toAPIError(raw, resp.StatusCode, &env)
+	}
+
+	if len(env.Data) == 0 || bytes.Equal(env.Data, []byte("null")) {
+		return zero, nil
+	}
+
 	var result T
-	if err := json.Unmarshal(raw, &result); err != nil {
-		return zero, fmt.Errorf("unmarshal: %w", err)
+	if err := json.Unmarshal(env.Data, &result); err != nil {
+		return zero, fmt.Errorf("unmarshal envelope data: %w", err)
 	}
 	return result, nil
 }
@@ -170,9 +270,12 @@ func DoVoid(c *Client, method, path string, body any) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
-		raw, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("request failed (%d): %s", resp.StatusCode, string(raw))
+	if resp.StatusCode < 400 {
+		return nil
 	}
-	return nil
+
+	raw, _ := io.ReadAll(resp.Body)
+	var env Envelope
+	_ = json.Unmarshal(raw, &env)
+	return toAPIError(raw, resp.StatusCode, &env)
 }

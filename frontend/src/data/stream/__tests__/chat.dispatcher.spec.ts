@@ -32,7 +32,6 @@ describe('createChatStreamDispatcher', () => {
         expect(eventsOn).toHaveBeenCalledTimes(3)
         const d2 = createChatStreamDispatcher(eventsOn)
         expect(eventsOn).toHaveBeenCalledTimes(6)
-        // each dispatcher owns its own listeners, no cross-talk
         d.destroy()
         d2.destroy()
         expect(eventsOn).toHaveBeenCalledTimes(6)
@@ -53,32 +52,15 @@ describe('createChatStreamDispatcher', () => {
         d.destroy()
     })
 
-    it('buffers events before subscribe and replays them in order', () => {
+    it('drops events for a sid with no subscriber', () => {
         const { eventsOn, emit } = createFakeEventsOn()
         const d = createChatStreamDispatcher(eventsOn)
 
-        emit('chat:stream-chunk', 'cs-9', 'first')
-        emit('chat:stream-chunk', 'cs-9', 'second')
-        emit('chat:stream-done', 'cs-9')
+        emit('chat:stream-chunk', 'cs-unknown', 'hello')
 
         const h = handlersFor()
-        d.subscribe('cs-9', h)
-
-        expect(h.onChunk.mock.calls.map((c) => c[0])).toEqual(['first', 'second'])
-        expect(h.onDone).toHaveBeenCalledTimes(1)
-        d.destroy()
-    })
-
-    it('does not duplicate on replay for events that already had a subscriber', () => {
-        const { eventsOn, emit } = createFakeEventsOn()
-        const d = createChatStreamDispatcher(eventsOn)
-        const h = handlersFor()
-        d.subscribe('cs-a', h)
-
-        emit('chat:stream-chunk', 'cs-a', 'live')
-        emit('chat:stream-chunk', 'cs-b', 'other')
-
-        expect(h.onChunk).toHaveBeenCalledTimes(1)
+        d.subscribe('cs-unknown', h)
+        expect(h.onChunk).not.toHaveBeenCalled()
         d.destroy()
     })
 
@@ -92,23 +74,6 @@ describe('createChatStreamDispatcher', () => {
         emit('chat:stream-chunk', 'cs-a', 'gone')
 
         expect(h.onChunk).not.toHaveBeenCalled()
-        d.destroy()
-    })
-
-    it('discard removes the subscriber and pending events for that sid', () => {
-        const { eventsOn, emit } = createFakeEventsOn()
-        const d = createChatStreamDispatcher(eventsOn)
-        const h = handlersFor()
-
-        emit('chat:stream-chunk', 'cs-x', 'buffered')
-        d.subscribe('cs-x', h)
-        emit('chat:stream-chunk', 'cs-x', 'second')
-
-        d.discard('cs-x')
-        emit('chat:stream-chunk', 'cs-x', 'after')
-
-        expect(h.onChunk.mock.calls.map((c) => c[0])).toEqual(['buffered', 'second'])
-        // 'after' goes back to pending, not to the removed subscriber
         d.destroy()
     })
 
@@ -139,16 +104,8 @@ describe('createChatStreamDispatcher', () => {
     it('keeps per-stream ordering when multiple streams interleave', () => {
         const { eventsOn, emit } = createFakeEventsOn()
         const d = createChatStreamDispatcher(eventsOn)
-        const a = {
-            onChunk: vi.fn<(line: string) => void>(),
-            onDone: vi.fn<() => void>(),
-            onError: vi.fn<(err: string) => void>(),
-        }
-        const b = {
-            onChunk: vi.fn<(line: string) => void>(),
-            onDone: vi.fn<() => void>(),
-            onError: vi.fn<(err: string) => void>(),
-        }
+        const a = handlersFor()
+        const b = handlersFor()
         d.subscribe('cs-a', a)
         d.subscribe('cs-b', b)
 

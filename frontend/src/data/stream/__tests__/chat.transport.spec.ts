@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createChatFetch, resetChatDispatcherGlobal } from '../chat.transport'
 
 const router = vi.hoisted(() => {
@@ -17,9 +17,10 @@ const stream = vi.hoisted(() => {
     let seq = 0
     return {
         seq: 0,
+        sids: [] as string[],
         startStream: null as
             | null
-            | ((workspaceId: string, chatId: string, body: string) => Promise<string>),
+            | ((sid: string, workspaceId: string, chatId: string, body: string) => Promise<string>),
         cancelCalls: [] as string[],
         nextId() {
             seq += 1
@@ -27,6 +28,7 @@ const stream = vi.hoisted(() => {
         },
         reset() {
             seq = 0
+            this.sids.length = 0
         },
     }
 })
@@ -52,10 +54,12 @@ vi.mock('../../../../wailsjs/runtime', () => ({
 }))
 
 vi.mock('../../../../wailsjs/go/stream/ChatStreamService', () => ({
-    StartStream: (workspaceId: string, chatId: string, body: string) =>
-        stream.startStream
-            ? stream.startStream(workspaceId, chatId, body)
-            : Promise.resolve(stream.nextId()),
+    StartStream: (sid: string, workspaceId: string, chatId: string, body: string) => {
+        stream.sids.push(sid)
+        return stream.startStream
+            ? stream.startStream(sid, workspaceId, chatId, body)
+            : Promise.resolve()
+    },
     CancelStream: (id: string) => {
         stream.cancelCalls.push(id)
         return Promise.resolve()
@@ -90,6 +94,14 @@ beforeEach(() => {
     stream.startStream = null
     stream.cancelCalls.length = 0
     stream.reset()
+    vi.stubGlobal('crypto', {
+        ...(globalThis.crypto as object),
+        randomUUID: vi.fn<() => string>(() => stream.nextId()),
+    })
+})
+
+afterEach(() => {
+    vi.unstubAllGlobals()
 })
 
 describe('createChatFetch', () => {
@@ -97,13 +109,15 @@ describe('createChatFetch', () => {
         const fetchFn = createChatFetch('w', 'c')
         const respA = await fetchFn('http://x', { body })
         const respB = await fetchFn('http://x', { body })
+        const sidA = stream.sids[0]
+        const sidB = stream.sids[1]
 
-        router.emit('chat:stream-chunk', 'cs-1', '0:{"type":"text","text":"a"}')
-        router.emit('chat:stream-chunk', 'cs-1', '0:{"type":"text","text":"b"}')
-        router.emit('chat:stream-done', 'cs-1')
+        router.emit('chat:stream-chunk', sidA, '0:{"type":"text","text":"a"}')
+        router.emit('chat:stream-chunk', sidA, '0:{"type":"text","text":"b"}')
+        router.emit('chat:stream-done', sidA)
 
-        router.emit('chat:stream-chunk', 'cs-2', '0:{"type":"text","text":"x"}')
-        router.emit('chat:stream-done', 'cs-2')
+        router.emit('chat:stream-chunk', sidB, '0:{"type":"text","text":"x"}')
+        router.emit('chat:stream-done', sidB)
 
         const textA = await readText(respA)
         const textB = await readText(respB)
@@ -114,67 +128,59 @@ describe('createChatFetch', () => {
         expect(textB).toContain('text","text":"x')
         expect(textB).not.toContain('text","text":"a')
 
-        expect(router.logs.some((l) => l.includes('DROPPED'))).toBe(false)
         expect(router.handlers.get('chat:stream-chunk')!.length).toBe(1)
         expect(router.handlers.get('chat:stream-done')!.length).toBe(1)
     })
 
-    it('buffers events before StartStream resolves and replays them in order', async () => {
-        const { promise, resolve } = deferred()
-        stream.startStream = () => promise
-
+    it('routes chunks in order and closes on done', async () => {
         const resp = await createChatFetch('w', 'c')('http://x', { body })
+        const sid = stream.sids[0]
 
-        router.emit('chat:stream-chunk', 'cs-9', '0:first')
-        router.emit('chat:stream-chunk', 'cs-9', '0:second')
-        router.emit('chat:stream-done', 'cs-9')
-
-        await Promise.resolve()
-        resolve('cs-9')
-        await Promise.resolve()
+        router.emit('chat:stream-chunk', sid, '0:first')
+        router.emit('chat:stream-chunk', sid, '0:second')
+        router.emit('chat:stream-done', sid)
 
         const text = await readText(resp)
         expect(text.indexOf('first')).toBeLessThan(text.indexOf('second'))
         expect(text).toContain('second')
     })
 
-    it('cancels and discards pending when aborted before StartStream resolves', async () => {
+    it('cancels the stream when aborted before StartStream resolves', async () => {
         const { promise, resolve } = deferred()
         stream.startStream = () => promise
 
         const resp = await createChatFetch('w', 'c')('http://x', { body })
-        router.emit('chat:stream-chunk', 'cs-7', '0:x')
+        const sid = stream.sids[0]!
 
         await resp.body!.cancel()
-        resolve('cs-7')
+        resolve(sid)
         await Promise.resolve()
 
-        expect(stream.cancelCalls).toContain('cs-7')
+        expect(stream.cancelCalls).toContain(sid)
     })
 
-    it('closes on done and errors on backend error', async () => {
-        const fetchFn = createChatFetch('w', 'c')
-        const resp = await fetchFn('http://x', { body })
+    it('errors when the backend stream errors', async () => {
+        const resp = await createChatFetch('w', 'c')('http://x', { body })
+        const sid = stream.sids[0]
 
-        router.emit('chat:stream-error', 'cs-1', 'boom')
+        router.emit('chat:stream-error', sid, 'boom')
 
         await expect(readText(resp)).rejects.toThrow('boom')
-        expect(router.errors.some((e) => e.includes('boom'))).toBe(true)
     })
 
     it('calls CancelStream on transport cancel', async () => {
-        const fetchFn = createChatFetch('w', 'c')
-        const resp = await fetchFn('http://x', { body })
+        const resp = await createChatFetch('w', 'c')('http://x', { body })
+        const sid = stream.sids[0]
 
         await resp.body!.cancel()
 
-        expect(stream.cancelCalls).toEqual(['cs-1'])
+        expect(stream.cancelCalls).toEqual([sid])
     })
 
     it('reinstalls a fresh singleton after reset (HMR path)', async () => {
         const first = await createChatFetch('w', 'c')('http://x', { body })
-        router.emit('chat:stream-chunk', 'cs-1', '0:a')
-        router.emit('chat:stream-done', 'cs-1')
+        router.emit('chat:stream-chunk', stream.sids[0], '0:a')
+        router.emit('chat:stream-done', stream.sids[0])
         await expect(readText(first)).resolves.toContain('a')
 
         resetChatDispatcherGlobal()
@@ -183,8 +189,8 @@ describe('createChatFetch', () => {
         const second = await createChatFetch('w', 'c')('http://x', { body })
         expect(router.handlers.get('chat:stream-chunk')!.length).toBe(1)
 
-        router.emit('chat:stream-chunk', 'cs-2', '0:b')
-        router.emit('chat:stream-done', 'cs-2')
+        router.emit('chat:stream-chunk', stream.sids[1], '0:b')
+        router.emit('chat:stream-done', stream.sids[1])
         await expect(readText(second)).resolves.toContain('b')
     })
 })

@@ -29,6 +29,10 @@ export const providerFormSchema: DialogGridSchema = {
                 label: 'Base URL',
                 placeholder: 'https://api.example.com/v1',
                 span: 12,
+                reveal: {
+                    label: 'Custom base URL',
+                    match: (values) => values.type === 'openai-compatible',
+                },
             },
         },
     },

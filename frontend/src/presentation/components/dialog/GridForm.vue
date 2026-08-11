@@ -27,6 +27,7 @@ const emit = defineEmits<{
 
 const formData = ref<Record<string, Record<string, unknown>>>({})
 const errors = ref<Record<string, Record<string, string>>>({})
+const revealed = ref<Record<string, Record<string, boolean>>>({})
 
 const initFormData = () => {
     const data: Record<string, Record<string, unknown>> = {}
@@ -35,6 +36,7 @@ const initFormData = () => {
     for (const rowKey in props.schema) {
         data[rowKey] = {}
         errs[rowKey] = {}
+        revealed.value[rowKey] = {}
         const row = props.schema[rowKey]
         if (!row) continue
         for (const colKey in row.columns) {
@@ -42,6 +44,16 @@ const initFormData = () => {
             if (!col) continue
             const metadata = col.metadata || {}
             errs[rowKey][colKey] = ''
+
+            // 0. Init reveal state (default hidden)
+            if (col.reveal) {
+                const hasValue =
+                    props.initialData?.[rowKey]?.[colKey] !== undefined &&
+                    props.initialData[rowKey][colKey] !== ''
+                revealed.value[rowKey][colKey] = hasValue
+                    ? true
+                    : (col.reveal.defaultValue ?? false)
+            }
 
             let val: unknown
             // 1. Prioritize initialData
@@ -79,6 +91,20 @@ const clearError = (rowKey: string, colKey: string) => {
     }
 }
 
+const isColumnVisible = (rowKey: string, colKey: string): boolean => {
+    const col = props.schema[rowKey]?.columns[colKey]
+    if (!col?.reveal) return true
+    const matched = col.reveal.match?.(formData.value[rowKey] ?? {}) ?? false
+    return matched || !!revealed.value[rowKey]?.[colKey]
+}
+
+const toggleReveal = (rowKey: string, colKey: string) => {
+    if (!revealed.value[rowKey]) {
+        revealed.value[rowKey] = {}
+    }
+    revealed.value[rowKey][colKey] = !revealed.value[rowKey][colKey]
+}
+
 const validate = (): boolean => {
     let isValid = true
     for (const rowKey in props.schema) {
@@ -87,6 +113,7 @@ const validate = (): boolean => {
         for (const colKey in row.columns) {
             const col = row.columns[colKey]
             if (!col) continue
+            if (!isColumnVisible(rowKey, colKey)) continue
             const val = formData.value[rowKey]?.[colKey]
             const metadata = col.metadata || {}
 
@@ -214,6 +241,17 @@ defineExpose({
                 class="form-col"
                 :style="{ gridColumn: `span ${col.span || 12} / span ${col.span || 12}` }"
             >
+                <!-- Reveal trigger (collapsed) -->
+                <button
+                    v-if="col.reveal && !isColumnVisible(rowKey, colKey)"
+                    type="button"
+                    class="reveal-trigger"
+                    @click="toggleReveal(rowKey, colKey)"
+                >
+                    <span class="reveal-plus">+</span>{{ col.reveal.label ?? 'Custom' }}
+                </button>
+
+                <template v-else>
                 <!-- Text/Number Input -->
                 <BaseInput
                     v-if="col.type === 'text-short' || col.type === 'number'"
@@ -305,6 +343,7 @@ defineExpose({
                     :error="errors[rowKey]?.[colKey]"
                     @input="clearError(rowKey, colKey)"
                 />
+                </template>
             </div>
         </div>
     </div>
@@ -328,5 +367,31 @@ defineExpose({
 
 .form-col {
     width: 100%;
+}
+
+.reveal-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: var(--type-xs);
+    color: var(--text-primary);
+    opacity: 0.45;
+    cursor: pointer;
+    transition: opacity 150ms ease;
+    user-select: none;
+}
+
+.reveal-trigger:hover {
+    opacity: 0.75;
+}
+
+.reveal-plus {
+    font-size: var(--type-sm);
+    line-height: 1;
+    color: var(--text-primary);
 }
 </style>

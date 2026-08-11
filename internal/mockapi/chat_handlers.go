@@ -7,7 +7,7 @@ import (
 func (s *Store) handleListChats(w http.ResponseWriter, r *http.Request) {
 	wsID := r.PathValue("workspaceId")
 	chats := s.Chats.Filter(func(c Chat) bool { return c.WorkspaceID == wsID })
-	writeJSON(w, http.StatusOK, chats)
+	writeJSON(w, r, http.StatusOK, chats)
 }
 
 func (s *Store) handleGetChat(w http.ResponseWriter, r *http.Request) {
@@ -15,10 +15,10 @@ func (s *Store) handleGetChat(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	chat, ok := s.Chats.Find(func(c Chat) bool { return c.ID == id })
 	if !ok || chat.WorkspaceID != wsID {
-		writeError(w, http.StatusNotFound, "Chat "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Chat "+id+" not found")
 		return
 	}
-	writeJSON(w, http.StatusOK, chat)
+	writeJSON(w, r, http.StatusOK, chat)
 }
 
 func (s *Store) handleCreateChat(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func (s *Store) handleCreateChat(w http.ResponseWriter, r *http.Request) {
 		ThinkingMode string  `json:"thinkingMode"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	now := ts()
@@ -47,7 +47,7 @@ func (s *Store) handleCreateChat(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:    now,
 	}
 	s.Chats.Add(chat)
-	writeJSON(w, http.StatusCreated, chat)
+	writeJSON(w, r, http.StatusCreated, chat)
 }
 
 func (s *Store) handleUpdateChat(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,7 @@ func (s *Store) handleUpdateChat(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	var body map[string]interface{}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Chats.Update(func(c Chat) bool { return c.ID == id && c.WorkspaceID == wsID }, func(chat *Chat) {
@@ -77,24 +77,24 @@ func (s *Store) handleUpdateChat(w http.ResponseWriter, r *http.Request) {
 		chat.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusNotFound, "Chat "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Chat "+id+" not found")
 		return
 	}
 	chat, _ := s.Chats.Find(func(c Chat) bool { return c.ID == id })
-	writeJSON(w, http.StatusOK, chat)
+	writeJSON(w, r, http.StatusOK, chat)
 }
 
 func (s *Store) handleDeleteChat(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if !s.Chats.Remove(func(c Chat) bool { return c.ID == id }) {
-		writeError(w, http.StatusNotFound, "Chat "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Chat "+id+" not found")
 		return
 	}
 	writeNoContent(w)
 }
 
 func (s *Store) handleGetMessages(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, s.Messages)
+	writeJSON(w, r, http.StatusOK, s.Messages)
 }
 
 func (s *Store) handlePostMessage(w http.ResponseWriter, r *http.Request) {
@@ -104,11 +104,11 @@ func (s *Store) handlePostMessage(w http.ResponseWriter, r *http.Request) {
 		} `json:"message"`
 	}
 	if err := readBody(r, &body); err != nil || body.Message == nil {
-		writeError(w, http.StatusBadRequest, "body.message is required")
+		writeError(w, r, http.StatusBadRequest, "body.message is required")
 		return
 	}
 	if body.Message.Role != "user" {
-		writeError(w, http.StatusBadRequest, "only user messages are accepted")
+		writeError(w, r, http.StatusBadRequest, "only user messages are accepted")
 		return
 	}
 
@@ -120,9 +120,9 @@ func (s *Store) handlePostMessage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if assistantMsg == nil {
-		writeError(w, http.StatusInternalServerError, "No mock assistant message available")
+		writeError(w, r, http.StatusInternalServerError, "No mock assistant message available")
 		return
 	}
 
-	streamMessageSSE(w, *assistantMsg)
+	streamMessageSSE(w, r, *assistantMsg)
 }

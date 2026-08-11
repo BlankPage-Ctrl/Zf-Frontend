@@ -1,9 +1,12 @@
 package files
 
 import (
+	"context"
 	"strconv"
 
 	"myproject/internal/client"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type FileNode struct {
@@ -42,11 +45,23 @@ type ReadFileData struct {
 }
 
 type Service struct {
-	c *client.Client
+	c      *client.Client
+	appCtx context.Context
 }
 
 func NewService(c *client.Client) *Service {
 	return &Service{c: c}
+}
+
+func (s *Service) SetAppContext(ctx context.Context) {
+	s.appCtx = ctx
+}
+
+func (s *Service) PickDirectory(title, defaultDirectory string) (string, error) {
+	return runtime.OpenDirectoryDialog(s.appCtx, runtime.OpenDialogOptions{
+		Title:            title,
+		DefaultDirectory: defaultDirectory,
+	})
 }
 
 func (s *Service) ListDir(workspaceID, path string) (ListDirData, error) {

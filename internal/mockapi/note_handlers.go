@@ -84,33 +84,33 @@ func (s *Store) handleListNotes(w http.ResponseWriter, r *http.Request) {
 		offset = len(notes)
 	}
 
-	writeJSON(w, http.StatusOK, notes[offset:limit])
+	writeJSON(w, r, http.StatusOK, notes[offset:limit])
 }
 
 func (s *Store) handleGetNote(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	note, ok := s.Notes.Find(func(n Note) bool { return n.ID == id })
 	if !ok {
-		writeError(w, http.StatusNotFound, "Note "+id+" not found")
+		writeError(w, r, http.StatusNotFound, "Note "+id+" not found")
 		return
 	}
-	writeJSON(w, http.StatusOK, note)
+	writeJSON(w, r, http.StatusOK, note)
 }
 
 func (s *Store) handleCreateNote(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Name       string   `json:"name"`
-		CategoryID *string  `json:"category_id"`
-		Desc       *string  `json:"desc"`
-		Details    *string  `json:"details"`
-		Priority   *string  `json:"priority"`
+		Name       string  `json:"name"`
+		CategoryID *string `json:"category_id"`
+		Desc       *string `json:"desc"`
+		Details    *string `json:"details"`
+		Priority   *string `json:"priority"`
 		Position   struct {
 			Before *string `json:"before"`
 			After  *string `json:"after"`
 		} `json:"position"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	now := ts()
@@ -145,14 +145,14 @@ func (s *Store) handleCreateNote(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.Notes.Add(note)
-	writeJSON(w, http.StatusCreated, note)
+	writeJSON(w, r, http.StatusCreated, note)
 }
 
 func (s *Store) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	var body map[string]interface{}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Notes.Update(func(n Note) bool { return n.ID == id }, func(n *Note) {
@@ -175,11 +175,11 @@ func (s *Store) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 		n.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusBadRequest, "Note "+id+" not found")
+		writeError(w, r, http.StatusBadRequest, "Note "+id+" not found")
 		return
 	}
 	note, _ := s.Notes.Find(func(n Note) bool { return n.ID == id })
-	writeJSON(w, http.StatusOK, note)
+	writeJSON(w, r, http.StatusOK, note)
 }
 
 func (s *Store) handleDeleteNote(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +195,7 @@ func (s *Store) handleMoveNote(w http.ResponseWriter, r *http.Request) {
 		After  *string `json:"after"`
 	}
 	if err := readBody(r, &body); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid body")
+		writeError(w, r, http.StatusBadRequest, "invalid body")
 		return
 	}
 	ok := s.Notes.Update(func(n Note) bool { return n.ID == id }, func(n *Note) {
@@ -211,11 +211,11 @@ func (s *Store) handleMoveNote(w http.ResponseWriter, r *http.Request) {
 		n.UpdatedAt = ts()
 	})
 	if !ok {
-		writeError(w, http.StatusBadRequest, "Note "+id+" not found")
+		writeError(w, r, http.StatusBadRequest, "Note "+id+" not found")
 		return
 	}
 	note, _ := s.Notes.Find(func(n Note) bool { return n.ID == id })
-	writeJSON(w, http.StatusOK, note)
+	writeJSON(w, r, http.StatusOK, note)
 }
 
 func (s *Store) handleRenumberNotes(w http.ResponseWriter, r *http.Request) {
@@ -225,5 +225,5 @@ func (s *Store) handleRenumberNotes(w http.ResponseWriter, r *http.Request) {
 			x.Rank = fmt.Sprintf("%d", i)
 		})
 	}
-	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+	writeJSON(w, r, http.StatusOK, map[string]bool{"ok": true})
 }

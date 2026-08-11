@@ -1,89 +1,80 @@
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { StartStream, CancelStream } from '../../../wailsjs/go/stream/ChatStreamService'
-import { EventsOn, EventsOff, LogInfo, LogError } from '../../../wailsjs/runtime'
+import { EventsOn } from '../../../wailsjs/runtime'
+import { createChatStreamDispatcher, type ChatStreamDispatcher } from './chat.dispatcher'
 import type { ChatStreamPort } from '@/core/repositories'
+
+const GLOBAL_KEY = '__wailsChatStreamDispatcher__'
+
+export function createChatFetch(workspaceId: string, chatId: string) {
+    return async (_url: RequestInfo | URL, options?: RequestInit) => {
+        const bodyRaw = JSON.parse((options?.body as string) ?? '{}')
+        const messages: UIMessage[] = bodyRaw.messages ?? []
+        const last = messages[messages.length - 1]
+        const messageBody = JSON.stringify({ message: last })
+
+        let sid: string | null = null
+        let unsubscribe: (() => void) | null = null
+
+        const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+                const encoder = new TextEncoder()
+                sid = crypto.randomUUID()
+                unsubscribe = getGlobalDispatcher().subscribe(sid, {
+                    onChunk: (line) => controller.enqueue(encoder.encode(line + '\n')),
+                    onDone: () => controller.close(),
+                    onError: (err) => controller.error(new Error(err)),
+                })
+                StartStream(sid, workspaceId, chatId, messageBody).catch((err: Error) => {
+                    controller.error(err)
+                })
+            },
+            cancel() {
+                unsubscribe?.()
+                if (sid) CancelStream(sid)
+            },
+        })
+
+        return new Response(stream)
+    }
+}
 
 export function createWailsChatTransport(workspaceId: string, chatId: string) {
     return new DefaultChatTransport({
         api: '',
-        fetch: async (_url: RequestInfo | URL, options?: RequestInit) => {
-            const optionsInit = options ?? {}
-            const bodyRaw = JSON.parse((optionsInit.body as string) ?? '{}')
-            const messages: UIMessage[] = bodyRaw.messages ?? []
-            const last = messages[messages.length - 1]
-            const messageBody = JSON.stringify({ message: last })
-            let streamId: string | null = null
-            let cleanup: (() => void)[] = []
-
-            const stream = new ReadableStream<Uint8Array>({
-                start(controller) {
-                    const encoder = new TextEncoder()
-                    let eventCount = 0
-                    let droppedBeforeId = 0
-
-                    const onChunk = (sid: string, line: string) => {
-                        eventCount++
-                        if (sid !== streamId) {
-                            droppedBeforeId++
-                            if (droppedBeforeId <= 5 || droppedBeforeId % 50 === 0) {
-                                LogInfo(
-                                    `[chattransport] chunk DROPPED sid=${sid} streamId=${streamId} dropped=${droppedBeforeId} line=${line.slice(0, 80)}`,
-                                )
-                            }
-                            return
-                        }
-                        if (eventCount <= 3 || eventCount % 50 === 0) {
-                            LogInfo(
-                                `[chattransport] chunk#${eventCount} sid=${sid} OK enqueue line=${line.slice(0, 100)}`,
-                            )
-                        }
-                        controller.enqueue(encoder.encode(line + '\n'))
-                    }
-                    const onDone = (sid: string) => {
-                        LogInfo(
-                            `[chattransport] onDone sid=${sid} streamId=${streamId} totalEvents=${eventCount} dropped=${droppedBeforeId}`,
-                        )
-                        if (sid !== streamId) return
-                        controller.close()
-                    }
-                    const onError = (sid: string, err: string) => {
-                        LogError(
-                            `[chattransport] onError sid=${sid} streamId=${streamId} err=${err}`,
-                        )
-                        if (sid !== streamId) return
-                        controller.error(new Error(err))
-                    }
-
-                    cleanup = [
-                        EventsOn('chat:stream-chunk', onChunk),
-                        EventsOn('chat:stream-done', onDone),
-                        EventsOn('chat:stream-error', onError),
-                    ]
-
-                    LogInfo(`[chattransport] calling StartStream body=${messageBody.slice(0, 120)}`)
-                    StartStream(workspaceId, chatId, messageBody)
-                        .then((id) => {
-                            streamId = id
-                            LogInfo(`[chattransport] streamId set = ${id}`)
-                        })
-                        .catch((err: Error) => {
-                            LogError(`[chattransport] StartStream rejected ${err}`)
-                            controller.error(err)
-                        })
-                },
-                cancel() {
-                    cleanup.forEach((fn) => fn())
-                    EventsOff('chat:stream-chunk')
-                    EventsOff('chat:stream-done')
-                    EventsOff('chat:stream-error')
-                    if (streamId) CancelStream(streamId)
-                },
-            })
-
-            return new Response(stream)
-        },
+        fetch: createChatFetch(workspaceId, chatId),
     })
+}
+
+function getGlobalDispatcher(): ChatStreamDispatcher {
+    const g = globalThis as Record<string, unknown>
+    let dispatcher = g[GLOBAL_KEY] as ChatStreamDispatcher | undefined
+    if (!dispatcher) {
+        dispatcher = createChatStreamDispatcher(EventsOn)
+        g[GLOBAL_KEY] = dispatcher
+    }
+    return dispatcher
+}
+
+export function resetChatDispatcherGlobal(): void {
+    const g = globalThis as Record<string, unknown>
+    const dispatcher = g[GLOBAL_KEY] as ChatStreamDispatcher | undefined
+    if (dispatcher) {
+        dispatcher.destroy()
+        delete g[GLOBAL_KEY]
+    }
+}
+
+if (
+    import.meta.hot &&
+    typeof import.meta.hot.dispose === 'function' &&
+    typeof import.meta.hot.accept === 'function'
+) {
+    import.meta.hot.dispose(() => {
+        resetChatDispatcherGlobal()
+    })
+    import.meta.hot.accept()
 }
 
 export const chatStream: ChatStreamPort = {

@@ -12,10 +12,10 @@ func (s *Store) handleListDir(w http.ResponseWriter, r *http.Request) {
 	}
 	nodes := s.listDirNodes(path)
 	if nodes == nil {
-		writeError(w, http.StatusNotFound, "Path not found: "+path)
+		writeError(w, r, http.StatusNotFound, "Path not found: "+path)
 		return
 	}
-	writeJSON(w, http.StatusOK, ListDirData{RequestedPath: path, Nodes: nodes})
+	writeJSON(w, r, http.StatusOK, ListDirData{RequestedPath: path, Nodes: nodes})
 }
 
 func (s *Store) handleGetStat(w http.ResponseWriter, r *http.Request) {
@@ -25,10 +25,10 @@ func (s *Store) handleGetStat(w http.ResponseWriter, r *http.Request) {
 	}
 	node := s.statNode(path)
 	if node == nil {
-		writeError(w, http.StatusNotFound, "Path not found: "+path)
+		writeError(w, r, http.StatusNotFound, "Path not found: "+path)
 		return
 	}
-	writeJSON(w, http.StatusOK, GetStatData{Node: *node})
+	writeJSON(w, r, http.StatusOK, GetStatData{Node: *node})
 }
 
 func (s *Store) handleReadFile(w http.ResponseWriter, r *http.Request) {
@@ -42,10 +42,10 @@ func (s *Store) handleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	data := s.readFileContent(path, maxBytes)
 	if data == nil {
-		writeError(w, http.StatusNotFound, "Path not found: "+path)
+		writeError(w, r, http.StatusNotFound, "Path not found: "+path)
 		return
 	}
-	writeJSON(w, http.StatusOK, data)
+	writeJSON(w, r, http.StatusOK, data)
 }
 
 func (s *Store) handleFileEvents(w http.ResponseWriter, r *http.Request) {

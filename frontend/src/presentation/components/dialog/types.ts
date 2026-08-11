@@ -7,6 +7,7 @@ export type FieldType =
     | 'checkbox'
     | 'switch'
     | 'date'
+    | 'folder'
 
 export interface OptionItem {
     label: string
@@ -25,6 +26,12 @@ export interface FieldMetadata {
     options?: OptionItem[] // For select, radio, checkbox
 }
 
+export interface RevealConfig {
+    label?: string // Small muted caption for the reveal toggle. Default: 'Custom'
+    defaultValue?: boolean // Default: false (hidden)
+    match?: (values: Record<string, unknown>) => boolean
+}
+
 export interface ColumnSchema {
     type: FieldType
     label: string
@@ -32,6 +39,7 @@ export interface ColumnSchema {
     placeholder?: string
     metadata?: FieldMetadata
     defaultValue?: unknown
+    reveal?: RevealConfig
 }
 
 export interface RowSchema {

@@ -1,4 +1,4 @@
-import { ListDir, GetStat, ReadFile } from '../../../wailsjs/go/files/Service'
+import { ListDir, GetStat, ReadFile, PickDirectory } from '../../../wailsjs/go/files/Service'
 import type { FEFileNode, FEListDirData } from '@/core/entities'
 import type { FileRepository } from '@/core/repositories'
 
@@ -55,6 +55,10 @@ function toFEListDirData(data: BackendListDirData): FEListDirData {
         requestedPath: data.requestedPath,
         nodes: data.nodes.map(toFEFileNode),
     }
+}
+
+export function pickDirectory(title?: string, defaultDirectory?: string): Promise<string> {
+    return PickDirectory(title ?? '', defaultDirectory ?? '')
 }
 
 export const filesRepository: FileRepository = {

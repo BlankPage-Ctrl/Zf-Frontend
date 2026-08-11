@@ -6,4 +6,4 @@ export function CancelStream(arg1:string):Promise<void>;
 
 export function SetAppContext(arg1:context.Context):Promise<void>;
 
-export function StartStream(arg1:string,arg2:string,arg3:string):Promise<string>;
+export function StartStream(arg1:string,arg2:string,arg3:string,arg4:string):Promise<void>;

@@ -65,4 +65,5 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.FileWatch.SetAppContext(ctx)
 	a.ChatStream.SetAppContext(ctx)
+	a.Files.SetAppContext(ctx)
 }

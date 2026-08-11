@@ -252,97 +252,97 @@ defineExpose({
                 </button>
 
                 <template v-else>
-                <!-- Text/Number Input -->
-                <BaseInput
-                    v-if="col.type === 'text-short' || col.type === 'number'"
-                    :type="col.type === 'number' ? 'number' : 'text'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :placeholder="col.placeholder"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :dense="dense"
-                    :error="errors[rowKey]?.[colKey]"
-                    @input="clearError(rowKey, colKey)"
-                />
+                    <!-- Text/Number Input -->
+                    <BaseInput
+                        v-if="col.type === 'text-short' || col.type === 'number'"
+                        :type="col.type === 'number' ? 'number' : 'text'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :placeholder="col.placeholder"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :dense="dense"
+                        :error="errors[rowKey]?.[colKey]"
+                        @input="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Folder Picker -->
-                <BaseFolderPicker
-                    v-else-if="col.type === 'folder'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :placeholder="col.placeholder"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :dense="dense"
-                    :error="errors[rowKey]?.[colKey]"
-                    @input="clearError(rowKey, colKey)"
-                />
+                    <!-- Folder Picker -->
+                    <BaseFolderPicker
+                        v-else-if="col.type === 'folder'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :placeholder="col.placeholder"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :dense="dense"
+                        :error="errors[rowKey]?.[colKey]"
+                        @input="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Textarea (paragraph) -->
-                <BaseTextarea
-                    v-else-if="col.type === 'paragraph'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :placeholder="col.placeholder"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :error="errors[rowKey]?.[colKey]"
-                    @input="clearError(rowKey, colKey)"
-                />
+                    <!-- Textarea (paragraph) -->
+                    <BaseTextarea
+                        v-else-if="col.type === 'paragraph'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :placeholder="col.placeholder"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :error="errors[rowKey]?.[colKey]"
+                        @input="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Select Dropdown -->
-                <BaseSelect
-                    v-else-if="col.type === 'select'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :placeholder="col.placeholder"
-                    :options="col.metadata?.options || []"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :dense="dense"
-                    :error="errors[rowKey]?.[colKey]"
-                    @change="clearError(rowKey, colKey)"
-                />
+                    <!-- Select Dropdown -->
+                    <BaseSelect
+                        v-else-if="col.type === 'select'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :placeholder="col.placeholder"
+                        :options="col.metadata?.options || []"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :dense="dense"
+                        :error="errors[rowKey]?.[colKey]"
+                        @change="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Radio Group -->
-                <BaseRadioGroup
-                    v-else-if="col.type === 'radio'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :options="col.metadata?.options || []"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :error="errors[rowKey]?.[colKey]"
-                    @update:model-value="clearError(rowKey, colKey)"
-                />
+                    <!-- Radio Group -->
+                    <BaseRadioGroup
+                        v-else-if="col.type === 'radio'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :options="col.metadata?.options || []"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :error="errors[rowKey]?.[colKey]"
+                        @update:model-value="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Checkbox Group or Single -->
-                <BaseCheckbox
-                    v-else-if="col.type === 'checkbox'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :options="col.metadata?.options"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :error="errors[rowKey]?.[colKey]"
-                    @update:model-value="clearError(rowKey, colKey)"
-                />
+                    <!-- Checkbox Group or Single -->
+                    <BaseCheckbox
+                        v-else-if="col.type === 'checkbox'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :options="col.metadata?.options"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :error="errors[rowKey]?.[colKey]"
+                        @update:model-value="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Switch Toggle -->
-                <BaseSwitch
-                    v-else-if="col.type === 'switch'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :error="errors[rowKey]?.[colKey]"
-                    @update:model-value="clearError(rowKey, colKey)"
-                />
+                    <!-- Switch Toggle -->
+                    <BaseSwitch
+                        v-else-if="col.type === 'switch'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :error="errors[rowKey]?.[colKey]"
+                        @update:model-value="clearError(rowKey, colKey)"
+                    />
 
-                <!-- Date Picker -->
-                <BaseDatePicker
-                    v-else-if="col.type === 'date'"
-                    v-model="formData[rowKey]![colKey]"
-                    :label="col.label"
-                    :placeholder="col.placeholder"
-                    :required="col.metadata?.require || col.metadata?.required"
-                    :dense="dense"
-                    :error="errors[rowKey]?.[colKey]"
-                    @input="clearError(rowKey, colKey)"
-                />
+                    <!-- Date Picker -->
+                    <BaseDatePicker
+                        v-else-if="col.type === 'date'"
+                        v-model="formData[rowKey]![colKey]"
+                        :label="col.label"
+                        :placeholder="col.placeholder"
+                        :required="col.metadata?.require || col.metadata?.required"
+                        :dense="dense"
+                        :error="errors[rowKey]?.[colKey]"
+                        @input="clearError(rowKey, colKey)"
+                    />
                 </template>
             </div>
         </div>

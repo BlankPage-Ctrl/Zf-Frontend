@@ -114,8 +114,8 @@ watch(
         :class="{ 'dropdown-menu--dense': dense }"
         :style="{
             ...menuStyle,
-            maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-            minWidth: minWidth ? `${minWidth}px` : undefined,
+            maxHeight: maxHeight !== undefined ? `${maxHeight}px` : undefined,
+            minWidth: minWidth !== undefined ? `${minWidth}px` : undefined,
         }"
         @mouseleave="handleMenuMouseLeave"
     >
@@ -158,6 +158,7 @@ watch(
                 :on-item-click="onItemClick"
                 :focused-index="-1"
                 :level="level + 1"
+                :min-width="minWidth"
                 :style-config="styleConfig"
             />
         </div>
@@ -170,7 +171,6 @@ watch(
     flex-direction: column;
     gap: 1px;
     padding: 4px;
-    min-width: 160px;
     max-height: 400px;
     overflow-y: auto;
     background-color: var(--bg-primary);
@@ -182,7 +182,6 @@ watch(
 }
 
 .dropdown-menu--dense {
-    min-width: 140px;
     max-height: 320px;
 }
 

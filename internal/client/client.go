@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,8 +33,12 @@ type Client struct {
 }
 
 func New() *Client {
+	baseURL := os.Getenv("BACKEND_URL")
+	if baseURL == "" {
+		baseURL = DefaultBaseURL
+	}
 	return &Client{
-		BaseURL:   DefaultBaseURL,
+		BaseURL:   baseURL,
 		ClientID:  DefaultClientID,
 		SecretKey: DefaultSecretKey,
 		HTTP:      &http.Client{Timeout: 30 * time.Second},

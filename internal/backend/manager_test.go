@@ -11,6 +11,18 @@ import (
 	"myproject/internal/client"
 )
 
+func TestNewManagerFromEnvDefaultsHTTP(t *testing.T) {
+	t.Setenv("TRANSPORT", "")
+	t.Setenv("BACKEND_BIN", "backend")
+	m, err := NewManagerFromEnv()
+	if err != nil {
+		t.Fatalf("NewManagerFromEnv: %v", err)
+	}
+	if m.cfg.Transport != TransportHTTP {
+		t.Fatalf("default transport = %q, want %q", m.cfg.Transport, TransportHTTP)
+	}
+}
+
 // freePort returns an available TCP port for the HTTP spawn test.
 func freePort() (int, error) {
 	l, err := net.Listen("tcp", "127.0.0.1:0")

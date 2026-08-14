@@ -22,7 +22,7 @@ const (
 // Config controls how the bundled backend is spawned.
 type Config struct {
 	Bin           string // executable path, or a node script (.js/.mjs/.cjs)
-	Transport     string // "stdio" (default) or "http"
+	Transport     string // "http" (default) or "stdio"
 	Port          int    // used only for http transport
 	DataDir       string // APP_DATA_DIR passed to the child
 	MigrationsDir string // APP_MIGRATIONS_DIR passed to the child
@@ -43,7 +43,7 @@ type Manager struct {
 func NewManagerFromEnv() (*Manager, error) {
 	transport := os.Getenv("TRANSPORT")
 	if transport != TransportStdio && transport != TransportHTTP {
-		transport = TransportStdio
+		transport = TransportHTTP
 	}
 	cfg := Config{
 		Bin:           os.Getenv("BACKEND_BIN"),

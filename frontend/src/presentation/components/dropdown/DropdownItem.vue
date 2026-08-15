@@ -12,6 +12,7 @@ type Props = {
     selected?: boolean
     hasSubmenu?: boolean
     mode?: DropdownMode
+    showIcon?: boolean
     itemStyle?: ItemStyle
 }
 
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
     selected: false,
     hasSubmenu: false,
     mode: 'menu',
+    showIcon: false,
 })
 
 const emit = defineEmits<{
@@ -46,6 +48,7 @@ const itemAttrsStyle = computed(() => {
 })
 
 const showIconArea = computed(() => {
+    if (!props.showIcon) return false
     return !!(
         props.item.icon ||
         props.mode === 'select' ||
@@ -67,12 +70,13 @@ const showIconArea = computed(() => {
             'dropdown-item--has-submenu': hasSubmenu,
         }"
         :style="itemAttrsStyle"
+        :title="item.title ?? item.label"
         role="menuitem"
         :aria-disabled="item.enabled === false"
         @click="item.enabled !== false && emit('click', item)"
         @mouseenter="emit('mouseenter', item)"
     >
-        <!-- <div v-if="showIconArea" class="dropdown-item__icon">
+        <div v-if="showIconArea" class="dropdown-item__icon">
             <component :is="item.icon" v-if="item.icon" class="dropdown-item__svg" />
             <Check
                 v-else-if="selected"
@@ -81,7 +85,7 @@ const showIconArea = computed(() => {
                 height="14"
                 stroke-width="2.5"
             />
-        </div> -->
+        </div>
 
         <span class="dropdown-item__label">{{ item.label }}</span>
 

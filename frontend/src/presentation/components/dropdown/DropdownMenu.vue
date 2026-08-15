@@ -17,6 +17,7 @@ type Props = {
     items: DropdownItemConfig[]
     mode?: DropdownMode
     dense?: boolean
+    showIcon?: boolean
     parentRef: HTMLElement | null
     close: () => void
     onItemClick: (item: DropdownItemConfig) => void
@@ -30,6 +31,7 @@ type Props = {
 const props = withDefaults(defineProps<Props>(), {
     mode: 'menu',
     dense: false,
+    showIcon: false,
     focusedIndex: -1,
     level: 0,
 })
@@ -126,6 +128,7 @@ watch(
                 v-else
                 :item="item"
                 :dense="dense"
+                :show-icon="showIcon"
                 :focused="focusedIndex >= 0 && visibleItems.indexOf(item) === focusedIndex"
                 :selected="!!item.selected"
                 :has-submenu="
@@ -153,6 +156,7 @@ watch(
                 :items="submenuItems"
                 :mode="mode"
                 :dense="dense"
+                :show-icon="showIcon"
                 :parent-ref="menuRef"
                 :close="close"
                 :on-item-click="onItemClick"

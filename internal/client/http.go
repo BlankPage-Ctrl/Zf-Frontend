@@ -49,6 +49,14 @@ func (t *HTTPTransport) DoStream(method, path string, body any, queryParams map[
 	return t.do(t.Stream, method, path, body, queryParams)
 }
 
+func (t *HTTPTransport) OpenStream(method, path string, body any, queryParams map[string]string) (StreamReader, error) {
+	resp, err := t.do(t.Stream, method, path, body, queryParams)
+	if err != nil {
+		return nil, err
+	}
+	return newHTTPStreamReader(resp), nil
+}
+
 func (t *HTTPTransport) do(httpClient *http.Client, method, path string, body any, queryParams map[string]string) (*http.Response, error) {
 	u, err := url.Parse(t.BaseURL + path)
 	if err != nil {

@@ -206,6 +206,87 @@ func TestStdioDoErrorMapsStatus(t *testing.T) {
 	}
 }
 
+func TestStdioOpenStreamWatch(t *testing.T) {
+	p := newStdioTestPair(t)
+
+	read, err := p.stdio.OpenStream("GET", "/workspaces/ws-1/files/events", nil, nil)
+	if err != nil {
+		t.Fatalf("OpenStream: %v", err)
+	}
+	defer read.Close()
+
+	req := p.nextRequest()
+	if req["method"] != "watch.file" {
+		t.Fatalf("method = %v, want watch.file", req["method"])
+	}
+	id, _ := req["id"].(string)
+	if id == "" {
+		t.Fatalf("missing id in request: %v", req)
+	}
+
+	p.respond(map[string]any{
+		"jsonrpc": "2.0",
+		"method":  "file.event",
+		"params":  map[string]any{"event": map[string]any{"type": "created", "path": "/ws/a.txt", "timestamp": float64(123)}, "requestId": id},
+	})
+
+	got, err := read.ReadEvent()
+	if err != nil {
+		t.Fatalf("ReadEvent: %v", err)
+	}
+	var gotEvent struct {
+		Type string `json:"type"`
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal(got, &gotEvent); err != nil {
+		t.Fatalf("event not JSON: %v (raw=%s)", err, got)
+	}
+	if gotEvent.Path != "/ws/a.txt" || gotEvent.Type != "created" {
+		t.Fatalf("unexpected event: %+v", gotEvent)
+	}
+
+	// Close must notify the backend so watchers/resources are released.
+	if err := read.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+
+	cancel := p.nextRequest()
+	if cancel["method"] != "cancel" {
+		t.Fatalf("method = %v, want cancel", cancel["method"])
+	}
+	params, ok := cancel["params"].(map[string]any)
+	if !ok {
+		t.Fatalf("cancel params missing: %v", cancel)
+	}
+	if params["requestId"] != id {
+		t.Fatalf("requestId = %v, want %v", params["requestId"], id)
+	}
+}
+
+func TestStdioOpenStreamEOFOnFinalResult(t *testing.T) {
+	p := newStdioTestPair(t)
+
+	read, err := p.stdio.OpenStream("GET", "/workspaces/ws-1/files/events", nil, nil)
+	if err != nil {
+		t.Fatalf("OpenStream: %v", err)
+	}
+	defer read.Close()
+
+	req := p.nextRequest()
+	id, _ := req["id"].(string)
+
+	p.respond(map[string]any{
+		"jsonrpc": "2.0",
+		"id":      id,
+		"result":  nil,
+	})
+
+	_, err = read.ReadEvent()
+	if err != io.EOF {
+		t.Fatalf("ReadEvent after final result = %v, want io.EOF", err)
+	}
+}
+
 func TestStdioDoStreamChat(t *testing.T) {
 	p := newStdioTestPair(t)
 

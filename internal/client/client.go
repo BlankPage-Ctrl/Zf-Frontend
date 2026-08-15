@@ -47,6 +47,10 @@ func (c *Client) DoStream(method, path string, body any, queryParams map[string]
 	return c.transport.DoStream(method, path, body, queryParams)
 }
 
+func (c *Client) OpenStream(method, path string, body any, queryParams map[string]string) (StreamReader, error) {
+	return c.transport.OpenStream(method, path, body, queryParams)
+}
+
 type Envelope struct {
 	RequestID  string          `json:"requestId"`
 	ResponseID string          `json:"responseId"`

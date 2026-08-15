@@ -29,7 +29,7 @@ type StdioTransport struct {
 	nextID  atomic.Int64
 	mu      sync.Mutex
 	pending map[string]chan *rpcMessage
-	streams map[string]*streamPipe
+	streams map[string]*stdioStream
 	closed  chan struct{}
 }
 
@@ -39,7 +39,7 @@ func NewStdioTransport(stdin io.WriteCloser, stdout io.ReadCloser) *StdioTranspo
 		stdout:  stdout,
 		logf:    func(string, ...any) {},
 		pending: make(map[string]chan *rpcMessage),
-		streams: make(map[string]*streamPipe),
+		streams: make(map[string]*stdioStream),
 		closed:  make(chan struct{}),
 	}
 	go t.readLoop()
@@ -118,18 +118,60 @@ func (t *StdioTransport) doCall(method string, params any) (*http.Response, erro
 }
 
 func (t *StdioTransport) doStream(route *stdioRoute, params any) (*http.Response, error) {
+	reader, err := t.openStream(route, params)
+	if err != nil {
+		return nil, err
+	}
+	pr, pw := io.Pipe()
+	go func() {
+		defer pw.Close()
+		for {
+			event, err := reader.ReadEvent()
+			if err != nil {
+				return
+			}
+			line := append([]byte("data: "), event...)
+			line = append(line, '\n')
+			if _, err := pw.Write(line); err != nil {
+				return
+			}
+		}
+	}()
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Status:     "200 OK",
+		Header: http.Header{
+			"Content-Type": []string{"text/event-stream"},
+		},
+		Body: pr,
+	}, nil
+}
+
+func (t *StdioTransport) OpenStream(method, path string, body any, query map[string]string) (StreamReader, error) {
+	route, err := mapRoute(method, path)
+	if err != nil {
+		return nil, err
+	}
+	params, err := route.buildParams(path, body, query)
+	if err != nil {
+		return nil, fmt.Errorf("stdio: build params for %s %s: %w", method, path, err)
+	}
+	return t.openStream(route, params)
+}
+
+func (t *StdioTransport) openStream(route *stdioRoute, params any) (*stdioStreamReader, error) {
 	id := t.newID()
-	sp := newStreamPipe(route.convert)
+	st := newStdioStream(route.convert)
 
 	t.mu.Lock()
-	t.streams[id] = sp
+	t.streams[id] = st
 	t.mu.Unlock()
 
 	cleanup := func() {
 		t.mu.Lock()
 		delete(t.streams, id)
 		t.mu.Unlock()
-		sp.finish()
+		st.finish()
 	}
 
 	if err := t.send(id, route.rpc, params); err != nil {
@@ -137,14 +179,51 @@ func (t *StdioTransport) doStream(route *stdioRoute, params any) (*http.Response
 		return nil, err
 	}
 
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Status:     "200 OK",
-		Header: http.Header{
-			"Content-Type": []string{"text/event-stream"},
-		},
-		Body: sp.reader,
-	}, nil
+	return &stdioStreamReader{t: t, id: id, st: st, cleanup: cleanup}, nil
+}
+
+type stdioStreamReader struct {
+	t       *StdioTransport
+	id      string
+	st      *stdioStream
+	cleanup func()
+	once    sync.Once
+}
+
+func (r *stdioStreamReader) ReadEvent() ([]byte, error) {
+	raw, ok := <-r.st.ch
+	if !ok {
+		return nil, io.EOF
+	}
+	data, err := r.st.convert(raw)
+	if err != nil {
+		return nil, fmt.Errorf("stdio: convert stream event: %w", err)
+	}
+	return data, nil
+}
+
+func (r *stdioStreamReader) Close() error {
+	r.once.Do(func() {
+		_ = r.t.sendCancel(r.id)
+		r.cleanup()
+	})
+	return nil
+}
+
+func (t *StdioTransport) sendCancel(requestID string) error {
+	return t.writeNotification("cancel", map[string]any{"requestId": requestID})
+}
+
+func (t *StdioTransport) writeNotification(method string, params any) error {
+	body, err := json.Marshal(map[string]any{
+		"jsonrpc": "2.0",
+		"method":  method,
+		"params":  params,
+	})
+	if err != nil {
+		return fmt.Errorf("stdio: marshal notification: %w", err)
+	}
+	return t.writeLine(body)
 }
 
 func (t *StdioTransport) send(id, method string, params any) error {
@@ -339,52 +418,27 @@ func rpcErrorStatus(e *rpcError) (int, string) {
 	return status, code
 }
 
-type streamPipe struct {
-	reader  *io.PipeReader
-	writer  *io.PipeWriter
+type stdioStream struct {
 	ch      chan json.RawMessage
-	once    sync.Once
 	convert func(json.RawMessage) ([]byte, error)
+	once    sync.Once
 }
 
-func newStreamPipe(convert func(json.RawMessage) ([]byte, error)) *streamPipe {
-	r, w := io.Pipe()
-	sp := &streamPipe{
-		reader:  r,
-		writer:  w,
-		ch:      make(chan json.RawMessage, 32),
-		convert: convert,
-	}
-	go sp.pump()
-	return sp
+func newStdioStream(convert func(json.RawMessage) ([]byte, error)) *stdioStream {
+	return &stdioStream{ch: make(chan json.RawMessage, 32), convert: convert}
 }
 
-func (sp *streamPipe) pump() {
-	defer sp.writer.Close()
-	for raw := range sp.ch {
-		data, err := sp.convert(raw)
-		if err != nil {
-			continue
-		}
-		line := append([]byte("data: "), data...)
-		line = append(line, '\n')
-		if _, err := sp.writer.Write(line); err != nil {
-			return
-		}
-	}
-}
-
-func (sp *streamPipe) writeNotification(params json.RawMessage) {
+func (s *stdioStream) writeNotification(params json.RawMessage) {
 	select {
-	case sp.ch <- params:
+	case s.ch <- params:
 	default:
-		// slow consumer; drop so the pipe never blocks the reader loop
+		// slow consumer; drop so the reader loop never blocks
 	}
 }
 
-// finish signals EOF on the stream body.
-func (sp *streamPipe) finish() {
-	sp.once.Do(func() { close(sp.ch) })
+// finish signals EOF to readers of the stream.
+func (s *stdioStream) finish() {
+	s.once.Do(func() { close(s.ch) })
 }
 
 type stdioRoute struct {

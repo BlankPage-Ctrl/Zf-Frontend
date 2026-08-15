@@ -28,8 +28,7 @@ export function createFileSearchDropdownItems(
 
     return params.nodes
         .filter(
-            (node) =>
-                node.name.toLowerCase().includes(q) || node.path.toLowerCase().includes(q),
+            (node) => node.name.toLowerCase().includes(q) || node.path.toLowerCase().includes(q),
         )
         .map((node) => ({
             id: node.path,

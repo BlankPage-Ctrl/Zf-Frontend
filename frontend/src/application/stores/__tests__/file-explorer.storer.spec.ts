@@ -13,11 +13,7 @@ function node(path: string, isDirectory = false): FEFileNode {
     }
 }
 
-function event(
-    type: FEWatchEvent['type'],
-    n: FEFileNode,
-    oldPath?: string,
-): FEWatchEvent {
+function event(type: FEWatchEvent['type'], n: FEFileNode, oldPath?: string): FEWatchEvent {
     return { type, node: n, oldPath, timestamp: Date.now() }
 }
 

@@ -2,10 +2,7 @@
 import { ref, computed } from 'vue'
 import { useFileExplorerStorer } from '@/application/stores'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
-import {
-    createFileSearchDropdownItems,
-    fileSearchDropdownProps,
-} from '@/presentation/schemas'
+import { createFileSearchDropdownItems, fileSearchDropdownProps } from '@/presentation/schemas'
 import FileTree from './FileTree.vue'
 
 const emit = defineEmits<{

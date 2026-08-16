@@ -12,6 +12,7 @@ type Props = {
     selected?: boolean
     hasSubmenu?: boolean
     mode?: DropdownMode
+    showIcon?: boolean
     itemStyle?: ItemStyle
 }
 
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
     selected: false,
     hasSubmenu: false,
     mode: 'menu',
+    showIcon: false,
 })
 
 const emit = defineEmits<{
@@ -46,6 +48,7 @@ const itemAttrsStyle = computed(() => {
 })
 
 const showIconArea = computed(() => {
+    if (!props.showIcon) return false
     return !!(
         props.item.icon ||
         props.mode === 'select' ||
@@ -67,6 +70,7 @@ const showIconArea = computed(() => {
             'dropdown-item--has-submenu': hasSubmenu,
         }"
         :style="itemAttrsStyle"
+        :title="item.title ?? item.label"
         role="menuitem"
         :aria-disabled="item.enabled === false"
         @click="item.enabled !== false && emit('click', item)"

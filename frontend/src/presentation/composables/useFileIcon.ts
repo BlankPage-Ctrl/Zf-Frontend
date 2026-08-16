@@ -1,3 +1,15 @@
+import type { Component } from 'vue'
+import {
+    AlbumList,
+    Code,
+    CodeBrackets,
+    Folder,
+    MediaImage,
+    MediaVideo,
+    MusicDoubleNote,
+    Page,
+    Terminal,
+} from '@iconoir/vue'
 import { extname } from '@/shared/utils/path.utils'
 
 const extensionIconMap: Record<string, string> = {
@@ -81,19 +93,35 @@ const knownFilenames: Record<string, string> = {
     LICENSE: 'Page',
 }
 
-export function useFileIcon() {
-    function getIconName(path: string, isDirectory: boolean, _isExpanded = false): string {
-        if (isDirectory) {
-            return 'Folder'
-        }
+const iconMap: Record<string, Component> = {
+    AlbumList,
+    Code,
+    CodeBrackets,
+    Folder,
+    MediaImage,
+    MediaVideo,
+    MusicDoubleNote,
+    Page,
+    Terminal,
+}
 
-        const base = path.split('/').pop() ?? path
-        const known = knownFilenames[base]
-        if (known) return known
-
-        const ext = extname(path)
-        return extensionIconMap[ext] ?? 'Page'
+export function getIconName(path: string, isDirectory: boolean, _isExpanded = false): string {
+    if (isDirectory) {
+        return 'Folder'
     }
 
+    const base = path.split('/').pop() ?? path
+    const known = knownFilenames[base]
+    if (known) return known
+
+    const ext = extname(path)
+    return extensionIconMap[ext] ?? 'Page'
+}
+
+export function resolveFileIconComponent(path: string, isDirectory: boolean): Component {
+    return iconMap[getIconName(path, isDirectory)] ?? Page
+}
+
+export function useFileIcon() {
     return { getIconName }
 }

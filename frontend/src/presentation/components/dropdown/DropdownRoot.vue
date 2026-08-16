@@ -34,6 +34,7 @@ type Props<T = string> = {
     dense?: boolean
     disabled?: boolean
     offset?: number
+    showIcon?: boolean
     block?: boolean
     style?: StyleConfig
 }
@@ -46,6 +47,7 @@ const props = withDefaults(defineProps<Props>(), {
     dense: false,
     disabled: false,
     offset: 4,
+    showIcon: false,
 })
 
 const emit = defineEmits<{
@@ -279,6 +281,7 @@ function handleTriggerKeydown(e: KeyboardEvent) {
                         :items="items"
                         :mode="mode"
                         :dense="dense"
+                        :show-icon="showIcon"
                         :parent-ref="menuRef"
                         :close="close"
                         :on-item-click="handleItemClick"

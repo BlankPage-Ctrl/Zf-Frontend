@@ -46,9 +46,7 @@ export function createFileExplorerActions(
         cleanupWatch = businessLogic.createWatchConnection(
             id,
             (event) => storeLogic.applyWatchEvent(event),
-            () => {
-                console.error('[FileExplorer] watch connection error')
-            },
+            (error) => console.error('[FileExplorer] watch connection error:', error),
         )
     }
 

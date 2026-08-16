@@ -17,6 +17,7 @@ type Props = {
     items: DropdownItemConfig[]
     mode?: DropdownMode
     dense?: boolean
+    showIcon?: boolean
     parentRef: HTMLElement | null
     close: () => void
     onItemClick: (item: DropdownItemConfig) => void
@@ -30,6 +31,7 @@ type Props = {
 const props = withDefaults(defineProps<Props>(), {
     mode: 'menu',
     dense: false,
+    showIcon: false,
     focusedIndex: -1,
     level: 0,
 })
@@ -114,8 +116,8 @@ watch(
         :class="{ 'dropdown-menu--dense': dense }"
         :style="{
             ...menuStyle,
-            maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-            minWidth: minWidth ? `${minWidth}px` : undefined,
+            maxHeight: maxHeight !== undefined ? `${maxHeight}px` : undefined,
+            minWidth: minWidth !== undefined ? `${minWidth}px` : undefined,
         }"
         @mouseleave="handleMenuMouseLeave"
     >
@@ -126,6 +128,7 @@ watch(
                 v-else
                 :item="item"
                 :dense="dense"
+                :show-icon="showIcon"
                 :focused="focusedIndex >= 0 && visibleItems.indexOf(item) === focusedIndex"
                 :selected="!!item.selected"
                 :has-submenu="
@@ -153,11 +156,13 @@ watch(
                 :items="submenuItems"
                 :mode="mode"
                 :dense="dense"
+                :show-icon="showIcon"
                 :parent-ref="menuRef"
                 :close="close"
                 :on-item-click="onItemClick"
                 :focused-index="-1"
                 :level="level + 1"
+                :min-width="minWidth"
                 :style-config="styleConfig"
             />
         </div>
@@ -170,7 +175,6 @@ watch(
     flex-direction: column;
     gap: 1px;
     padding: 4px;
-    min-width: 160px;
     max-height: 400px;
     overflow-y: auto;
     background-color: var(--bg-primary);
@@ -182,7 +186,6 @@ watch(
 }
 
 .dropdown-menu--dense {
-    min-width: 140px;
     max-height: 320px;
 }
 

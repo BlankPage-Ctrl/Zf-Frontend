@@ -1,29 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useFileIcon } from '../../composables/useFileIcon'
-import {
-    AlbumList,
-    Code,
-    CodeBrackets,
-    Folder,
-    MediaImage,
-    MediaVideo,
-    MusicDoubleNote,
-    Page,
-    Terminal,
-} from '@iconoir/vue'
-
-const iconMap: Record<string, unknown> = {
-    AlbumList,
-    Code,
-    CodeBrackets,
-    Folder,
-    MediaImage,
-    MediaVideo,
-    MusicDoubleNote,
-    Page,
-    Terminal,
-}
+import { resolveFileIconComponent } from '../../composables/useFileIcon'
 
 const props = defineProps<{
     path: string
@@ -32,11 +9,7 @@ const props = defineProps<{
     isSymlink?: boolean
 }>()
 
-const { getIconName } = useFileIcon()
-
-const iconName = computed(() => getIconName(props.path, props.isDirectory, !!props.isExpanded))
-
-const iconComponent = computed(() => iconMap[iconName.value] ?? Page)
+const iconComponent = computed(() => resolveFileIconComponent(props.path, props.isDirectory))
 </script>
 
 <template>

@@ -26,6 +26,23 @@ function seedTree(store: ReturnType<typeof useFileExplorerStorer>) {
     return { src, a, b }
 }
 
+describe('file-explorer storer searchResults', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+    })
+
+    it('setSearchResults stores the nodes and reset clears them', () => {
+        const store = useFileExplorerStorer()
+        const a = node('src/a.ts')
+
+        store.setSearchResults([a])
+        expect(store.searchResults).toEqual([a])
+
+        store.reset({ requestedPath: '.', nodes: [] })
+        expect(store.searchResults).toEqual([])
+    })
+})
+
 describe('file-explorer storer applyWatchEvent', () => {
     beforeEach(() => {
         setActivePinia(createPinia())

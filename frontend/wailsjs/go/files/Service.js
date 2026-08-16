@@ -18,6 +18,10 @@ export function ReadFile(arg1, arg2, arg3) {
   return window['go']['files']['Service']['ReadFile'](arg1, arg2, arg3);
 }
 
+export function Search(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['files']['Service']['Search'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function SetAppContext(arg1) {
   return window['go']['files']['Service']['SetAppContext'](arg1);
 }

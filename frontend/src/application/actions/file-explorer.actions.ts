@@ -1,6 +1,6 @@
 import type { FileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
 import type { FileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
-import type { FEListDirData, FEMeta } from '@/core/entities'
+import type { FEListDirData, FEMeta, FESearchOptions } from '@/core/entities'
 
 export interface FileExplorerActions {
     loadRoot(workspaceId: string, meta?: FEMeta): Promise<void>
@@ -9,6 +9,7 @@ export interface FileExplorerActions {
     stopWatch(): void
     toggleExpand(path: string): Promise<void>
     select(path: string | null): Promise<void>
+    searchFiles(query: string, opts?: FESearchOptions): Promise<void>
     reset(data: FEListDirData, meta?: FEMeta): void
     dispose(): void
 }
@@ -78,6 +79,21 @@ export function createFileExplorerActions(
         }
     }
 
+    async function searchFiles(query: string, opts?: FESearchOptions): Promise<void> {
+        const q = query.trim()
+        if (!workspaceId || !q) {
+            storeLogic.setSearchResults([])
+            return
+        }
+        try {
+            const data = await businessLogic.searchFiles(workspaceId, q, opts)
+            storeLogic.setSearchResults(data.matches)
+        } catch (e) {
+            console.error('[FileExplorer] failed to search files:', e)
+            storeLogic.setSearchResults([])
+        }
+    }
+
     function reset(data: FEListDirData, meta?: FEMeta): void {
         storeLogic.reset(data, meta)
     }
@@ -93,6 +109,7 @@ export function createFileExplorerActions(
         stopWatch,
         toggleExpand,
         select,
+        searchFiles,
         reset,
         dispose,
     }

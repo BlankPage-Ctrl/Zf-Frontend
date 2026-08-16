@@ -510,6 +510,10 @@ function onFileSelect(path: string | null) {
     fileExplorerActions.select(path)
 }
 
+function onFileSearchInput(query: string) {
+    fileExplorerActions.searchFiles(query)
+}
+
 function onFileSearchSelect(path: string) {
     console.log('[FileExplorer search] selected:', path)
 }
@@ -806,6 +810,7 @@ onUnmounted(() => {
                             v-else
                             @toggle="onFileToggle"
                             @select="onFileSelect"
+                            @search-input="onFileSearchInput"
                             @search-select="onFileSearchSelect"
                         />
                     </div>

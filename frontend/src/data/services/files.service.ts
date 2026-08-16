@@ -1,5 +1,5 @@
-import { ListDir, GetStat, ReadFile, PickDirectory } from '../../../wailsjs/go/files/Service'
-import type { FEFileNode, FEListDirData } from '@/core/entities'
+import { ListDir, GetStat, ReadFile, Search, PickDirectory } from '../../../wailsjs/go/files/Service'
+import type { FEFileNode, FEListDirData, FESearchData, FESearchOptions } from '@/core/entities'
 import type { FileRepository } from '@/core/repositories'
 
 interface BackendFileNode {
@@ -35,6 +35,11 @@ interface BackendReadFileData {
     truncated: boolean
 }
 
+interface BackendSearchFilesData {
+    query: string
+    matches: BackendFileNode[]
+}
+
 function toFEFileNode(n: BackendFileNode): FEFileNode {
     return {
         id: n.id,
@@ -57,6 +62,13 @@ function toFEListDirData(data: BackendListDirData): FEListDirData {
     }
 }
 
+function toFESearchData(data: BackendSearchFilesData): FESearchData {
+    return {
+        query: data.query,
+        matches: data.matches.map(toFEFileNode),
+    }
+}
+
 export function pickDirectory(title?: string, defaultDirectory?: string): Promise<string> {
     return PickDirectory(title ?? '', defaultDirectory ?? '')
 }
@@ -70,4 +82,13 @@ export const filesRepository: FileRepository = {
 
     readFile: (workspaceId: string, path: string, maxBytes?: number) =>
         ReadFile(workspaceId, path, maxBytes ?? null) as Promise<BackendReadFileData>,
+
+    searchFiles: (workspaceId: string, query: string, opts?: FESearchOptions) =>
+        Search(
+            workspaceId,
+            opts?.path ?? '',
+            query,
+            opts?.maxResults ?? null,
+            opts?.maxDepth ?? null,
+        ).then(toFESearchData),
 }

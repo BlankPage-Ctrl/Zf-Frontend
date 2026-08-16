@@ -20,6 +20,7 @@ export type ItemAction = CommandAction | SubmenuAction
 export interface DropdownItemConfig<T = string> {
     id: string
     label?: string
+    title?: string
     type?: ItemType
     icon?: Component
     rightIcon?: Component
@@ -78,6 +79,7 @@ export interface DropdownProps<T = string> {
     dense?: boolean
     disabled?: boolean
     offset?: number
+    showIcon?: boolean
     style?: StyleConfig
 }
 

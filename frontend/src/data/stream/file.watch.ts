@@ -82,6 +82,10 @@ export const fileWatch: FileWatchPort = {
         ]
 
         StartWatch(workspaceId).then((id) => {
+            if (!active) {
+                StopWatch(id)
+                return
+            }
             streamId = id
         })
 

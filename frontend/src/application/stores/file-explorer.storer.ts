@@ -165,7 +165,7 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
                 nodeMap.value[node.path] = node
                 const parentPath = dirname(node.path)
                 const parent = nodeMap.value[parentPath]
-                if (parent?.children) {
+                if (parent?.children && !parent.children.includes(node.path)) {
                     const updated = { ...parent }
                     updated.children = [...(updated.children ?? []), node.path]
                     nodeMap.value[parentPath] = updated
@@ -191,7 +191,11 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
             case 'MODIFIED': {
                 const existing = nodeMap.value[node.path]
                 if (existing) {
-                    nodeMap.value[node.path] = { ...existing, ...node }
+                    nodeMap.value[node.path] = {
+                        ...existing,
+                        ...node,
+                        children: existing.children ?? node.children,
+                    }
                 }
                 break
             }
@@ -207,12 +211,19 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
                     nodeMap.value[oldParentPath] = updated
                 }
 
+                const wasExpanded = expandedPaths.value.has(event.oldPath)
                 removeNodeRecursive(event.oldPath)
 
                 nodeMap.value[node.path] = node
+                if (wasExpanded && node.isDirectory) {
+                    const next = new Set(expandedPaths.value)
+                    next.add(node.path)
+                    expandedPaths.value = next
+                }
+
                 const newParentPath = dirname(node.path)
                 const newParent = nodeMap.value[newParentPath]
-                if (newParent?.children) {
+                if (newParent?.children && !newParent.children.includes(node.path)) {
                     const updated = { ...newParent }
                     updated.children = [...(updated.children ?? []), node.path]
                     nodeMap.value[newParentPath] = updated

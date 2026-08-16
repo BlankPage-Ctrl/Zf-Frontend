@@ -510,6 +510,10 @@ function onFileSelect(path: string | null) {
     fileExplorerActions.select(path)
 }
 
+function onFileSearchSelect(path: string) {
+    console.log('[FileExplorer search] selected:', path)
+}
+
 const settingsThemes = computed<SettingsTheme[]>(() =>
     themeStorer.availableThemes.map((t) => ({
         ...t,
@@ -798,7 +802,12 @@ onUnmounted(() => {
                                 :notes="group.notes"
                             />
                         </div>
-                        <FileExplorer v-else @toggle="onFileToggle" @select="onFileSelect" />
+                        <FileExplorer
+                            v-else
+                            @toggle="onFileToggle"
+                            @select="onFileSelect"
+                            @search-select="onFileSearchSelect"
+                        />
                     </div>
                 </div>
             </template>

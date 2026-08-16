@@ -1,16 +1,21 @@
 package stream
 
 import (
-	"bufio"
 	"context"
+	"errors"
 	"fmt"
-	"strings"
+	"io"
 	"sync"
 	"time"
 
 	"myproject/internal/client"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+)
+
+const (
+	watchReconnectInitial = 500 * time.Millisecond
+	watchReconnectMax     = 2 * time.Second
 )
 
 type FileWatchService struct {
@@ -39,40 +44,84 @@ func (s *FileWatchService) StartWatch(workspaceID string) (string, error) {
 	s.activeWatches[streamID] = cancel
 	s.mu.Unlock()
 
-	go s.watchLoop(ctx, streamID, workspaceID, cancel)
+	go s.watchLoop(ctx, streamID, workspaceID)
 	return streamID, nil
 }
 
-func (s *FileWatchService) watchLoop(ctx context.Context, streamID, workspaceID string, cancel context.CancelFunc) {
+func (s *FileWatchService) watchLoop(ctx context.Context, streamID, workspaceID string) {
 	defer func() {
 		s.mu.Lock()
 		delete(s.activeWatches, streamID)
 		s.mu.Unlock()
-		cancel()
 	}()
 
-	resp, err := s.c.Do("GET", "/workspaces/"+workspaceID+"/files/events", nil, nil)
-	if err != nil {
-		runtime.EventsEmit(s.appCtx, "file:watch-error", streamID, err.Error())
-		return
-	}
-	defer resp.Body.Close()
+	backoff := watchReconnectInitial
+	for {
+		if ctx.Err() != nil {
+			return
+		}
 
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		line := scanner.Text()
+		err := s.watchOnce(ctx, streamID, workspaceID)
+		if err == nil || ctx.Err() != nil {
+			return
+		}
+
+		runtime.EventsEmit(s.appCtx, "file:watch-error", streamID, err.Error())
+
 		select {
 		case <-ctx.Done():
 			return
-		default:
+		case <-time.After(backoff):
 		}
-		if strings.HasPrefix(line, "data: ") {
-			data := strings.TrimPrefix(line, "data: ")
-			runtime.EventsEmit(s.appCtx, "file:watch-event", streamID, data)
+		backoff *= 2
+		if backoff > watchReconnectMax {
+			backoff = watchReconnectMax
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		runtime.EventsEmit(s.appCtx, "file:watch-error", streamID, err.Error())
+}
+
+// watchOnce drains the stream until it ends or ctx is cancelled. A stream
+// that closes on its own (backend restart, idle drop) is reported as an error
+// so watchLoop reconnects; a ctx cancellation stops cleanly.
+func (s *FileWatchService) watchOnce(ctx context.Context, streamID, workspaceID string) error {
+	sr, err := s.c.OpenStream("GET", "/workspaces/"+workspaceID+"/files/events", nil, nil)
+	if err != nil {
+		return err
+	}
+
+	// OpenStream does not accept the ctx, so a blocked ReadEvent is unblocked
+	// by Close when the watch is stopped; Close also asks the backend to
+	// cancel the stream.
+	stop := make(chan struct{})
+	go func() {
+		select {
+		case <-ctx.Done():
+			_ = sr.Close()
+		case <-stop:
+		}
+	}()
+	defer close(stop)
+	defer sr.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+		}
+
+		event, err := sr.ReadEvent()
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil
+			}
+			if errors.Is(err, io.EOF) {
+				return fmt.Errorf("file watch stream ended")
+			}
+			return fmt.Errorf("file watch stream ended: %w", err)
+		}
+
+		runtime.EventsEmit(s.appCtx, "file:watch-event", streamID, string(event))
 	}
 }
 

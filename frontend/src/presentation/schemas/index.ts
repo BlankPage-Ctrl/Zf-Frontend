@@ -17,6 +17,10 @@ export {
     PRIORITY_TRIGGER_LABELS,
 } from './dropdown/priority-dropdown.schema'
 export {
+    createFileSearchDropdownItems,
+    fileSearchDropdownProps,
+} from './dropdown/file-search-dropdown.schema'
+export {
     createWorkspacesHeaderSchema,
     createChatHeaderSchema,
 } from './header/workspace-header.schema'

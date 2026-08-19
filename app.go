@@ -18,6 +18,7 @@ import (
 	"myproject/internal/notes"
 	"myproject/internal/providers"
 	"myproject/internal/settings"
+	"myproject/internal/shell"
 	"myproject/internal/stream"
 	"myproject/internal/workspaces"
 )
@@ -35,6 +36,7 @@ type App struct {
 	Models           *models.Service
 	Settings         *settings.Service
 	Files            *files.Service
+	Shell            *shell.Service
 	FileWatch        *stream.FileWatchService
 	ChatStream       *stream.ChatStreamService
 }
@@ -65,6 +67,7 @@ func NewApp() *App {
 		Models:     models.NewService(c),
 		Settings:   settings.NewService(c),
 		Files:      files.NewService(c),
+		Shell:      shell.NewService(c),
 		FileWatch:  stream.NewFileWatchService(c),
 		ChatStream: stream.NewChatStreamService(c),
 	}

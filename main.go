@@ -35,6 +35,7 @@ func main() {
 			app.Models,
 			app.Settings,
 			app.Files,
+			app.Shell,
 			app.FileWatch,
 			app.ChatStream,
 		},

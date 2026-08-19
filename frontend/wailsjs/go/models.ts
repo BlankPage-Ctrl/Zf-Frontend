@@ -290,6 +290,7 @@ export namespace messages {
 	    filename?: string;
 	    data?: any;
 	    id?: string;
+	    isSystem?: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new UIMessagePart(source);
@@ -313,6 +314,7 @@ export namespace messages {
 	        this.filename = source["filename"];
 	        this.data = source["data"];
 	        this.id = source["id"];
+	        this.isSystem = source["isSystem"];
 	    }
 	}
 	export class UIMessage {

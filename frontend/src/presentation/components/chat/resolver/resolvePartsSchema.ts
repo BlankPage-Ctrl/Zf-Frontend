@@ -148,15 +148,17 @@ function getToolToolName(part: unknown): string {
 export function resolveMessagePart(
     part: UIMessage['parts'][number],
     defaults?: { fontSize?: number; lineHeight?: number },
-): MessagePartSchema {
+): MessagePartSchema | null {
     return buildMessagePart(part, defaults)
 }
 
 function buildMessagePart(
     part: UIMessage['parts'][number],
     defaults?: { fontSize?: number; lineHeight?: number },
-): MessagePartSchema {
+): MessagePartSchema | null {
     if (isTextUIPart(part)) {
+        const p = part as { type: 'text'; text: string; state?: string; isSystem?: boolean }
+        if (p.isSystem) return null
         return {
             type: 'text',
             text: part.text,

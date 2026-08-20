@@ -17,3 +17,5 @@ export interface Chat {
     createdAt: string
     updatedAt: string
 }
+
+export type ChatSessionStatus = 'submitted' | 'streaming' | 'ready' | 'error'

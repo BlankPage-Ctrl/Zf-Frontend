@@ -17,8 +17,8 @@ export {
     type FileExplorerBusinessLogicDeps,
 } from './file-explorer.logic'
 export {
-    createChatSession,
-    type ChatSession,
+    createChatSessionEngine,
+    type ChatSessionEngine,
     type ChatSessionDeps,
-    type ChatSessionStatus,
+    type ChatSessionStatePatch,
 } from './chat-session.logic'

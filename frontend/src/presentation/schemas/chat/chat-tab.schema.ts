@@ -1,15 +1,17 @@
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
 import type { Provider } from '@/core/entities'
 import type { Chat } from '@/core/entities'
-import type { ChatSession } from '@/application/business-logic'
+import type { ChatSessionState } from '@/application/stores'
 
 export interface ChatTabParams {
     chat: Chat
-    session: ChatSession
+    state: ChatSessionState
     providers: Provider[]
     contentWidth?: number
     fontSize?: number
     lineHeight?: number
+    onSend?: (text: string) => void
+    onStop?: () => void
     onUpdateModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
 }
@@ -17,8 +19,8 @@ export interface ChatTabParams {
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
     return {
         title: params.chat.title,
-        messages: params.session.messages.value,
-        loading: params.session.isLoading.value,
+        messages: params.state.messages,
+        loading: params.state.isLoading,
         providers: params.providers,
         modelId: params.chat.modelId,
         providerId: params.chat.providerId,
@@ -26,8 +28,8 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         contentWidth: params.contentWidth,
         fontSize: params.fontSize,
         lineHeight: params.lineHeight,
-        onSend: params.session.sendMessage,
-        onStop: params.session.stop,
+        onSend: params.onSend,
+        onStop: params.onStop,
         onSelectModel: params.onUpdateModel,
         onChangeThinkingMode: params.onChangeThinkingMode,
     }

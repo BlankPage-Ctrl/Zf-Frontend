@@ -14,6 +14,8 @@ export { resolveMarkdownSchema } from './resolver/resolveMarkdownSchema'
 export { useMarkdownRender } from './composables/useMarkdownRender'
 export {
     useCodeHighlighter,
+    toTokensCached,
+    preloadCommonLanguages,
     resolveLanguage,
     disposeSharedHighlighter,
     DEFAULT_LIGHT_THEME,

@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
+import { IconoirProvider } from '@iconoir/vue'
 import AppTitle from '@/presentation/components/AppTitle.vue'
 import DialogContainer from '@/presentation/components/dialog/DialogContainer.vue'
 import { useWorkspaceStorer } from '@/application/stores'
@@ -14,6 +15,7 @@ import {
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { workspaceFormSchema } from '@/presentation/schemas'
+import { preloadCommonLanguages } from '@/presentation/components/markdown'
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
@@ -26,6 +28,14 @@ onMounted(async () => {
     await providerActions.fetchProviders()
     await providerActions.fetchDefaultProvider()
     workspaceActions.fetchWorkspaces()
+
+    const scheduleIdle =
+        typeof requestIdleCallback === 'function'
+            ? (task: () => void) => requestIdleCallback(task, { timeout: 2000 })
+            : (task: () => void) => setTimeout(task, 0)
+    scheduleIdle(() => {
+        void preloadCommonLanguages()
+    })
 })
 
 // --- AppTitle (title bar) orchestration ---
@@ -81,23 +91,25 @@ async function onDeleteWorkspace(id: string) {
 </script>
 
 <template>
-    <div class="app-shell">
-        <AppTitle
-            :workspaces="wsStorer.workspaces"
-            :selected-workspace-id="wsStorer.selectedWorkspaceId"
-            :loading="wsStorer.loading"
-            @select-workspace="onSelectWorkspace"
-            @create-workspace="onCreateWorkspace"
-            @delete-workspace="onDeleteWorkspace"
-            @open-settings="settingsTab.requestOpen()"
-        />
-        <RouterView v-slot="{ Component }">
-            <div class="router-view">
-                <component :is="Component" />
-            </div>
-        </RouterView>
-        <DialogContainer />
-    </div>
+    <IconoirProvider>
+        <div class="app-shell">
+            <AppTitle
+                :workspaces="wsStorer.workspaces"
+                :selected-workspace-id="wsStorer.selectedWorkspaceId"
+                :loading="wsStorer.loading"
+                @select-workspace="onSelectWorkspace"
+                @create-workspace="onCreateWorkspace"
+                @delete-workspace="onDeleteWorkspace"
+                @open-settings="settingsTab.requestOpen()"
+            />
+            <RouterView v-slot="{ Component }">
+                <div class="router-view">
+                    <component :is="Component" />
+                </div>
+            </RouterView>
+            <DialogContainer />
+        </div>
+    </IconoirProvider>
 </template>
 
 <style scoped>

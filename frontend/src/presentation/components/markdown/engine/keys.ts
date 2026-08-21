@@ -5,11 +5,7 @@ export interface NodeKeySource {
     identifier?: string | number
 }
 
-export function makeNodeKey(
-    node: NodeKeySource,
-    index: number,
-    baseKey = 'markdown',
-): string {
+export function makeNodeKey(node: NodeKeySource, index: number, baseKey = 'markdown'): string {
     const nodeKey = `${baseKey}-${node.type}`
     if (node.type === 'footnoteReference' || node.type === 'footnoteDefinition') {
         return `${nodeKey}-${node.identifier}`
@@ -44,7 +40,11 @@ export function hasLoadingNode(nodes?: ParsedNode[]): boolean {
         const node = nodes[i]
         if (node?.loading) return true
         const nodeWithChildren = node as { children?: ParsedNode[] }
-        if (nodeWithChildren.children && nodeWithChildren.children.length > 0 && hasLoadingNode(nodeWithChildren.children)) {
+        if (
+            nodeWithChildren.children &&
+            nodeWithChildren.children.length > 0 &&
+            hasLoadingNode(nodeWithChildren.children)
+        ) {
             return true
         }
     }

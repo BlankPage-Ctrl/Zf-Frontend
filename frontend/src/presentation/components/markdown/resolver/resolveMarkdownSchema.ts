@@ -26,7 +26,8 @@ export function resolveMarkdownSchema(
         lineHeight: schema.lineHeight ?? defaults.lineHeight ?? 1.7,
         code: {
             theme: {
-                light: schema.code?.theme?.light ?? defaults.code?.theme?.light ?? DEFAULT_LIGHT_THEME,
+                light:
+                    schema.code?.theme?.light ?? defaults.code?.theme?.light ?? DEFAULT_LIGHT_THEME,
                 dark: schema.code?.theme?.dark ?? defaults.code?.theme?.dark ?? DEFAULT_DARK_THEME,
             },
         },

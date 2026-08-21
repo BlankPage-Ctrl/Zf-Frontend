@@ -6,5 +6,7 @@ defineProps<{ node: TableRow }>()
 </script>
 
 <template>
-    <tr><MarkdownChildren :nodes="node.children" /></tr>
+    <tr>
+        <MarkdownChildren :nodes="node.children" />
+    </tr>
 </template>

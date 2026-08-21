@@ -9,7 +9,9 @@ export interface MarkdownRenderModel {
     hasLoading: ComputedRef<boolean>
 }
 
-export function useMarkdownRender(schema: ComputedRef<ResolvedMarkdownSchema>): MarkdownRenderModel {
+export function useMarkdownRender(
+    schema: ComputedRef<ResolvedMarkdownSchema>,
+): MarkdownRenderModel {
     const pipeline = createMarkdownPipeline({ mode: schema.value.mode })
 
     watch(

@@ -15,7 +15,7 @@ import {
     separatorPattern,
     singleAsteriskPattern,
     singleBacktickPattern,
-singleUnderscorePattern,
+    singleUnderscorePattern,
     standaloneBracketPattern,
     standaloneDashPattern,
     tableRowPattern,
@@ -209,7 +209,10 @@ export function fixStrong(content: string): string {
         const paragraphOffset = calculateParagraphOffset(paragraphStartIndex, lines)
         const absoluteLastStarPos = paragraphOffset + actualLastStarPos
 
-        if (isWithinLinkOrImageUrl(content, absoluteLastStarPos) || isWithinHtmlTag(content, absoluteLastStarPos)) {
+        if (
+            isWithinLinkOrImageUrl(content, absoluteLastStarPos) ||
+            isWithinHtmlTag(content, absoluteLastStarPos)
+        ) {
             return content
         }
 
@@ -242,7 +245,10 @@ export function fixStrong(content: string): string {
         const paragraphOffset = calculateParagraphOffset(paragraphStartIndex, lines)
         const absoluteLastUnderscorePos = paragraphOffset + actualLastUnderscorePos
 
-        if (isWithinLinkOrImageUrl(content, absoluteLastUnderscorePos) || isWithinHtmlTag(content, absoluteLastUnderscorePos)) {
+        if (
+            isWithinLinkOrImageUrl(content, absoluteLastUnderscorePos) ||
+            isWithinHtmlTag(content, absoluteLastUnderscorePos)
+        ) {
             return content
         }
 
@@ -263,12 +269,17 @@ export function fixStrong(content: string): string {
         removedTrailingSingle = true
         const { lastParagraph: newLastParagraph } = getLastParagraphWithIndex(content, true)
         const newLastParagraphWithoutCodeBlocks = newLastParagraph.replace(codeBlockPattern, '')
-        const newLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(newLastParagraphWithoutCodeBlocks)
-        const newAsteriskMatches = newLastParagraphWithoutCodeBlocksAndUrls.match(doubleAsteriskPattern)
+        const newLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(
+            newLastParagraphWithoutCodeBlocks,
+        )
+        const newAsteriskMatches =
+            newLastParagraphWithoutCodeBlocksAndUrls.match(doubleAsteriskPattern)
         const newAsteriskCount = newAsteriskMatches ? newAsteriskMatches.length : 0
         if (newAsteriskCount % 2 === 1) {
             const lastStarPos = newLastParagraphWithoutCodeBlocksAndUrls.lastIndexOf('**')
-            const afterLast = newLastParagraphWithoutCodeBlocksAndUrls.substring(lastStarPos + 2).trim()
+            const afterLast = newLastParagraphWithoutCodeBlocksAndUrls
+                .substring(lastStarPos + 2)
+                .trim()
             if (afterLast.length > 0) {
                 needsAsteriskCompletion = true
                 needsAsteriskRemoval = false
@@ -284,12 +295,17 @@ export function fixStrong(content: string): string {
         removedTrailingSingle = true
         const { lastParagraph: newLastParagraph } = getLastParagraphWithIndex(content, true)
         const newLastParagraphWithoutCodeBlocks = newLastParagraph.replace(codeBlockPattern, '')
-        const newLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(newLastParagraphWithoutCodeBlocks)
-        const newUnderscoreMatches = newLastParagraphWithoutCodeBlocksAndUrls.match(doubleUnderscorePattern)
+        const newLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(
+            newLastParagraphWithoutCodeBlocks,
+        )
+        const newUnderscoreMatches =
+            newLastParagraphWithoutCodeBlocksAndUrls.match(doubleUnderscorePattern)
         const newUnderscoreCount = newUnderscoreMatches ? newUnderscoreMatches.length : 0
         if (newUnderscoreCount % 2 === 1) {
             const lastUnderscorePos = newLastParagraphWithoutCodeBlocksAndUrls.lastIndexOf('__')
-            const afterLast = newLastParagraphWithoutCodeBlocksAndUrls.substring(lastUnderscorePos + 2).trim()
+            const afterLast = newLastParagraphWithoutCodeBlocksAndUrls
+                .substring(lastUnderscorePos + 2)
+                .trim()
             if (afterLast.length > 0) {
                 needsUnderscoreCompletion = true
                 needsUnderscoreRemoval = false
@@ -309,9 +325,13 @@ export function fixStrong(content: string): string {
     }
 
     if (needsUnderscoreRemoval) {
-        const { lastParagraph: newLastParagraph, startIndex: newParagraphStartIndex } = getLastParagraphWithIndex(content)
+        const { lastParagraph: newLastParagraph, startIndex: newParagraphStartIndex } =
+            getLastParagraphWithIndex(content)
         const lastUnderscorePos = newLastParagraph.lastIndexOf('__')
-        const paragraphOffset = calculateParagraphOffset(newParagraphStartIndex, content.split('\n'))
+        const paragraphOffset = calculateParagraphOffset(
+            newParagraphStartIndex,
+            content.split('\n'),
+        )
         const absoluteLastUnderscorePos = paragraphOffset + lastUnderscorePos
         let result = content.substring(0, absoluteLastUnderscorePos).trimEnd()
         if (trailingStandaloneDashWithNewlinesPattern.test(result)) {
@@ -332,9 +352,17 @@ export function fixStrong(content: string): string {
     if (needsAsteriskCompletion) {
         if (!removedTrailingSingle) {
             const { lastParagraph: currentLastParagraph } = getLastParagraphWithIndex(content, true)
-            const currentLastParagraphWithoutCodeBlocks = currentLastParagraph.replace(codeBlockPattern, '')
-            const currentLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(currentLastParagraphWithoutCodeBlocks)
-            const withoutDoubleAsterisk = currentLastParagraphWithoutCodeBlocksAndUrls.replace(doubleAsteriskPattern, '')
+            const currentLastParagraphWithoutCodeBlocks = currentLastParagraph.replace(
+                codeBlockPattern,
+                '',
+            )
+            const currentLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(
+                currentLastParagraphWithoutCodeBlocks,
+            )
+            const withoutDoubleAsterisk = currentLastParagraphWithoutCodeBlocksAndUrls.replace(
+                doubleAsteriskPattern,
+                '',
+            )
             const singleAsteriskMatches = withoutDoubleAsterisk.match(singleAsteriskPattern)
             const singleAsteriskCount = singleAsteriskMatches ? singleAsteriskMatches.length : 0
             if (singleAsteriskCount % 2 === 1) {
@@ -347,11 +375,21 @@ export function fixStrong(content: string): string {
     if (needsUnderscoreCompletion) {
         if (!removedTrailingSingle) {
             const { lastParagraph: currentLastParagraph } = getLastParagraphWithIndex(content)
-            const currentLastParagraphWithoutCodeBlocks = currentLastParagraph.replace(codeBlockPattern, '')
-            const currentLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(currentLastParagraphWithoutCodeBlocks)
-            const withoutDoubleUnderscore = currentLastParagraphWithoutCodeBlocksAndUrls.replace(doubleUnderscorePattern, '')
+            const currentLastParagraphWithoutCodeBlocks = currentLastParagraph.replace(
+                codeBlockPattern,
+                '',
+            )
+            const currentLastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(
+                currentLastParagraphWithoutCodeBlocks,
+            )
+            const withoutDoubleUnderscore = currentLastParagraphWithoutCodeBlocksAndUrls.replace(
+                doubleUnderscorePattern,
+                '',
+            )
             const singleUnderscoreMatches = withoutDoubleUnderscore.match(singleUnderscorePattern)
-            const singleUnderscoreCount = singleUnderscoreMatches ? singleUnderscoreMatches.length : 0
+            const singleUnderscoreCount = singleUnderscoreMatches
+                ? singleUnderscoreMatches.length
+                : 0
             if (singleUnderscoreCount % 2 === 1) {
                 return appendBeforeTrailingWhitespace(content, '___')
             }
@@ -371,11 +409,17 @@ export function fixEmphasis(content: string): string {
     const lastParagraphWithoutCodeBlocks = lastParagraph.replace(codeBlockPattern, '')
     const lastParagraphWithoutCodeBlocksAndUrls = removeUrlsFromText(lastParagraphWithoutCodeBlocks)
 
-    const withoutDoubleAsterisk = lastParagraphWithoutCodeBlocksAndUrls.replace(doubleAsteriskPattern, '')
+    const withoutDoubleAsterisk = lastParagraphWithoutCodeBlocksAndUrls.replace(
+        doubleAsteriskPattern,
+        '',
+    )
     const asteriskMatches = withoutDoubleAsterisk.match(singleAsteriskPattern)
     const asteriskCount = asteriskMatches ? asteriskMatches.length : 0
 
-    const withoutDoubleUnderscore = lastParagraphWithoutCodeBlocksAndUrls.replace(doubleUnderscorePattern, '')
+    const withoutDoubleUnderscore = lastParagraphWithoutCodeBlocksAndUrls.replace(
+        doubleUnderscorePattern,
+        '',
+    )
     const underscoreMatches = withoutDoubleUnderscore.match(singleUnderscorePattern)
     const underscoreCount = underscoreMatches ? underscoreMatches.length : 0
 
@@ -392,7 +436,10 @@ export function fixEmphasis(content: string): string {
             if (lastParagraph[i] === '*') {
                 const absolutePos = paragraphOffset + i
                 if (i > 0 && lastParagraph[i - 1] === '*') continue
-                if (!isWithinLinkOrImageUrl(content, absolutePos) && !isWithinHtmlTag(content, absolutePos)) {
+                if (
+                    !isWithinLinkOrImageUrl(content, absolutePos) &&
+                    !isWithinHtmlTag(content, absolutePos)
+                ) {
                     lastStarPos = i
                     break
                 }
@@ -425,7 +472,10 @@ export function fixEmphasis(content: string): string {
             if (lastParagraph[i] === '_') {
                 const absolutePos = paragraphOffset + i
                 if (i > 0 && lastParagraph[i - 1] === '_') continue
-                if (!isWithinLinkOrImageUrl(content, absolutePos) && !isWithinHtmlTag(content, absolutePos)) {
+                if (
+                    !isWithinLinkOrImageUrl(content, absolutePos) &&
+                    !isWithinHtmlTag(content, absolutePos)
+                ) {
                     lastUnderscorePos = i
                     break
                 }
@@ -464,7 +514,10 @@ export function fixEmphasis(content: string): string {
         for (let i = lastParagraph.length - 1; i >= 0; i--) {
             if (lastParagraph[i] === '_' && (i === 0 || lastParagraph[i - 1] !== '_')) {
                 const absolutePos = paragraphOffset + i
-                if (!isWithinLinkOrImageUrl(content, absolutePos) && !isWithinHtmlTag(content, absolutePos)) {
+                if (
+                    !isWithinLinkOrImageUrl(content, absolutePos) &&
+                    !isWithinHtmlTag(content, absolutePos)
+                ) {
                     lastUnderscorePosInOriginal = absolutePos
                     break
                 }
@@ -508,16 +561,27 @@ export function fixStrikethrough(content: string): string {
 
     if (endsWithSingleTilde) {
         const contentWithoutLastTilde = content.slice(0, -1)
-        const lastParagraphWithoutTilde = contentWithoutLastTilde.split('\n').slice(paragraphStartIndex).join('\n')
-        const lastParagraphWithoutTildeAndCodeBlocks = lastParagraphWithoutTilde.replace(codeBlockPattern, '')
-        const lastParagraphWithoutTildeAndCodeBlocksAndUrls = removeUrlsFromText(lastParagraphWithoutTildeAndCodeBlocks)
-        const matchesWithoutTilde = lastParagraphWithoutTildeAndCodeBlocksAndUrls.match(doubleTildePattern)
+        const lastParagraphWithoutTilde = contentWithoutLastTilde
+            .split('\n')
+            .slice(paragraphStartIndex)
+            .join('\n')
+        const lastParagraphWithoutTildeAndCodeBlocks = lastParagraphWithoutTilde.replace(
+            codeBlockPattern,
+            '',
+        )
+        const lastParagraphWithoutTildeAndCodeBlocksAndUrls = removeUrlsFromText(
+            lastParagraphWithoutTildeAndCodeBlocks,
+        )
+        const matchesWithoutTilde =
+            lastParagraphWithoutTildeAndCodeBlocksAndUrls.match(doubleTildePattern)
         const countWithoutTilde = matchesWithoutTilde ? matchesWithoutTilde.length : 0
 
         if (countWithoutTilde % 2 === 1) {
             const lastTildePos = lastParagraphWithoutTildeAndCodeBlocksAndUrls.lastIndexOf('~~')
             if (lastTildePos >= 0) {
-                const afterLastTilde = lastParagraphWithoutTildeAndCodeBlocksAndUrls.substring(lastTildePos + 2)
+                const afterLastTilde = lastParagraphWithoutTildeAndCodeBlocksAndUrls.substring(
+                    lastTildePos + 2,
+                )
                 if (afterLastTilde.length > 0) {
                     return `${content}~`
                 }
@@ -548,7 +612,10 @@ export function fixStrikethrough(content: string): string {
         const paragraphOffset = calculateParagraphOffset(paragraphStartIndex, lines)
         const absoluteLastTildePos = paragraphOffset + actualLastTildePos
 
-        if (isWithinLinkOrImageUrl(content, absoluteLastTildePos) || isWithinHtmlTag(content, absoluteLastTildePos)) {
+        if (
+            isWithinLinkOrImageUrl(content, absoluteLastTildePos) ||
+            isWithinHtmlTag(content, absoluteLastTildePos)
+        ) {
             return content
         }
 
@@ -669,7 +736,10 @@ export function fixTablePipe(content: string): string {
     for (let i = 0; i < paragraphLines.length; i++) {
         const line = paragraphLines[i]
         const trimmedLine = (line || '').trim()
-        if (tableRowPattern.test(trimmedLine) || (trimmedLine.startsWith('|') && trimmedLine.length > 1)) {
+        if (
+            tableRowPattern.test(trimmedLine) ||
+            (trimmedLine.startsWith('|') && trimmedLine.length > 1)
+        ) {
             headerRowIndex = i
             headerRow = trimmedLine
             break
@@ -681,7 +751,11 @@ export function fixTablePipe(content: string): string {
     const headerRowPos = content.lastIndexOf(headerRow)
     if (headerRowPos !== -1) {
         const headerRowEndPos = headerRowPos + headerRow.length
-        const isHeaderRowInCodeBlock = isRangeOverlappingRanges(headerRowPos, headerRowEndPos, codeBlockRanges)
+        const isHeaderRowInCodeBlock = isRangeOverlappingRanges(
+            headerRowPos,
+            headerRowEndPos,
+            codeBlockRanges,
+        )
         if (isHeaderRowInCodeBlock) return content
     }
 
@@ -698,7 +772,9 @@ export function fixTablePipe(content: string): string {
     const afterHeaderRow = content.substring(headerRowPos + headerRow.length)
 
     if (headerRowIndex === paragraphLines.length - 1) {
-        const newContent = isHeaderComplete ? content : `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
+        const newContent = isHeaderComplete
+            ? content
+            : `${beforeHeaderRow}${completedHeaderRow}${afterHeaderRow}`
         if (newContent.endsWith('\n')) return `${newContent}${separator}`
         return `${newContent}\n${separator}`
     }

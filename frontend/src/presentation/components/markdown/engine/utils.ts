@@ -1,4 +1,12 @@
-import { codeBlockPattern, htmlTagPattern, incompleteLinkImageUrlPattern, incompleteLinkImageUrlSuffixPattern, linkImagePattern, linkImageUrlSuffixPattern, trailingWhitespacePattern } from './pattern'
+import {
+    codeBlockPattern,
+    htmlTagPattern,
+    incompleteLinkImageUrlPattern,
+    incompleteLinkImageUrlSuffixPattern,
+    linkImagePattern,
+    linkImageUrlSuffixPattern,
+    trailingWhitespacePattern,
+} from './pattern'
 
 export interface TextRange {
     start: number
@@ -74,11 +82,7 @@ export function findClosedCodeBlockRanges(content: string): TextRange[] {
     return ranges
 }
 
-export function isRangeOverlappingRanges(
-    start: number,
-    end: number,
-    ranges: TextRange[],
-): boolean {
+export function isRangeOverlappingRanges(start: number, end: number, ranges: TextRange[]): boolean {
     return ranges.some(
         (range) =>
             (start >= range.start && start < range.end) ||
@@ -125,7 +129,9 @@ export function isWithinHtmlTag(text: string, position: number): boolean {
 export function removeUrlsFromText(text: string): string {
     const withoutCodeBlocks = text.replace(codeBlockPattern, '')
     let result = withoutCodeBlocks.replace(htmlTagPattern, '')
-    result = result.replace(linkImagePattern, (match) => match.replace(linkImageUrlSuffixPattern, ']()'))
+    result = result.replace(linkImagePattern, (match) =>
+        match.replace(linkImageUrlSuffixPattern, ']()'),
+    )
     result = result.replace(incompleteLinkImageUrlPattern, (match) =>
         match.replace(incompleteLinkImageUrlSuffixPattern, ']('),
     )

@@ -7,7 +7,10 @@ const openingTagPattern = /<(\w+)[\s>]/
 
 function startsWithDoubleDollar(str: string): boolean {
     let i = 0
-    while (i < str.length && (str[i] === ' ' || str[i] === '\t' || str[i] === '\n' || str[i] === '\r')) {
+    while (
+        i < str.length &&
+        (str[i] === ' ' || str[i] === '\t' || str[i] === '\n' || str[i] === '\r')
+    ) {
         i += 1
     }
     return i + 1 < str.length && str[i] === '$' && str[i + 1] === '$'

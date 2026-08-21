@@ -9,10 +9,7 @@ const tag = computed(() => (props.node.ordered ? 'ol' : 'ul'))
 </script>
 
 <template>
-    <component
-        :is="tag"
-        :start="node.ordered && node.start ? node.start : undefined"
-    >
+    <component :is="tag" :start="node.ordered && node.start ? node.start : undefined">
         <MarkdownChildren :nodes="node.children" />
     </component>
 </template>

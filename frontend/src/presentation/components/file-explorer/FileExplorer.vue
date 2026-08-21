@@ -61,7 +61,10 @@ function handleSearchSelect(path: string) {
                             placeholder="Search files..."
                             aria-label="Search files"
                             @focus="isOpen || toggle()"
-                            @input="onQueryInput(); isOpen || toggle()"
+                            @input="
+                                onQueryInput()
+                                isOpen || toggle()
+                            "
                             @keydown.esc="isOpen && toggle()"
                         />
                     </template>

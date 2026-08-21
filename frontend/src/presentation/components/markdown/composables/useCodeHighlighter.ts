@@ -134,9 +134,7 @@ export function useCodeHighlighter() {
 
 export async function preloadCommonLanguages(): Promise<void> {
     const highlighter = await getHighlighter()
-    await Promise.all(
-        PRELOAD_LANGUAGES.map((language) => loadLanguageOnce(highlighter, language)),
-    )
+    await Promise.all(PRELOAD_LANGUAGES.map((language) => loadLanguageOnce(highlighter, language)))
 }
 
 export function disposeSharedHighlighter(): void {

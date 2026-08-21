@@ -28,9 +28,10 @@ function setup() {
     >((_id, _onEvent, _onError) => cleanupWatch)
     const businessLogic = {
         listDir: vi.fn<() => Promise<{ nodes: FEFileNode[] }>>(async () => ({ nodes: [] })),
-        searchFiles: vi.fn<
-            () => Promise<{ query: string; matches: FEFileNode[] }>
-        >(async () => ({ query: '', matches: [] })),
+        searchFiles: vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(async () => ({
+            query: '',
+            matches: [],
+        })),
         createWatchConnection,
     } as unknown as FileExplorerBusinessLogic
 
@@ -61,14 +62,20 @@ describe('file-explorer actions search', () => {
         const { actions, storeLogic, businessLogic } = setup()
         await actions.loadRoot('ws-1')
 
-        businessLogic.searchFiles = vi.fn<
-            () => Promise<{ query: string; matches: FEFileNode[] }>
-        >(async () => ({
-            query: 'drop',
-            matches: [
-                { id: '1', name: 'Dropdown.vue', path: 'src/Dropdown.vue', type: 'file', isDirectory: false },
-            ],
-        })) as unknown as typeof businessLogic.searchFiles
+        businessLogic.searchFiles = vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(
+            async () => ({
+                query: 'drop',
+                matches: [
+                    {
+                        id: '1',
+                        name: 'Dropdown.vue',
+                        path: 'src/Dropdown.vue',
+                        type: 'file',
+                        isDirectory: false,
+                    },
+                ],
+            }),
+        ) as unknown as typeof businessLogic.searchFiles
 
         await actions.searchFiles('drop')
 
@@ -82,11 +89,11 @@ describe('file-explorer actions search', () => {
         const { actions, storeLogic, businessLogic } = setup()
         await actions.loadRoot('ws-1')
 
-        businessLogic.searchFiles = vi.fn<
-            () => Promise<{ query: string; matches: FEFileNode[] }>
-        >(async () => {
-            throw new Error('boom')
-        }) as unknown as typeof businessLogic.searchFiles
+        businessLogic.searchFiles = vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(
+            async () => {
+                throw new Error('boom')
+            },
+        ) as unknown as typeof businessLogic.searchFiles
 
         await actions.searchFiles('drop')
 

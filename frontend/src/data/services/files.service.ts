@@ -1,4 +1,10 @@
-import { ListDir, GetStat, ReadFile, Search, PickDirectory } from '../../../wailsjs/go/files/Service'
+import {
+    ListDir,
+    GetStat,
+    ReadFile,
+    Search,
+    PickDirectory,
+} from '../../../wailsjs/go/files/Service'
 import type { FEFileNode, FEListDirData, FESearchData, FESearchOptions } from '@/core/entities'
 import type { FileRepository } from '@/core/repositories'
 

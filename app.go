@@ -11,6 +11,7 @@ import (
 	"myproject/internal/categories"
 	"myproject/internal/chats"
 	"myproject/internal/client"
+	"myproject/internal/hitl"
 	"myproject/internal/files"
 	"myproject/internal/messages"
 	"myproject/internal/mockapi"
@@ -18,6 +19,7 @@ import (
 	"myproject/internal/notes"
 	"myproject/internal/providers"
 	"myproject/internal/settings"
+	"myproject/internal/shell"
 	"myproject/internal/stream"
 	"myproject/internal/workspaces"
 )
@@ -35,8 +37,11 @@ type App struct {
 	Models           *models.Service
 	Settings         *settings.Service
 	Files            *files.Service
+	Shell            *shell.Service
 	FileWatch        *stream.FileWatchService
 	ChatStream       *stream.ChatStreamService
+	Hitl            *hitl.Service
+	HitlWatch        *stream.HitlWatchService
 }
 
 func NewApp() *App {
@@ -65,8 +70,11 @@ func NewApp() *App {
 		Models:     models.NewService(c),
 		Settings:   settings.NewService(c),
 		Files:      files.NewService(c),
+		Shell:      shell.NewService(c),
 		FileWatch:  stream.NewFileWatchService(c),
 		ChatStream: stream.NewChatStreamService(c),
+		Hitl:       hitl.NewService(c),
+		HitlWatch:  stream.NewHitlWatchService(c),
 	}
 }
 
@@ -97,6 +105,7 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.FileWatch.SetAppContext(ctx)
 	a.ChatStream.SetAppContext(ctx)
+	a.HitlWatch.SetAppContext(ctx)
 	a.Files.SetAppContext(ctx)
 }
 

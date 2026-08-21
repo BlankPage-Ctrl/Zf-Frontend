@@ -44,6 +44,11 @@ type ReadFileData struct {
 	Truncated bool   `json:"truncated"`
 }
 
+type SearchFilesData struct {
+	Query   string     `json:"query"`
+	Matches []FileNode `json:"matches"`
+}
+
 type Service struct {
 	c      *client.Client
 	appCtx context.Context
@@ -78,4 +83,15 @@ func (s *Service) ReadFile(workspaceID, path string, maxBytes *int) (ReadFileDat
 		q["maxBytes"] = strconv.Itoa(*maxBytes)
 	}
 	return client.DoOK[ReadFileData](s.c, "GET", "/workspaces/"+workspaceID+"/files/read", nil, q)
+}
+
+func (s *Service) Search(workspaceID, path, query string, maxResults, maxDepth *int) (SearchFilesData, error) {
+	q := map[string]string{"path": path, "query": query}
+	if maxResults != nil {
+		q["maxResults"] = strconv.Itoa(*maxResults)
+	}
+	if maxDepth != nil {
+		q["maxDepth"] = strconv.Itoa(*maxDepth)
+	}
+	return client.DoOK[SearchFilesData](s.c, "GET", "/workspaces/"+workspaceID+"/files/search", nil, q)
 }

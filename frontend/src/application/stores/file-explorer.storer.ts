@@ -18,6 +18,7 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
     const selectedPath = ref<RelPath | null>(null)
     const rootPath = ref<RelPath>('.')
     const workspaceRoot = ref<string | undefined>(undefined)
+    const searchResults = ref<FEFileNode[]>([])
 
     const visibleList = computed<FETreeItem[]>(() => {
         const result: FETreeItem[] = []
@@ -96,6 +97,10 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
 
     function selectNode(path: RelPath | null): void {
         selectedPath.value = path
+    }
+
+    function setSearchResults(nodes: FEFileNode[]): void {
+        searchResults.value = nodes
     }
 
     function loadInitial(data: FEListDirData, meta?: FEMeta): void {
@@ -242,6 +247,7 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
         loadStateMap.value = {}
         expandedPaths.value = new Set()
         selectedPath.value = null
+        searchResults.value = []
         loadInitial(data, meta)
     }
 
@@ -252,6 +258,7 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
         selectedPath,
         rootPath,
         workspaceRoot,
+        searchResults,
         visibleList,
         getNode,
         getLoadState,
@@ -259,6 +266,7 @@ export const useFileExplorerStorer = defineStore('file-explorer', () => {
         setLoadState,
         toggleExpand,
         selectNode,
+        setSearchResults,
         loadInitial,
         loadChildren,
         applyWatchEvent,

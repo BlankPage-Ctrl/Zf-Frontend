@@ -26,6 +26,7 @@ type UIMessagePart struct {
 	Filename         string      `json:"filename,omitempty"`
 	Data             interface{} `json:"data,omitempty"`
 	Id               string      `json:"id,omitempty"`
+	IsSystem         *bool       `json:"isSystem,omitempty"`
 }
 
 type Service struct {

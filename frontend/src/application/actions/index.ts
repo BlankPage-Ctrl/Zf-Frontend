@@ -6,6 +6,7 @@ import {
     useAppearanceStorer,
     useFileExplorerStorer,
     useNoteStorer,
+    useChatSessionStorer,
 } from '../stores'
 
 import {
@@ -28,6 +29,7 @@ import { createThemeStoreLogic } from '../store-logic/theme.logic'
 import { createAppearanceStoreLogic } from '../store-logic/appearance.logic'
 import { createFileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
 import { createNoteStoreLogic } from '../store-logic/note.logic'
+import { createChatSessionStoreLogic } from '../store-logic/chat-session.logic'
 
 import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
 import { createChatBusinessLogic } from '../business-logic/chat.logic'
@@ -36,6 +38,7 @@ import { createThemeBusinessLogic } from '../business-logic/theme.logic'
 import { createAppearanceBusinessLogic } from '../business-logic/appearance.logic'
 import { createFileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
 import { createNoteBusinessLogic } from '../business-logic/note.logic'
+import { createChatSessionEngine } from '../business-logic/chat-session.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -89,10 +92,14 @@ export const fileExplorerActions = createFileExplorerActions(
     fileExplorerBusinessLogic,
 )
 
-export const chatSessionActions = createChatSessionActions({
+const chatSessionStoreLogic = createChatSessionStoreLogic(() => useChatSessionStorer())
+const chatSessionEngine = createChatSessionEngine({
     messagesRepo: messagesRepository,
     stream: chatStream,
+    onState: (chatId, patch) => chatSessionStoreLogic.patch(chatId, patch),
 })
+
+export const chatSessionActions = createChatSessionActions(chatSessionStoreLogic, chatSessionEngine)
 
 const noteStoreLogic = createNoteStoreLogic(() => useNoteStorer())
 const noteBusinessLogic = createNoteBusinessLogic({

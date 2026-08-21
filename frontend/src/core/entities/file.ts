@@ -42,6 +42,17 @@ export interface FEListDirData {
     nodes: FEFileNode[]
 }
 
+export interface FESearchData {
+    query: string
+    matches: FEFileNode[]
+}
+
+export interface FESearchOptions {
+    path?: RelPath
+    maxResults?: number
+    maxDepth?: number
+}
+
 export interface FEMeta {
     totalNodes?: number
     requestedPath?: RelPath

@@ -11,4 +11,6 @@ export function PickDirectory(arg1:string,arg2:string):Promise<string>;
 
 export function ReadFile(arg1:string,arg2:string,arg3:any):Promise<files.ReadFileData>;
 
+export function Search(arg1:string,arg2:string,arg3:string,arg4:any,arg5:any):Promise<files.SearchFilesData>;
+
 export function SetAppContext(arg1:context.Context):Promise<void>;

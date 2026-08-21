@@ -1,144 +1,168 @@
-import { ref, type Ref } from 'vue'
 import { Chat } from '@ai-sdk/vue'
 import type { UIMessage } from 'ai'
 import type { MessageRepository, ChatStreamPort } from '@/core/repositories'
+import type { ChatSessionStatus } from '@/core/entities'
 
-export type ChatSessionStatus = 'submitted' | 'streaming' | 'ready' | 'error'
-
-export interface ChatSession {
-    messages: Ref<UIMessage[]>
-    status: Ref<ChatSessionStatus>
-    error: Ref<Error | undefined>
-    isLoading: Ref<boolean>
-    loadHistory(): Promise<void>
-    sendMessage(text: string): Promise<void>
-    stop(): Promise<void>
-    regenerate(): Promise<void>
-    cleanup(): void
+export interface ChatSessionStatePatch {
+    messages?: UIMessage[]
+    status?: ChatSessionStatus
+    error?: Error | undefined
+    isLoading?: boolean
 }
 
 export interface ChatSessionDeps {
     messagesRepo: MessageRepository
     stream: ChatStreamPort
+    onState: (chatId: string, patch: ChatSessionStatePatch) => void
 }
 
-export function createChatSession(
-    workspaceId: string,
-    chatId: string,
-    deps: ChatSessionDeps,
-): ChatSession {
-    const messages = ref<UIMessage[]>([]) as Ref<UIMessage[]>
-    const status = ref<ChatSessionStatus>('ready')
-    const error = ref<Error | undefined>()
-    const isLoading = ref(false)
+export interface ChatSessionEngine {
+    loadHistory(workspaceId: string, chatId: string): Promise<void>
+    sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
+    stop(chatId: string): Promise<void>
+    regenerate(chatId: string): Promise<void>
+    dispose(chatId: string): void
+    clear(): void
+}
 
-    let chat: Chat<UIMessage> | null = null
-    let statusInterval: ReturnType<typeof setInterval> | null = null
+export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngine {
+    const engines = new Map<string, Chat<UIMessage>>()
+    const intervals = new Map<string, ReturnType<typeof setInterval>>()
 
-    async function loadHistory(): Promise<void> {
+    function ensureEngine(
+        workspaceId: string,
+        chatId: string,
+        initialMessages?: UIMessage[],
+    ): Chat<UIMessage> {
+        let chat = engines.get(chatId)
+        if (!chat) {
+            const transport = deps.stream.createTransport(workspaceId, chatId)
+            chat = new Chat({
+                id: chatId,
+                messages: initialMessages ?? [],
+                transport,
+                onFinish: () => {
+                    deps.onState(chatId, { status: 'ready', isLoading: false })
+                    stopPolling(chatId)
+                },
+                onError: (e: Error) => {
+                    deps.onState(chatId, { error: e, status: 'error', isLoading: false })
+                    stopPolling(chatId)
+                },
+            })
+            engines.set(chatId, chat)
+        }
+        return chat
+    }
+
+    function syncChat(chatId: string): void {
+        const chat = engines.get(chatId)
+        if (!chat) return
+        const patch: ChatSessionStatePatch = { status: chat.status }
+        if (chat.messages) {
+            patch.messages = [...chat.messages]
+        }
+        patch.isLoading = chat.status === 'submitted' || chat.status === 'streaming'
+        deps.onState(chatId, patch)
+    }
+
+    function startPolling(chatId: string): void {
+        if (intervals.has(chatId)) return
+        syncChat(chatId)
+        intervals.set(
+            chatId,
+            setInterval(() => {
+                const chat = engines.get(chatId)
+                if (!chat) {
+                    stopPolling(chatId)
+                    return
+                }
+                syncChat(chatId)
+                if (chat.status !== 'submitted' && chat.status !== 'streaming') {
+                    stopPolling(chatId)
+                }
+            }, 100),
+        )
+    }
+
+    function stopPolling(chatId: string): void {
+        const interval = intervals.get(chatId)
+        if (interval) {
+            clearInterval(interval)
+            intervals.delete(chatId)
+        }
+    }
+
+    async function loadHistory(workspaceId: string, chatId: string): Promise<void> {
+        if (engines.has(chatId)) return
         try {
             const history = await deps.messagesRepo.loadHistory(workspaceId, chatId)
-            messages.value = history ?? []
-            initChat(history ?? [])
+            ensureEngine(workspaceId, chatId, history ?? [])
+            deps.onState(chatId, { messages: history ?? [], status: 'ready', isLoading: false })
         } catch (e: unknown) {
-            error.value = e instanceof Error ? e : new Error('Failed to load messages')
+            deps.onState(chatId, {
+                error: e instanceof Error ? e : new Error('Failed to load messages'),
+            })
         }
     }
 
-    function initChat(initialMessages: UIMessage[]): void {
-        const transport = deps.stream.createTransport(workspaceId, chatId)
-
-        chat = new Chat({
-            id: chatId,
-            messages: initialMessages,
-            transport,
-            onFinish: () => {
-                status.value = 'ready'
-                isLoading.value = false
-            },
-            onError: (e: Error) => {
-                error.value = e
-                status.value = 'error'
-                isLoading.value = false
-            },
-        })
-
-        startPolling()
-    }
-
-    function syncChat(): void {
-        if (!chat) return
-        status.value = chat.status
-        const next = chat.messages
-        if (next) {
-            messages.value = [...next]
-        }
-        isLoading.value = chat.status === 'submitted' || chat.status === 'streaming'
-    }
-
-    function startPolling(): void {
-        if (statusInterval) return
-        syncChat()
-        statusInterval = setInterval(() => {
-            if (!chat) return
-            syncChat()
-            if (chat.status !== 'submitted' && chat.status !== 'streaming') {
-                if (statusInterval) {
-                    clearInterval(statusInterval)
-                    statusInterval = null
-                }
-            }
-        }, 100)
-    }
-
-    async function sendMessage(text: string): Promise<void> {
-        if (!chat || !text.trim()) return
-        error.value = undefined
-        isLoading.value = true
-        startPolling()
+    async function sendMessage(workspaceId: string, chatId: string, text: string): Promise<void> {
+        if (!text.trim()) return
+        const chat = ensureEngine(workspaceId, chatId)
+        deps.onState(chatId, { error: undefined, isLoading: true })
+        startPolling(chatId)
         try {
             await chat.sendMessage({ text })
         } catch (e: unknown) {
-            error.value = e instanceof Error ? e : new Error('Failed to send message')
-            isLoading.value = false
+            deps.onState(chatId, {
+                error: e instanceof Error ? e : new Error('Failed to send message'),
+                isLoading: false,
+            })
+            stopPolling(chatId)
         }
     }
 
-    async function stop(): Promise<void> {
-        if (chat) {
-            await chat.stop()
-            isLoading.value = false
-            status.value = 'ready'
-        }
-    }
-
-    async function regenerate(): Promise<void> {
+    async function stop(chatId: string): Promise<void> {
+        const chat = engines.get(chatId)
         if (!chat) return
-        error.value = undefined
-        isLoading.value = true
-        startPolling()
+        await chat.stop()
+        stopPolling(chatId)
+        deps.onState(chatId, { status: 'ready', isLoading: false })
+    }
+
+    async function regenerate(chatId: string): Promise<void> {
+        const chat = engines.get(chatId)
+        if (!chat) return
+        deps.onState(chatId, { error: undefined, isLoading: true })
+        startPolling(chatId)
         try {
             await chat.regenerate()
         } catch (e: unknown) {
-            error.value = e instanceof Error ? e : new Error('Failed to regenerate')
-            isLoading.value = false
+            deps.onState(chatId, {
+                error: e instanceof Error ? e : new Error('Failed to regenerate'),
+                isLoading: false,
+            })
+            stopPolling(chatId)
         }
     }
 
-    function cleanup(): void {
-        if (statusInterval) clearInterval(statusInterval)
-        chat = null
+    function dispose(chatId: string): void {
+        stopPolling(chatId)
+        engines.delete(chatId)
+    }
+
+    function clear(): void {
+        intervals.forEach((interval) => clearInterval(interval))
+        intervals.clear()
+        engines.clear()
     }
 
     return {
-        messages,
-        status,
-        error,
-        isLoading,
         loadHistory,
         sendMessage,
         stop,
         regenerate,
-        cleanup,
+        dispose,
+        clear,
     }
 }

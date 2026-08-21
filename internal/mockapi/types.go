@@ -106,6 +106,11 @@ type ReadFileData struct {
 	Truncated bool   `json:"truncated"`
 }
 
+type SearchFilesData struct {
+	Query   string     `json:"query"`
+	Matches []FileNode `json:"matches"`
+}
+
 type rawFileNode struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`

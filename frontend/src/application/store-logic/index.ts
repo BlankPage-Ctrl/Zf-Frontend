@@ -4,3 +4,4 @@ export { createProviderStoreLogic, type ProviderStoreLogic } from './provider.lo
 export { createThemeStoreLogic, type ThemeStoreLogic } from './theme.logic'
 export { createAppearanceStoreLogic, type AppearanceStoreLogic } from './appearance.logic'
 export { createFileExplorerStoreLogic, type FileExplorerStoreLogic } from './file-explorer.logic'
+export { createChatSessionStoreLogic, type ChatSessionStoreLogic } from './chat-session.logic'

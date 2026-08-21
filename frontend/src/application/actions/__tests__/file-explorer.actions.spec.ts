@@ -13,6 +13,7 @@ function setup() {
         getNode: vi.fn<() => void>(),
         toggleExpand: vi.fn<() => void>(),
         selectNode: vi.fn<() => void>(),
+        setSearchResults: vi.fn<() => void>(),
         getLoadState: vi.fn<() => string>(() => 'idle'),
         isExpanded: vi.fn<() => boolean>(() => false),
     } as unknown as FileExplorerStoreLogic
@@ -27,12 +28,78 @@ function setup() {
     >((_id, _onEvent, _onError) => cleanupWatch)
     const businessLogic = {
         listDir: vi.fn<() => Promise<{ nodes: FEFileNode[] }>>(async () => ({ nodes: [] })),
+        searchFiles: vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(async () => ({
+            query: '',
+            matches: [],
+        })),
         createWatchConnection,
     } as unknown as FileExplorerBusinessLogic
 
     const actions = createFileExplorerActions(storeLogic, businessLogic)
     return { actions, storeLogic, businessLogic, cleanupWatch, createWatchConnection }
 }
+
+describe('file-explorer actions search', () => {
+    it('clears results without calling the backend for a blank query', async () => {
+        const { actions, storeLogic, businessLogic } = setup()
+
+        await actions.searchFiles('   ')
+
+        expect(storeLogic.setSearchResults).toHaveBeenCalledWith([])
+        expect(businessLogic.searchFiles).not.toHaveBeenCalled()
+    })
+
+    it('clears results when no workspace is loaded', async () => {
+        const { actions, storeLogic, businessLogic } = setup()
+
+        await actions.searchFiles('query')
+
+        expect(storeLogic.setSearchResults).toHaveBeenCalledWith([])
+        expect(businessLogic.searchFiles).not.toHaveBeenCalled()
+    })
+
+    it('stores backend matches in the store', async () => {
+        const { actions, storeLogic, businessLogic } = setup()
+        await actions.loadRoot('ws-1')
+
+        businessLogic.searchFiles = vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(
+            async () => ({
+                query: 'drop',
+                matches: [
+                    {
+                        id: '1',
+                        name: 'Dropdown.vue',
+                        path: 'src/Dropdown.vue',
+                        type: 'file',
+                        isDirectory: false,
+                    },
+                ],
+            }),
+        ) as unknown as typeof businessLogic.searchFiles
+
+        await actions.searchFiles('drop')
+
+        expect(businessLogic.searchFiles).toHaveBeenCalledWith('ws-1', 'drop', undefined)
+        expect(storeLogic.setSearchResults).toHaveBeenCalledWith([
+            expect.objectContaining({ path: 'src/Dropdown.vue' }),
+        ])
+    })
+
+    it('clears results when the backend search fails', async () => {
+        const { actions, storeLogic, businessLogic } = setup()
+        await actions.loadRoot('ws-1')
+
+        businessLogic.searchFiles = vi.fn<() => Promise<{ query: string; matches: FEFileNode[] }>>(
+            async () => {
+                throw new Error('boom')
+            },
+        ) as unknown as typeof businessLogic.searchFiles
+
+        await actions.searchFiles('drop')
+
+        expect(storeLogic.setSearchResults).toHaveBeenCalledWith([])
+    })
+})
 
 describe('file-explorer actions watch lifecycle', () => {
     beforeEach(() => {

@@ -1,4 +1,4 @@
-import type { MessageListSchema } from '../types/schema'
+import type { MessageListSchema, MessagePartSchema } from '../types/schema'
 import type { ResolvedMessage, ResolvedMessageList } from '../types/resolved'
 import { resolveMessagePart } from './resolvePartsSchema'
 
@@ -7,7 +7,9 @@ export function resolveMessageListSchema(schema: MessageListSchema): ResolvedMes
     const messages: ResolvedMessage[] = schema.messages.map((msg) => ({
         id: msg.id,
         role: msg.role as 'user' | 'assistant',
-        parts: (msg.parts ?? []).map((part) => resolveMessagePart(part, defaults)),
+        parts: (msg.parts ?? [])
+            .map((part) => resolveMessagePart(part, defaults))
+            .filter((p): p is MessagePartSchema => p !== null),
     }))
     return {
         messages,

@@ -14,6 +14,8 @@ import {
     useAppearanceStorer,
     useThemeStorer,
     useNoteStorer,
+    useChatSessionStorer,
+    createEmptyChatSessionState,
 } from '@/application/stores'
 import {
     workspaceActions,
@@ -23,6 +25,7 @@ import {
     appearanceActions,
     themeActions,
     noteActions,
+    chatSessionActions,
 } from '@/application/actions'
 import type { Chat, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
@@ -36,7 +39,6 @@ import type {
     SettingsTheme,
 } from '@/presentation/components/settings/types/schema'
 import type { DynamicGridDataOutput } from '@/presentation/components/dialog/types'
-import { useSessionCache } from '@/presentation/composables/useSessionCache'
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { ContainerGrid } from '@/presentation/components/container'
 import { TabStrip } from '@/presentation/components/tabs'
@@ -84,7 +86,7 @@ const themeStorer = useThemeStorer()
 const noteStorer = useNoteStorer()
 const dialog = useDialog()
 const settingsTab = useSettingsTab()
-const { getSession, removeSession, clearSessions } = useSessionCache(() => workspaceId.value)
+const chatSessionStorer = useChatSessionStorer()
 
 const routeWsId = computed(() => route.params.id as string | undefined)
 
@@ -175,7 +177,9 @@ const contentView = computed<ContentView>(() => {
 
 watch(activeChatId, (newId) => {
     const meta = activeMeta.value
-    if (newId && newId !== SETTINGS_TAB_ID && meta?.kind === 'chat') getSession(newId)
+    if (newId && newId !== SETTINGS_TAB_ID && meta?.kind === 'chat') {
+        chatSessionActions.loadHistory(workspaceId.value, newId)
+    }
 })
 
 const WsTabStripSchema = computed<WsTabStripSchema<string>>(() => {
@@ -221,11 +225,13 @@ const WsTabStripSchema = computed<WsTabStripSchema<string>>(() => {
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
     return createChatTabSchema({
         chat,
-        session: getSession(chat.id),
+        state: chatSessionStorer.sessions[chat.id] ?? createEmptyChatSessionState(),
         providers: providerStorer.providers,
         contentWidth: appearanceStorer.contentWidth,
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
+        onSend: (text) => chatSessionActions.sendMessage(workspaceId.value, chat.id, text),
+        onStop: () => chatSessionActions.stop(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
     })
@@ -295,7 +301,7 @@ async function confirmDeleteChat(chat: Chat) {
             if (isOpen(chat.id)) {
                 close(chat.id)
             }
-            removeSession(chat.id)
+            chatSessionActions.dispose(chat.id)
             await chatActions.deleteChat(workspaceId.value, chat.id)
         },
     })
@@ -510,6 +516,10 @@ function onFileSelect(path: string | null) {
     fileExplorerActions.select(path)
 }
 
+function onFileSearchInput(query: string) {
+    fileExplorerActions.searchFiles(query)
+}
+
 function onFileSearchSelect(path: string) {
     console.log('[FileExplorer search] selected:', path)
 }
@@ -649,7 +659,7 @@ async function handleDeleteProvider(id: string) {
 }
 
 function cleanupWorkspace() {
-    clearSessions()
+    chatSessionActions.clear()
     fileExplorerActions.stopWatch()
     flushSaves()
     stopAutoSaveInterval()
@@ -806,6 +816,7 @@ onUnmounted(() => {
                             v-else
                             @toggle="onFileToggle"
                             @select="onFileSelect"
+                            @search-input="onFileSearchInput"
                             @search-select="onFileSearchSelect"
                         />
                     </div>

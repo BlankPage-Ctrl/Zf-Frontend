@@ -236,6 +236,38 @@ export namespace files {
 	        this.truncated = source["truncated"];
 	    }
 	}
+	export class SearchFilesData {
+	    query: string;
+	    matches: FileNode[];
+	
+	    static createFrom(source: any = {}) {
+	        return new SearchFilesData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	        this.matches = this.convertValues(source["matches"], FileNode);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 
@@ -258,6 +290,7 @@ export namespace messages {
 	    filename?: string;
 	    data?: any;
 	    id?: string;
+	    isSystem?: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new UIMessagePart(source);
@@ -281,6 +314,7 @@ export namespace messages {
 	        this.filename = source["filename"];
 	        this.data = source["data"];
 	        this.id = source["id"];
+	        this.isSystem = source["isSystem"];
 	    }
 	}
 	export class UIMessage {
@@ -550,6 +584,95 @@ export namespace settings {
 	        this.key = source["key"];
 	        this.value = source["value"];
 	    }
+	}
+
+}
+
+export namespace shell {
+	
+	export class DecideResult {
+	    resolved: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new DecideResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.resolved = source["resolved"];
+	    }
+	}
+	export class Matched {
+	    pattern: string;
+	    tier: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Matched(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pattern = source["pattern"];
+	        this.tier = source["tier"];
+	    }
+	}
+	export class SegmentInfo {
+	    cmd: string;
+	    args: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new SegmentInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cmd = source["cmd"];
+	        this.args = source["args"];
+	    }
+	}
+	export class PendingApproval {
+	    id: string;
+	    command: string;
+	    cwd: string;
+	    segments: SegmentInfo[];
+	    matched: Matched;
+	    reason?: string;
+	    createdAt: string;
+	    expiresAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new PendingApproval(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.command = source["command"];
+	        this.cwd = source["cwd"];
+	        this.segments = this.convertValues(source["segments"], SegmentInfo);
+	        this.matched = this.convertValues(source["matched"], Matched);
+	        this.reason = source["reason"];
+	        this.createdAt = source["createdAt"];
+	        this.expiresAt = source["expiresAt"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

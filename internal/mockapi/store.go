@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -215,6 +216,39 @@ func (s *Store) readFileContent(path string, maxBytes int) *ReadFileData {
 		Size:      size,
 		Truncated: truncated,
 	}
+}
+
+func (s *Store) searchFileTree(query string, maxResults, maxDepth int) []FileNode {
+	needle := strings.ToLower(strings.TrimSpace(query))
+	if needle == "" {
+		return []FileNode{}
+	}
+
+	out := make([]FileNode, 0, maxResults)
+	var walk func(node FileNode, depth int)
+	walk = func(node FileNode, depth int) {
+		if len(out) >= maxResults || depth > maxDepth {
+			return
+		}
+		for i := range node.Children {
+			child := node.Children[i]
+			if child.Name == "node_modules" || child.Name == ".git" {
+				continue
+			}
+			haystack := strings.ToLower(child.Name) + " " + strings.ToLower(child.Path)
+			if strings.Contains(haystack, needle) {
+				out = append(out, child)
+				if len(out) >= maxResults {
+					return
+				}
+			}
+			if child.IsDirectory {
+				walk(child, depth+1)
+			}
+		}
+	}
+	walk(s.FileTree, 0)
+	return out
 }
 
 func (s *Store) providerWithModels(p Provider) map[string]interface{} {

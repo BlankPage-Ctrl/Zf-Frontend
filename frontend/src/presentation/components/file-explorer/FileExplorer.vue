@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useFileExplorerStorer } from '@/application/stores'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import { createFileSearchDropdownItems, fileSearchDropdownProps } from '@/presentation/schemas'
 import FileTree from './FileTree.vue'
 
+const SEARCH_DEBOUNCE_MS = 250
+
 const emit = defineEmits<{
     toggle: [path: string]
     select: [path: string | null]
+    'search-input': [query: string]
     'search-select': [path: string]
 }>()
 
@@ -15,10 +18,23 @@ const store = useFileExplorerStorer()
 
 const query = ref('')
 
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+
+function onQueryInput() {
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
+        emit('search-input', query.value)
+    }, SEARCH_DEBOUNCE_MS)
+}
+
+onBeforeUnmount(() => {
+    if (searchTimer) clearTimeout(searchTimer)
+})
+
 const searchItems = computed(() =>
     createFileSearchDropdownItems({
         query: query.value,
-        nodes: Object.values(store.nodeMap),
+        nodes: store.searchResults,
         workspaceRoot: store.workspaceRoot,
     }),
 )
@@ -45,7 +61,7 @@ function handleSearchSelect(path: string) {
                             placeholder="Search files..."
                             aria-label="Search files"
                             @focus="isOpen || toggle()"
-                            @input="isOpen || toggle()"
+                            @input="(onQueryInput(), isOpen || toggle())"
                             @keydown.esc="isOpen && toggle()"
                         />
                     </template>

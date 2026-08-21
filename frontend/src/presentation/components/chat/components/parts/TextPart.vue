@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useThemeStorer } from '@/application/stores'
-import { Markdown } from '@/vendor/vue-stream-markdown/vue/src/index.ts'
-import { createHtmlNodeRenderer } from '@/vendor/vue-stream-markdown/vue/src/html'
-import { parseHtml } from '@/vendor/vue-stream-markdown/extensions/html/src/parse'
+import { Markdown, type MarkdownSchema } from '@/presentation/components/markdown'
 import type { TextPartSchema } from '../../types/schema'
 import { resolveTextPartSchema } from '../../resolver/resolvePartsSchema'
 
@@ -13,10 +11,16 @@ const props = defineProps<{
 
 const themeStorer = useThemeStorer()
 
-const htmlRenderer = createHtmlNodeRenderer({ transform: parseHtml })
-
 const resolved = computed(() => resolveTextPartSchema(props.schema))
 const isDark = computed(() => themeStorer.activeThemeId === 'night')
+
+const markdownSchema = computed<MarkdownSchema>(() => ({
+    text: resolved.value.text,
+    state: resolved.value.state === 'streaming' ? 'streaming' : 'done',
+    isDark: isDark.value,
+    fontSize: resolved.value.fontSize,
+    lineHeight: resolved.value.lineHeight,
+}))
 </script>
 
 <template>
@@ -27,12 +31,6 @@ const isDark = computed(() => themeStorer.activeThemeId === 'night')
             lineHeight: resolved.lineHeight,
         }"
     >
-        <Markdown
-            :content="resolved.text"
-            :mode="resolved.state === 'streaming' ? 'streaming' : 'static'"
-            :caret="resolved.state === 'streaming' ? 'block' : undefined"
-            :is-dark="isDark"
-            :node-renderers="{ html: htmlRenderer }"
-        />
+        <Markdown :schema="markdownSchema" />
     </div>
 </template>

@@ -7,6 +7,7 @@ export interface FileExplorerStoreLogic {
     loadChildren(data: FEListDirData): void
     toggleExpand(path: string): void
     selectNode(path: string | null): void
+    setSearchResults(nodes: FEFileNode[]): void
     getNode(path: string): FEFileNode | undefined
     getLoadState(path: string): FELoadState
     applyWatchEvent(event: FEWatchEvent): void
@@ -35,6 +36,10 @@ export function createFileExplorerStoreLogic(
         getStorer().selectNode(path)
     }
 
+    function setSearchResults(nodes: FEFileNode[]): void {
+        getStorer().setSearchResults(nodes)
+    }
+
     function getNode(path: string): FEFileNode | undefined {
         return getStorer().getNode(path)
     }
@@ -53,6 +58,7 @@ export function createFileExplorerStoreLogic(
         loadChildren,
         toggleExpand,
         selectNode,
+        setSearchResults,
         getNode,
         getLoadState,
         applyWatchEvent,

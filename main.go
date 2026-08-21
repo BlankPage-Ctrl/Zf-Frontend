@@ -38,6 +38,8 @@ func main() {
 			app.Shell,
 			app.FileWatch,
 			app.ChatStream,
+			app.Hitl,
+			app.HitlWatch,
 		},
 	})
 

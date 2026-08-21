@@ -515,6 +515,14 @@ var stdioRoutes = []stdioRoute{
 	{verb: "GET", re: re(`^/shell/approvals/pending$`), rpc: "list.pending-approvals", build: noParams},
 	{verb: "POST", re: re(`^/shell/approvals/([^/]+)$`), rpc: "decide.approval", build: extendBody("id")},
 
+	// hitl
+	{verb: "GET", re: re(`^/hitl/requests/pending$`), rpc: "list.pending.hitl", build: noParams},
+	{verb: "POST", re: re(`^/hitl/requests$`), rpc: "request.hitl", build: directBody},
+	{verb: "GET", re: re(`^/hitl/requests/([^/]+)$`), rpc: "get.hitl", build: params("id")},
+	{verb: "POST", re: re(`^/hitl/requests/([^/]+)/response$`), rpc: "submit.hitl", build: extendBody("id")},
+	{verb: "POST", re: re(`^/hitl/requests/([^/]+)/cancel$`), rpc: "cancel.hitl", build: extendBody("id")},
+	{verb: "GET", re: re(`^/hitl/requests/events$`), rpc: "watch.hitl", stream: true, convert: hitlEvent, build: noParams},
+
 	// settings (default-provider must match before {key})
 	{verb: "GET", re: re(`^/settings/default-provider$`), rpc: "get.default-provider", build: noParams},
 	{verb: "PUT", re: re(`^/settings/default-provider$`), rpc: "set.default-provider", build: directBody},
@@ -647,6 +655,16 @@ func chatChunk(params json.RawMessage) ([]byte, error) {
 }
 
 func fileEvent(params json.RawMessage) ([]byte, error) {
+	var p struct {
+		Event json.RawMessage `json:"event"`
+	}
+	if err := json.Unmarshal(params, &p); err != nil {
+		return nil, err
+	}
+	return p.Event, nil
+}
+
+func hitlEvent(params json.RawMessage) ([]byte, error) {
 	var p struct {
 		Event json.RawMessage `json:"event"`
 	}

@@ -42,6 +42,7 @@ type App struct {
 	ChatStream       *stream.ChatStreamService
 	Hitl            *hitl.Service
 	HitlWatch        *stream.HitlWatchService
+	ShellExecWatch   *stream.ShellExecWatchService
 }
 
 func NewApp() *App {
@@ -75,6 +76,7 @@ func NewApp() *App {
 		ChatStream: stream.NewChatStreamService(c),
 		Hitl:       hitl.NewService(c),
 		HitlWatch:  stream.NewHitlWatchService(c),
+		ShellExecWatch: stream.NewShellExecWatchService(c),
 	}
 }
 
@@ -106,6 +108,7 @@ func (a *App) startup(ctx context.Context) {
 	a.FileWatch.SetAppContext(ctx)
 	a.ChatStream.SetAppContext(ctx)
 	a.HitlWatch.SetAppContext(ctx)
+	a.ShellExecWatch.SetAppContext(ctx)
 	a.Files.SetAppContext(ctx)
 }
 

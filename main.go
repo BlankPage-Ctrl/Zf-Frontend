@@ -40,6 +40,7 @@ func main() {
 			app.ChatStream,
 			app.Hitl,
 			app.HitlWatch,
+			app.ShellExecWatch,
 		},
 	})
 

@@ -44,6 +44,7 @@ import { ContainerGrid } from '@/presentation/components/container'
 import { TabStrip } from '@/presentation/components/tabs'
 import type { TabStripSchema as WsTabStripSchema } from '@/presentation/components/tabs'
 import { useSidebarKeyboard } from '@/presentation/composables/useSidebarKeyboard'
+import { useShellExec } from '@/presentation/composables/useShellExec'
 import { useTabs } from '@/presentation/composables/useTabs'
 import { FileExplorer } from '@/presentation/components/file-explorer'
 import { NoteGroup } from '@/presentation/components/note-group'
@@ -93,6 +94,8 @@ const routeWsId = computed(() => route.params.id as string | undefined)
 const workspaceId = computed(() => {
     return routeWsId.value || wsStorer.selectedWorkspaceId || ''
 })
+
+useShellExec(workspaceId)
 
 const workspace = computed(() => {
     if (!workspaceId.value) return null

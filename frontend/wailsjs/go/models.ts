@@ -271,6 +271,69 @@ export namespace files {
 
 }
 
+export namespace hitl {
+	
+	export class HitlRequest {
+	    id: string;
+	    type: string;
+	    title: string;
+	    description?: string;
+	    correlationId?: string;
+	    metadata: Record<string, any>;
+	    status: string;
+	    // Go type: time
+	    createdAt: any;
+	    // Go type: time
+	    updatedAt: any;
+	    // Go type: time
+	    expiresAt?: any;
+	    // Go type: time
+	    resolvedAt?: any;
+	    payload: number[];
+	    response: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new HitlRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.type = source["type"];
+	        this.title = source["title"];
+	        this.description = source["description"];
+	        this.correlationId = source["correlationId"];
+	        this.metadata = source["metadata"];
+	        this.status = source["status"];
+	        this.createdAt = this.convertValues(source["createdAt"], null);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	        this.expiresAt = this.convertValues(source["expiresAt"], null);
+	        this.resolvedAt = this.convertValues(source["resolvedAt"], null);
+	        this.payload = source["payload"];
+	        this.response = source["response"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace messages {
 	
 	export class UIMessagePart {

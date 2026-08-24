@@ -25,10 +25,7 @@ function toggleView(mode: BlockPartViewMode) {
 </script>
 
 <template>
-    <div
-        class="block-part"
-        :class="[`block-part--${resolved.variant}`]"
-    >
+    <div class="block-part" :class="[`block-part--${resolved.variant}`]">
         <BlockHeader
             :title="resolved.title"
             :icon="resolved.icon"
@@ -43,16 +40,10 @@ function toggleView(mode: BlockPartViewMode) {
         />
         <div v-show="expanded" class="block-part__content">
             <template v-if="resolved.viewToggle">
-                <PreviewView
-                    v-if="viewMode === 'preview'"
-                    :config="resolved.preview"
-                >
+                <PreviewView v-if="viewMode === 'preview'" :config="resolved.preview">
                     <slot name="preview" />
                 </PreviewView>
-                <SourceView
-                    v-else
-                    :config="resolved.source"
-                />
+                <SourceView v-else :config="resolved.source" />
             </template>
             <slot v-else />
         </div>

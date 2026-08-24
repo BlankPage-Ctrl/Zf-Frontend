@@ -41,7 +41,12 @@ function handleViewToggle(mode: BlockPartViewMode) {
                 type="button"
                 :aria-label="expanded ? 'Collapse' : 'Expand'"
             >
-                <component :is="expanded ? NavArrowDown : NavArrowRight" v-if="isComponent" width="12" height="12" />
+                <component
+                    :is="expanded ? NavArrowDown : NavArrowRight"
+                    v-if="isComponent"
+                    width="12"
+                    height="12"
+                />
                 <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             </button>
             <span v-else-if="icon && isComponent" class="block-icon">

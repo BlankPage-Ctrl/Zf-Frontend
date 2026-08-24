@@ -2,14 +2,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-    ChatBubbleEmpty,
-    Notes,
-    Settings as SettingsIcon,
-    Cpu,
-    Menu,
-    Page,
-} from '@iconoir/vue'
+import { ChatBubbleEmpty, Notes, Settings as SettingsIcon, Cpu, Menu, Page } from '@iconoir/vue'
 import { ContainerGrid } from '@/presentation/components/container'
 import type { ContainerSchema } from '@/presentation/components/container'
 
@@ -40,9 +33,7 @@ function select(id: string) {
     sidebarCollapsed.value = false
 }
 
-const activeItem = computed(
-    () => testItems.find((i) => i.id === activeId.value) ?? testItems[0],
-)
+const activeItem = computed(() => testItems.find((i) => i.id === activeId.value) ?? testItems[0])
 
 const layout = computed<ContainerSchema[]>(() => [
     {
@@ -121,8 +112,8 @@ const layout = computed<ContainerSchema[]>(() => [
                         <h1 class="testlab__title">{{ activeItem.label }}</h1>
                     </header>
                     <p class="testlab__subtitle">
-                        Dummy page for <code>{{ activeItem.id }}</code>. This is just a
-                        placeholder — wire the real test UI here later.
+                        Dummy page for <code>{{ activeItem.id }}</code
+                        >. This is just a placeholder — wire the real test UI here later.
                     </p>
                     <div class="testlab__placeholder">
                         <div class="testlab__placeholder-card">

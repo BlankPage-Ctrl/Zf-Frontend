@@ -19,12 +19,11 @@ export const shellExec: ShellExecPort = {
         let active = true
         let cleanup: (() => void)[] = []
 
-        const route =
-            (sid: string, raw: string) => {
-                if (!active || sid !== streamId) return
-                const event = toEvent(raw)
-                if (event) handlers.onEvent(event)
-            }
+        const route = (sid: string, raw: string) => {
+            if (!active || sid !== streamId) return
+            const event = toEvent(raw)
+            if (event) handlers.onEvent(event)
+        }
 
         cleanup = EVENT_TYPES.map((type) => EventsOn(type, route))
         cleanup.push(

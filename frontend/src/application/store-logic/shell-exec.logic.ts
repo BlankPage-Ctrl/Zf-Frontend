@@ -6,9 +6,7 @@ export interface ShellExecStoreLogic {
     apply(event: FEShellExecEvent): void
 }
 
-function startState(
-    event: Extract<FEShellExecEvent, { type: 'start' }>,
-): ShellExecState {
+function startState(event: Extract<FEShellExecEvent, { type: 'start' }>): ShellExecState {
     return createEmptyShellExecState({
         executionId: event.executionId,
         toolCallId: event.toolCallId,
@@ -18,9 +16,7 @@ function startState(
     })
 }
 
-export function createShellExecStoreLogic(
-    getStorer: () => ShellExecStorer,
-): ShellExecStoreLogic {
+export function createShellExecStoreLogic(getStorer: () => ShellExecStorer): ShellExecStoreLogic {
     function apply(event: FEShellExecEvent): void {
         const storer = getStorer()
         const key = event.toolCallId ?? event.executionId

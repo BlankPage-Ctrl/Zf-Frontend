@@ -24,8 +24,7 @@ interface RunShellOutput {
 const live = computed(() => {
     if (resolved.value.toolName !== 'run_shell') return undefined
     const id =
-        props.schema.toolCallId ??
-        (props.schema.output as RunShellOutput | undefined)?.executionId
+        props.schema.toolCallId ?? (props.schema.output as RunShellOutput | undefined)?.executionId
     if (!id) return undefined
     return shellStore.byToolCall[id]
 })

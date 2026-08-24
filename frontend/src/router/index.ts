@@ -18,6 +18,11 @@ const router = createRouter({
             name: 'workspace',
             component: () => import('@/presentation/views/Workspace.vue'),
         },
+        {
+            path: '/test-lab',
+            name: 'test-lab',
+            component: () => import('@/presentation/views/TestLab.vue'),
+        },
     ],
 })
 

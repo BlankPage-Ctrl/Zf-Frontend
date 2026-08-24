@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
+// import type { Component } from 'vue'
 import type { BlockPartPreviewConfig } from '../types/schema'
 
-const props = defineProps<{
+defineProps<{
     config?: BlockPartPreviewConfig
 }>()
 </script>

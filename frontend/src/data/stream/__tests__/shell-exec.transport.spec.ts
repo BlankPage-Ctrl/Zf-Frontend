@@ -43,7 +43,7 @@ describe('shellExec.watch', () => {
     })
 
     it('starts the watch and forwards shell events by stream id', async () => {
-        const onEvent = vi.fn()
+        const onEvent = vi.fn<(...args: unknown[]) => void>()
         const cleanup = shellExec.watch('ws-1', { onEvent })
 
         expect(bridge.startCalls).toEqual(['ws-1'])
@@ -71,7 +71,7 @@ describe('shellExec.watch', () => {
     })
 
     it('ignores events from a different stream id', async () => {
-        const onEvent = vi.fn()
+        const onEvent = vi.fn<(...args: unknown[]) => void>()
         const cleanup = shellExec.watch('ws-1', { onEvent })
         bridge.resolvers[0]!('se-1')
         await vi.waitFor(() => expect(bridge.events['shell:chunk']).toBeDefined())
@@ -84,7 +84,7 @@ describe('shellExec.watch', () => {
     })
 
     it('stops a stream whose StartWatch resolves after cleanup', async () => {
-        const onEvent = vi.fn()
+        const onEvent = vi.fn<(...args: unknown[]) => void>()
         const cleanup = shellExec.watch('ws-1', { onEvent })
         cleanup()
 

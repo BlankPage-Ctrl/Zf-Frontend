@@ -12,6 +12,7 @@ export function resolveBlockPartSchema(schema: BlockPartSchema): ResolvedBlockPa
         expanded: schema.defaultExpanded ?? true,
         viewToggle: schema.viewToggle ?? false,
         viewMode: schema.defaultView ?? 'preview',
+        status: schema.status ?? 'idle',
         hasPreview,
         hasSource,
         preview: schema.preview,

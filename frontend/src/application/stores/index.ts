@@ -11,3 +11,10 @@ export {
     type ChatSessionState,
     createEmptyChatSessionState,
 } from './chat-session.storer'
+export {
+    useShellExecStorer,
+    type ShellExecStorer,
+    type ShellExecState,
+    createEmptyShellExecState,
+} from './shell-exec.storer'
+export type { ShellExecLine } from '@/core/entities'

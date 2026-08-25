@@ -511,10 +511,6 @@ var stdioRoutes = []stdioRoute{
 	{verb: "PATCH", re: re(`^/categories/([^/]+)$`), rpc: "rename.category", build: extendBody("id")},
 	{verb: "DELETE", re: re(`^/categories/([^/]+)$`), rpc: "delete.category", build: params("id")},
 
-	// shell approvals
-	{verb: "GET", re: re(`^/shell/approvals/pending$`), rpc: "list.pending-approvals", build: noParams},
-	{verb: "POST", re: re(`^/shell/approvals/([^/]+)$`), rpc: "decide.approval", build: extendBody("id")},
-
 	// hitl
 	{verb: "GET", re: re(`^/hitl/requests/pending$`), rpc: "list.pending.hitl", build: noParams},
 	{verb: "POST", re: re(`^/hitl/requests$`), rpc: "request.hitl", build: directBody},

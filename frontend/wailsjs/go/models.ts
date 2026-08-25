@@ -271,6 +271,69 @@ export namespace files {
 
 }
 
+export namespace hitl {
+	
+	export class HitlRequest {
+	    id: string;
+	    type: string;
+	    title: string;
+	    description?: string;
+	    correlationId?: string;
+	    metadata: Record<string, any>;
+	    status: string;
+	    // Go type: time
+	    createdAt: any;
+	    // Go type: time
+	    updatedAt: any;
+	    // Go type: time
+	    expiresAt?: any;
+	    // Go type: time
+	    resolvedAt?: any;
+	    payload: number[];
+	    response: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new HitlRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.type = source["type"];
+	        this.title = source["title"];
+	        this.description = source["description"];
+	        this.correlationId = source["correlationId"];
+	        this.metadata = source["metadata"];
+	        this.status = source["status"];
+	        this.createdAt = this.convertValues(source["createdAt"], null);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	        this.expiresAt = this.convertValues(source["expiresAt"], null);
+	        this.resolvedAt = this.convertValues(source["resolvedAt"], null);
+	        this.payload = source["payload"];
+	        this.response = source["response"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace messages {
 	
 	export class UIMessagePart {
@@ -584,95 +647,6 @@ export namespace settings {
 	        this.key = source["key"];
 	        this.value = source["value"];
 	    }
-	}
-
-}
-
-export namespace shell {
-	
-	export class DecideResult {
-	    resolved: boolean;
-	
-	    static createFrom(source: any = {}) {
-	        return new DecideResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.resolved = source["resolved"];
-	    }
-	}
-	export class Matched {
-	    pattern: string;
-	    tier: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Matched(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.pattern = source["pattern"];
-	        this.tier = source["tier"];
-	    }
-	}
-	export class SegmentInfo {
-	    cmd: string;
-	    args: string[];
-	
-	    static createFrom(source: any = {}) {
-	        return new SegmentInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.cmd = source["cmd"];
-	        this.args = source["args"];
-	    }
-	}
-	export class PendingApproval {
-	    id: string;
-	    command: string;
-	    cwd: string;
-	    segments: SegmentInfo[];
-	    matched: Matched;
-	    reason?: string;
-	    createdAt: string;
-	    expiresAt: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new PendingApproval(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
-	        this.command = source["command"];
-	        this.cwd = source["cwd"];
-	        this.segments = this.convertValues(source["segments"], SegmentInfo);
-	        this.matched = this.convertValues(source["matched"], Matched);
-	        this.reason = source["reason"];
-	        this.createdAt = source["createdAt"];
-	        this.expiresAt = source["expiresAt"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 
 }

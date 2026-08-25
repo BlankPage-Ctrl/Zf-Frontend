@@ -2,6 +2,7 @@ export type {
     BlockPartVariant,
     BlockPartViewMode,
     BlockPartSourceFormat,
+    BlockPartStatus,
     BlockPartPreviewConfig,
     BlockPartSourceConfig,
     BlockPartSchema,

@@ -3,6 +3,7 @@ import type { Component } from 'vue'
 export type BlockPartVariant = 'default' | 'compact' | 'detailed'
 export type BlockPartViewMode = 'preview' | 'source'
 export type BlockPartSourceFormat = 'json' | 'text'
+export type BlockPartStatus = 'idle' | 'streaming' | 'done'
 
 export interface BlockPartPreviewConfig {
     component: Component
@@ -24,6 +25,7 @@ export interface BlockPartSchema {
     defaultExpanded?: boolean
     viewToggle?: boolean
     defaultView?: BlockPartViewMode
+    status?: BlockPartStatus
     preview?: BlockPartPreviewConfig
     source?: BlockPartSourceConfig
 }
@@ -36,6 +38,7 @@ export interface ResolvedBlockPart {
     expanded: boolean
     viewToggle: boolean
     viewMode: BlockPartViewMode
+    status: BlockPartStatus
     hasPreview: boolean
     hasSource: boolean
     preview?: BlockPartPreviewConfig

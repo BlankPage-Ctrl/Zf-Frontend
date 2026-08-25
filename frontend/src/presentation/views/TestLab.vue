@@ -14,7 +14,7 @@ type TestItem = {
 
 const router = useRouter()
 
-const testItems: TestItem[] = [
+const testItems: [TestItem, ...TestItem[]] = [
     { id: 'chat-input', label: 'Chat Input Test', icon: ChatBubbleEmpty },
     { id: 'notes', label: 'Notes Test', icon: Notes },
     { id: 'providers', label: 'Provider Test', icon: Cpu },

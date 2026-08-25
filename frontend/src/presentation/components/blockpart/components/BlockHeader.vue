@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { NavArrowDown, NavArrowRight, Eye, Code } from '@iconoir/vue'
 import type { Component } from 'vue'
-import type { BlockPartViewMode } from '../types/schema'
+import type { BlockPartViewMode, BlockPartStatus } from '../types/schema'
 
 const props = defineProps<{
     title?: string
@@ -11,6 +11,7 @@ const props = defineProps<{
     expanded: boolean
     viewToggle: boolean
     viewMode: BlockPartViewMode
+    status: BlockPartStatus
     hasPreview: boolean
     hasSource: boolean
 }>()
@@ -54,6 +55,11 @@ function handleViewToggle(mode: BlockPartViewMode) {
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             <span v-if="title" class="block-title">{{ title }}</span>
+            <span
+                v-if="status === 'streaming'"
+                class="status-indicator status-indicator--streaming"
+            />
+            <span v-else-if="status === 'done'" class="status-indicator status-indicator--done" />
         </div>
         <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__right">
             <button
@@ -177,5 +183,33 @@ function handleViewToggle(mode: BlockPartViewMode) {
 .view-toggle-btn:disabled {
     opacity: 0.2;
     cursor: default;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-indicator--streaming {
+    background: #3b82f6;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator--done {
+    background: #22c55e;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
 }
 </style>

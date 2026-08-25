@@ -55,7 +55,10 @@ function handleViewToggle(mode: BlockPartViewMode) {
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             <span v-if="title" class="block-title">{{ title }}</span>
-            <span v-if="status === 'streaming'" class="status-indicator status-indicator--streaming" />
+            <span
+                v-if="status === 'streaming'"
+                class="status-indicator status-indicator--streaming"
+            />
             <span v-else-if="status === 'done'" class="status-indicator status-indicator--done" />
         </div>
         <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__right">
@@ -199,7 +202,8 @@ function handleViewToggle(mode: BlockPartViewMode) {
 }
 
 @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
         opacity: 1;
         transform: scale(1);
     }

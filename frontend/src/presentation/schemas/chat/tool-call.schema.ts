@@ -10,8 +10,7 @@ export interface ToolCallSchemaParams {
 }
 
 export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSchema {
-    const isRunning =
-        params.state === 'input-streaming' || params.state === 'input-available'
+    const isRunning = params.state === 'input-streaming' || params.state === 'input-available'
     const isError = params.state === 'output-error'
 
     return {

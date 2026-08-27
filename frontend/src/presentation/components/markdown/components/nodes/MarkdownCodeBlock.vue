@@ -26,6 +26,8 @@ const blockSchema = computed<BlockPartSchema>(() => ({
     title: lang.value,
     variant: 'compact',
     collapsible: true,
+    viewToggle: true,
+    defaultView: 'preview',
     status: status.value,
 }))
 </script>

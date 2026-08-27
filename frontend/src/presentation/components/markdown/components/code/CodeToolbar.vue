@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 
 const props = defineProps<{ lang: string; code: string }>()
 
+const emit = defineEmits<{ copy: [] }>()
+
 const copied = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -11,6 +13,7 @@ const displayLang = computed(() =>
 )
 
 async function copy(): Promise<void> {
+    emit('copy')
     try {
         await navigator.clipboard.writeText(props.code)
     } catch {

@@ -46,13 +46,13 @@ function toggleView(mode: BlockPartViewMode) {
             @toggle-view="toggleView"
         />
         <div v-show="expanded" class="block-part__content">
-            <template v-if="resolved.viewToggle">
-                <PreviewView v-if="viewMode === 'preview'" :config="resolved.preview">
-                    <slot name="preview" />
-                </PreviewView>
-                <SourceView v-else :config="resolved.source" />
-            </template>
-            <slot v-else />
+            <PreviewView v-if="viewMode === 'preview'" :config="resolved.preview">
+                <slot name="preview" />
+                <slot />
+            </PreviewView>
+            <SourceView v-else :config="resolved.source">
+                <slot />
+            </SourceView>
         </div>
     </div>
 </template>

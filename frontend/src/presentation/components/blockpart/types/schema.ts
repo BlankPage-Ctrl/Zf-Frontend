@@ -24,7 +24,7 @@ export interface BlockPartSchema {
     collapsible?: boolean
     defaultExpanded?: boolean
     viewToggle?: boolean
-    defaultView?: BlockPartViewMode
+    defaultView: BlockPartViewMode
     status?: BlockPartStatus
     preview?: BlockPartPreviewConfig
     source?: BlockPartSourceConfig

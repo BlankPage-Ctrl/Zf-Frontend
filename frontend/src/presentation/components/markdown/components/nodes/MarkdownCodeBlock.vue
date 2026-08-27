@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { Code } from 'mdast'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { injectMarkdownContext } from '../../composables/markdown-context'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
-import CodeToolbar from '../code/CodeToolbar.vue'
+import { BlockPart } from '@/presentation/components/blockpart'
+import type { BlockPartSchema } from '@/presentation/components/blockpart'
 
 const props = defineProps<{ node: Code & { loading?: boolean } }>()
 
@@ -13,8 +14,6 @@ const lang = computed(() => props.node.lang || 'text')
 const code = computed(() => props.node.value)
 const status = computed(() => (props.node.loading ? 'streaming' : 'done'))
 
-const rendererRef = ref<InstanceType<typeof CodeRenderer> | null>(null)
-
 const codeRendererSchema = computed(() => ({
     code: code.value,
     lang: lang.value,
@@ -23,14 +22,18 @@ const codeRendererSchema = computed(() => ({
     theme: ctx.codeTheme.value,
 }))
 
-function handleToolbarCopy(): void {
-    void rendererRef.value?.copy()
-}
+const blockSchema = computed<BlockPartSchema>(() => ({
+    title: lang.value,
+    variant: 'compact',
+    collapsible: true,
+    status: status.value,
+}))
 </script>
 
 <template>
-    <div class="markdown-code" :class="{ 'markdown-code--loading': node.loading }">
-        <CodeToolbar :lang="lang" :code="code" @copy="handleToolbarCopy" />
-        <CodeRenderer ref="rendererRef" :schema="codeRendererSchema" class="markdown-code__renderer" />
-    </div>
+    <BlockPart :schema="blockSchema" class="markdown-code">
+        <template #preview>
+            <CodeRenderer :schema="codeRendererSchema" class="markdown-code__renderer" />
+        </template>
+    </BlockPart>
 </template>

@@ -24,7 +24,9 @@ const displayData = computed(() => {
     <div class="block-source">
         <component v-if="config?.component" :is="config.component" v-bind="config.props" />
         <pre v-else-if="displayData" class="block-source__pre">{{ displayData }}</pre>
-        <div v-else class="block-source__empty">No source data</div>
+        <slot v-else>
+            <div class="block-source__empty">No source data</div>
+        </slot>
     </div>
 </template>
 

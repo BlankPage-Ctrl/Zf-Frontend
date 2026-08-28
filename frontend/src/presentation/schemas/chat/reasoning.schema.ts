@@ -15,6 +15,8 @@ export function createReasoningSchema(params: ReasoningSchemaParams): BlockPartS
         variant: 'default',
         collapsible: true,
         defaultExpanded: false,
+        viewToggle: false,
+        defaultView: 'source',
         status: isRunning ? 'streaming' : 'done',
         source: {
             data: params.text,

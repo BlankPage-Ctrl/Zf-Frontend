@@ -27,8 +27,8 @@ export interface ResolvedMarkdownSchema {
     lineHeight: number
     code: {
         theme: {
-            light: string
-            dark: string
+            light?: string
+            dark?: string
         }
     }
     renderers: RendererRegistry

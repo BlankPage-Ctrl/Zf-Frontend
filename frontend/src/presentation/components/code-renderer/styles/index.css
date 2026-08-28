@@ -1,0 +1,20 @@
+.code-renderer {
+    display: block;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    line-height: 1.55;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    white-space: pre;
+    tab-size: 2;
+}
+
+.code-renderer__inner {
+    font: inherit;
+    line-height: inherit;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+}

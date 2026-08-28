@@ -12,12 +12,3 @@ export { parseMarkdownAst } from './engine/ast'
 
 export { resolveMarkdownSchema } from './resolver/resolveMarkdownSchema'
 export { useMarkdownRender } from './composables/useMarkdownRender'
-export {
-    useCodeHighlighter,
-    toTokensCached,
-    preloadCommonLanguages,
-    resolveLanguage,
-    disposeSharedHighlighter,
-    DEFAULT_LIGHT_THEME,
-    DEFAULT_DARK_THEME,
-} from './composables/useCodeHighlighter'

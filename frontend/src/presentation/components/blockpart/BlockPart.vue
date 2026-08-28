@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { BlockPartSchema, BlockPartViewMode, BlockPartStatus } from './types/schema'
 import { resolveBlockPartSchema } from './resolver/resolveBlockPartSchema'
 import BlockHeader from './components/BlockHeader.vue'
@@ -15,6 +15,11 @@ const resolved = computed(() => resolveBlockPartSchema(props.schema))
 const expanded = ref(resolved.value.expanded)
 const viewMode = ref<BlockPartViewMode>(resolved.value.viewMode)
 const status = computed<BlockPartStatus>(() => resolved.value.status)
+
+watch(resolved, (val) => {
+    expanded.value = val.expanded
+    viewMode.value = val.viewMode
+})
 
 function toggleExpand() {
     expanded.value = !expanded.value
@@ -41,13 +46,13 @@ function toggleView(mode: BlockPartViewMode) {
             @toggle-view="toggleView"
         />
         <div v-show="expanded" class="block-part__content">
-            <template v-if="resolved.viewToggle">
-                <PreviewView v-if="viewMode === 'preview'" :config="resolved.preview">
-                    <slot name="preview" />
-                </PreviewView>
-                <SourceView v-else :config="resolved.source" />
-            </template>
-            <slot v-else />
+            <PreviewView v-if="viewMode === 'preview'" :config="resolved.preview">
+                <slot name="preview" />
+                <slot />
+            </PreviewView>
+            <SourceView v-else :config="resolved.source">
+                <slot />
+            </SourceView>
         </div>
     </div>
 </template>

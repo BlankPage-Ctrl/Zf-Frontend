@@ -15,7 +15,6 @@ import {
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { workspaceFormSchema } from '@/presentation/schemas'
-import { preloadCommonLanguages } from '@/presentation/components/markdown'
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
@@ -28,14 +27,6 @@ onMounted(async () => {
     await providerActions.fetchProviders()
     await providerActions.fetchDefaultProvider()
     workspaceActions.fetchWorkspaces()
-
-    const scheduleIdle =
-        typeof requestIdleCallback === 'function'
-            ? (task: () => void) => requestIdleCallback(task, { timeout: 2000 })
-            : (task: () => void) => setTimeout(task, 0)
-    scheduleIdle(() => {
-        void preloadCommonLanguages()
-    })
 })
 
 // --- AppTitle (title bar) orchestration ---

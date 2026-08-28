@@ -66,11 +66,11 @@ function toggleView(mode: BlockPartViewMode) {
 }
 
 .block-part--compact .block-part__content {
-    padding: 6px 10px;
+    /* padding: 6px 10px; */
 }
 
 .block-part--detailed .block-part__content {
-    padding: 12px 14px;
+    /* padding: 12px 14px; */
 }
 
 .block-part__content {

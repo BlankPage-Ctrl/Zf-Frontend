@@ -19,6 +19,7 @@ import type {
 } from '../types/resolved'
 import { isTextUIPart, isReasoningUIPart, isToolUIPart, isFileUIPart, isDataUIPart } from 'ai'
 import type { UIMessage } from 'ai'
+import { parseToolName } from '../helpers/toolNameParser'
 
 export function resolveTextPartSchema(
     schema: TextPartSchema,
@@ -135,14 +136,7 @@ function isStepStart(part: unknown): part is { type: 'step-start' } {
 }
 
 function getToolToolName(part: unknown): string {
-    const p = part as Record<string, unknown>
-    if (p.type === 'dynamic-tool' && typeof p.toolName === 'string') {
-        return p.toolName
-    }
-    if (typeof p.type === 'string' && p.type.startsWith('tool-')) {
-        return p.type.split('-').slice(1).join('-')
-    }
-    return String(p.toolCallId ?? 'tool')
+    return parseToolName(part) ?? String((part as Record<string, unknown>).toolCallId ?? 'tool')
 }
 
 export function resolveMessagePart(

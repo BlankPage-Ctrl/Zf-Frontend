@@ -2,7 +2,8 @@
 import { computed } from 'vue'
 import { Eye, Code } from '@iconoir/vue'
 import type { Component } from 'vue'
-import type { BlockPartViewMode, BlockPartStatus } from '../types/schema'
+import type { BlockPartViewMode, BlockPartStatus, BlockPartAction } from '../types/schema'
+import BlockActionButton from './BlockActionButton.vue'
 
 const props = defineProps<{
     title?: string
@@ -14,6 +15,7 @@ const props = defineProps<{
     status: BlockPartStatus
     hasPreview: boolean
     hasSource: boolean
+    actions?: BlockPartAction[]
 }>()
 
 const emit = defineEmits<{
@@ -60,7 +62,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
     >
         <div class="block-header__left">
             <span v-if="icon && isComponent" class="block-icon">
-                <component :is="icon" width="14" height="14" />
+                <component :is="icon" width="14.8" height="14.8" />
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             <span v-if="title" class="block-title">{{ title }}</span>
@@ -70,27 +72,39 @@ function handleHeaderKeydown(e: KeyboardEvent) {
             />
             <span v-else-if="status === 'done'" class="status-indicator status-indicator--done" />
         </div>
-        <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__right">
-            <button
-                class="view-toggle-btn"
-                :class="{ active: viewMode === 'preview' }"
-                :disabled="!hasPreview"
-                @click.stop="handleViewToggle('preview')"
-                type="button"
-            >
-                <Eye width="12" height="12" />
-                <span>Preview</span>
-            </button>
-            <button
-                class="view-toggle-btn"
-                :class="{ active: viewMode === 'source' }"
-                :disabled="!hasSource"
-                @click.stop="handleViewToggle('source')"
-                type="button"
-            >
-                <Code width="12" height="12" />
-                <span>Source</span>
-            </button>
+        <div
+            v-if="(actions && actions.length) || (viewToggle && (hasPreview || hasSource))"
+            class="block-header__right"
+        >
+            <div v-if="actions && actions.length" class="block-header__actions">
+                <BlockActionButton
+                    v-for="action in actions"
+                    :key="action.id ?? action.ariaLabel"
+                    :action="action"
+                />
+            </div>
+            <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__view-toggle">
+                <button
+                    class="view-toggle-btn"
+                    :class="{ active: viewMode === 'preview' }"
+                    :disabled="!hasPreview"
+                    @click.stop="handleViewToggle('preview')"
+                    type="button"
+                >
+                    <Eye width="12" height="12" />
+                    <span>Preview</span>
+                </button>
+                <button
+                    class="view-toggle-btn"
+                    :class="{ active: viewMode === 'source' }"
+                    :disabled="!hasSource"
+                    @click.stop="handleViewToggle('source')"
+                    type="button"
+                >
+                    <Code width="12" height="12" />
+                    <span>Source</span>
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -154,7 +168,21 @@ function handleHeaderKeydown(e: KeyboardEvent) {
     min-width: 0;
 }
 
+.block-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
 .block-header__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.block-header__view-toggle {
     display: flex;
     align-items: center;
     gap: 2px;

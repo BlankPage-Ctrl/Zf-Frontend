@@ -49,6 +49,7 @@ function toggleView(mode: BlockPartViewMode) {
             :status="status"
             :has-preview="resolved.hasPreview"
             :has-source="resolved.hasSource"
+            :actions="resolved.actions"
             @toggle-expand="toggleExpand"
             @toggle-view="toggleView"
         />

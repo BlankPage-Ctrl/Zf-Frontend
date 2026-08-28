@@ -17,6 +17,15 @@ export interface BlockPartSourceConfig {
     format?: BlockPartSourceFormat
 }
 
+export interface BlockPartAction {
+    id?: string
+    icon: Component | string
+    ariaLabel: string
+    tooltip?: string
+    disabled?: boolean
+    onClick: (e: MouseEvent) => void | Promise<void>
+}
+
 export interface BlockPartSchema {
     title?: string
     icon?: Component | string
@@ -26,6 +35,7 @@ export interface BlockPartSchema {
     viewToggle?: boolean
     defaultView: BlockPartViewMode
     status?: BlockPartStatus
+    actions?: BlockPartAction[]
     preview?: BlockPartPreviewConfig
     source?: BlockPartSourceConfig
 }
@@ -39,6 +49,7 @@ export interface ResolvedBlockPart {
     viewToggle: boolean
     viewMode: BlockPartViewMode
     status: BlockPartStatus
+    actions: BlockPartAction[]
     hasPreview: boolean
     hasSource: boolean
     preview?: BlockPartPreviewConfig

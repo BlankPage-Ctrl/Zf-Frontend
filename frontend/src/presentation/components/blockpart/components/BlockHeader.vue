@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { NavArrowDown, NavArrowRight, Eye, Code } from '@iconoir/vue'
+import { Eye, Code } from '@iconoir/vue'
 import type { Component } from 'vue'
 import type { BlockPartViewMode, BlockPartStatus } from '../types/schema'
 
@@ -30,27 +30,36 @@ const iconLabel = computed(() => {
 function handleViewToggle(mode: BlockPartViewMode) {
     emit('toggleView', mode)
 }
+
+function handleHeaderClick() {
+    if (props.collapsible) emit('toggleExpand')
+}
+
+function handleHeaderKeydown(e: KeyboardEvent) {
+    if (!props.collapsible) return
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        emit('toggleExpand')
+    }
+}
 </script>
 
 <template>
-    <div class="block-header" :class="{ 'block-header--streaming': status === 'streaming' }">
+    <div
+        class="block-header"
+        :class="{
+            'block-header--streaming': status === 'streaming',
+            'block-header--collapsible': collapsible,
+        }"
+        :role="collapsible ? 'button' : undefined"
+        :tabindex="collapsible ? 0 : undefined"
+        :aria-expanded="collapsible ? expanded : undefined"
+        :aria-label="collapsible ? (expanded ? 'Collapse' : 'Expand') : undefined"
+        @click="handleHeaderClick"
+        @keydown="handleHeaderKeydown"
+    >
         <div class="block-header__left">
-            <button
-                v-if="collapsible"
-                class="block-expand-btn"
-                @click="emit('toggleExpand')"
-                type="button"
-                :aria-label="expanded ? 'Collapse' : 'Expand'"
-            >
-                <component
-                    :is="expanded ? NavArrowDown : NavArrowRight"
-                    v-if="isComponent"
-                    width="12"
-                    height="12"
-                />
-                <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
-            </button>
-            <span v-else-if="icon && isComponent" class="block-icon">
+            <span v-if="icon && isComponent" class="block-icon">
                 <component :is="icon" width="14" height="14" />
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
@@ -66,7 +75,7 @@ function handleViewToggle(mode: BlockPartViewMode) {
                 class="view-toggle-btn"
                 :class="{ active: viewMode === 'preview' }"
                 :disabled="!hasPreview"
-                @click="handleViewToggle('preview')"
+                @click.stop="handleViewToggle('preview')"
                 type="button"
             >
                 <Eye width="12" height="12" />
@@ -76,7 +85,7 @@ function handleViewToggle(mode: BlockPartViewMode) {
                 class="view-toggle-btn"
                 :class="{ active: viewMode === 'source' }"
                 :disabled="!hasSource"
-                @click="handleViewToggle('source')"
+                @click.stop="handleViewToggle('source')"
                 type="button"
             >
                 <Code width="12" height="12" />
@@ -152,25 +161,13 @@ function handleViewToggle(mode: BlockPartViewMode) {
     flex-shrink: 0;
 }
 
-.block-expand-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--text-primary);
-    opacity: 0.5;
+.block-header--collapsible {
     cursor: pointer;
-    border-radius: 3px;
-    flex-shrink: 0;
 }
 
-.block-expand-btn:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.06);
+.block-header--collapsible:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--stream-accent) 45%, transparent);
+    outline-offset: -2px;
 }
 
 .block-icon {

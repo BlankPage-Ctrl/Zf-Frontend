@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Code } from 'mdast'
 import { computed } from 'vue'
+import { Code as CodeIcon } from '@iconoir/vue'
 import { injectMarkdownContext } from '../../composables/markdown-context'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
 import { BlockPart } from '@/presentation/components/blockpart'
@@ -24,7 +25,9 @@ const codeRendererSchema = computed(() => ({
 
 const blockSchema = computed<BlockPartSchema>(() => ({
     title: lang.value,
-    variant: 'compact',
+    variant: 'default',
+    icon: CodeIcon,
+    defaultExpanded: true,
     collapsible: true,
     viewToggle: true,
     defaultView: 'preview',

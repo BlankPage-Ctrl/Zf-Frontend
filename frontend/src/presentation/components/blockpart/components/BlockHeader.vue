@@ -66,11 +66,6 @@ function handleHeaderKeydown(e: KeyboardEvent) {
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             <span v-if="title" class="block-title">{{ title }}</span>
-            <span
-                v-if="status === 'streaming'"
-                class="status-indicator status-indicator--streaming"
-            />
-            <span v-else-if="status === 'done'" class="status-indicator status-indicator--done" />
         </div>
         <div
             v-if="(actions && actions.length) || (viewToggle && (hasPreview || hasSource))"

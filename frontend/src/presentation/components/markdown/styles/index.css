@@ -143,55 +143,26 @@
 
 .markdown .markdown-code {
     margin: 0.75em 0;
-    border: 1px solid var(--md-code-border);
-    border-radius: 8px;
     overflow: hidden;
+}
+
+.markdown .markdown-code .block-part {
+    border-color: var(--md-code-border);
     background: var(--md-code-bg);
 }
 
-.markdown .markdown-code-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.3em 0.8em;
-    border-bottom: 1px solid var(--md-code-border);
-    font-size: 0.8em;
+.markdown .markdown-loading {
+    opacity: var(--md-loading-opacity);
 }
-
-.markdown .markdown-code-lang {
-    color: var(--md-fg-muted);
-    text-transform: lowercase;
-}
-
-.markdown .markdown-code-copy {
-    background: transparent;
-    border: 1px solid var(--md-code-border);
-    border-radius: 5px;
-    color: var(--md-fg-muted);
-    cursor: pointer;
-    font-size: 0.85em;
-    padding: 0.15em 0.6em;
-}
-
-.markdown .markdown-code-copy:hover {
-    color: var(--md-fg);
-    border-color: var(--md-fg-muted);
-}
-
-.markdown .markdown-code-pre {
+.markdown .markdown-code__renderer {
     margin: 0;
     padding: 0.85em 1em;
     overflow-x: auto;
 }
 
-.markdown .markdown-code-inner {
+.markdown .markdown-code__renderer .code-renderer__inner {
     font-family:
         ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     font-size: 0.85em;
     line-height: 1.55;
-    white-space: pre;
-}
-
-.markdown .markdown-loading {
-    opacity: var(--md-loading-opacity);
 }

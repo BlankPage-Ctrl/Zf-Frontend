@@ -5,7 +5,7 @@ defineProps<{ lines: ThemedToken[][] }>()
 </script>
 
 <template>
-    <span v-for="(line, lineIndex) in lines" :key="lineIndex" class="markdown-code-line">
+    <span v-for="(line, lineIndex) in lines" :key="lineIndex" class="code-renderer__line">
         <span
             v-for="(token, tokenIndex) in line"
             :key="tokenIndex"

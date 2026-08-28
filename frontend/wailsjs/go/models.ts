@@ -279,6 +279,7 @@ export namespace hitl {
 	    title: string;
 	    description?: string;
 	    correlationId?: string;
+	    executionId?: string;
 	    metadata: Record<string, any>;
 	    status: string;
 	    // Go type: time
@@ -303,6 +304,7 @@ export namespace hitl {
 	        this.title = source["title"];
 	        this.description = source["description"];
 	        this.correlationId = source["correlationId"];
+	        this.executionId = source["executionId"];
 	        this.metadata = source["metadata"];
 	        this.status = source["status"];
 	        this.createdAt = this.convertValues(source["createdAt"], null);

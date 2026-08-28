@@ -5,7 +5,7 @@ export interface MarkdownRenderContext {
     isDark: ComputedRef<boolean>
     fontSize: ComputedRef<number>
     lineHeight: ComputedRef<number>
-    codeTheme: ComputedRef<{ light: string; dark: string }>
+    codeTheme: ComputedRef<{ light?: string; dark?: string }>
     registry: ComputedRef<RendererRegistry>
 }
 

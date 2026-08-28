@@ -11,7 +11,7 @@ export function resolveBlockPartSchema(schema: BlockPartSchema): ResolvedBlockPa
         collapsible: schema.collapsible ?? true,
         expanded: schema.defaultExpanded ?? true,
         viewToggle: schema.viewToggle ?? false,
-        viewMode: schema.defaultView ?? 'preview',
+        viewMode: schema.defaultView,
         status: schema.status ?? 'idle',
         hasPreview,
         hasSource,

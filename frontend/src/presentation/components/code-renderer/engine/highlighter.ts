@@ -9,29 +9,11 @@ import {
     type TokensResult,
 } from 'shiki'
 
-export const DEFAULT_LIGHT_THEME = 'github-light'
-export const DEFAULT_DARK_THEME = 'github-dark'
+import { DEFAULT_DARK_THEME, DEFAULT_LIGHT_THEME } from '../resolver/resolveCodeRendererSchema'
 
 export type HighlightLanguage = BundledLanguage | SpecialLanguage
 
-const TOKEN_CACHE_MAX = 100
-const PRELOAD_LANGUAGES: HighlightLanguage[] = [
-    'plaintext',
-    'markdown',
-    'json',
-    'yaml',
-    'bash',
-    'javascript',
-    'typescript',
-    'jsx',
-    'tsx',
-    'css',
-    'html',
-    'python',
-    'go',
-    'rust',
-    'sql',
-]
+const TOKEN_CACHE_MAX = 120
 
 let highlighterPromise: Promise<Highlighter> | null = null
 
@@ -120,30 +102,13 @@ export async function toTokensCached(
     return result
 }
 
-export function useCodeHighlighter() {
-    async function toTokens(code: string, lang: string, theme: string): Promise<TokensResult> {
-        return toTokensCached(code, lang, theme)
-    }
-
-    async function preload(): Promise<void> {
-        await getHighlighter()
-    }
-
-    return { toTokens, preload }
-}
-
-export async function preloadCommonLanguages(): Promise<void> {
-    const highlighter = await getHighlighter()
-    await Promise.all(PRELOAD_LANGUAGES.map((language) => loadLanguageOnce(highlighter, language)))
-}
-
-export function disposeSharedHighlighter(): void {
+export function disposeHighlighter(): void {
     const promise = highlighterPromise
     highlighterPromise = null
     languageLoads.clear()
     themeLoads.clear()
     tokenCache.clear()
-    if (promise) {
-        void promise.then((highlighter) => highlighter.dispose())
-    }
+    if (promise) void promise.then((h) => h.dispose())
 }
+
+export { getHighlighter }

@@ -33,7 +33,7 @@ function handleViewToggle(mode: BlockPartViewMode) {
 </script>
 
 <template>
-    <div class="block-header">
+    <div class="block-header" :class="{ 'block-header--streaming': status === 'streaming' }">
         <div class="block-header__left">
             <button
                 v-if="collapsible"
@@ -95,6 +95,47 @@ function handleViewToggle(mode: BlockPartViewMode) {
     padding: 6px 10px;
     background: var(--border-color);
     min-height: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.block-header--streaming {
+    background: color-mix(in srgb, var(--stream-accent) 9%, var(--border-color));
+    border-bottom: 1px solid color-mix(in srgb, var(--stream-accent) 14%, transparent);
+    transition:
+        background 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.block-header--streaming::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.5px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 25%,
+        var(--stream-accent) 50%,
+        transparent 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: header-sweep 1.4s linear infinite;
+    opacity: 0.9;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+@keyframes header-sweep {
+    0% {
+        background-position: 130% 0;
+    }
+    100% {
+        background-position: -30% 0;
+    }
 }
 
 .block-header__left {
@@ -193,7 +234,7 @@ function handleViewToggle(mode: BlockPartViewMode) {
 }
 
 .status-indicator--streaming {
-    background: #3b82f6;
+    background: var(--stream-accent, #3b82f6);
     animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -210,6 +251,14 @@ function handleViewToggle(mode: BlockPartViewMode) {
     50% {
         opacity: 0.5;
         transform: scale(0.8);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block-header--streaming::after {
+        animation: none;
+        opacity: 0.45;
+        background: var(--stream-accent,);
     }
 }
 </style>

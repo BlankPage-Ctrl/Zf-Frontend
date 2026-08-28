@@ -51,12 +51,16 @@
     --raw-text-primary: 19, 16, 16;
     --raw-success: 34, 197, 93;
     --raw-danger: 246, 36, 64;
+    --raw-stream-accent: 37, 99, 235;
     --bg-primary: rgb(var(--raw-bg-primary));
     --bg-secondary: rgb(var(--raw-bg-secondary));
     --border-color: rgb(var(--raw-border-color));
     --text-primary: rgb(var(--raw-text-primary));
     --color-success: rgb(var(--raw-success));
     --color-danger: rgb(var(--raw-danger));
+    --stream-accent: rgb(var(--raw-stream-accent));
+    --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
+    --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
 }
 
 [data-theme='ola'] {
@@ -67,6 +71,7 @@
     --raw-success: 34, 197, 93;
     --raw-danger: 246, 36, 64;
     --raw-shadow: 200, 180, 150;
+    --raw-stream-accent: 37, 99, 235;
     --bg-primary: rgb(var(--raw-bg-primary));
     --bg-secondary: rgb(var(--raw-bg-secondary));
     --border-color: rgb(var(--raw-border-color));
@@ -74,6 +79,9 @@
     --color-success: rgb(var(--raw-success));
     --color-danger: rgb(var(--raw-danger));
     --shadow-color: rgb(var(--raw-shadow));
+    --stream-accent: rgb(var(--raw-stream-accent));
+    --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
+    --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
 }
 
 [data-theme='day'] {
@@ -84,6 +92,7 @@
     --raw-success: 34, 197, 93;
     --raw-danger: 246, 36, 64;
     --raw-shadow: 180, 180, 180;
+    --raw-stream-accent: 37, 99, 235;
     --bg-primary: rgb(var(--raw-bg-primary));
     --bg-secondary: rgb(var(--raw-bg-secondary));
     --border-color: rgb(var(--raw-border-color));
@@ -91,6 +100,9 @@
     --color-success: rgb(var(--raw-success));
     --color-danger: rgb(var(--raw-danger));
     --shadow-color: rgb(var(--raw-shadow));
+    --stream-accent: rgb(var(--raw-stream-accent));
+    --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
+    --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
 }
 
 [data-theme='night'] {
@@ -101,6 +113,7 @@
     --raw-success: 68, 220, 120;
     --raw-danger: 255, 90, 110;
     --raw-shadow: 90, 90, 100;
+    --raw-stream-accent: 96, 165, 250;
     --bg-primary: rgb(var(--raw-bg-primary));
     --bg-secondary: rgb(var(--raw-bg-secondary));
     --border-color: rgb(var(--raw-border-color));
@@ -108,6 +121,9 @@
     --color-success: rgb(var(--raw-success));
     --color-danger: rgb(var(--raw-danger));
     --shadow-color: rgb(var(--raw-shadow));
+    --stream-accent: rgb(var(--raw-stream-accent));
+    --stream-accent-soft: rgba(var(--raw-stream-accent), 0.16);
+    --stream-accent-glow: rgba(var(--raw-stream-accent), 0.22);
 }
 
 @keyframes fadeIn {

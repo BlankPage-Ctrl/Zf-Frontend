@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import type { Code } from 'mdast'
-import { computed, ref } from 'vue'
-import { Code as CodeIcon, Copy } from '@iconoir/vue'
+import { computed, ref, defineComponent, h } from 'vue'
+import { Copy } from '@iconoir/vue'
+import { Icon } from '@iconify/vue'
 import { injectMarkdownContext } from '../../composables/markdown-context'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
 import { BlockPart } from '@/presentation/components/blockpart'
 import type { BlockPartSchema, BlockPartAction } from '@/presentation/components/blockpart'
+import { getLanguageIcon } from '../../composables/useLanguageIcon'
 
 const props = defineProps<{ node: Code & { loading?: boolean } }>()
 
 const ctx = injectMarkdownContext()
 
 const lang = computed(() => props.node.lang || 'text')
+const displayTitle = computed(() => {
+    const v = lang.value.trim()
+    if (!v) return 'Text'
+    return v.charAt(0).toUpperCase() + v.slice(1)
+})
 const code = computed(() => props.node.value)
 const status = computed(() => (props.node.loading ? 'streaming' : 'done'))
 
@@ -67,10 +74,31 @@ const copyAction = computed<BlockPartAction>(() => ({
     onClick: handleCopy,
 }))
 
+const langIconName = computed(() => getLanguageIcon(lang.value))
+
+const langIconComponent = computed(() =>
+    defineComponent({
+        name: 'LangIcon',
+        props: {
+            width: { type: [String, Number], default: '14.8' },
+            height: { type: [String, Number], default: '14.8' },
+        },
+        setup(props) {
+            return () =>
+                h(Icon, {
+                    icon: langIconName.value,
+                    width: props.width,
+                    height: props.height,
+                    style: 'filter:grayscale(1)',
+                })
+        },
+    }),
+)
+
 const blockSchema = computed<BlockPartSchema>(() => ({
-    title: lang.value,
+    title: displayTitle.value,
     variant: 'default',
-    icon: CodeIcon,
+    icon: langIconComponent.value,
     defaultExpanded: true,
     collapsible: true,
     viewToggle: true,
@@ -87,3 +115,9 @@ const blockSchema = computed<BlockPartSchema>(() => ({
         </template>
     </BlockPart>
 </template>
+
+<style scoped>
+.markdown-code :deep(.block-icon) {
+    filter: grayscale(1);
+}
+</style>

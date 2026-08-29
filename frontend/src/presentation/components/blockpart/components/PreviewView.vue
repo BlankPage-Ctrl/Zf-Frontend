@@ -8,6 +8,6 @@ defineProps<{
 </script>
 
 <template>
-        <component v-if="config?.component" :is="config.component" v-bind="config.props" />
-        <slot v-else />
+    <component v-if="config?.component" :is="config.component" v-bind="config.props" />
+    <slot v-else />
 </template>

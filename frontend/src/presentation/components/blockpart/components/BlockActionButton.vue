@@ -5,7 +5,9 @@ import type { BlockPartAction } from '../types/schema'
 
 const props = defineProps<{ action: BlockPartAction }>()
 
-const isComponent = computed(() => typeof props.action.icon === 'object' && props.action.icon !== null)
+const isComponent = computed(
+    () => typeof props.action.icon === 'object' && props.action.icon !== null,
+)
 const iconLabel = computed(() => {
     if (!props.action.icon) return ''
     return typeof props.action.icon === 'string' ? props.action.icon : ''

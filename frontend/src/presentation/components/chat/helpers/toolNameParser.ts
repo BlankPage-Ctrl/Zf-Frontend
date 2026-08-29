@@ -52,9 +52,7 @@ export function parseToolName(part: unknown): string | null {
 }
 
 function hasToolCallId(record: UnknownPart): boolean {
-    return (
-        getStringField(record, ['toolCallId', 'ToolCallId', 'tool_call_id']) !== null
-    )
+    return getStringField(record, ['toolCallId', 'ToolCallId', 'tool_call_id']) !== null
 }
 
 export function parseToolCallId(part: unknown): string | null {
@@ -63,9 +61,7 @@ export function parseToolCallId(part: unknown): string | null {
     return getStringField(record, ['toolCallId', 'ToolCallId', 'tool_call_id', 'id'])
 }
 
-export function parseToolCall(
-    part: unknown,
-): { toolName: string; toolCallId: string } | null {
+export function parseToolCall(part: unknown): { toolName: string; toolCallId: string } | null {
     const toolName = parseToolName(part)
     if (toolName === null) return null
     const toolCallId = parseToolCallId(part)
@@ -118,7 +114,7 @@ export function getToolCallsFromMessages(
             if (seen.has(parsed.toolCallId)) continue
             seen.add(parsed.toolCallId)
             const record = asRecord(part)
-            const state = record ? getStringField(record, ['state']) ?? undefined : undefined
+            const state = record ? (getStringField(record, ['state']) ?? undefined) : undefined
             out.push({ ...parsed, state: state ?? undefined })
         }
     }

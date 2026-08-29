@@ -111,7 +111,11 @@ const blockSchema = computed<BlockPartSchema>(() => ({
 <template>
     <BlockPart :schema="blockSchema" class="markdown-code">
         <template #preview>
-            <CodeRenderer ref="codeRef" :schema="codeRendererSchema" class="markdown-code__renderer" />
+            <CodeRenderer
+                ref="codeRef"
+                :schema="codeRendererSchema"
+                class="markdown-code__renderer"
+            />
         </template>
     </BlockPart>
 </template>

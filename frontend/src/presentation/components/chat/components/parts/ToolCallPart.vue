@@ -5,6 +5,7 @@ import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
 import { createToolCallSchema } from '@/presentation/schemas'
+import { isKnownToolName } from '../../helpers/knownTools'
 import ShellTerminal from './ShellTerminal.vue'
 
 const props = defineProps<{
@@ -21,8 +22,10 @@ interface RunShellOutput {
     exitCode?: number
 }
 
+const isKnownTool = computed(() => isKnownToolName(resolved.value.toolName))
+
 const live = computed(() => {
-    if (resolved.value.toolName !== 'run_shell') return undefined
+    if (!isKnownTool.value || resolved.value.toolName !== 'run_shell') return undefined
     const id =
         props.schema.toolCallId ?? (props.schema.output as RunShellOutput | undefined)?.executionId
     if (!id) return undefined

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { NavArrowDown, NavArrowRight, Eye, Code } from '@iconoir/vue'
+import { Eye, Code } from '@iconoir/vue'
 import type { Component } from 'vue'
-import type { BlockPartViewMode, BlockPartStatus } from '../types/schema'
+import type { BlockPartViewMode, BlockPartStatus, BlockPartAction } from '../types/schema'
+import BlockActionButton from './BlockActionButton.vue'
 
 const props = defineProps<{
     title?: string
@@ -14,6 +15,7 @@ const props = defineProps<{
     status: BlockPartStatus
     hasPreview: boolean
     hasSource: boolean
+    actions?: BlockPartAction[]
 }>()
 
 const emit = defineEmits<{
@@ -30,58 +32,74 @@ const iconLabel = computed(() => {
 function handleViewToggle(mode: BlockPartViewMode) {
     emit('toggleView', mode)
 }
+
+function handleHeaderClick() {
+    if (props.collapsible) emit('toggleExpand')
+}
+
+function handleHeaderKeydown(e: KeyboardEvent) {
+    if (!props.collapsible) return
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        emit('toggleExpand')
+    }
+}
 </script>
 
 <template>
-    <div class="block-header">
+    <div
+        class="block-header"
+        :class="{
+            'block-header--streaming': status === 'streaming',
+            'block-header--collapsible': collapsible,
+        }"
+        :role="collapsible ? 'button' : undefined"
+        :tabindex="collapsible ? 0 : undefined"
+        :aria-expanded="collapsible ? expanded : undefined"
+        :aria-label="collapsible ? (expanded ? 'Collapse' : 'Expand') : undefined"
+        @click="handleHeaderClick"
+        @keydown="handleHeaderKeydown"
+    >
         <div class="block-header__left">
-            <button
-                v-if="collapsible"
-                class="block-expand-btn"
-                @click="emit('toggleExpand')"
-                type="button"
-                :aria-label="expanded ? 'Collapse' : 'Expand'"
-            >
-                <component
-                    :is="expanded ? NavArrowDown : NavArrowRight"
-                    v-if="isComponent"
-                    width="12"
-                    height="12"
-                />
-                <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
-            </button>
-            <span v-else-if="icon && isComponent" class="block-icon">
-                <component :is="icon" width="14" height="14" />
+            <span v-if="icon && isComponent" class="block-icon">
+                <component :is="icon" width="14.8" height="14.8" />
             </span>
             <span v-else-if="iconLabel" class="block-icon-label">{{ iconLabel }}</span>
             <span v-if="title" class="block-title">{{ title }}</span>
-            <span
-                v-if="status === 'streaming'"
-                class="status-indicator status-indicator--streaming"
-            />
-            <span v-else-if="status === 'done'" class="status-indicator status-indicator--done" />
         </div>
-        <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__right">
-            <button
-                class="view-toggle-btn"
-                :class="{ active: viewMode === 'preview' }"
-                :disabled="!hasPreview"
-                @click="handleViewToggle('preview')"
-                type="button"
-            >
-                <Eye width="12" height="12" />
-                <span>Preview</span>
-            </button>
-            <button
-                class="view-toggle-btn"
-                :class="{ active: viewMode === 'source' }"
-                :disabled="!hasSource"
-                @click="handleViewToggle('source')"
-                type="button"
-            >
-                <Code width="12" height="12" />
-                <span>Source</span>
-            </button>
+        <div
+            v-if="(actions && actions.length) || (viewToggle && (hasPreview || hasSource))"
+            class="block-header__right"
+        >
+            <div v-if="actions && actions.length" class="block-header__actions">
+                <BlockActionButton
+                    v-for="action in actions"
+                    :key="action.id ?? action.ariaLabel"
+                    :action="action"
+                />
+            </div>
+            <div v-if="viewToggle && (hasPreview || hasSource)" class="block-header__view-toggle">
+                <button
+                    class="view-toggle-btn"
+                    :class="{ active: viewMode === 'preview' }"
+                    :disabled="!hasPreview"
+                    @click.stop="handleViewToggle('preview')"
+                    type="button"
+                >
+                    <Eye width="12" height="12" />
+                    <span>Preview</span>
+                </button>
+                <button
+                    class="view-toggle-btn"
+                    :class="{ active: viewMode === 'source' }"
+                    :disabled="!hasSource"
+                    @click.stop="handleViewToggle('source')"
+                    type="button"
+                >
+                    <Code width="12" height="12" />
+                    <span>Source</span>
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -95,6 +113,47 @@ function handleViewToggle(mode: BlockPartViewMode) {
     padding: 6px 10px;
     background: var(--border-color);
     min-height: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.block-header--streaming {
+    background: color-mix(in srgb, var(--stream-accent) 9%, var(--border-color));
+    border-bottom: 1px solid color-mix(in srgb, var(--stream-accent) 14%, transparent);
+    transition:
+        background 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.block-header--streaming::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.5px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 25%,
+        var(--stream-accent) 50%,
+        transparent 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: header-sweep 1.4s linear infinite;
+    opacity: 0.9;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+@keyframes header-sweep {
+    0% {
+        background-position: 130% 0;
+    }
+    100% {
+        background-position: -30% 0;
+    }
 }
 
 .block-header__left {
@@ -104,32 +163,34 @@ function handleViewToggle(mode: BlockPartViewMode) {
     min-width: 0;
 }
 
-.block-header__right {
+.block-header__actions {
     display: flex;
     align-items: center;
     gap: 2px;
     flex-shrink: 0;
 }
 
-.block-expand-btn {
+.block-header__right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--text-primary);
-    opacity: 0.5;
-    cursor: pointer;
-    border-radius: 3px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
-.block-expand-btn:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.06);
+.block-header__view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.block-header--collapsible {
+    cursor: pointer;
+}
+
+.block-header--collapsible:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--stream-accent) 45%, transparent);
+    outline-offset: -2px;
 }
 
 .block-icon {
@@ -193,7 +254,7 @@ function handleViewToggle(mode: BlockPartViewMode) {
 }
 
 .status-indicator--streaming {
-    background: #3b82f6;
+    background: var(--stream-accent, #3b82f6);
     animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -210,6 +271,14 @@ function handleViewToggle(mode: BlockPartViewMode) {
     50% {
         opacity: 0.5;
         transform: scale(0.8);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block-header--streaming::after {
+        animation: none;
+        opacity: 0.45;
+        background: var(--stream-accent,);
     }
 }
 </style>

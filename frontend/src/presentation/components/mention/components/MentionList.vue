@@ -41,22 +41,46 @@ function itemGlobalIndex(localIdx: number, groupIdx: number): number {
 </script>
 
 <template>
-    <div class="mention-menu" role="listbox">
-        <div v-if="loading" class="mention-loading">Loading…</div>
-        <template v-else-if="items.length === 0">
+    <div
+        class="mention-menu"
+        :class="{ 'mention-menu--loading': loading && items.length > 0 }"
+        role="listbox"
+        :aria-busy="loading ? 'true' : 'false'"
+    >
+        <template v-if="items.length === 0 && !loading">
             <div class="mention-empty">{{ emptyMessage }}</div>
         </template>
+        <template v-else-if="items.length === 0 && loading">
+            <div class="mention-skeleton" aria-hidden="true">
+                <div v-for="i in 3" :key="i" class="mention-skeleton__row">
+                    <span class="mention-skeleton__icon" />
+                    <span class="mention-skeleton__line mention-skeleton__line--title" />
+                    <span class="mention-skeleton__line mention-skeleton__line--desc" />
+                </div>
+            </div>
+        </template>
         <template v-else>
-            <template v-for="(group, gIdx) in groups" :key="group.kind">
-                <div v-if="grouped && groups.length > 1" class="mention-group-label">{{ group.kind }}</div>
-                <MentionItemRow
-                    v-for="(item, idx) in group.items"
-                    :key="item.id"
-                    :item="item"
-                    :active="isActive(itemGlobalIndex(idx, gIdx))"
-                    @click="emit('select', item)"
-                />
-            </template>
+            <TransitionGroup name="mention-item-list" tag="div" class="mention-menu__list">
+                <template v-for="(group, gIdx) in groups" :key="group.kind">
+                    <div
+                        v-if="grouped && groups.length > 1"
+                        :key="`label-${group.kind}`"
+                        class="mention-group-label"
+                    >
+                        {{ group.kind }}
+                    </div>
+                    <MentionItemRow
+                        v-for="(item, idx) in group.items"
+                        :key="item.id"
+                        :item="item"
+                        :active="isActive(itemGlobalIndex(idx, gIdx))"
+                        @click="emit('select', item)"
+                    />
+                </template>
+            </TransitionGroup>
+            <Transition name="mention-overlay-fade">
+                <div v-if="loading" class="mention-menu__overlay" aria-hidden="true" />
+            </Transition>
         </template>
     </div>
 </template>

@@ -148,6 +148,14 @@ defineExpose({ referenceEl, handleKeydown })
                         >
                             Directory
                         </button>
+                        <Transition name="mention-filter-spinner">
+                            <span
+                                v-if="resolved.loading"
+                                class="mention-filter__spinner"
+                                aria-label="Loading"
+                                aria-hidden="false"
+                            />
+                        </Transition>
                     </div>
                     <MentionList
                         :items="filteredItems"

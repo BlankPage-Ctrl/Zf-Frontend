@@ -55,7 +55,7 @@ const mentionSchema = computed(() => ({
     visible: mentionVisible.value,
     activeIndex: mentionActiveIndex.value,
     loading: props.resolved.mentionLoading ?? false,
-    grouped: true,
+    grouped: false,
     emptyMessage: 'No files found',
 }))
 

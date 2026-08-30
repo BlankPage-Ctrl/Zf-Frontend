@@ -109,4 +109,4 @@ defineExpose({ referenceEl, handleKeydown })
     </div>
 </template>
 
-<style scoped src="./styles/index.css"></style>
+<style src="./styles/index.css"></style>

@@ -41,7 +41,7 @@ export function createMentionItemsFromFiles(params: CreateMentionItemsParams): M
             id: node.path,
             kind,
             label: pathLabel(node),
-            description: node.isDirectory ? `folder • ${description}` : description,
+            description,
             title,
             icon: resolveFileIconComponent(node.path, node.isDirectory),
             meta: { path: node.path, isDirectory: node.isDirectory },

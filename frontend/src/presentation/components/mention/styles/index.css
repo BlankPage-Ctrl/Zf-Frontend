@@ -19,6 +19,30 @@
     background: var(--bg-secondary, var(--bg-primary));
     border: 1px solid var(--border-color);
     border-radius: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.mention-menu::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.mention-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mention-menu::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.mention-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-color);
+}
+
+.mention-menu::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 .mention-empty {
@@ -48,6 +72,7 @@
 .mention-item {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 8px;
     padding: 6px 8px;
     border-radius: 4px;
@@ -55,6 +80,9 @@
     font-size: var(--type-xs, 12px);
     color: var(--text-primary);
     user-select: none;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .mention-item:hover,
@@ -77,29 +105,72 @@
     gap: 1px;
 }
 
+.mention-item__main--inline {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .mention-item__label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 500;
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 40%;
+}
+
+.mention-item__dash {
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    padding: 0 4px;
+    user-select: none;
 }
 
 .mention-item__desc {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: var(--type-2xs, 11px);
+    font-size: var(--type-xs, 12px);
     color: var(--text-tertiary);
+    flex: 1;
+    min-width: 0;
 }
 
 .mention-item__kind {
     flex-shrink: 0;
-    font-size: var(--type-2xs, 10px);
-    padding: 2px 5px;
-    border-radius: 3px;
-    background: var(--border-color);
-    color: var(--text-secondary);
-    text-transform: uppercase;
+    font-size: var(--type-xs, 12px);
+    padding: 0 0 0 8px;
+    color: var(--text-tertiary);
+    text-transform: lowercase;
+    opacity: 0.55;
+    margin-left: auto;
+    user-select: none;
+    letter-spacing: 0.02em;
+}
+
+.mention-tooltip {
+    position: fixed;
+    z-index: 9999;
+    max-width: 380px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    background: var(--bg-secondary, var(--bg-primary));
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+    white-space: normal;
+    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .mention-fade-enter-active {

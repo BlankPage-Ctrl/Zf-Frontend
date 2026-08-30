@@ -54,9 +54,12 @@ export function resolveChatInputSchema(schema: ChatInputSchema): ResolvedChatInp
         thinkingMode: schema.thinkingMode,
         modelItems,
         selectedLabel,
+        mentionItems: schema.mentionItems ?? [],
+        mentionLoading: !!schema.mentionLoading,
         onSend: schema.onSend,
         onStop: schema.onStop,
         onSelectModel: schema.onSelectModel,
         onChangeThinkingMode: schema.onChangeThinkingMode,
+        onMentionSearch: schema.onMentionSearch,
     }
 }

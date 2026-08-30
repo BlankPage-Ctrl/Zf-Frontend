@@ -15,6 +15,7 @@ import {
     useThemeStorer,
     useNoteStorer,
     useChatSessionStorer,
+    useFileExplorerStorer,
     createEmptyChatSessionState,
 } from '@/application/stores'
 import {
@@ -61,6 +62,8 @@ import {
     createWorkspaceLayout,
     createSettingsTabSchema,
 } from '@/presentation/schemas'
+import { createMentionItemsFromFiles } from '@/presentation/schemas/mention'
+import type { MentionTriggerRange } from '@/core/entities'
 
 const SETTINGS_TAB_ID = '__settings__'
 
@@ -88,6 +91,33 @@ const noteStorer = useNoteStorer()
 const dialog = useDialog()
 const settingsTab = useSettingsTab()
 const chatSessionStorer = useChatSessionStorer()
+const fileExplorerStorer = useFileExplorerStorer()
+
+const mentionQuery = ref('')
+const mentionLoading = ref(false)
+
+const mentionItems = computed(() =>
+    createMentionItemsFromFiles({
+        query: mentionQuery.value,
+        nodes: fileExplorerStorer.searchResults,
+        workspaceRoot: fileExplorerStorer.workspaceRoot,
+        maxResults: 12,
+    }),
+)
+
+async function onMentionSearch(query: string, _range: MentionTriggerRange) {
+    mentionQuery.value = query
+    if (!query.trim()) {
+        fileExplorerStorer.setSearchResults([])
+        return
+    }
+    mentionLoading.value = true
+    try {
+        await fileExplorerActions.searchFiles(query)
+    } finally {
+        mentionLoading.value = false
+    }
+}
 
 const routeWsId = computed(() => route.params.id as string | undefined)
 
@@ -233,10 +263,13 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         contentWidth: appearanceStorer.contentWidth,
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
+        mentionItems: mentionItems.value,
+        mentionLoading: mentionLoading.value,
         onSend: (text) => chatSessionActions.sendMessage(workspaceId.value, chat.id, text),
         onStop: () => chatSessionActions.stop(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
+        onMentionSearch: onMentionSearch,
     })
 }
 

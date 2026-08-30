@@ -1,0 +1,122 @@
+.mention-dropup {
+    position: relative;
+    width: 100%;
+}
+
+.mention-floating {
+    z-index: 50;
+    width: 100%;
+    outline: none;
+}
+
+.mention-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 4px;
+    max-height: 260px;
+    overflow-y: auto;
+    background: var(--bg-secondary, var(--bg-primary));
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.mention-empty {
+    padding: 8px 10px;
+    font-size: var(--type-xs, 12px);
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.mention-loading {
+    padding: 8px 10px;
+    font-size: var(--type-xs, 12px);
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.mention-group-label {
+    padding: 6px 10px 4px;
+    font-size: var(--type-2xs, 11px);
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    user-select: none;
+}
+
+.mention-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--type-xs, 12px);
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.mention-item:hover,
+.mention-item--active {
+    background: rgba(var(--raw-border-color, 200 200 200), 0.3);
+}
+
+.mention-item__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+.mention-item__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.mention-item__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.mention-item__desc {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--type-2xs, 11px);
+    color: var(--text-tertiary);
+}
+
+.mention-item__kind {
+    flex-shrink: 0;
+    font-size: var(--type-2xs, 10px);
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: var(--border-color);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.mention-fade-enter-active {
+    transition:
+        opacity 120ms ease,
+        transform 120ms ease;
+}
+.mention-fade-leave-active {
+    transition:
+        opacity 80ms ease,
+        transform 80ms ease;
+}
+.mention-fade-enter-from {
+    opacity: 0;
+    transform: translateY(4px);
+}
+.mention-fade-leave-to {
+    opacity: 0;
+    transform: translateY(2px);
+}

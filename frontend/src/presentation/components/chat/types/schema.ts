@@ -1,5 +1,5 @@
 import type { UIMessage } from 'ai'
-import type { Provider } from '@/core/entities'
+import type { Provider, MentionItem, MentionTriggerRange } from '@/core/entities'
 
 export interface ChatTabSchema {
     title: string
@@ -14,10 +14,13 @@ export interface ChatTabSchema {
     lineHeight?: number
     emptyMessage?: string
     emptyHint?: string
+    mentionItems?: MentionItem[]
+    mentionLoading?: boolean
     onSend?: (text: string) => void
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 
 export interface ChatInputSchema {
@@ -27,10 +30,13 @@ export interface ChatInputSchema {
     thinkingMode?: string
     providers: Provider[]
     placeholder?: string
+    mentionItems?: MentionItem[]
+    mentionLoading?: boolean
     onSend?: (text: string) => void
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 
 export interface MessageBubbleSchema {

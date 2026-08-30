@@ -14,6 +14,35 @@ const emit = defineEmits<{
 
 const resolved = computed(() => resolveMentionSchema(props.schema))
 
+const activeFilter = ref<'all' | 'file' | 'folder'>('all')
+
+const filteredItems = computed(() => {
+    const items = resolved.value.items
+    if (activeFilter.value === 'all') return items
+    return items.filter((it) => it.kind === activeFilter.value)
+})
+
+function setFilter(kind: 'file' | 'folder') {
+    if (activeFilter.value === kind) activeFilter.value = 'all'
+    else activeFilter.value = kind
+    if (resolved.value.activeIndex !== 0) emit('navigate', 0)
+}
+
+watch(
+    () => resolved.value.visible,
+    (v) => {
+        if (!v) activeFilter.value = 'all'
+    },
+)
+
+watch(
+    () => filteredItems.value.length,
+    (len) => {
+        if (len === 0) return
+        if (resolved.value.activeIndex >= len) emit('navigate', 0)
+    },
+)
+
 const referenceEl = ref<HTMLElement | null>(null)
 const floatingEl = ref<HTMLElement | null>(null)
 
@@ -44,22 +73,25 @@ function handleKeydown(e: KeyboardEvent) {
         emit('close')
         return
     }
+    const itemsForNav = filteredItems.value
     if (e.key === 'ArrowDown') {
         e.preventDefault()
-        const next = (resolved.value.activeIndex + 1) % resolved.value.items.length
+        if (itemsForNav.length === 0) return
+        const next = (resolved.value.activeIndex + 1) % itemsForNav.length
         emit('navigate', next)
         return
     }
     if (e.key === 'ArrowUp') {
         e.preventDefault()
-        const prev = (resolved.value.activeIndex - 1 + resolved.value.items.length) % resolved.value.items.length
+        if (itemsForNav.length === 0) return
+        const prev = (resolved.value.activeIndex - 1 + itemsForNav.length) % itemsForNav.length
         emit('navigate', prev)
         return
     }
     if (e.key === 'Enter' || e.key === 'Tab') {
-        if (resolved.value.items.length === 0) return
+        if (itemsForNav.length === 0) return
         e.preventDefault()
-        const item = resolved.value.items[resolved.value.activeIndex]
+        const item = itemsForNav[resolved.value.activeIndex] ?? itemsForNav[0]
         if (item) emit('select', item)
     }
 }
@@ -96,14 +128,36 @@ defineExpose({ referenceEl, handleKeydown })
                 class="mention-floating"
                 :style="floatingStyles"
             >
-                <MentionList
-                    :items="resolved.items"
-                    :active-index="resolved.activeIndex"
-                    :grouped="resolved.grouped"
-                    :empty-message="resolved.emptyMessage"
-                    :loading="resolved.loading"
-                    @select="onSelect"
-                />
+                <div class="mention-panel">
+                    <div class="mention-filter" role="toolbar" aria-label="Filter by kind">
+                        <button
+                            class="mention-filter__btn"
+                            :class="{ 'mention-filter__btn--active': activeFilter === 'file' }"
+                            type="button"
+                            @mousedown.prevent
+                            @click="setFilter('file')"
+                        >
+                            File
+                        </button>
+                        <button
+                            class="mention-filter__btn"
+                            :class="{ 'mention-filter__btn--active': activeFilter === 'folder' }"
+                            type="button"
+                            @mousedown.prevent
+                            @click="setFilter('folder')"
+                        >
+                            Directory
+                        </button>
+                    </div>
+                    <MentionList
+                        :items="filteredItems"
+                        :active-index="resolved.activeIndex"
+                        :grouped="resolved.grouped"
+                        :empty-message="resolved.emptyMessage"
+                        :loading="resolved.loading"
+                        @select="onSelect"
+                    />
+                </div>
             </div>
         </Transition>
     </div>

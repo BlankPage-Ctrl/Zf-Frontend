@@ -9,6 +9,60 @@
     outline: none;
 }
 
+.mention-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg-secondary, var(--bg-primary));
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.mention-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 6px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary, var(--bg-primary));
+    flex-shrink: 0;
+}
+
+.mention-filter__btn {
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--type-xs, 12px);
+    line-height: 1.2;
+    cursor: pointer;
+    user-select: none;
+    transition:
+        background 120ms ease,
+        color 120ms ease,
+        border-color 120ms ease;
+}
+
+.mention-filter__btn:hover {
+    background: rgba(var(--raw-border-color), 0.3);
+    color: var(--text-primary);
+}
+
+.mention-filter__btn--active {
+    background: var(--border-color);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.mention-panel .mention-menu {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    max-height: 240px;
+}
+
 .mention-menu {
     display: flex;
     flex-direction: column;

@@ -7,7 +7,7 @@ import { injectMarkdownContext } from '../../composables/markdown-context'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
 import { BlockPart } from '@/presentation/components/blockpart'
 import type { BlockPartSchema, BlockPartAction } from '@/presentation/components/blockpart'
-import { getLanguageIcon } from '../../composables/useLanguageIcon'
+import { getLanguageIcon } from '@/presentation/composables/useLanguageIcon'
 
 const props = defineProps<{ node: Code & { loading?: boolean } }>()
 

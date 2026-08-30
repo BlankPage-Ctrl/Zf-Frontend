@@ -7,16 +7,16 @@ import (
 )
 
 type Note struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
 	CategoryID string `json:"category_id"`
-	Desc      string `json:"desc"`
-	Details   string `json:"details"`
-	Rank      string `json:"rank"`
-	Priority  string `json:"priority"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	Version   int    `json:"version"`
+	Desc       string `json:"desc"`
+	Details    string `json:"details"`
+	Rank       string `json:"rank"`
+	Priority   string `json:"priority"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+	Version    int    `json:"version"`
 }
 
 type NoteDto struct {
@@ -40,7 +40,7 @@ func NewService(c *client.Client) *Service {
 	return &Service{c: c}
 }
 
-func (s *Service) List(filter map[string]any) ([]Note, error) {
+func (s *Service) List(workspaceID string, filter map[string]any) ([]Note, error) {
 	q := map[string]string{}
 	for k, v := range filter {
 		if str, ok := v.(string); ok {
@@ -50,29 +50,29 @@ func (s *Service) List(filter map[string]any) ([]Note, error) {
 			q[k] = strconv.FormatFloat(num, 'f', 0, 64)
 		}
 	}
-	return client.DoOK[[]Note](s.c, "GET", "/notes", nil, q)
+	return client.DoOK[[]Note](s.c, "GET", "/workspaces/"+workspaceID+"/notes", nil, q)
 }
 
-func (s *Service) Get(id string) (Note, error) {
-	return client.DoOK[Note](s.c, "GET", "/notes/"+id, nil, nil)
+func (s *Service) Get(workspaceID, id string) (Note, error) {
+	return client.DoOK[Note](s.c, "GET", "/workspaces/"+workspaceID+"/notes/"+id, nil, nil)
 }
 
-func (s *Service) Create(dto NoteDto) (Note, error) {
-	return client.DoOK[Note](s.c, "POST", "/notes", dto, nil)
+func (s *Service) Create(workspaceID string, dto NoteDto) (Note, error) {
+	return client.DoOK[Note](s.c, "POST", "/workspaces/"+workspaceID+"/notes", dto, nil)
 }
 
-func (s *Service) Update(id string, dto map[string]any) (Note, error) {
-	return client.DoOK[Note](s.c, "PATCH", "/notes/"+id, dto, nil)
+func (s *Service) Update(workspaceID, id string, dto map[string]any) (Note, error) {
+	return client.DoOK[Note](s.c, "PATCH", "/workspaces/"+workspaceID+"/notes/"+id, dto, nil)
 }
 
-func (s *Service) Delete(id string) error {
-	return client.DoVoid(s.c, "DELETE", "/notes/"+id, nil)
+func (s *Service) Delete(workspaceID, id string) error {
+	return client.DoVoid(s.c, "DELETE", "/workspaces/"+workspaceID+"/notes/"+id, nil)
 }
 
-func (s *Service) Move(id string, pos MovePosition) (Note, error) {
-	return client.DoOK[Note](s.c, "POST", "/notes/"+id+"/move", pos, nil)
+func (s *Service) Move(workspaceID, id string, pos MovePosition) (Note, error) {
+	return client.DoOK[Note](s.c, "POST", "/workspaces/"+workspaceID+"/notes/"+id+"/move", pos, nil)
 }
 
-func (s *Service) Renumber() (map[string]bool, error) {
-	return client.DoOK[map[string]bool](s.c, "POST", "/notes-renumber", nil, nil)
+func (s *Service) Renumber(workspaceID string) (map[string]bool, error) {
+	return client.DoOK[map[string]bool](s.c, "POST", "/workspaces/"+workspaceID+"/notes-renumber", nil, nil)
 }

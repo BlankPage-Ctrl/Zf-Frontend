@@ -872,3 +872,105 @@ error: Failed to start server. Is port 4567 in use?
       at <anonymous> (/$bunfs/root/index.js:7120:20)
 
 Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)
+270 | };
+271 | Server.prototype[kRealListen] = function(tls, port, host, socketPath, reusePort, onListen) {
+272 |   {
+273 |     let ResponseClass = this[optionsSymbol].ServerResponse || ServerResponse, RequestClass = this[optionsSymbol].IncomingMessage || IncomingMessage, canUseInternalAssignSocket = ResponseClass?.prototype.assignSocket === ServerResponse.prototype.assignSocket, isHTTPS = !1, server = this;
+274 |     if (tls)
+275 |     if (this[serverSymbol] = Bun.serve({
+                         ^
+error: Failed to start server. Is port 4567 in use?
+ syscall: "listen",
+   errno: 0,
+    code: "EADDRINUSE"
+
+      at <anonymous> (node:_http_server:275:39)
+      at <anonymous> (node:_http_server:252:33)
+      at <anonymous> (/$bunfs/root/index.js:7120:20)
+
+Bun v1.3.13 (Linux x64 baseline)

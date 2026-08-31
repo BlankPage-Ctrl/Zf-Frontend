@@ -496,20 +496,20 @@ var stdioRoutes = []stdioRoute{
 	{verb: "PATCH", re: re(`^/providers/([^/]+)/models/([^/]+)$`), rpc: "update.model", build: patchBody},
 	{verb: "DELETE", re: re(`^/providers/([^/]+)/models/([^/]+)$`), rpc: "delete.model", build: paramsLastID},
 
-	// notes
-	{verb: "GET", re: re(`^/notes$`), rpc: "list.note", build: queryToObject},
-	{verb: "POST", re: re(`^/notes$`), rpc: "create.note", build: directBody},
-	{verb: "GET", re: re(`^/notes/([^/]+)$`), rpc: "get.note", build: params("id")},
-	{verb: "PATCH", re: re(`^/notes/([^/]+)$`), rpc: "update.note", build: patchBody},
-	{verb: "DELETE", re: re(`^/notes/([^/]+)$`), rpc: "delete.note", build: params("id")},
-	{verb: "POST", re: re(`^/notes/([^/]+)/move$`), rpc: "move.note", build: moveNote},
-	{verb: "POST", re: re(`^/notes-renumber$`), rpc: "renumber.note", build: noParams},
+	// notes (workspace-scoped)
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/notes$`), rpc: "list.note", build: buildListNotes},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/notes/([^/]+)$`), rpc: "get.note", build: params("workspaceId", "id")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/notes$`), rpc: "create.note", build: buildCreateNote},
+	{verb: "PATCH", re: re(`^/workspaces/([^/]+)/notes/([^/]+)$`), rpc: "update.note", build: buildUpdateNote},
+	{verb: "DELETE", re: re(`^/workspaces/([^/]+)/notes/([^/]+)$`), rpc: "delete.note", build: params("workspaceId", "id")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/notes/([^/]+)/move$`), rpc: "move.note", build: buildMoveNote},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/notes-renumber$`), rpc: "renumber.note", build: params("workspaceId")},
 
-	// categories
-	{verb: "GET", re: re(`^/categories$`), rpc: "list.category", build: noParams},
-	{verb: "POST", re: re(`^/categories$`), rpc: "create.category", build: directBody},
-	{verb: "PATCH", re: re(`^/categories/([^/]+)$`), rpc: "rename.category", build: extendBody("id")},
-	{verb: "DELETE", re: re(`^/categories/([^/]+)$`), rpc: "delete.category", build: params("id")},
+	// categories (workspace-scoped)
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/categories$`), rpc: "list.category", build: params("workspaceId")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/categories$`), rpc: "create.category", build: buildCreateCategory},
+	{verb: "PATCH", re: re(`^/workspaces/([^/]+)/categories/([^/]+)$`), rpc: "rename.category", build: buildRenameCategory},
+	{verb: "DELETE", re: re(`^/workspaces/([^/]+)/categories/([^/]+)$`), rpc: "delete.category", build: params("workspaceId", "id")},
 
 	// hitl
 	{verb: "GET", re: re(`^/hitl/requests/pending$`), rpc: "list.pending.hitl", build: noParams},
@@ -615,6 +615,41 @@ func buildSendMessage(ids []string, body any, _ map[string]string) (any, error) 
 		message = map[string]any{}
 	}
 	return map[string]any{"workspaceId": ids[0], "chatId": ids[1], "message": message}, nil
+}
+
+func buildListNotes(ids []string, _ any, query map[string]string) (any, error) {
+	m := make(map[string]any, len(query)+1)
+	m["workspaceId"] = ids[0]
+	for k, v := range query {
+		m[k] = v
+	}
+	return m, nil
+}
+
+func buildCreateNote(ids []string, body any, _ map[string]string) (any, error) {
+	m := bodyToMap(body)
+	m["workspaceId"] = ids[0]
+	return m, nil
+}
+
+func buildUpdateNote(ids []string, body any, _ map[string]string) (any, error) {
+	return map[string]any{"workspaceId": ids[0], "id": ids[1], "patch": body}, nil
+}
+
+func buildMoveNote(ids []string, body any, _ map[string]string) (any, error) {
+	return map[string]any{"workspaceId": ids[0], "id": ids[1], "position": body}, nil
+}
+
+func buildCreateCategory(ids []string, body any, _ map[string]string) (any, error) {
+	m := bodyToMap(body)
+	m["workspaceId"] = ids[0]
+	return m, nil
+}
+
+func buildRenameCategory(ids []string, body any, _ map[string]string) (any, error) {
+	m := bodyToMap(body)
+	name, _ := m["name"].(string)
+	return map[string]any{"workspaceId": ids[0], "id": ids[1], "name": name}, nil
 }
 
 func queryToObject(_ []string, _ any, query map[string]string) (any, error) {

@@ -24,32 +24,35 @@ import type {
 import type { NoteRepository, CategoryRepository } from '@/core/repositories'
 
 export const notesRepository: NoteRepository = {
-    list: (filter?: NoteFilter, opts?: NoteListOpts) => {
+    list: (workspaceId: string, filter?: NoteFilter, opts?: NoteListOpts) => {
         const query = { ...filter, ...opts } as Record<string, string | number | undefined>
         const filterArg: Record<string, string | number> = {}
         for (const [k, v] of Object.entries(query)) {
             if (v !== undefined) filterArg[k] = v
         }
-        return ListNotes(filterArg) as Promise<Note[]>
+        return ListNotes(workspaceId, filterArg) as Promise<Note[]>
     },
 
-    get: (id: string) => GetNote(id) as Promise<Note>,
+    get: (workspaceId: string, id: string) => GetNote(workspaceId, id) as Promise<Note>,
 
-    create: (dto: NoteDto) => CreateNote(dto) as Promise<Note>,
+    create: (workspaceId: string, dto: NoteDto) => CreateNote(workspaceId, dto) as Promise<Note>,
 
-    update: (id: string, dto: Record<string, unknown>) => UpdateNote(id, dto) as Promise<Note>,
+    update: (workspaceId: string, id: string, dto: Record<string, unknown>) =>
+        UpdateNote(workspaceId, id, dto) as Promise<Note>,
 
-    remove: (id: string) => DeleteNote(id) as Promise<void>,
+    remove: (workspaceId: string, id: string) => DeleteNote(workspaceId, id) as Promise<void>,
 
-    move: (id: string, position: { before?: string; after?: string }) =>
-        MoveNote(id, position) as Promise<Note>,
+    move: (workspaceId: string, id: string, position: { before?: string; after?: string }) =>
+        MoveNote(workspaceId, id, position) as Promise<Note>,
 
-    renumber: () => RenumberNotes() as Promise<{ ok: boolean }>,
+    renumber: (workspaceId: string) => RenumberNotes(workspaceId) as Promise<{ ok: boolean }>,
 }
 
 export const categoriesRepository: CategoryRepository = {
-    list: () => ListCategories() as Promise<Category[]>,
-    create: (dto: CategoryDto) => CreateCategory(dto) as Promise<Category>,
-    rename: (id: string, name: string) => RenameCategory(id, name) as Promise<Category>,
-    remove: (id: string) => DeleteCategory(id) as Promise<void>,
+    list: (workspaceId: string) => ListCategories(workspaceId) as Promise<Category[]>,
+    create: (workspaceId: string, dto: CategoryDto) =>
+        CreateCategory(workspaceId, dto) as Promise<Category>,
+    rename: (workspaceId: string, id: string, name: string) =>
+        RenameCategory(workspaceId, id, name) as Promise<Category>,
+    remove: (workspaceId: string, id: string) => DeleteCategory(workspaceId, id) as Promise<void>,
 }

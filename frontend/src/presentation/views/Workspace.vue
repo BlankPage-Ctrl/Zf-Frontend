@@ -15,6 +15,7 @@ import {
     useThemeStorer,
     useNoteStorer,
     useChatSessionStorer,
+    useFileExplorerStorer,
     createEmptyChatSessionState,
 } from '@/application/stores'
 import {
@@ -61,6 +62,7 @@ import {
     createWorkspaceLayout,
     createSettingsTabSchema,
 } from '@/presentation/schemas'
+import { createMentionItemsFromFiles } from '@/presentation/schemas/mention'
 
 const SETTINGS_TAB_ID = '__settings__'
 
@@ -88,6 +90,33 @@ const noteStorer = useNoteStorer()
 const dialog = useDialog()
 const settingsTab = useSettingsTab()
 const chatSessionStorer = useChatSessionStorer()
+const fileExplorerStorer = useFileExplorerStorer()
+
+const mentionQuery = ref('')
+const mentionLoading = ref(false)
+
+const mentionItems = computed(() =>
+    createMentionItemsFromFiles({
+        query: mentionQuery.value,
+        nodes: fileExplorerStorer.searchResults,
+        workspaceRoot: fileExplorerStorer.workspaceRoot,
+        maxResults: 12,
+    }),
+)
+
+async function onMentionSearch(query: string) {
+    mentionQuery.value = query
+    if (!query.trim()) {
+        fileExplorerStorer.setSearchResults([])
+        return
+    }
+    mentionLoading.value = true
+    try {
+        await fileExplorerActions.searchFiles(query)
+    } finally {
+        mentionLoading.value = false
+    }
+}
 
 const routeWsId = computed(() => route.params.id as string | undefined)
 
@@ -233,10 +262,13 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         contentWidth: appearanceStorer.contentWidth,
         fontSize: appearanceStorer.fontSize,
         lineHeight: appearanceStorer.lineHeight,
+        mentionItems: mentionItems.value,
+        mentionLoading: mentionLoading.value,
         onSend: (text) => chatSessionActions.sendMessage(workspaceId.value, chat.id, text),
         onStop: () => chatSessionActions.stop(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
+        onMentionSearch: onMentionSearch,
     })
 }
 
@@ -382,7 +414,7 @@ async function persistDraft(noteId: string) {
     savingNote.value = true
     let realId: string
     try {
-        realId = await noteActions.createNote({
+        realId = await noteActions.createNote(workspaceId.value, {
             name: draft.name.trim() || 'Untitled',
             desc: draft.desc,
             details: draft.details,
@@ -408,7 +440,7 @@ async function confirmDeleteNote(note: Note) {
             if (isOpen(note.id)) {
                 close(note.id)
             }
-            await noteActions.deleteNote(note.id)
+            await noteActions.deleteNote(workspaceId.value, note.id)
         },
     })
 }
@@ -443,7 +475,10 @@ async function flushSaves() {
         const current = noteStorer.notes.find((n) => n.id === id)
         if (!current) continue
         try {
-            await noteActions.updateNote(id, { ...patch, version: current.version })
+            await noteActions.updateNote(workspaceId.value, id, {
+                ...patch,
+                version: current.version,
+            })
         } catch {
             /* handled by logic */
         }
@@ -499,7 +534,7 @@ async function openCategoryCreate(note?: Note) {
         confirmLabel: 'Create',
         submit: async (data) => {
             const name = String(data.category!.name ?? '')
-            const id = await noteActions.createCategory({ name })
+            const id = await noteActions.createCategory(workspaceId.value, { name })
             if (note) {
                 if (draftNoteIds.value.has(note.id)) {
                     applyLocalNotePatch(note.id, { category_id: id })
@@ -709,8 +744,8 @@ watch(
         reset()
         await chatActions.fetchChats(newId)
         providerActions.fetchProviders()
-        noteActions.fetchNotes()
-        noteActions.fetchCategories()
+        noteActions.fetchNotes(newId)
+        noteActions.fetchCategories(newId)
         startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)

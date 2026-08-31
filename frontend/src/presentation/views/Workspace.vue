@@ -63,7 +63,6 @@ import {
     createSettingsTabSchema,
 } from '@/presentation/schemas'
 import { createMentionItemsFromFiles } from '@/presentation/schemas/mention'
-import type { MentionTriggerRange } from '@/core/entities'
 
 const SETTINGS_TAB_ID = '__settings__'
 
@@ -105,7 +104,7 @@ const mentionItems = computed(() =>
     }),
 )
 
-async function onMentionSearch(query: string, _range: MentionTriggerRange) {
+async function onMentionSearch(query: string) {
     mentionQuery.value = query
     if (!query.trim()) {
         fileExplorerStorer.setSearchResults([])
@@ -476,7 +475,10 @@ async function flushSaves() {
         const current = noteStorer.notes.find((n) => n.id === id)
         if (!current) continue
         try {
-            await noteActions.updateNote(workspaceId.value, id, { ...patch, version: current.version })
+            await noteActions.updateNote(workspaceId.value, id, {
+                ...patch,
+                version: current.version,
+            })
         } catch {
             /* handled by logic */
         }

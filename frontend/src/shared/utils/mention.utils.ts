@@ -12,8 +12,11 @@ export interface DetectMentionAtResult extends MentionTriggerRange {
  * e.g. "hello @src/ap" at pos 12 -> {kind:'@', prefix:'src/ap', start:6}
  * Frontend will map @-selection to #file: / #folder: token.
  */
-export function detectMentionTrigger(input: string, position: number): DetectMentionAtResult | null {
-    let i = Math.min(position, input.length)
+export function detectMentionTrigger(
+    input: string,
+    position: number,
+): DetectMentionAtResult | null {
+    const i = Math.min(position, input.length)
     // expand prefix chars: allow / in path, but prefix is after trigger
     // For mention we allow a-zA-Z0-9_.-/ as path chars
     let prefixStart = i
@@ -50,7 +53,10 @@ export function detectMentionTrigger(input: string, position: number): DetectMen
  * Detect using backend-compatible lexer logic (NAME_RE only) for fallback.
  * Returns null if not a valid trigger.
  */
-export function detectMentionTriggerStrict(input: string, position: number): DetectMentionAtResult | null {
+export function detectMentionTriggerStrict(
+    input: string,
+    position: number,
+): DetectMentionAtResult | null {
     let j = Math.min(position, input.length)
     while (j > 0 && NAME_RE.test(input[j - 1] ?? '')) j -= 1
     const trigger = j > 0 ? (input[j - 1] ?? '') : ''

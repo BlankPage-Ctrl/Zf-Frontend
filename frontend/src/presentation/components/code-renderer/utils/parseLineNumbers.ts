@@ -16,7 +16,6 @@ function splitToRawLines(content: string): string[] {
     return raw
 }
 
-
 export function parseCodeLines(code: string): ParsedLine[] {
     if (code === '') return []
     const rawLines = splitToRawLines(code)
@@ -46,7 +45,9 @@ export function parseCodeLines(code: string): ParsedLine[] {
 }
 
 export function getCodeForHighlight(code: string): string {
-    return parseCodeLines(code).map((p) => p.text).join('\n')
+    return parseCodeLines(code)
+        .map((p) => p.text)
+        .join('\n')
 }
 
 export function getMaxLineNumberWidth(lines: ParsedLine[]): number {

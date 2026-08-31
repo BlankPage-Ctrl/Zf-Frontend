@@ -6,7 +6,11 @@ export interface NoteBusinessLogic {
     create(workspaceId: string, dto: NoteDto): Promise<Note>
     update(workspaceId: string, id: string, dto: NoteUpdateDto): Promise<Note>
     remove(workspaceId: string, id: string): Promise<void>
-    move(workspaceId: string, id: string, position: { before?: string; after?: string }): Promise<Note>
+    move(
+        workspaceId: string,
+        id: string,
+        position: { before?: string; after?: string },
+    ): Promise<Note>
     renumber(workspaceId: string): Promise<{ ok: boolean }>
     listCategories(workspaceId: string): Promise<Category[]>
     createCategory(workspaceId: string, dto: CategoryDto): Promise<Category>
@@ -21,7 +25,8 @@ export function createNoteBusinessLogic(repo: {
     return {
         list: (workspaceId) => repo.notes.list(workspaceId),
         create: (workspaceId, dto) => repo.notes.create(workspaceId, dto),
-        update: (workspaceId, id, dto) => repo.notes.update(workspaceId, id, dto as unknown as Record<string, unknown>),
+        update: (workspaceId, id, dto) =>
+            repo.notes.update(workspaceId, id, dto as unknown as Record<string, unknown>),
         remove: (workspaceId, id) => repo.notes.remove(workspaceId, id),
         move: (workspaceId, id, position) => repo.notes.move(workspaceId, id, position),
         renumber: (workspaceId) => repo.notes.renumber(workspaceId),

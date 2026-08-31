@@ -8,7 +8,11 @@ export interface NoteActions {
     createNote(workspaceId: string, dto: NoteDto): Promise<string>
     updateNote(workspaceId: string, id: string, dto: NoteUpdateDto): Promise<void>
     deleteNote(workspaceId: string, id: string): Promise<void>
-    moveNote(workspaceId: string, id: string, position: { before?: string; after?: string }): Promise<void>
+    moveNote(
+        workspaceId: string,
+        id: string,
+        position: { before?: string; after?: string },
+    ): Promise<void>
     renumberNotes(workspaceId: string): Promise<void>
     fetchCategories(workspaceId: string): Promise<void>
     createCategory(workspaceId: string, dto: CategoryDto): Promise<string>

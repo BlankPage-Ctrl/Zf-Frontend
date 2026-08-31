@@ -51,7 +51,15 @@ export function createMentionItemsFromFiles(params: CreateMentionItemsParams): M
 }
 
 export function createMentionItems<T>(
-    raw: Array<{ id: string; label: string; description?: string; kind: 'file' | 'folder'; meta: T; insertText: string; icon?: MentionItem['icon'] }>,
+    raw: Array<{
+        id: string
+        label: string
+        description?: string
+        kind: 'file' | 'folder'
+        meta: T
+        insertText: string
+        icon?: MentionItem['icon']
+    }>,
 ): MentionItem[] {
     return raw.map((r) => ({
         id: r.id,

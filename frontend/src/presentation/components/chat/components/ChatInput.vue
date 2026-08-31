@@ -223,13 +223,15 @@ function onModelSelect(value: string) {
             @close="handleMentionClose"
             @navigate="handleMentionNavigate"
         >
-            <template #default="{ handleKeydown: mentionHandleKeydown }">
+            <template #default>
                 <div class="input-container">
                     <textarea
                         ref="textareaRef"
                         v-model="input"
                         class="input-field"
-                        :placeholder="resolved.disabled ? 'AI is responding...' : resolved.placeholder"
+                        :placeholder="
+                            resolved.disabled ? 'AI is responding...' : resolved.placeholder
+                        "
                         :disabled="resolved.disabled"
                         rows="1"
                         @keydown="onKeydown"

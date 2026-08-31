@@ -15,7 +15,10 @@ const emit = defineEmits<{
     (e: 'select', item: MentionItem): void
 }>()
 
-interface Group { kind: string; items: MentionItem[] }
+interface Group {
+    kind: string
+    items: MentionItem[]
+}
 
 const groups = computed<Group[]>(() => {
     if (!props.grouped) return [{ kind: 'all', items: props.items }]
@@ -35,7 +38,7 @@ function isActive(globalIdx: number): boolean {
 function itemGlobalIndex(localIdx: number, groupIdx: number): number {
     if (!props.grouped) return localIdx
     let offset = 0
-    for (let i = 0; i < groupIdx; i++) offset += (groups.value[i]?.items.length ?? 0)
+    for (let i = 0; i < groupIdx; i++) offset += groups.value[i]?.items.length ?? 0
     return offset + localIdx
 }
 </script>

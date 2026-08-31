@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useFloating, offset, flip, shift, size, autoUpdate } from '@floating-ui/vue'
 import type { MentionSchema } from './types/mention.types'
 import { resolveMentionSchema } from './resolver/resolveMentionSchema'

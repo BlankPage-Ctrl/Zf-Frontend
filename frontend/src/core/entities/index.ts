@@ -1,6 +1,7 @@
 export * from './appearance'
 export * from './chat'
 export * from './file'
+export * from './mention'
 export * from './note'
 export * from './provider'
 export * from './settings'

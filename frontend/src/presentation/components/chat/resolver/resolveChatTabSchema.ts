@@ -23,10 +23,13 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             providerId: schema.providerId,
             thinkingMode: schema.thinkingMode,
             providers: schema.providers,
+            mentionItems: schema.mentionItems,
+            mentionLoading: schema.mentionLoading,
             onSend: schema.onSend,
             onStop: schema.onStop,
             onSelectModel: schema.onSelectModel,
             onChangeThinkingMode: schema.onChangeThinkingMode,
+            onMentionSearch: schema.onMentionSearch,
         }),
     }
 }

@@ -1,5 +1,5 @@
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
-import type { Provider } from '@/core/entities'
+import type { MentionItem, MentionTriggerRange, Provider } from '@/core/entities'
 import type { Chat } from '@/core/entities'
 import type { ChatSessionState } from '@/application/stores'
 
@@ -10,10 +10,13 @@ export interface ChatTabParams {
     contentWidth?: number
     fontSize?: number
     lineHeight?: number
+    mentionItems?: MentionItem[]
+    mentionLoading?: boolean
     onSend?: (text: string) => void
     onStop?: () => void
     onUpdateModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
@@ -28,9 +31,12 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         contentWidth: params.contentWidth,
         fontSize: params.fontSize,
         lineHeight: params.lineHeight,
+        mentionItems: params.mentionItems,
+        mentionLoading: params.mentionLoading,
         onSend: params.onSend,
         onStop: params.onStop,
         onSelectModel: params.onUpdateModel,
         onChangeThinkingMode: params.onChangeThinkingMode,
+        onMentionSearch: params.onMentionSearch,
     }
 }

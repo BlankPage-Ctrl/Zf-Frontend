@@ -9,6 +9,12 @@ export interface ToolCallSchemaParams {
     errorText?: string
 }
 
+const TOOL_VIEW_TOGGLE: Record<string, boolean> = {
+    list_files: true,
+    read_file: false,
+    run_shell: false,
+}
+
 export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSchema {
     const isRunning = params.state === 'input-streaming' || params.state === 'input-available'
 
@@ -18,7 +24,7 @@ export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSch
         variant: 'default',
         collapsible: true,
         defaultExpanded: true,
-        viewToggle: true,
+        viewToggle: TOOL_VIEW_TOGGLE[params.toolName] ?? false,
         defaultView: 'preview',
         status: isRunning ? 'streaming' : 'done',
         source: {

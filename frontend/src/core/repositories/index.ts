@@ -1,4 +1,5 @@
 export * from './chat-stream.repository'
+export * from './run.repository'
 export * from './chat.repository'
 export * from './file.repository'
 export * from './message.repository'

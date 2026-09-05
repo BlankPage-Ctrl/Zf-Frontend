@@ -653,6 +653,47 @@ export namespace settings {
 
 }
 
+export namespace stream {
+	
+	export class RunInfo {
+	    runId: string;
+	    chatId: string;
+	    workspaceId: string;
+	    assistantMessageId: string;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RunInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.runId = source["runId"];
+	        this.chatId = source["chatId"];
+	        this.workspaceId = source["workspaceId"];
+	        this.assistantMessageId = source["assistantMessageId"];
+	        this.status = source["status"];
+	    }
+	}
+	export class StartRunResult {
+	    runId: string;
+	    assistantMessageId: string;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartRunResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.runId = source["runId"];
+	        this.assistantMessageId = source["assistantMessageId"];
+	        this.status = source["status"];
+	    }
+	}
+
+}
+
 export namespace workspaces {
 	
 	export class Workspace {

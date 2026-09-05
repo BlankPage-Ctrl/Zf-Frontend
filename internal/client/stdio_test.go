@@ -287,38 +287,38 @@ func TestStdioOpenStreamEOFOnFinalResult(t *testing.T) {
 	}
 }
 
-func TestStdioDoStreamChat(t *testing.T) {
+func TestStdioDoStreamRunWatch(t *testing.T) {
 	p := newStdioTestPair(t)
 
 	respCh := make(chan *http.Response, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		resp, err := p.stdio.DoStream("POST", "/workspaces/ws-1/chats/c-1/messages",
-			json.RawMessage(`{"message":{"id":"m1","role":"user","parts":[{"type":"text","text":"hi"}]}}`), nil)
+		resp, err := p.stdio.DoStream("GET", "/workspaces/ws-1/chats/c-1/runs/r-1/stream",
+			nil, map[string]string{"afterSeq": "0"})
 		respCh <- resp
 		errCh <- err
 	}()
 
 	req := p.nextRequest()
-	if req["method"] != "send.message" {
-		t.Fatalf("method = %v, want send.message", req["method"])
+	if req["method"] != "watch.message-run" {
+		t.Fatalf("method = %v, want watch.message-run", req["method"])
 	}
 	id, _ := req["id"].(string)
 
 	p.respond(map[string]any{
 		"jsonrpc": "2.0",
 		"method":  "message.chunk",
-		"params":  map[string]any{"userMsgId": "msg-1", "requestId": id, "chunk": map[string]any{"type": "text-delta", "text": "Hello"}},
+		"params":  map[string]any{"event": map[string]any{"type": "text-delta", "text": "Hello"}, "runId": "r-1", "requestId": id},
 	})
 	p.respond(map[string]any{
 		"jsonrpc": "2.0",
 		"method":  "message.chunk",
-		"params":  map[string]any{"userMsgId": "msg-1", "requestId": id, "chunk": map[string]any{"type": "text-delta", "text": " world"}},
+		"params":  map[string]any{"event": map[string]any{"type": "text-delta", "text": " world"}, "runId": "r-1", "requestId": id},
 	})
 	p.respond(map[string]any{
 		"jsonrpc": "2.0",
 		"id":      id,
-		"result":  map[string]any{"userMsgId": "msg-1"},
+		"result":  map[string]any{"runId": "r-1", "status": "done"},
 	})
 
 	resp := <-respCh
@@ -361,7 +361,11 @@ func TestStdioRouteMapping(t *testing.T) {
 		{"GET", "/workspaces/ws-1", "get.workspace"},
 		{"POST", "/workspaces/ws-1/chats", "create.chat"},
 		{"GET", "/workspaces/ws-1/chats/c-1/messages", "list.message"},
-		{"POST", "/workspaces/ws-1/chats/c-1/messages", "send.message"},
+		{"POST", "/workspaces/ws-1/chats/c-1/runs", "start.message-run"},
+		{"GET", "/workspaces/ws-1/chats/c-1/runs", "list.message-run"},
+		{"GET", "/workspaces/ws-1/chats/c-1/runs/r-1", "get.message-run"},
+		{"DELETE", "/workspaces/ws-1/chats/c-1/runs/r-1", "cancel.message-run"},
+		{"GET", "/workspaces/ws-1/chats/c-1/runs/r-1/stream", "watch.message-run"},
 		{"GET", "/workspaces/ws-1/files", "list.file"},
 		{"GET", "/workspaces/ws-1/files/read", "read.file"},
 		{"GET", "/workspaces/ws-1/files/events", "watch.file"},

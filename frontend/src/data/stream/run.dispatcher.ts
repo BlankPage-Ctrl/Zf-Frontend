@@ -1,28 +1,28 @@
-export interface ChatStreamEventHandlers {
+export interface RunStreamEventHandlers {
     onChunk(line: string): void
     onDone(): void
     onError(err: string): void
 }
 
-export interface ChatStreamDispatcher {
-    subscribe(sid: string, handlers: ChatStreamEventHandlers): () => void
+export interface RunStreamDispatcher {
+    subscribe(watchId: string, handlers: RunStreamEventHandlers): () => void
     destroy(): void
 }
 
 export type EventsOnFn = (event: string, callback: (...data: unknown[]) => void) => () => void
 
-const CHUNK_EVENT = 'chat:stream-chunk'
-const DONE_EVENT = 'chat:stream-done'
-const ERROR_EVENT = 'chat:stream-error'
+const CHUNK_EVENT = 'run:chunk'
+const DONE_EVENT = 'run:done'
+const ERROR_EVENT = 'run:error'
 
-export function createChatStreamDispatcher(eventsOn: EventsOnFn): ChatStreamDispatcher {
-    const listeners = new Map<string, ChatStreamEventHandlers>()
+export function createRunStreamDispatcher(eventsOn: EventsOnFn): RunStreamDispatcher {
+    const listeners = new Map<string, RunStreamEventHandlers>()
 
     const route =
         (kind: 'chunk' | 'done' | 'error') =>
         (...data: unknown[]): void => {
-            const sid = data[0] as string
-            const handler = listeners.get(sid)
+            const watchId = data[0] as string
+            const handler = listeners.get(watchId)
             if (!handler) return
             if (kind === 'chunk') handler.onChunk(data[1] as string)
             else if (kind === 'done') handler.onDone()
@@ -35,10 +35,10 @@ export function createChatStreamDispatcher(eventsOn: EventsOnFn): ChatStreamDisp
         eventsOn(ERROR_EVENT, route('error')),
     ]
 
-    const subscribe = (sid: string, handlers: ChatStreamEventHandlers): (() => void) => {
-        listeners.set(sid, handlers)
+    const subscribe = (watchId: string, handlers: RunStreamEventHandlers): (() => void) => {
+        listeners.set(watchId, handlers)
         return () => {
-            listeners.delete(sid)
+            listeners.delete(watchId)
         }
     }
 

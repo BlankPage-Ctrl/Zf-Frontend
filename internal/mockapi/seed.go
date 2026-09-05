@@ -67,6 +67,7 @@ func NewSeedStore() *Store {
 			"defaultProviderId": pvID,
 			"defaultModelId":    mdID,
 		},
+		Runs:         NewCollection([]MockRun{}),
 		FileContents: mockFileContents,
 	}
 

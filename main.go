@@ -36,7 +36,7 @@ func main() {
 			app.Settings,
 			app.Files,
 			app.FileWatch,
-			app.ChatStream,
+			app.RunStream,
 			app.Hitl,
 			app.HitlWatch,
 			app.ShellExecWatch,

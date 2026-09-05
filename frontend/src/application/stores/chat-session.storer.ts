@@ -8,6 +8,7 @@ export interface ChatSessionState {
     status: ChatSessionStatus
     error: Error | undefined
     isLoading: boolean
+    activeRunId: string | undefined
 }
 
 export function createEmptyChatSessionState(): ChatSessionState {
@@ -16,6 +17,7 @@ export function createEmptyChatSessionState(): ChatSessionState {
         status: 'ready',
         error: undefined,
         isLoading: false,
+        activeRunId: undefined,
     }
 }
 

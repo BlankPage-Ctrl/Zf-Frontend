@@ -86,7 +86,12 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("DELETE /workspaces/{workspaceId}/chats/{id}", s.handleDeleteChat)
 
 	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/messages", s.handleGetMessages)
-	mux.HandleFunc("POST /workspaces/{workspaceId}/chats/{chatId}/messages", s.handlePostMessage)
+
+	mux.HandleFunc("POST /workspaces/{workspaceId}/chats/{chatId}/runs", s.handleStartRun)
+	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/runs", s.handleListRuns)
+	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/runs/{runId}", s.handleGetRun)
+	mux.HandleFunc("DELETE /workspaces/{workspaceId}/chats/{chatId}/runs/{runId}", s.handleCancelRun)
+	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/runs/{runId}/stream", s.handleWatchRun)
 
 	mux.HandleFunc("GET /workspaces/{workspaceId}/files", s.handleListDir)
 	mux.HandleFunc("GET /workspaces/{workspaceId}/files/stat", s.handleGetStat)

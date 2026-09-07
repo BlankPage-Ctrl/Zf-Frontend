@@ -1,6 +1,7 @@
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
 import type { MessagePartSchema } from './schema'
 import type { MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
+import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export type {
     ChatTabSchema,
@@ -19,6 +20,8 @@ export type {
 
 export interface ResolvedChatTab {
     header: { title: string }
+    chatId: string
+    hitl: HitlDockSchema | null
     messageList: ResolvedMessageList
     input: ResolvedChatInput
 }

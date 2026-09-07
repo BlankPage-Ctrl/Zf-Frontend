@@ -8,6 +8,8 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
         header: {
             title: schema.title,
         },
+        chatId: schema.chatId,
+        hitl: schema.hitl,
         messageList: resolveMessageListSchema({
             messages: schema.messages,
             loading: schema.loading,

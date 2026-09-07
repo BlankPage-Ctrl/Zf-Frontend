@@ -7,6 +7,7 @@ import {
     useFileExplorerStorer,
     useNoteStorer,
     useChatSessionStorer,
+    useHitlStorer,
 } from '../stores'
 
 import {
@@ -20,8 +21,9 @@ import {
     filesRepository,
     notesRepository,
     categoriesRepository,
+    hitlRepository,
 } from '@/data/services'
-import { fileWatch, createRunStreamPort } from '@/data/stream'
+import { fileWatch, createRunStreamPort, hitlWatch } from '@/data/stream'
 import type { RunFetchHooks } from '@/data/stream/run.transport'
 
 import { createWorkspaceStoreLogic } from '../store-logic/workspace.logic'
@@ -32,6 +34,7 @@ import { createAppearanceStoreLogic } from '../store-logic/appearance.logic'
 import { createFileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
 import { createNoteStoreLogic } from '../store-logic/note.logic'
 import { createChatSessionStoreLogic } from '../store-logic/chat-session.logic'
+import { createHitlStoreLogic } from '../store-logic/hitl.logic'
 
 import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
 import { createChatBusinessLogic } from '../business-logic/chat.logic'
@@ -41,6 +44,7 @@ import { createAppearanceBusinessLogic } from '../business-logic/appearance.logi
 import { createFileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
 import { createNoteBusinessLogic } from '../business-logic/note.logic'
 import { createChatSessionEngine } from '../business-logic/chat-session.logic'
+import { createHitlBusinessLogic } from '../business-logic/hitl.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -50,6 +54,7 @@ import { createAppearanceActions } from './appearance.actions'
 import { createFileExplorerActions } from './file-explorer.actions'
 import { createChatSessionActions } from './chat-session.actions'
 import { createNoteActions } from './note.actions'
+import { createHitlActions } from './hitl.actions'
 
 const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
 const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
@@ -124,6 +129,11 @@ const noteBusinessLogic = createNoteBusinessLogic({
 
 export const noteActions = createNoteActions(noteStoreLogic, noteBusinessLogic)
 
+const hitlStoreLogic = createHitlStoreLogic(() => useHitlStorer())
+const hitlBusinessLogic = createHitlBusinessLogic({ repo: hitlRepository, watch: hitlWatch })
+
+export const hitlActions = createHitlActions(hitlStoreLogic, hitlBusinessLogic)
+
 export type { WorkspaceActions } from './workspace.actions'
 export type { ChatActions } from './chat.actions'
 export type { ProviderActions } from './provider.actions'
@@ -132,3 +142,4 @@ export type { AppearanceActions } from './appearance.actions'
 export type { FileExplorerActions } from './file-explorer.actions'
 export type { ChatSessionActions } from './chat-session.actions'
 export type { NoteActions } from './note.actions'
+export type { HitlActions } from './hitl.actions'

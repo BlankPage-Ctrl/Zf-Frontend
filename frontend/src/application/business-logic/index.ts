@@ -22,3 +22,8 @@ export {
     type ChatSessionDeps,
     type ChatSessionStatePatch,
 } from './chat-session.logic'
+export {
+    createHitlBusinessLogic,
+    type HitlBusinessLogic,
+    type HitlBusinessLogicDeps,
+} from './hitl.logic'

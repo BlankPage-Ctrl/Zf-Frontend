@@ -283,6 +283,8 @@ export namespace hitl {
 	    title: string;
 	    description?: string;
 	    correlationId?: string;
+	    workspaceId?: string;
+	    chatId?: string;
 	    executionId?: string;
 	    metadata: Record<string, any>;
 	    status: string;
@@ -308,6 +310,8 @@ export namespace hitl {
 	        this.title = source["title"];
 	        this.description = source["description"];
 	        this.correlationId = source["correlationId"];
+	        this.workspaceId = source["workspaceId"];
+	        this.chatId = source["chatId"];
 	        this.executionId = source["executionId"];
 	        this.metadata = source["metadata"];
 	        this.status = source["status"];

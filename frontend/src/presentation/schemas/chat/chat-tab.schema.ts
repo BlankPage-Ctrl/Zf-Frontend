@@ -2,9 +2,11 @@ import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
 import type { MentionItem, MentionTriggerRange, Provider, ChatMode } from '@/core/entities'
 import type { Chat } from '@/core/entities'
 import type { ChatSessionState } from '@/application/stores'
+import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export interface ChatTabParams {
     chat: Chat
+    hitl?: HitlDockSchema | null
     state: ChatSessionState
     providers: Provider[]
     contentWidth?: number
@@ -23,6 +25,8 @@ export interface ChatTabParams {
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
     return {
         title: params.chat.title,
+        chatId: params.chat.id,
+        hitl: params.hitl ?? null,
         messages: params.state.messages,
         loading: params.state.isLoading,
         providers: params.providers,

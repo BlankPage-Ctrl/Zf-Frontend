@@ -17,4 +17,5 @@ export {
     type ShellExecState,
     createEmptyShellExecState,
 } from './shell-exec.storer'
+export { useHitlStorer, type HitlStorer, type HitlItemState } from './hitl.storer'
 export type { ShellExecLine } from '@/core/entities'

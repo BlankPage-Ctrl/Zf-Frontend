@@ -1,4 +1,5 @@
 export { chatsRepository } from './chat.service'
+export { hitlRepository } from './hitl.service'
 export { filesRepository } from './files.service'
 export { messagesRepository } from './messages.service'
 export { runsRepository } from './run.service'

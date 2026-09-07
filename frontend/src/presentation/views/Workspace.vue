@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Album, ChatBubbleEmpty, Label, Notes, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
@@ -16,6 +16,7 @@ import {
     useNoteStorer,
     useChatSessionStorer,
     useFileExplorerStorer,
+    useHitlStorer,
     createEmptyChatSessionState,
 } from '@/application/stores'
 import {
@@ -27,6 +28,7 @@ import {
     themeActions,
     noteActions,
     chatSessionActions,
+    hitlActions,
 } from '@/application/actions'
 import type { Chat, ChatMode, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
@@ -57,6 +59,7 @@ import {
     createSidebarChatListSchema,
     createSidebarNoteListSchema,
     createChatTabSchema,
+    createHitlDockSchema,
     createNotesTabSchema,
     createChatRailsSchema,
     createWorkspaceLayout,
@@ -91,6 +94,7 @@ const dialog = useDialog()
 const settingsTab = useSettingsTab()
 const chatSessionStorer = useChatSessionStorer()
 const fileExplorerStorer = useFileExplorerStorer()
+const hitlStorer = useHitlStorer()
 
 const mentionQuery = ref('')
 const mentionLoading = ref(false)
@@ -125,6 +129,11 @@ const workspaceId = computed(() => {
 })
 
 useShellExec(workspaceId)
+
+onMounted(() => {
+    void hitlActions.seedPending()
+    hitlActions.startWatch()
+})
 
 const workspace = computed(() => {
     if (!workspaceId.value) return null
@@ -254,9 +263,37 @@ const WsTabStripSchema = computed<WsTabStripSchema<string>>(() => {
     }
 })
 
+function buildHitlDockSchema(chatId: string) {
+    return createHitlDockSchema({
+        items: hitlStorer.pendingForChat(chatId),
+        onApprove: (id, always) => {
+            void hitlActions.submit(id, { outcome: always ? 'always_approved' : 'approved' })
+        },
+        onDeny: (id, reason) => {
+            void hitlActions.submit(id, {
+                outcome: 'rejected',
+                ...(reason ? { reason } : {}),
+            })
+        },
+        onAskSubmit: (id, value) => {
+            void hitlActions.submit(id, { value })
+        },
+        onChoiceSubmit: (id, selected, customInput) => {
+            void hitlActions.submit(id, {
+                selected,
+                ...(customInput ? { customInput } : {}),
+            })
+        },
+        onDismiss: (id) => {
+            void hitlActions.dismiss(id)
+        },
+    })
+}
+
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
     return createChatTabSchema({
         chat,
+        hitl: buildHitlDockSchema(chat.id),
         state: chatSessionStorer.sessions[chat.id] ?? createEmptyChatSessionState(),
         providers: providerStorer.providers,
         contentWidth: appearanceStorer.contentWidth,
@@ -789,6 +826,7 @@ onBeforeUnmount(() => {
 })
 
 onUnmounted(() => {
+    hitlActions.stopWatch()
     cleanupWorkspace()
 })
 </script>

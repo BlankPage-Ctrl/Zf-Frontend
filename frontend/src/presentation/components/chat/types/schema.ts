@@ -1,8 +1,11 @@
 import type { UIMessage } from 'ai'
 import type { Provider, MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
+import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export interface ChatTabSchema {
     title: string
+    chatId: string
+    hitl: HitlDockSchema | null
     messages: UIMessage[]
     loading?: boolean
     providers: Provider[]

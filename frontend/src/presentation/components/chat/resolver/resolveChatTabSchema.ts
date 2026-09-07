@@ -22,6 +22,7 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             modelId: schema.modelId,
             providerId: schema.providerId,
             thinkingMode: schema.thinkingMode,
+            mode: schema.mode,
             providers: schema.providers,
             mentionItems: schema.mentionItems,
             mentionLoading: schema.mentionLoading,
@@ -29,6 +30,7 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             onStop: schema.onStop,
             onSelectModel: schema.onSelectModel,
             onChangeThinkingMode: schema.onChangeThinkingMode,
+            onChangeMode: schema.onChangeMode,
             onMentionSearch: schema.onMentionSearch,
         }),
     }

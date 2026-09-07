@@ -28,7 +28,7 @@ import {
     noteActions,
     chatSessionActions,
 } from '@/application/actions'
-import type { Chat, Note } from '@/core/entities'
+import type { Chat, ChatMode, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
@@ -268,6 +268,7 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         onStop: () => chatSessionActions.stop(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
+        onChangeMode: (mode) => onUpdateChat(chat.id, { mode }),
         onMentionSearch: onMentionSearch,
     })
 }
@@ -278,7 +279,7 @@ function getChatById(chatId: string): Chat | undefined {
 
 async function onUpdateChat(
     chatId: string,
-    payload: { modelId?: string; providerId?: string; thinkingMode?: string },
+    payload: { modelId?: string; providerId?: string; thinkingMode?: string; mode?: ChatMode },
 ) {
     try {
         await chatActions.updateChat(workspaceId.value, chatId, payload)

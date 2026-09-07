@@ -1,5 +1,5 @@
 import type { UIMessage } from 'ai'
-import type { Provider, MentionItem, MentionTriggerRange } from '@/core/entities'
+import type { Provider, MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
 
 export interface ChatTabSchema {
     title: string
@@ -9,6 +9,7 @@ export interface ChatTabSchema {
     modelId?: string
     providerId?: string
     thinkingMode?: string
+    mode?: ChatMode
     contentWidth?: number
     fontSize?: number
     lineHeight?: number
@@ -20,6 +21,7 @@ export interface ChatTabSchema {
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 
@@ -28,6 +30,7 @@ export interface ChatInputSchema {
     modelId?: string
     providerId?: string
     thinkingMode?: string
+    mode?: ChatMode
     providers: Provider[]
     placeholder?: string
     mentionItems?: MentionItem[]
@@ -36,6 +39,7 @@ export interface ChatInputSchema {
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 

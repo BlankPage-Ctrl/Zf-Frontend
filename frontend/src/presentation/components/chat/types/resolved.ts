@@ -1,6 +1,6 @@
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
 import type { MessagePartSchema } from './schema'
-import type { MentionItem, MentionTriggerRange } from '@/core/entities'
+import type { MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
 
 export type {
     ChatTabSchema,
@@ -29,6 +29,7 @@ export interface ResolvedChatInput {
     modelId?: string
     providerId?: string
     thinkingMode?: string
+    mode: ChatMode
     modelItems: DropdownItemConfig[]
     selectedLabel: string
     mentionItems: MentionItem[]
@@ -37,6 +38,7 @@ export interface ResolvedChatInput {
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 

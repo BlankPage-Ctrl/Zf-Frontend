@@ -1,9 +1,12 @@
+export type ChatMode = 'ask' | 'plan' | 'edit'
+
 export interface ChatDto {
     title: string
     modelId?: string
     providerId?: string
     systemPrompt?: string
     thinkingMode?: string
+    mode?: ChatMode
 }
 
 export interface Chat {
@@ -13,6 +16,7 @@ export interface Chat {
     modelId?: string
     systemPrompt?: string
     thinkingMode?: string
+    mode?: ChatMode
     workspaceId: string
     createdAt: string
     updatedAt: string

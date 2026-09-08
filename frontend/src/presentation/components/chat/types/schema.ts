@@ -81,6 +81,7 @@ export interface ToolCallPartSchema {
     input?: unknown
     output?: unknown
     errorText?: string
+    frontend?: ToolFrontendData
 }
 
 export interface SourcePartSchema {
@@ -101,6 +102,76 @@ export interface DataPartSchema {
     data: unknown
 }
 
+export interface FrontendFileNode {
+    id: string
+    name: string
+    path: string
+    type: string
+    isDirectory: boolean
+    size?: number
+    lastModified?: number
+    hasChildren?: boolean
+    children?: FrontendFileNode[]
+    meta?: {
+        isSymlink?: boolean
+        symlinkTarget?: string
+    }
+}
+
+export interface ListFilesFrontendData {
+    toolCallId: string
+    requestedPath: string
+    nodes: FrontendFileNode[]
+    total: number
+    limit?: number
+}
+
+export interface ReadFileFrontendData {
+    toolCallId: string
+    path: string
+    content: string
+    contentWithLineNumbers?: string
+    encoding: string
+    size: number
+    truncated: boolean
+    totalLines?: number
+}
+
+export interface RunShellFrontendData {
+    toolCallId: string
+    executionId: string
+    command: string
+    cwd: string
+    exitCode: number
+    stdout: string
+    stderr: string
+    truncated: boolean
+    spillPath: string | null
+    durationMs: number
+    timedOut: boolean
+    signal: string | null
+}
+
+export type ToolFrontendData =
+    | ListFilesFrontendData
+    | ReadFileFrontendData
+    | RunShellFrontendData
+
+export interface ListFilesDataPartSchema {
+    id?: string
+    data: ListFilesFrontendData
+}
+
+export interface ReadFileDataPartSchema {
+    id?: string
+    data: ReadFileFrontendData
+}
+
+export interface RunShellDataPartSchema {
+    id?: string
+    data: RunShellFrontendData
+}
+
 export interface StepIndicatorSchema {
     label?: string
 }
@@ -112,4 +183,19 @@ export type MessagePartSchema =
     | ({ type: 'source' } & SourcePartSchema)
     | ({ type: 'file' } & FilePartSchema)
     | ({ type: 'data' } & DataPartSchema)
+    | ({ type: 'data-list_files' } & ListFilesDataPartSchema)
+    | ({ type: 'data-read_file' } & ReadFileDataPartSchema)
+    | ({ type: 'data-run_shell' } & RunShellDataPartSchema)
     | ({ type: 'step-start' } & StepIndicatorSchema)
+
+export const FRONTEND_DATA_PART_TYPES = [
+    'data-list_files',
+    'data-read_file',
+    'data-run_shell',
+] as const
+
+export type FrontendDataPartType = (typeof FRONTEND_DATA_PART_TYPES)[number]
+
+export function isFrontendDataPartType(type: string): type is FrontendDataPartType {
+    return (FRONTEND_DATA_PART_TYPES as readonly string[]).includes(type)
+}

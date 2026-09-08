@@ -135,7 +135,7 @@ const layout = computed<ContainerSchema[]>(() => [
                                 class="testlab__back"
                                 @click="router.push({ name: 'home' })"
                             >
-                                Back to app
+                                Back to Workspace
                             </button>
                         </div>
                     </div>

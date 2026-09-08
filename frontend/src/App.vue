@@ -79,6 +79,10 @@ async function onDeleteWorkspace(id: string) {
         },
     })
 }
+
+function onNavigateTestLab() {
+    router.push({ name: 'test-lab' })
+}
 </script>
 
 <template>
@@ -92,6 +96,7 @@ async function onDeleteWorkspace(id: string) {
                 @create-workspace="onCreateWorkspace"
                 @delete-workspace="onDeleteWorkspace"
                 @open-settings="settingsTab.requestOpen()"
+                @navigate-test-lab="onNavigateTestLab"
             />
             <RouterView v-slot="{ Component }">
                 <div class="router-view">

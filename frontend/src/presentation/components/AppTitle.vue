@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { NavArrowDown, Plus, Settings as SettingsIcon } from '@iconoir/vue'
+import { NavArrowDown, Plus, Settings as SettingsIcon, Flask } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import type { CommandAction } from '@/presentation/components/dropdown/types'
 import type { Workspace } from '@/core/entities'
@@ -21,6 +21,7 @@ const emit = defineEmits<{
     'create-workspace': []
     'delete-workspace': [id: string]
     'open-settings': []
+    'navigate-test-lab': []
 }>()
 
 const selectedWsName = computed(() => {
@@ -50,6 +51,10 @@ function handleAction(action: CommandAction) {
 
 function openSettings() {
     emit('open-settings')
+}
+
+function openTestLab() {
+    emit('navigate-test-lab')
 }
 </script>
 
@@ -94,6 +99,14 @@ function openSettings() {
         </div>
 
         <div class="title-actions">
+            <button
+                class="title-action-btn ws-testlab-btn"
+                @click="openTestLab"
+                title="Test Lab"
+                aria-label="Test Lab"
+            >
+                <Flask width="14" height="14" />
+            </button>
             <button
                 class="title-action-btn ws-settings-btn"
                 @click="openSettings"
@@ -223,6 +236,14 @@ function openSettings() {
 }
 
 .ws-settings-btn:hover {
+    color: var(--text-primary);
+}
+
+.ws-testlab-btn {
+    color: var(--text-primary);
+}
+
+.ws-testlab-btn:hover {
     color: var(--text-primary);
 }
 </style>

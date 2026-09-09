@@ -5,11 +5,11 @@ import type {
     SourcePartSchema,
     FilePartSchema,
     DataPartSchema,
-    ToolFrontendData,
+    ToolData,
     StepIndicatorSchema,
     MessagePartSchema,
 } from '../types/schema'
-import { isFrontendDataPartType } from '../types/schema'
+import { isToolDataPartType } from '../types/schema'
 import type {
     ResolvedTextPart,
     ResolvedReasoningPart,
@@ -201,7 +201,7 @@ function buildMessagePart(
     }
     if (isDataUIPart(part)) {
         const raw = part as { type: string; id?: unknown; data?: unknown }
-        if (isFrontendDataPartType(raw.type)) {
+        if (isToolDataPartType(raw.type)) {
             return {
                 type: raw.type,
                 ...(typeof raw.id === 'string' ? { id: raw.id } : {}),
@@ -219,7 +219,7 @@ function buildMessagePart(
     return { type: 'text', text: '' }
 }
 
-function getFrontendToolCallId(part: UIMessage['parts'][number]): string | null {
+function getToolDataCallId(part: UIMessage['parts'][number]): string | null {
     const data = (part as { data?: unknown }).data
     if (data !== null && typeof data === 'object') {
         const toolCallId = (data as { toolCallId?: unknown }).toolCallId
@@ -233,14 +233,14 @@ export function resolveMessageParts(
     defaults?: { fontSize?: number; lineHeight?: number },
 ): MessagePartSchema[] {
     const list = parts ?? []
-    const frontendByCall = new Map<string, ToolFrontendData>()
+    const toolDataByCall = new Map<string, ToolData>()
     for (const part of list) {
         const raw = part as { type?: unknown }
-        if (typeof raw.type === 'string' && isFrontendDataPartType(raw.type)) {
-            const toolCallId = getFrontendToolCallId(part)
-            const data = (part as { data?: unknown }).data as ToolFrontendData | undefined
+        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
+            const toolCallId = getToolDataCallId(part)
+            const data = (part as { data?: unknown }).data as ToolData | undefined
             if (toolCallId !== null && data !== undefined) {
-                frontendByCall.set(toolCallId, data)
+                toolDataByCall.set(toolCallId, data)
             }
         }
     }
@@ -248,13 +248,13 @@ export function resolveMessageParts(
     const out: MessagePartSchema[] = []
     for (const part of list) {
         const raw = part as { type?: unknown }
-        if (typeof raw.type === 'string' && isFrontendDataPartType(raw.type)) {
+        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
             continue
         }
         const resolved = buildMessagePart(part, defaults)
         if (resolved === null) continue
         if (resolved.type === 'tool-call') {
-            const frontend = frontendByCall.get(resolved.toolCallId)
+            const frontend = toolDataByCall.get(resolved.toolCallId)
             if (frontend !== undefined) resolved.frontend = frontend
         }
         out.push(resolved)

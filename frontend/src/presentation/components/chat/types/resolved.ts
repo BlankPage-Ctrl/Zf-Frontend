@@ -1,5 +1,5 @@
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
-import type { MessagePartSchema, ToolFrontendData } from './schema'
+import type { MessagePartSchema, ToolData } from './schema'
 import type { MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
 
@@ -16,13 +16,15 @@ export type {
     DataPartSchema,
     ListFilesDataPartSchema,
     ReadFileDataPartSchema,
+    EditFileDataPartSchema,
     RunShellDataPartSchema,
-    ListFilesFrontendData,
-    ReadFileFrontendData,
-    RunShellFrontendData,
-    ToolFrontendData,
-    FrontendFileNode,
-    FrontendDataPartType,
+    ListFilesToolData,
+    ReadFileToolData,
+    EditFileToolData,
+    RunShellToolData,
+    ToolData,
+    ToolFileNode,
+    ToolDataPartType,
     StepIndicatorSchema,
     MessagePartSchema,
 } from './schema'
@@ -98,7 +100,7 @@ export interface ResolvedToolCallPart {
     input?: unknown
     output?: unknown
     errorText?: string
-    frontend?: ToolFrontendData
+    frontend?: ToolData
     isRunning: boolean
     isDone: boolean
     isError: boolean

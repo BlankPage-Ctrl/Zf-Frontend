@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
 import type {
-    ListFilesFrontendData,
-    ReadFileFrontendData,
+    ListFilesToolData,
+    ReadFileToolData,
 } from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer, useThemeStorer } from '@/application/stores'
@@ -87,7 +87,7 @@ function inferLangFromPath(filePath: string): string {
 const readFilePreview = computed(() => {
     if (resolved.value.toolName !== 'read_file') return null
     if (resolved.value.state !== 'output-available') return null
-    const frontend = resolved.value.frontend as ReadFileFrontendData | undefined
+    const frontend = resolved.value.frontend as ReadFileToolData | undefined
     if (frontend && typeof frontend.content === 'string' && frontend.content !== '') {
         if (frontend.encoding === 'base64') return null
         const filePath = frontend.path ?? ''
@@ -122,7 +122,7 @@ const listFilesPreview = computed(() => {
     if (resolved.value.toolName !== 'list_files') return null
     if (resolved.value.state !== 'output-available') return null
     // Raw companion payload (data-list_files), stored AS IS.
-    const frontend = resolved.value.frontend as ListFilesFrontendData | undefined
+    const frontend = resolved.value.frontend as ListFilesToolData | undefined
     if (!frontend || !Array.isArray(frontend.nodes)) return null
     const shown = frontend.nodes.slice(0, 50)
     return {

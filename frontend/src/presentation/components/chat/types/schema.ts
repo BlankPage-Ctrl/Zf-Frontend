@@ -81,7 +81,7 @@ export interface ToolCallPartSchema {
     input?: unknown
     output?: unknown
     errorText?: string
-    frontend?: ToolFrontendData
+    frontend?: ToolData
 }
 
 export interface SourcePartSchema {
@@ -102,7 +102,7 @@ export interface DataPartSchema {
     data: unknown
 }
 
-export interface FrontendFileNode {
+export interface ToolFileNode {
     id: string
     name: string
     path: string
@@ -111,22 +111,22 @@ export interface FrontendFileNode {
     size?: number
     lastModified?: number
     hasChildren?: boolean
-    children?: FrontendFileNode[]
+    children?: ToolFileNode[]
     meta?: {
         isSymlink?: boolean
         symlinkTarget?: string
     }
 }
 
-export interface ListFilesFrontendData {
+export interface ListFilesToolData {
     toolCallId: string
     requestedPath: string
-    nodes: FrontendFileNode[]
+    nodes: ToolFileNode[]
     total: number
     limit?: number
 }
 
-export interface ReadFileFrontendData {
+export interface ReadFileToolData {
     toolCallId: string
     path: string
     content: string
@@ -137,7 +137,20 @@ export interface ReadFileFrontendData {
     totalLines?: number
 }
 
-export interface RunShellFrontendData {
+export interface EditFileToolData {
+    toolCallId: string
+    path: string
+    appliedEdits: number
+    content: string
+    contentWithLineNumbers?: string
+    encoding: string
+    size: number
+    totalLines: number
+    diff?: string
+    diffTruncated?: boolean
+}
+
+export interface RunShellToolData {
     toolCallId: string
     executionId: string
     command: string
@@ -152,24 +165,30 @@ export interface RunShellFrontendData {
     signal: string | null
 }
 
-export type ToolFrontendData =
-    | ListFilesFrontendData
-    | ReadFileFrontendData
-    | RunShellFrontendData
+export type ToolData =
+    | ListFilesToolData
+    | ReadFileToolData
+    | EditFileToolData
+    | RunShellToolData
 
 export interface ListFilesDataPartSchema {
     id?: string
-    data: ListFilesFrontendData
+    data: ListFilesToolData
 }
 
 export interface ReadFileDataPartSchema {
     id?: string
-    data: ReadFileFrontendData
+    data: ReadFileToolData
+}
+
+export interface EditFileDataPartSchema {
+    id?: string
+    data: EditFileToolData
 }
 
 export interface RunShellDataPartSchema {
     id?: string
-    data: RunShellFrontendData
+    data: RunShellToolData
 }
 
 export interface StepIndicatorSchema {
@@ -185,17 +204,19 @@ export type MessagePartSchema =
     | ({ type: 'data' } & DataPartSchema)
     | ({ type: 'data-list_files' } & ListFilesDataPartSchema)
     | ({ type: 'data-read_file' } & ReadFileDataPartSchema)
+    | ({ type: 'data-edit_file' } & EditFileDataPartSchema)
     | ({ type: 'data-run_shell' } & RunShellDataPartSchema)
     | ({ type: 'step-start' } & StepIndicatorSchema)
 
-export const FRONTEND_DATA_PART_TYPES = [
+export const TOOL_DATA_PART_TYPES = [
     'data-list_files',
     'data-read_file',
+    'data-edit_file',
     'data-run_shell',
 ] as const
 
-export type FrontendDataPartType = (typeof FRONTEND_DATA_PART_TYPES)[number]
+export type ToolDataPartType = (typeof TOOL_DATA_PART_TYPES)[number]
 
-export function isFrontendDataPartType(type: string): type is FrontendDataPartType {
-    return (FRONTEND_DATA_PART_TYPES as readonly string[]).includes(type)
+export function isToolDataPartType(type: string): type is ToolDataPartType {
+    return (TOOL_DATA_PART_TYPES as readonly string[]).includes(type)
 }

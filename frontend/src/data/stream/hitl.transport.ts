@@ -4,12 +4,7 @@ import { parseHitlEvent } from '@/core/entities'
 import type { FEHitlEvent } from '@/core/entities'
 import type { HitlWatchHandlers, HitlWatchPort } from '@/core/repositories'
 
-const EVENT_TYPES = [
-    'hitl:request',
-    'hitl:resolved',
-    'hitl:cancelled',
-    'hitl:expired',
-] as const
+const EVENT_TYPES = ['hitl:request', 'hitl:resolved', 'hitl:cancelled', 'hitl:expired'] as const
 
 function toEvent(raw: string): FEHitlEvent | null {
     return parseHitlEvent(raw)

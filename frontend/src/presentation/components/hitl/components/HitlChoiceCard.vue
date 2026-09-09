@@ -31,7 +31,10 @@ function toggle(id: string): void {
     }
     const index = selected.value.indexOf(id)
     if (index === -1) {
-        if (props.schema.maxSelect !== undefined && selected.value.length >= props.schema.maxSelect) {
+        if (
+            props.schema.maxSelect !== undefined &&
+            selected.value.length >= props.schema.maxSelect
+        ) {
             return
         }
         selected.value = [...selected.value, id]
@@ -53,11 +56,7 @@ const selectionError = computed((): string | null => {
 
 const canSubmit = computed(() => {
     if (submitting.value || selected.value.length === 0) return false
-    if (
-        props.schema.allowOther &&
-        selected.value.includes(OTHER_ID) &&
-        !customInput.value.trim()
-    ) {
+    if (props.schema.allowOther && selected.value.includes(OTHER_ID) && !customInput.value.trim()) {
         return false
     }
     return !selectionError.value
@@ -87,7 +86,9 @@ function dismiss(): void {
                 <ListSelect width="16" height="16" />
             </span>
             <span class="hitl-card__title">{{ schema.title }}</span>
-            <span class="hitl-card__type">{{ schema.mode === 'single' ? 'choose' : schema.mode }}</span>
+            <span class="hitl-card__type">{{
+                schema.mode === 'single' ? 'choose' : schema.mode
+            }}</span>
         </div>
         <p v-if="schema.description" class="hitl-card__desc">{{ schema.description }}</p>
         <div>
@@ -100,7 +101,10 @@ function dismiss(): void {
                 :disabled="submitting"
                 @click="toggle(option.id)"
             >
-                <span v-if="schema.mode === 'ranked' && rankOf[option.id]" class="hitl-choice__rank">
+                <span
+                    v-if="schema.mode === 'ranked' && rankOf[option.id]"
+                    class="hitl-choice__rank"
+                >
                     {{ rankOf[option.id] }}
                 </span>
                 <span class="hitl-choice__option-body">

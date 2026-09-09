@@ -18,4 +18,8 @@ export type {
     HitlDockSchema,
 } from './types/schema'
 
-export { resolveHitlDockSchema, resolveHitlDockForChat, resolveHitlCardSchema } from './resolver/resolveHitlSchema'
+export {
+    resolveHitlDockSchema,
+    resolveHitlDockForChat,
+    resolveHitlCardSchema,
+} from './resolver/resolveHitlSchema'

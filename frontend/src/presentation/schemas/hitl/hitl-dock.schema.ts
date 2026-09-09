@@ -1,8 +1,5 @@
 import { resolveHitlDockSchema } from '@/presentation/components/hitl'
-import type {
-    HitlCardCallbacks,
-    HitlDockSchema,
-} from '@/presentation/components/hitl'
+import type { HitlCardCallbacks, HitlDockSchema } from '@/presentation/components/hitl'
 import type { HitlItemState } from '@/application/stores'
 
 export interface HitlDockParams extends HitlCardCallbacks {

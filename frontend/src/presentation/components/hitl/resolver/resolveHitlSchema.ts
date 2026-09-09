@@ -132,8 +132,7 @@ function resolveChoiceOptions(request: FEHitlRequest): HitlChoiceOptionSchema[] 
 function resolveChoice(item: HitlItemState, callbacks: HitlCardCallbacks): HitlChoiceCardSchema {
     const request = item.request
     const modeRaw = request.payload.mode
-    const mode: HitlChoiceMode =
-        modeRaw === 'multi' || modeRaw === 'ranked' ? modeRaw : 'single'
+    const mode: HitlChoiceMode = modeRaw === 'multi' || modeRaw === 'ranked' ? modeRaw : 'single'
     const defaultRaw = request.payload.defaultSelection
     return {
         id: request.id,

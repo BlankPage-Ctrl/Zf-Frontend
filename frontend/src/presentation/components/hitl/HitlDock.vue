@@ -36,12 +36,7 @@ const hiddenCount = computed(() => items.value.length - visible.value.length)
         >
             +{{ hiddenCount }} more
         </button>
-        <button
-            v-if="expanded"
-            class="hitl-dock__more"
-            type="button"
-            @click="expanded = false"
-        >
+        <button v-if="expanded" class="hitl-dock__more" type="button" @click="expanded = false">
             Show less
         </button>
     </div>

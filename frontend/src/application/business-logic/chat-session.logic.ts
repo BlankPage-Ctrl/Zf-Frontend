@@ -71,12 +71,21 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
                 transport,
                 onFinish: () => {
                     activeRuns.delete(chatId)
-                    deps.onState(chatId, { status: 'ready', isLoading: false, activeRunId: undefined })
+                    deps.onState(chatId, {
+                        status: 'ready',
+                        isLoading: false,
+                        activeRunId: undefined,
+                    })
                     stopPolling(chatId)
                 },
                 onError: (e: Error) => {
                     activeRuns.delete(chatId)
-                    deps.onState(chatId, { error: e, status: 'error', isLoading: false, activeRunId: undefined })
+                    deps.onState(chatId, {
+                        error: e,
+                        status: 'error',
+                        isLoading: false,
+                        activeRunId: undefined,
+                    })
                     stopPolling(chatId)
                 },
             })

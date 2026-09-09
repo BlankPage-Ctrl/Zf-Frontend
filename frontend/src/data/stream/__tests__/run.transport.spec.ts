@@ -134,7 +134,11 @@ afterEach(() => {
 describe('createRunFetch', () => {
     it('starts a run on POST and streams chunks with seq tracking', async () => {
         const deps = makeDeps()
-        const resp = await createRunFetch('w', 'c', deps)('http://x', {
+        const resp = await createRunFetch(
+            'w',
+            'c',
+            deps,
+        )('http://x', {
             method: 'POST',
             body: postBody,
         })
@@ -169,22 +173,26 @@ describe('createRunFetch', () => {
 
     it('closes cleanly on user-cancel terminal frame instead of erroring', async () => {
         const deps = makeDeps()
-        const resp = await createRunFetch('w', 'c', deps)('http://x', {
+        const resp = await createRunFetch(
+            'w',
+            'c',
+            deps,
+        )('http://x', {
             method: 'POST',
             body: postBody,
         })
         const wid = backend.watchIds[0]!
-        router.emit(
-            'run:error',
-            wid,
-            '{"type":"run-status","runId":"run_1","status":"cancelled"}',
-        )
+        router.emit('run:error', wid, '{"type":"run-status","runId":"run_1","status":"cancelled"}')
         await expect(readText(resp)).resolves.toEqual('')
     })
 
     it('errors on failed terminal frame', async () => {
         const deps = makeDeps()
-        const resp = await createRunFetch('w', 'c', deps)('http://x', {
+        const resp = await createRunFetch(
+            'w',
+            'c',
+            deps,
+        )('http://x', {
             method: 'POST',
             body: postBody,
         })
@@ -199,7 +207,11 @@ describe('createRunFetch', () => {
 
     it('unwatches (does not cancel the run) on transport cancel', async () => {
         const deps = makeDeps()
-        const resp = await createRunFetch('w', 'c', deps)('http://x', {
+        const resp = await createRunFetch(
+            'w',
+            'c',
+            deps,
+        )('http://x', {
             method: 'POST',
             body: postBody,
         })
@@ -211,7 +223,11 @@ describe('createRunFetch', () => {
     it('throws when no user message is present', async () => {
         const deps = makeDeps()
         await expect(
-            createRunFetch('w', 'c', deps)('http://x', {
+            createRunFetch(
+                'w',
+                'c',
+                deps,
+            )('http://x', {
                 method: 'POST',
                 body: JSON.stringify({ messages: [] }),
             }),

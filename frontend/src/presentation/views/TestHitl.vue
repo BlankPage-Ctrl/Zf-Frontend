@@ -135,9 +135,7 @@ const buttonClass =
         <div class="flex flex-wrap gap-2">
             <button type="button" :class="buttonClass" @click="previewApproval">approval</button>
             <button type="button" :class="buttonClass" @click="previewAsk">ask</button>
-            <button type="button" :class="buttonClass" @click="previewChoiceSingle">
-                choice
-            </button>
+            <button type="button" :class="buttonClass" @click="previewChoiceSingle">choice</button>
             <button type="button" :class="buttonClass" @click="previewChoiceMulti">multi</button>
             <button type="button" :class="buttonClass" @click="clear">clear</button>
         </div>

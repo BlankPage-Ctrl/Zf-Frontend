@@ -165,11 +165,7 @@ export interface RunShellToolData {
     signal: string | null
 }
 
-export type ToolData =
-    | ListFilesToolData
-    | ReadFileToolData
-    | EditFileToolData
-    | RunShellToolData
+export type ToolData = ListFilesToolData | ReadFileToolData | EditFileToolData | RunShellToolData
 
 export interface ListFilesDataPartSchema {
     id?: string

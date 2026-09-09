@@ -24,7 +24,11 @@ export type FEHitlEvent =
     | { type: 'cancelled'; request: unknown }
     | { type: 'expired'; request: unknown }
 
-export type FEApprovalOutcome = 'approved' | 'rejected' | 'always_approved' | 'approved_with_modification'
+export type FEApprovalOutcome =
+    | 'approved'
+    | 'rejected'
+    | 'always_approved'
+    | 'approved_with_modification'
 
 export interface FEApprovalResponse {
     outcome: FEApprovalOutcome
@@ -187,9 +191,7 @@ export function parseHitlEvent(raw: string): FEHitlEvent | null {
 }
 
 export function hitlShellPreview(request: FEHitlRequest): FEHitlShellPreview {
-    const preview = isRecord(request.payload.contextPreview)
-        ? request.payload.contextPreview
-        : {}
+    const preview = isRecord(request.payload.contextPreview) ? request.payload.contextPreview : {}
     const matched = isRecord(preview.matched) ? preview.matched : {}
     const fromMeta = (key: string): string | undefined => {
         const value = request.metadata[key]

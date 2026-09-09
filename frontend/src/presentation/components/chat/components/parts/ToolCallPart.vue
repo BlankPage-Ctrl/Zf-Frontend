@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
-import type {
-    ListFilesToolData,
-    ReadFileToolData,
-} from '../../types/schema'
+import type { ListFilesToolData, ReadFileToolData } from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer, useThemeStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'

@@ -96,33 +96,3 @@ func (s *Store) handleDeleteChat(w http.ResponseWriter, r *http.Request) {
 func (s *Store) handleGetMessages(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, r, http.StatusOK, s.Messages)
 }
-
-func (s *Store) handlePostMessage(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Message *struct {
-			Role string `json:"role"`
-		} `json:"message"`
-	}
-	if err := readBody(r, &body); err != nil || body.Message == nil {
-		writeError(w, r, http.StatusBadRequest, "body.message is required")
-		return
-	}
-	if body.Message.Role != "user" {
-		writeError(w, r, http.StatusBadRequest, "only user messages are accepted")
-		return
-	}
-
-	var assistantMsg *mockMessage
-	for _, m := range s.Messages {
-		if m.Role == "assistant" {
-			assistantMsg = &m
-			break
-		}
-	}
-	if assistantMsg == nil {
-		writeError(w, r, http.StatusInternalServerError, "No mock assistant message available")
-		return
-	}
-
-	streamMessageSSE(w, r, *assistantMsg)
-}

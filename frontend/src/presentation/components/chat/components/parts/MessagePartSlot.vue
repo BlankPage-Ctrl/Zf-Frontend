@@ -26,6 +26,10 @@ const PLACEHOLDER_HEIGHT: Record<MessagePartSchema['type'], number> = {
     source: 36,
     file: 36,
     data: 32,
+    'data-list_files': 40,
+    'data-read_file': 40,
+    'data-edit_file': 40,
+    'data-run_shell': 40,
     'step-start': 28,
 }
 

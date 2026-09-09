@@ -1,6 +1,8 @@
 export { chatsRepository } from './chat.service'
+export { hitlRepository } from './hitl.service'
 export { filesRepository } from './files.service'
 export { messagesRepository } from './messages.service'
+export { runsRepository } from './run.service'
 export { notesRepository, categoriesRepository } from './notes.service'
 export { providersRepository, modelsRepository } from './provider.service'
 export { settingsRepository } from './settings.service'

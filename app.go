@@ -11,8 +11,8 @@ import (
 	"myproject/internal/categories"
 	"myproject/internal/chats"
 	"myproject/internal/client"
-	"myproject/internal/hitl"
 	"myproject/internal/files"
+	"myproject/internal/hitl"
 	"myproject/internal/messages"
 	"myproject/internal/mockapi"
 	"myproject/internal/models"
@@ -24,23 +24,23 @@ import (
 )
 
 type App struct {
-	ctx              context.Context
-	Client           *client.Client
-	Backend          *backend.Manager
-	Workspaces       *workspaces.Service
-	Chats            *chats.Service
-	Messages         *messages.Service
-	Notes            *notes.Service
-	Categories       *categories.Service
-	Providers        *providers.Service
-	Models           *models.Service
-	Settings         *settings.Service
-	Files            *files.Service
-	FileWatch        *stream.FileWatchService
-	ChatStream       *stream.ChatStreamService
-	Hitl            *hitl.Service
-	HitlWatch        *stream.HitlWatchService
-	ShellExecWatch   *stream.ShellExecWatchService
+	ctx            context.Context
+	Client         *client.Client
+	Backend        *backend.Manager
+	Workspaces     *workspaces.Service
+	Chats          *chats.Service
+	Messages       *messages.Service
+	Notes          *notes.Service
+	Categories     *categories.Service
+	Providers      *providers.Service
+	Models         *models.Service
+	Settings       *settings.Service
+	Files          *files.Service
+	FileWatch      *stream.FileWatchService
+	RunStream      *stream.RunStreamService
+	Hitl           *hitl.Service
+	HitlWatch      *stream.HitlWatchService
+	ShellExecWatch *stream.ShellExecWatchService
 }
 
 func NewApp() *App {
@@ -58,21 +58,21 @@ func NewApp() *App {
 	}
 
 	return &App{
-		Client:     c,
-		Backend:    backendMgr,
-		Workspaces: workspaces.NewService(c),
-		Chats:      chats.NewService(c),
-		Messages:   messages.NewService(c),
-		Notes:      notes.NewService(c),
-		Categories: categories.NewService(c),
-		Providers:  providers.NewService(c),
-		Models:     models.NewService(c),
-		Settings:   settings.NewService(c),
-		Files:      files.NewService(c),
-		FileWatch:  stream.NewFileWatchService(c),
-		ChatStream: stream.NewChatStreamService(c),
-		Hitl:       hitl.NewService(c),
-		HitlWatch:  stream.NewHitlWatchService(c),
+		Client:         c,
+		Backend:        backendMgr,
+		Workspaces:     workspaces.NewService(c),
+		Chats:          chats.NewService(c),
+		Messages:       messages.NewService(c),
+		Notes:          notes.NewService(c),
+		Categories:     categories.NewService(c),
+		Providers:      providers.NewService(c),
+		Models:         models.NewService(c),
+		Settings:       settings.NewService(c),
+		Files:          files.NewService(c),
+		FileWatch:      stream.NewFileWatchService(c),
+		RunStream:      stream.NewRunStreamService(c),
+		Hitl:           hitl.NewService(c),
+		HitlWatch:      stream.NewHitlWatchService(c),
 		ShellExecWatch: stream.NewShellExecWatchService(c),
 	}
 }
@@ -103,7 +103,7 @@ func resolveTransport() (*backend.Manager, client.Transport, error) {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.FileWatch.SetAppContext(ctx)
-	a.ChatStream.SetAppContext(ctx)
+	a.RunStream.SetAppContext(ctx)
 	a.HitlWatch.SetAppContext(ctx)
 	a.ShellExecWatch.SetAppContext(ctx)
 	a.Files.SetAppContext(ctx)

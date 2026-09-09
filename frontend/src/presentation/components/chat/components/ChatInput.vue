@@ -1,16 +1,38 @@
 <script setup lang="ts">
 import { computed, ref, nextTick, watch } from 'vue'
-import { Brain, Cube, NavArrowDown, SendDiagonal, Xmark } from '@iconoir/vue'
+import {
+    Brain,
+    ChatBubbleEmpty,
+    Cube,
+    EditPencil,
+    Map,
+    NavArrowDown,
+    SendDiagonal,
+    Xmark,
+} from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import { MentionDropup } from '@/presentation/components/mention'
 import type { ResolvedChatInput } from '../types/resolved'
 import type { DropdownItemConfig, StyleConfig } from '@/presentation/components/dropdown/types'
-import type { MentionItem, MentionTriggerRange } from '@/core/entities'
+import type { ChatMode, MentionItem, MentionTriggerRange } from '@/core/entities'
 import { detectMentionTrigger, insertMentionAt } from '@/shared/utils/mention.utils'
 
 const props = defineProps<{
     resolved: ResolvedChatInput
 }>()
+
+const CHAT_MODES: { value: ChatMode; label: string; icon: typeof ChatBubbleEmpty }[] = [
+    { value: 'ask', label: 'Ask', icon: ChatBubbleEmpty },
+    { value: 'plan', label: 'Plan', icon: Map },
+    { value: 'edit', label: 'Edit', icon: EditPencil },
+]
+
+const currentMode = computed<ChatMode>(() => props.resolved.mode ?? 'ask')
+
+function selectMode(mode: ChatMode) {
+    if (mode === currentMode.value) return
+    props.resolved.onChangeMode?.(mode)
+}
 
 const THINKING_LEVELS: { value: string; label: string }[] = [
     { value: 'default', label: 'Default' },
@@ -305,6 +327,27 @@ function onModelSelect(value: string) {
                         </button>
                     </template>
                 </DropdownRoot>
+                <div
+                    v-if="resolved.onChangeMode"
+                    class="mode-toggle"
+                    role="radiogroup"
+                    aria-label="Chat mode"
+                >
+                    <button
+                        v-for="m in CHAT_MODES"
+                        :key="m.value"
+                        class="mode-toggle__item"
+                        :class="{ 'mode-toggle__item--active': m.value === currentMode }"
+                        role="radio"
+                        :aria-checked="m.value === currentMode"
+                        :title="m.label"
+                        type="button"
+                        @click="selectMode(m.value)"
+                    >
+                        <component :is="m.icon" width="11" height="11" />
+                        <span class="mode-toggle__label">{{ m.label }}</span>
+                    </button>
+                </div>
             </div>
             <div class="input-footer__right">
                 <DropdownRoot

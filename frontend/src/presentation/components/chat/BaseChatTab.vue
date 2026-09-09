@@ -2,6 +2,7 @@
 import type { ResolvedChatTab } from './types/resolved.ts'
 import BaseMessageList from './components/MessageList.vue'
 import BaseChatInput from './components/ChatInput.vue'
+import { HitlDock } from '@/presentation/components/hitl'
 
 defineProps<{
     resolved: ResolvedChatTab
@@ -14,6 +15,7 @@ defineProps<{
             <h2 class="chat-tab-title">{{ resolved.header.title }}</h2>
         </div> -->
         <BaseMessageList :resolved="resolved.messageList" />
+        <HitlDock v-if="resolved.hitl" :schema="resolved.hitl" />
         <BaseChatInput :resolved="resolved.input" />
     </div>
 </template>

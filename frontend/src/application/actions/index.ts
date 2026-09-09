@@ -7,6 +7,7 @@ import {
     useFileExplorerStorer,
     useNoteStorer,
     useChatSessionStorer,
+    useHitlStorer,
 } from '../stores'
 
 import {
@@ -16,11 +17,14 @@ import {
     modelsRepository,
     settingsRepository,
     messagesRepository,
+    runsRepository,
     filesRepository,
     notesRepository,
     categoriesRepository,
+    hitlRepository,
 } from '@/data/services'
-import { chatStream, fileWatch } from '@/data/stream'
+import { fileWatch, createRunStreamPort, hitlWatch } from '@/data/stream'
+import type { RunFetchHooks } from '@/data/stream/run.transport'
 
 import { createWorkspaceStoreLogic } from '../store-logic/workspace.logic'
 import { createChatStoreLogic } from '../store-logic/chat.logic'
@@ -30,6 +34,7 @@ import { createAppearanceStoreLogic } from '../store-logic/appearance.logic'
 import { createFileExplorerStoreLogic } from '../store-logic/file-explorer.logic'
 import { createNoteStoreLogic } from '../store-logic/note.logic'
 import { createChatSessionStoreLogic } from '../store-logic/chat-session.logic'
+import { createHitlStoreLogic } from '../store-logic/hitl.logic'
 
 import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
 import { createChatBusinessLogic } from '../business-logic/chat.logic'
@@ -39,6 +44,7 @@ import { createAppearanceBusinessLogic } from '../business-logic/appearance.logi
 import { createFileExplorerBusinessLogic } from '../business-logic/file-explorer.logic'
 import { createNoteBusinessLogic } from '../business-logic/note.logic'
 import { createChatSessionEngine } from '../business-logic/chat-session.logic'
+import { createHitlBusinessLogic } from '../business-logic/hitl.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -48,6 +54,7 @@ import { createAppearanceActions } from './appearance.actions'
 import { createFileExplorerActions } from './file-explorer.actions'
 import { createChatSessionActions } from './chat-session.actions'
 import { createNoteActions } from './note.actions'
+import { createHitlActions } from './hitl.actions'
 
 const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
 const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
@@ -93,11 +100,24 @@ export const fileExplorerActions = createFileExplorerActions(
 )
 
 const chatSessionStoreLogic = createChatSessionStoreLogic(() => useChatSessionStorer())
-const chatSessionEngine = createChatSessionEngine({
+// The run transport needs engine hooks, but the engine needs the transport,
+// both are only used lazily (per chat, after wiring), so forward via ref.
+const runHooksRef: { current?: RunFetchHooks } = {}
+const forwardHooks: RunFetchHooks = {
+    onRunStarted: (chatId, runId) => runHooksRef.current?.onRunStarted(chatId, runId),
+    onSeq: (chatId, seq) => runHooksRef.current?.onSeq(chatId, seq),
+    getResumeTarget: (chatId) => runHooksRef.current?.getResumeTarget(chatId),
+    clearResumeTarget: (chatId) => runHooksRef.current?.clearResumeTarget(chatId),
+}
+const runStreamPort = createRunStreamPort({ runs: runsRepository, hooks: forwardHooks })
+const chatSessionBundle = createChatSessionEngine({
     messagesRepo: messagesRepository,
-    stream: chatStream,
+    runsRepo: runsRepository,
+    stream: runStreamPort,
     onState: (chatId, patch) => chatSessionStoreLogic.patch(chatId, patch),
 })
+runHooksRef.current = chatSessionBundle.runHooks
+const chatSessionEngine = chatSessionBundle.engine
 
 export const chatSessionActions = createChatSessionActions(chatSessionStoreLogic, chatSessionEngine)
 
@@ -109,6 +129,11 @@ const noteBusinessLogic = createNoteBusinessLogic({
 
 export const noteActions = createNoteActions(noteStoreLogic, noteBusinessLogic)
 
+const hitlStoreLogic = createHitlStoreLogic(() => useHitlStorer())
+const hitlBusinessLogic = createHitlBusinessLogic({ repo: hitlRepository, watch: hitlWatch })
+
+export const hitlActions = createHitlActions(hitlStoreLogic, hitlBusinessLogic)
+
 export type { WorkspaceActions } from './workspace.actions'
 export type { ChatActions } from './chat.actions'
 export type { ProviderActions } from './provider.actions'
@@ -117,3 +142,4 @@ export type { AppearanceActions } from './appearance.actions'
 export type { FileExplorerActions } from './file-explorer.actions'
 export type { ChatSessionActions } from './chat-session.actions'
 export type { NoteActions } from './note.actions'
+export type { HitlActions } from './hitl.actions'

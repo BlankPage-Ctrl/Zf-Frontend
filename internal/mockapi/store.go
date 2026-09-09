@@ -108,6 +108,7 @@ type Store struct {
 	Categories   *Collection[Category]
 	Settings     map[string]string
 	Messages     []mockMessage
+	Runs         *Collection[MockRun]
 	FileTree     FileNode
 	FileContents map[string]string
 }

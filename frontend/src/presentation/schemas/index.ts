@@ -27,6 +27,7 @@ export {
 export { createWorkspaceLayout } from './layout/workspace-layout.schema'
 export { primaryLayout } from './layout/primary-layout.schema'
 export { createChatTabSchema } from './chat/chat-tab.schema'
+export { createHitlDockSchema, type HitlDockParams } from './hitl/hitl-dock.schema'
 export { createChatRailsSchema } from './chat/chat-rails.schema'
 export { createToolCallSchema } from './chat/tool-call.schema'
 export { createReasoningSchema } from './chat/reasoning.schema'

@@ -46,6 +46,7 @@ export namespace chats {
 	    modelId?: string;
 	    systemPrompt?: string;
 	    thinkingMode: string;
+	    mode: string;
 	    workspaceId: string;
 	    createdAt: string;
 	    updatedAt: string;
@@ -62,6 +63,7 @@ export namespace chats {
 	        this.modelId = source["modelId"];
 	        this.systemPrompt = source["systemPrompt"];
 	        this.thinkingMode = source["thinkingMode"];
+	        this.mode = source["mode"];
 	        this.workspaceId = source["workspaceId"];
 	        this.createdAt = source["createdAt"];
 	        this.updatedAt = source["updatedAt"];
@@ -73,6 +75,7 @@ export namespace chats {
 	    providerId?: string;
 	    systemPrompt?: string;
 	    thinkingMode?: string;
+	    mode?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new ChatDto(source);
@@ -85,6 +88,7 @@ export namespace chats {
 	        this.providerId = source["providerId"];
 	        this.systemPrompt = source["systemPrompt"];
 	        this.thinkingMode = source["thinkingMode"];
+	        this.mode = source["mode"];
 	    }
 	}
 
@@ -279,6 +283,8 @@ export namespace hitl {
 	    title: string;
 	    description?: string;
 	    correlationId?: string;
+	    workspaceId?: string;
+	    chatId?: string;
 	    executionId?: string;
 	    metadata: Record<string, any>;
 	    status: string;
@@ -304,6 +310,8 @@ export namespace hitl {
 	        this.title = source["title"];
 	        this.description = source["description"];
 	        this.correlationId = source["correlationId"];
+	        this.workspaceId = source["workspaceId"];
+	        this.chatId = source["chatId"];
 	        this.executionId = source["executionId"];
 	        this.metadata = source["metadata"];
 	        this.status = source["status"];
@@ -648,6 +656,47 @@ export namespace settings {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.key = source["key"];
 	        this.value = source["value"];
+	    }
+	}
+
+}
+
+export namespace stream {
+	
+	export class RunInfo {
+	    runId: string;
+	    chatId: string;
+	    workspaceId: string;
+	    assistantMessageId: string;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RunInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.runId = source["runId"];
+	        this.chatId = source["chatId"];
+	        this.workspaceId = source["workspaceId"];
+	        this.assistantMessageId = source["assistantMessageId"];
+	        this.status = source["status"];
+	    }
+	}
+	export class StartRunResult {
+	    runId: string;
+	    assistantMessageId: string;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartRunResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.runId = source["runId"];
+	        this.assistantMessageId = source["assistantMessageId"];
+	        this.status = source["status"];
 	    }
 	}
 

@@ -16,6 +16,8 @@ type HitlRequest struct {
 	Title        string          `json:"title"`
 	Description  *string         `json:"description"`
 	CorrelationID *string        `json:"correlationId"`
+	WorkspaceID  *string         `json:"workspaceId"`
+	ChatID       *string         `json:"chatId"`
 	ExecutionID  *string         `json:"executionId"`
 	Metadata     map[string]any  `json:"metadata"`
 	Status       string          `json:"status"`

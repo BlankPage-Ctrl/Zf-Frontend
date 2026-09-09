@@ -15,6 +15,12 @@ const TOOL_VIEW_TOGGLE: Record<string, boolean> = {
     run_shell: false,
 }
 
+const TOOL_EXPANDED: Record<string, boolean> = {
+    list_files: false,
+    read_file: false,
+    run_shell: true,
+}
+
 export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSchema {
     const isRunning = params.state === 'input-streaming' || params.state === 'input-available'
 
@@ -23,7 +29,7 @@ export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSch
         icon: Wrench,
         variant: 'default',
         collapsible: true,
-        defaultExpanded: true,
+        defaultExpanded: TOOL_EXPANDED[params.toolName] ?? false,
         viewToggle: TOOL_VIEW_TOGGLE[params.toolName] ?? false,
         defaultView: 'preview',
         status: isRunning ? 'streaming' : 'done',

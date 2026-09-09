@@ -8,6 +8,8 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
         header: {
             title: schema.title,
         },
+        chatId: schema.chatId,
+        hitl: schema.hitl,
         messageList: resolveMessageListSchema({
             messages: schema.messages,
             loading: schema.loading,
@@ -22,6 +24,7 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             modelId: schema.modelId,
             providerId: schema.providerId,
             thinkingMode: schema.thinkingMode,
+            mode: schema.mode,
             providers: schema.providers,
             mentionItems: schema.mentionItems,
             mentionLoading: schema.mentionLoading,
@@ -29,6 +32,7 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             onStop: schema.onStop,
             onSelectModel: schema.onSelectModel,
             onChangeThinkingMode: schema.onChangeThinkingMode,
+            onChangeMode: schema.onChangeMode,
             onMentionSearch: schema.onMentionSearch,
         }),
     }

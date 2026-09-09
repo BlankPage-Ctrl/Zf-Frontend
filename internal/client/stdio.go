@@ -475,7 +475,13 @@ var stdioRoutes = []stdioRoute{
 
 	// messages
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/messages$`), rpc: "list.message", build: params("workspaceId", "chatId")},
-	{verb: "POST", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/messages$`), rpc: "send.message", stream: true, convert: chatChunk, build: buildSendMessage},
+
+	// runs
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs$`), rpc: "start.message-run", build: buildStartRun},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs$`), rpc: "list.message-run", build: params("workspaceId", "chatId")},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs/([^/]+)$`), rpc: "get.message-run", build: params("workspaceId", "chatId", "runId")},
+	{verb: "DELETE", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs/([^/]+)$`), rpc: "cancel.message-run", build: params("workspaceId", "chatId", "runId")},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs/([^/]+)/stream$`), rpc: "watch.message-run", stream: true, convert: runChunk, build: buildWatchRun},
 
 	// file manager
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/files$`), rpc: "list.file", build: buildFileList},
@@ -608,13 +614,23 @@ func buildReadFile(ids []string, _ any, query map[string]string) (any, error) {
 	return m, nil
 }
 
-func buildSendMessage(ids []string, body any, _ map[string]string) (any, error) {
+func buildStartRun(ids []string, body any, _ map[string]string) (any, error) {
 	m := bodyToMap(body)
 	message, _ := m["message"].(map[string]any)
 	if message == nil {
 		message = map[string]any{}
 	}
 	return map[string]any{"workspaceId": ids[0], "chatId": ids[1], "message": message}, nil
+}
+
+func buildWatchRun(ids []string, _ any, query map[string]string) (any, error) {
+	m := map[string]any{"workspaceId": ids[0], "chatId": ids[1], "runId": ids[2]}
+	if q := query["afterSeq"]; q != "" {
+		if n, err := strconv.Atoi(q); err == nil {
+			m["afterSeq"] = n
+		}
+	}
+	return m, nil
 }
 
 func buildListNotes(ids []string, _ any, query map[string]string) (any, error) {
@@ -675,14 +691,14 @@ func bodyToMap(body any) map[string]any {
 	return m
 }
 
-func chatChunk(params json.RawMessage) ([]byte, error) {
+func runChunk(params json.RawMessage) ([]byte, error) {
 	var p struct {
-		Chunk json.RawMessage `json:"chunk"`
+		Event json.RawMessage `json:"event"`
 	}
 	if err := json.Unmarshal(params, &p); err != nil {
 		return nil, err
 	}
-	return p.Chunk, nil
+	return p.Event, nil
 }
 
 func fileEvent(params json.RawMessage) ([]byte, error) {

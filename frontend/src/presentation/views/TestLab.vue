@@ -2,9 +2,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChatBubbleEmpty, Notes, Settings as SettingsIcon, Cpu, Menu, Page } from '@iconoir/vue'
+import {
+    ChatBubbleEmpty,
+    Notes,
+    Settings as SettingsIcon,
+    Cpu,
+    Menu,
+    Page,
+    WarningTriangle,
+} from '@iconoir/vue'
 import { ContainerGrid } from '@/presentation/components/container'
 import type { ContainerSchema } from '@/presentation/components/container'
+import TestHitl from './TestHitl.vue'
 
 type TestItem = {
     id: string
@@ -16,6 +25,7 @@ const router = useRouter()
 
 const testItems: [TestItem, ...TestItem[]] = [
     { id: 'chat-input', label: 'Chat Input Test', icon: ChatBubbleEmpty },
+    { id: 'hitl', label: 'HITL Test', icon: WarningTriangle },
     { id: 'notes', label: 'Notes Test', icon: Notes },
     { id: 'providers', label: 'Provider Test', icon: Cpu },
     { id: 'settings', label: 'Settings Test', icon: SettingsIcon },
@@ -115,7 +125,8 @@ const layout = computed<ContainerSchema[]>(() => [
                         Dummy page for <code>{{ activeItem.id }}</code
                         >. This is just a placeholder — wire the real test UI here later.
                     </p>
-                    <div class="testlab__placeholder">
+                    <TestHitl v-if="activeId === 'hitl'" />
+                    <div v-else class="testlab__placeholder">
                         <div class="testlab__placeholder-card">
                             <span class="testlab__placeholder-badge">DUMMY</span>
                             <p>{{ activeItem.label }} content goes here.</p>
@@ -124,7 +135,7 @@ const layout = computed<ContainerSchema[]>(() => [
                                 class="testlab__back"
                                 @click="router.push({ name: 'home' })"
                             >
-                                Back to app
+                                Back to Workspace
                             </button>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
-import type { MessagePartSchema } from './schema'
-import type { MentionItem, MentionTriggerRange } from '@/core/entities'
+import type { MessagePartSchema, ToolData } from './schema'
+import type { MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
+import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export type {
     ChatTabSchema,
@@ -13,12 +14,25 @@ export type {
     SourcePartSchema,
     FilePartSchema,
     DataPartSchema,
+    ListFilesDataPartSchema,
+    ReadFileDataPartSchema,
+    EditFileDataPartSchema,
+    RunShellDataPartSchema,
+    ListFilesToolData,
+    ReadFileToolData,
+    EditFileToolData,
+    RunShellToolData,
+    ToolData,
+    ToolFileNode,
+    ToolDataPartType,
     StepIndicatorSchema,
     MessagePartSchema,
 } from './schema'
 
 export interface ResolvedChatTab {
     header: { title: string }
+    chatId: string
+    hitl: HitlDockSchema | null
     messageList: ResolvedMessageList
     input: ResolvedChatInput
 }
@@ -29,6 +43,7 @@ export interface ResolvedChatInput {
     modelId?: string
     providerId?: string
     thinkingMode?: string
+    mode: ChatMode
     modelItems: DropdownItemConfig[]
     selectedLabel: string
     mentionItems: MentionItem[]
@@ -37,6 +52,7 @@ export interface ResolvedChatInput {
     onStop?: () => void
     onSelectModel?: (modelId: string, providerId: string) => void
     onChangeThinkingMode?: (mode: string) => void
+    onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
 }
 
@@ -84,6 +100,7 @@ export interface ResolvedToolCallPart {
     input?: unknown
     output?: unknown
     errorText?: string
+    frontend?: ToolData
     isRunning: boolean
     isDone: boolean
     isError: boolean

@@ -6,3 +6,4 @@ export { createAppearanceStoreLogic, type AppearanceStoreLogic } from './appeara
 export { createFileExplorerStoreLogic, type FileExplorerStoreLogic } from './file-explorer.logic'
 export { createChatSessionStoreLogic, type ChatSessionStoreLogic } from './chat-session.logic'
 export { createShellExecStoreLogic, type ShellExecStoreLogic } from './shell-exec.logic'
+export { createHitlStoreLogic, type HitlStoreLogic } from './hitl.logic'

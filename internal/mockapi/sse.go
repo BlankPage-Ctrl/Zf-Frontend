@@ -41,14 +41,21 @@ func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 		return
 	}
 
-	sendEvent := func(obj map[string]interface{}) {
+	msgID := fmt.Sprintf("msg_%s", newID())
+	for _, obj := range messageEvents(msg, msgID) {
 		writeSSE(w, obj)
 		flusher.Flush()
 	}
 
-	msgID := fmt.Sprintf("msg_%s", newID())
-	sendEvent(map[string]interface{}{"type": "start", "messageId": msgID})
-	sendEvent(map[string]interface{}{"type": "start-step"})
+	fmt.Fprintf(w, "data: [DONE]\n\n")
+	flusher.Flush()
+}
+
+func messageEvents(msg mockMessage, msgID string) []map[string]interface{} {
+	events := []map[string]interface{}{
+		{"type": "start", "messageId": msgID},
+		{"type": "start-step"},
+	}
 
 	textIdx := 0
 	reasoningIdx := 0
@@ -61,27 +68,31 @@ func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 		case "reasoning":
 			reasoningIdx++
 			id := fmt.Sprintf("reasoning-%d", reasoningIdx)
-			sendEvent(map[string]interface{}{"type": "reasoning-start", "id": id})
-			sendEvent(map[string]interface{}{"type": "reasoning-delta", "id": id, "delta": part.Text})
-			sendEvent(map[string]interface{}{"type": "reasoning-end", "id": id})
+			events = append(events,
+				map[string]interface{}{"type": "reasoning-start", "id": id},
+				map[string]interface{}{"type": "reasoning-delta", "id": id, "delta": part.Text},
+				map[string]interface{}{"type": "reasoning-end", "id": id},
+			)
 
 		case "text":
 			textIdx++
 			id := fmt.Sprintf("text-%d", textIdx)
-			sendEvent(map[string]interface{}{"type": "text-start", "id": id})
-			sendEvent(map[string]interface{}{"type": "text-delta", "id": id, "delta": part.Text})
-			sendEvent(map[string]interface{}{"type": "text-end", "id": id})
+			events = append(events,
+				map[string]interface{}{"type": "text-start", "id": id},
+				map[string]interface{}{"type": "text-delta", "id": id, "delta": part.Text},
+				map[string]interface{}{"type": "text-end", "id": id},
+			)
 
 		default:
 			if len(part.Type) > 5 && part.Type[:5] == "tool-" {
 				toolName := part.Type[5:]
-				sendEvent(map[string]interface{}{
+				events = append(events, map[string]interface{}{
 					"type":       "tool-input-start",
 					"toolCallId": part.ToolCallID,
 					"toolName":   toolName,
 				})
 				if part.Input != nil {
-					sendEvent(map[string]interface{}{
+					events = append(events, map[string]interface{}{
 						"type":       "tool-input-available",
 						"toolCallId": part.ToolCallID,
 						"toolName":   toolName,
@@ -89,7 +100,7 @@ func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 					})
 				}
 				if part.Output != nil {
-					sendEvent(map[string]interface{}{
+					events = append(events, map[string]interface{}{
 						"type":       "tool-output-available",
 						"toolCallId": part.ToolCallID,
 						"output":     part.Output,
@@ -99,10 +110,11 @@ func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 		}
 	}
 
-	sendEvent(map[string]interface{}{"type": "finish-step"})
-	sendEvent(map[string]interface{}{"type": "finish", "finishReason": "stop"})
-	fmt.Fprintf(w, "data: [DONE]\n\n")
-	flusher.Flush()
+	events = append(events,
+		map[string]interface{}{"type": "finish-step"},
+		map[string]interface{}{"type": "finish", "finishReason": "stop"},
+	)
+	return events
 }
 
 type sseFileEvent struct {

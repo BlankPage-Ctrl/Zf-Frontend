@@ -5,9 +5,11 @@ import type {
     SourcePartSchema,
     FilePartSchema,
     DataPartSchema,
+    ToolData,
     StepIndicatorSchema,
     MessagePartSchema,
 } from '../types/schema'
+import { isToolDataPartType } from '../types/schema'
 import type {
     ResolvedTextPart,
     ResolvedReasoningPart,
@@ -58,6 +60,7 @@ export function resolveToolCallPartSchema(schema: ToolCallPartSchema): ResolvedT
         input: schema.input,
         output: schema.output,
         errorText: schema.errorText,
+        ...(schema.frontend !== undefined ? { frontend: schema.frontend } : {}),
         isRunning,
         isDone,
         isError,
@@ -197,6 +200,14 @@ function buildMessagePart(
         }
     }
     if (isDataUIPart(part)) {
+        const raw = part as { type: string; id?: unknown; data?: unknown }
+        if (isToolDataPartType(raw.type)) {
+            return {
+                type: raw.type,
+                ...(typeof raw.id === 'string' ? { id: raw.id } : {}),
+                data: ('data' in part ? part.data : {}) as never,
+            } as MessagePartSchema
+        }
         return {
             type: 'data',
             data: 'data' in part ? part.data : {},
@@ -206,4 +217,47 @@ function buildMessagePart(
         return { type: 'step-start' }
     }
     return { type: 'text', text: '' }
+}
+
+function getToolDataCallId(part: UIMessage['parts'][number]): string | null {
+    const data = (part as { data?: unknown }).data
+    if (data !== null && typeof data === 'object') {
+        const toolCallId = (data as { toolCallId?: unknown }).toolCallId
+        if (typeof toolCallId === 'string' && toolCallId.length > 0) return toolCallId
+    }
+    return null
+}
+
+export function resolveMessageParts(
+    parts: UIMessage['parts'] | undefined,
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema[] {
+    const list = parts ?? []
+    const toolDataByCall = new Map<string, ToolData>()
+    for (const part of list) {
+        const raw = part as { type?: unknown }
+        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
+            const toolCallId = getToolDataCallId(part)
+            const data = (part as { data?: unknown }).data as ToolData | undefined
+            if (toolCallId !== null && data !== undefined) {
+                toolDataByCall.set(toolCallId, data)
+            }
+        }
+    }
+
+    const out: MessagePartSchema[] = []
+    for (const part of list) {
+        const raw = part as { type?: unknown }
+        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
+            continue
+        }
+        const resolved = buildMessagePart(part, defaults)
+        if (resolved === null) continue
+        if (resolved.type === 'tool-call') {
+            const frontend = toolDataByCall.get(resolved.toolCallId)
+            if (frontend !== undefined) resolved.frontend = frontend
+        }
+        out.push(resolved)
+    }
+    return out
 }

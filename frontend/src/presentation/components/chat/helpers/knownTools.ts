@@ -8,6 +8,14 @@ export function isKnownToolName(value: string): value is KnownToolName {
     return (KNOWN_TOOL_NAMES as readonly string[]).includes(value)
 }
 
+export const HIDDEN_TOOL_NAMES = ['write_plan', 'edit_plan', 'read_plan'] as const
+
+export type HiddenToolName = (typeof HIDDEN_TOOL_NAMES)[number]
+
+export function isHiddenToolName(value: string): boolean {
+    return (HIDDEN_TOOL_NAMES as readonly string[]).includes(value)
+}
+
 export const TOOL_LABELS: Record<KnownToolName, string> = {
     list_files: 'List Files',
     read_file: 'Read File',

@@ -17,6 +17,7 @@ import type {
     ResolvedStepIndicator,
 } from '../types/resolved'
 import type { FeedBlock, FeedMessage } from '@/core/entities'
+import { isHiddenToolName } from '../helpers/knownTools'
 
 export function resolveTextPartSchema(
     schema: TextPartSchema,
@@ -141,7 +142,8 @@ function blockToPart(
                 text: block.text,
                 state: block.closed ? 'done' : 'streaming',
             }
-        case 'work':
+        case 'work': {
+            if (isHiddenToolName(block.implement)) return null
             return {
                 type: 'tool-call',
                 toolName: block.implement,
@@ -154,6 +156,7 @@ function blockToPart(
                     ? { frontend: firstToolData(block.notices) }
                     : {}),
             }
+        }
         case 'asset':
             if (block.assetKind === 'blob') {
                 return {

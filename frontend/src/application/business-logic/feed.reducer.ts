@@ -1,5 +1,6 @@
 import type { FeedBlock, FeedEvent, FeedMessage, FeedWorkBlock } from '@/core/entities'
 import { toFeedRole } from '@/core/entities'
+import { isHiddenToolName } from '@/presentation/components/chat/helpers/knownTools'
 
 function cloneMessage(msg: FeedMessage): FeedMessage {
     return { ...msg, blocks: msg.blocks.map((b) => ({ ...b })) }
@@ -76,6 +77,7 @@ export function applyFeedEvent(messages: FeedMessage[], event: FeedEvent): FeedM
         case 'work-active':
         case 'work-ok':
         case 'work-bad': {
+            if (isHiddenToolName(event.implement ?? '')) return messages
             const id = event.messageId
             const sliceId = event.sliceId ?? event.callId
             const callId = event.callId ?? event.sliceId
@@ -154,6 +156,7 @@ export function applyFeedEvent(messages: FeedMessage[], event: FeedEvent): FeedM
         }
 
         case 'notice': {
+            if (isHiddenToolName(event.implement ?? '')) return messages
             const id = event.messageId
             const callId = event.callId
             if (!id || !callId) return messages

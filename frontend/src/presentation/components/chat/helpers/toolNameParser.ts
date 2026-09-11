@@ -1,4 +1,5 @@
 import type { FeedBlock, FeedMessage } from '@/core/entities'
+import { isHiddenToolName } from './knownTools'
 
 type UnknownPart = Record<string, unknown>
 
@@ -78,15 +79,20 @@ export function isToolPart(part: unknown): boolean {
     return parseToolName(part) !== null
 }
 
-export function getToolNamesFromBlocks(blocks: FeedBlock[]): string[] {    if (!Array.isArray(blocks)) return []
+export function getToolNamesFromBlocks(blocks: FeedBlock[]): string[] {
+    if (!Array.isArray(blocks)) return []
     const names: string[] = []
     for (const block of blocks) {
         if (block.kind === 'work') {
+            if (isHiddenToolName(block.implement)) continue
             names.push(block.implement)
             continue
         }
         const name = parseToolName(block)
-        if (name !== null) names.push(name)
+        if (name !== null) {
+            if (isHiddenToolName(name)) continue
+            names.push(name)
+        }
     }
     return names
 }
@@ -120,6 +126,7 @@ export function getToolCallsFromMessages(
     for (const msg of messages) {
         for (const block of msg.blocks ?? []) {
             if (block.kind === 'work') {
+                if (isHiddenToolName(block.implement)) continue
                 if (seen.has(block.callId)) continue
                 seen.add(block.callId)
                 out.push({ toolName: block.implement, toolCallId: block.callId, state: block.state })
@@ -127,6 +134,7 @@ export function getToolCallsFromMessages(
             }
             const parsed = parseToolCall(block)
             if (!parsed) continue
+            if (isHiddenToolName(parsed.toolName)) continue
             if (seen.has(parsed.toolCallId)) continue
             seen.add(parsed.toolCallId)
             const record = asRecord(block)

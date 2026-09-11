@@ -1,5 +1,5 @@
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
-import type { UIMessage } from 'ai'
+import type { FeedMessage } from '@/core/entities'
 import {
     parseToolName,
     parseToolCallId,
@@ -11,7 +11,7 @@ import {
 } from '../helpers/toolNameParser'
 import { isKnownToolName } from '../helpers/knownTools'
 
-export function useToolParser(messages: MaybeRefOrGetter<UIMessage[]>) {
+export function useToolParser(messages: MaybeRefOrGetter<FeedMessage[]>) {
     const toolNames = computed(() => getToolNamesFromMessages(toValue(messages)))
     const toolCalls = computed(() => getToolCallsFromMessages(toValue(messages)))
     const allToolNames = computed(() => getAllToolNamesFromMessages(toValue(messages)))

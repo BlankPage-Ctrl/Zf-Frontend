@@ -51,11 +51,31 @@ func streamMessageSSE(w http.ResponseWriter, r *http.Request, msg mockMessage) {
 	flusher.Flush()
 }
 
+// messageEvents converts a stored mock message into custom chat-feed wire
+// events (mirrors apps/shared/chat-feed map-chunk + replay semantics).
+// messageEvents is kept as a thin wrapper for streamMessageSSE; watch
+// handlers should prefer feedEvents with a full run/chat scope.
 func messageEvents(msg mockMessage, msgID string) []map[string]interface{} {
-	events := []map[string]interface{}{
-		{"type": "start", "messageId": msgID},
-		{"type": "start-step"},
+	return feedEvents("run_mock", "chat_mock", msg, msgID)
+}
+
+func feedEvents(runID, chatID string, msg mockMessage, msgID string) []map[string]interface{} {
+	now := time.Now().UnixMilli()
+	scope := func() map[string]interface{} {
+		return map[string]interface{}{
+			"runId": runID, "chatId": chatID, "messageId": msgID, "at": now,
+		}
 	}
+	events := []map[string]interface{}{}
+	with := func(obj map[string]interface{}) {
+		for k, v := range scope() {
+			obj[k] = v
+		}
+		events = append(events, obj)
+	}
+
+	with(map[string]interface{}{"type": "run-open", "assistantMessageId": msgID})
+	with(map[string]interface{}{"type": "stage-open", "stage": 0})
 
 	textIdx := 0
 	reasoningIdx := 0
@@ -68,52 +88,44 @@ func messageEvents(msg mockMessage, msgID string) []map[string]interface{} {
 		case "reasoning":
 			reasoningIdx++
 			id := fmt.Sprintf("reasoning-%d", reasoningIdx)
-			events = append(events,
-				map[string]interface{}{"type": "reasoning-start", "id": id},
-				map[string]interface{}{"type": "reasoning-delta", "id": id, "delta": part.Text},
-				map[string]interface{}{"type": "reasoning-end", "id": id},
-			)
+			with(map[string]interface{}{"type": "think-open", "sliceId": id})
+			with(map[string]interface{}{"type": "think-delta", "sliceId": id, "delta": part.Text})
+			with(map[string]interface{}{"type": "think-close", "sliceId": id})
 
 		case "text":
 			textIdx++
 			id := fmt.Sprintf("text-%d", textIdx)
-			events = append(events,
-				map[string]interface{}{"type": "text-start", "id": id},
-				map[string]interface{}{"type": "text-delta", "id": id, "delta": part.Text},
-				map[string]interface{}{"type": "text-end", "id": id},
-			)
+			with(map[string]interface{}{"type": "text-open", "sliceId": id})
+			with(map[string]interface{}{"type": "text-delta", "sliceId": id, "delta": part.Text})
+			with(map[string]interface{}{"type": "text-close", "sliceId": id})
 
 		default:
 			if len(part.Type) > 5 && part.Type[:5] == "tool-" {
 				toolName := part.Type[5:]
-				events = append(events, map[string]interface{}{
-					"type":       "tool-input-start",
-					"toolCallId": part.ToolCallID,
-					"toolName":   toolName,
-				})
-				if part.Input != nil {
-					events = append(events, map[string]interface{}{
-						"type":       "tool-input-available",
-						"toolCallId": part.ToolCallID,
-						"toolName":   toolName,
-						"input":      part.Input,
-					})
+				callID := part.ToolCallID
+				if callID == "" {
+					callID = fmt.Sprintf("call-%s", newID())
 				}
+				with(map[string]interface{}{
+					"type": "work-queued", "sliceId": callID,
+					"callId": callID, "implement": toolName,
+				})
+				with(map[string]interface{}{
+					"type": "work-active", "sliceId": callID,
+					"callId": callID, "implement": toolName, "input": part.Input,
+				})
 				if part.Output != nil {
-					events = append(events, map[string]interface{}{
-						"type":       "tool-output-available",
-						"toolCallId": part.ToolCallID,
-						"output":     part.Output,
+					with(map[string]interface{}{
+						"type": "work-ok", "sliceId": callID,
+						"callId": callID, "implement": toolName,
+						"input": part.Input, "output": part.Output,
 					})
 				}
 			}
 		}
 	}
 
-	events = append(events,
-		map[string]interface{}{"type": "finish-step"},
-		map[string]interface{}{"type": "finish", "finishReason": "stop"},
-	)
+	with(map[string]interface{}{"type": "stage-close", "stage": 0, "landed": "stop"})
 	return events
 }
 

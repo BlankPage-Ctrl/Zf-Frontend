@@ -83,7 +83,7 @@ function inferLangFromPath(filePath: string): string {
 
 const readFilePreview = computed(() => {
     if (resolved.value.toolName !== 'read_file') return null
-    if (resolved.value.state !== 'output-available') return null
+    if (resolved.value.state !== 'ok') return null
     const frontend = resolved.value.frontend as ReadFileToolData | undefined
     if (frontend && typeof frontend.content === 'string' && frontend.content !== '') {
         if (frontend.encoding === 'base64') return null
@@ -117,8 +117,8 @@ const readFilePreview = computed(() => {
 
 const listFilesPreview = computed(() => {
     if (resolved.value.toolName !== 'list_files') return null
-    if (resolved.value.state !== 'output-available') return null
-    // Raw companion payload (data-list_files), stored AS IS.
+    if (resolved.value.state !== 'ok') return null
+    // Rich companion payload (notice body), stored AS IS.
     const frontend = resolved.value.frontend as ListFilesToolData | undefined
     if (!frontend || !Array.isArray(frontend.nodes)) return null
     const shown = frontend.nodes.slice(0, 50)

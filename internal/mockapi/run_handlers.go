@@ -151,12 +151,18 @@ func (s *Store) handleWatchRun(w http.ResponseWriter, r *http.Request) {
 			writeError(w, r, http.StatusInternalServerError, "No mock assistant message available")
 			return
 		}
-		for _, obj := range messageEvents(*assistantMsg, run.AssistantMessageID) {
+		for _, obj := range feedEvents(run.RunID, run.ChatID, *assistantMsg, run.AssistantMessageID) {
 			emit(obj)
 		}
-		emit(map[string]any{"type": "run-status", "runId": run.RunID, "status": "done"})
+		emit(map[string]any{
+			"type": "run-close", "runId": run.RunID, "chatId": run.ChatID,
+			"assistantMessageId": run.AssistantMessageID, "status": "done",
+		})
 		return
 	}
 
-	emit(map[string]any{"type": "run-status", "runId": run.RunID, "status": run.Status})
+	emit(map[string]any{
+		"type": "run-close", "runId": run.RunID, "chatId": run.ChatID,
+		"assistantMessageId": run.AssistantMessageID, "status": run.Status,
+	})
 }

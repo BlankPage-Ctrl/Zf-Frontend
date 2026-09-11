@@ -22,7 +22,8 @@ const TOOL_EXPANDED: Record<string, boolean> = {
 }
 
 export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSchema {
-    const isRunning = params.state === 'input-streaming' || params.state === 'input-available'
+    // Feed work states: queued | active (running) vs ok | bad (settled).
+    const isRunning = params.state === 'queued' || params.state === 'active'
 
     return {
         title: params.toolName,

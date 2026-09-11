@@ -1,45 +1,38 @@
 import { describe, it, expect } from 'vitest'
-import type { UIMessage } from 'ai'
+import type { FeedBlock } from '@/core/entities'
 import { resolveMessageParts } from '../resolvePartsSchema'
-import { isToolDataPartType } from '../../types/schema'
 import { isKnownToolName } from '../../helpers/knownTools'
 
-describe('tool data parts', () => {
-    it('recognizes data-edit_file as a tool data part', () => {
-        expect(isToolDataPartType('data-edit_file')).toBe(true)
-        expect(isToolDataPartType('data-nope')).toBe(false)
-    })
-
+describe('feed blocks', () => {
     it('registers edit_file as a known tool', () => {
         expect(isKnownToolName('edit_file')).toBe(true)
     })
 
-    it('attaches data-edit_file as frontend on the matching tool-call', () => {
-        const parts: UIMessage['parts'] = [
+    it('attaches notice body as frontend on the matching tool-call', () => {
+        const blocks: FeedBlock[] = [
             {
-                type: 'dynamic-tool',
-                toolName: 'edit_file',
-                toolCallId: 'c1',
-                state: 'output-available',
+                kind: 'work',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'edit_file',
+                state: 'ok',
                 input: { raw: 'src/a.ts' },
                 output: 'done',
-            },
-            {
-                type: 'data-edit_file',
-                id: 'c1:frontend:edit_file',
-                data: {
-                    toolCallId: 'c1',
-                    path: 'src/a.ts',
-                    appliedEdits: 1,
-                    content: 'new\n',
-                    encoding: 'utf-8',
-                    size: 4,
-                    totalLines: 1,
-                    diff: '@@ -1,1 +1,1 @@\n-old\n+new',
-                },
+                notices: [
+                    {
+                        toolCallId: 'c1',
+                        path: 'src/a.ts',
+                        appliedEdits: 1,
+                        content: 'new\n',
+                        encoding: 'utf-8',
+                        size: 4,
+                        totalLines: 1,
+                        diff: '@@ -1,1 +1,1 @@\n-old\n+new',
+                    },
+                ],
             },
         ]
-        const resolved = resolveMessageParts(parts)
+        const resolved = resolveMessageParts(blocks)
         expect(resolved).toHaveLength(1)
         const first = resolved[0]
         if (first?.type !== 'tool-call') throw new Error('expected a tool-call part')
@@ -50,5 +43,22 @@ describe('tool data parts', () => {
         }
         expect(frontend.path).toBe('src/a.ts')
         expect(frontend.diff).toContain('+new')
+    })
+
+    it('maps text/think/stage/asset blocks', () => {
+        const blocks: FeedBlock[] = [
+            { kind: 'text', sliceId: 't1', text: 'hi', closed: true },
+            { kind: 'think', sliceId: 'r1', text: 'hmm', closed: false },
+            { kind: 'stage', stage: 0, landed: 'stop' },
+            { kind: 'asset', sliceId: 's1', assetKind: 'link', url: 'https://x', title: 'X' },
+        ]
+        const resolved = resolveMessageParts(blocks)
+        expect(resolved.map((p) => p.type)).toEqual(['text', 'reasoning', 'step-start', 'source'])
+        const text = resolved[0]
+        if (text?.type !== 'text') throw new Error('expected text')
+        expect(text.state).toBe('done')
+        const think = resolved[1]
+        if (think?.type !== 'reasoning') throw new Error('expected reasoning')
+        expect(think.state).toBe('streaming')
     })
 })

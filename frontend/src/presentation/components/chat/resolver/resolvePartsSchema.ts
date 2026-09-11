@@ -4,24 +4,19 @@ import type {
     ToolCallPartSchema,
     SourcePartSchema,
     FilePartSchema,
-    DataPartSchema,
     ToolData,
     StepIndicatorSchema,
     MessagePartSchema,
 } from '../types/schema'
-import { isToolDataPartType } from '../types/schema'
 import type {
     ResolvedTextPart,
     ResolvedReasoningPart,
     ResolvedToolCallPart,
     ResolvedSourcePart,
     ResolvedFilePart,
-    ResolvedDataPart,
     ResolvedStepIndicator,
 } from '../types/resolved'
-import { isTextUIPart, isReasoningUIPart, isToolUIPart, isFileUIPart, isDataUIPart } from 'ai'
-import type { UIMessage } from 'ai'
-import { parseToolName } from '../helpers/toolNameParser'
+import type { FeedBlock, FeedMessage } from '@/core/entities'
 
 export function resolveTextPartSchema(
     schema: TextPartSchema,
@@ -49,9 +44,9 @@ export function resolveReasoningPartSchema(schema: ReasoningPartSchema): Resolve
 }
 
 export function resolveToolCallPartSchema(schema: ToolCallPartSchema): ResolvedToolCallPart {
-    const isRunning = schema.state === 'input-streaming' || schema.state === 'input-available'
-    const isDone = schema.state === 'output-available'
-    const isError = schema.state === 'output-error'
+    const isRunning = schema.state === 'queued' || schema.state === 'active'
+    const isDone = schema.state === 'ok'
+    const isError = schema.state === 'bad'
 
     return {
         toolName: schema.toolName,
@@ -70,11 +65,11 @@ export function resolveToolCallPartSchema(schema: ToolCallPartSchema): ResolvedT
 
 function getSourceIcon(mediaType?: string): string {
     if (mediaType) {
-        if (mediaType.startsWith('image/')) return '\u{1F5BC}\uFE0F'
-        if (mediaType.startsWith('text/')) return '\u{1F4C4}'
-        if (mediaType.startsWith('application/pdf')) return '\u{1F4D5}'
+        if (mediaType.startsWith('image/')) return '🖼️'
+        if (mediaType.startsWith('text/')) return '📄'
+        if (mediaType.startsWith('application/pdf')) return '📕'
     }
-    return '\u{1F517}'
+    return '🔗'
 }
 
 export function resolveSourcePartSchema(schema: SourcePartSchema): ResolvedSourcePart {
@@ -90,12 +85,12 @@ export function resolveSourcePartSchema(schema: SourcePartSchema): ResolvedSourc
 }
 
 function getFileIcon(mediaType: string): string {
-    if (mediaType.startsWith('image/')) return '\u{1F5BC}\uFE0F'
-    if (mediaType.startsWith('text/')) return '\u{1F4C4}'
-    if (mediaType.startsWith('application/')) return '\u{1F4E6}'
-    if (mediaType.startsWith('audio/')) return '\u{1F3B5}'
-    if (mediaType.startsWith('video/')) return '\u{1F3AC}'
-    return '\u{1F4CE}'
+    if (mediaType.startsWith('image/')) return '🖼️'
+    if (mediaType.startsWith('text/')) return '📄'
+    if (mediaType.startsWith('application/')) return '📦'
+    if (mediaType.startsWith('audio/')) return '🎵'
+    if (mediaType.startsWith('video/')) return '🎬'
+    return '📎'
 }
 
 export function resolveFilePartSchema(schema: FilePartSchema): ResolvedFilePart {
@@ -110,154 +105,103 @@ export function resolveFilePartSchema(schema: FilePartSchema): ResolvedFilePart 
     }
 }
 
-export function resolveDataPartSchema(schema: DataPartSchema): ResolvedDataPart {
-    return {
-        type: schema.type,
-        data: schema.data,
-    }
-}
-
 export function resolveStepIndicatorSchema(schema: StepIndicatorSchema): ResolvedStepIndicator {
     return {
         label: schema.label,
     }
 }
 
-function isSourcePart(part: unknown): part is {
-    type: 'source-url' | 'source-document'
-    sourceId: string
-    url?: string
-    title?: string
-    mediaType?: string
-} {
-    const p = part as Record<string, unknown>
-    return p.type === 'source-url' || p.type === 'source-document'
+function firstToolData(notices: unknown[]): ToolData | undefined {
+    for (const notice of notices) {
+        if (notice !== null && typeof notice === 'object' && 'toolCallId' in notice) {
+            return notice as ToolData
+        }
+    }
+    return undefined
 }
 
-function isStepStart(part: unknown): part is { type: 'step-start' } {
-    return (part as Record<string, unknown>).type === 'step-start'
-}
-
-function getToolToolName(part: unknown): string {
-    return parseToolName(part) ?? String((part as Record<string, unknown>).toolCallId ?? 'tool')
+function blockToPart(
+    block: FeedBlock,
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema | null {
+    switch (block.kind) {
+        case 'text':
+            if (block.text === '') return null
+            return {
+                type: 'text',
+                text: block.text,
+                state: block.closed ? 'done' : 'streaming',
+                fontSize: defaults?.fontSize,
+                lineHeight: defaults?.lineHeight,
+            }
+        case 'think':
+            if (block.text === '') return null
+            return {
+                type: 'reasoning',
+                text: block.text,
+                state: block.closed ? 'done' : 'streaming',
+            }
+        case 'work':
+            return {
+                type: 'tool-call',
+                toolName: block.implement,
+                toolCallId: block.callId,
+                state: block.state,
+                ...(block.input !== undefined ? { input: block.input } : {}),
+                ...(block.output !== undefined ? { output: block.output } : {}),
+                ...(block.errorText !== undefined ? { errorText: block.errorText } : {}),
+                ...(firstToolData(block.notices) !== undefined
+                    ? { frontend: firstToolData(block.notices) }
+                    : {}),
+            }
+        case 'asset':
+            if (block.assetKind === 'blob') {
+                return {
+                    type: 'file',
+                    mediaType: block.mediaType ?? 'application/octet-stream',
+                    ...(block.url !== undefined ? { url: block.url } : {}),
+                    ...(block.filename !== undefined ? { filename: block.filename } : {}),
+                }
+            }
+            return {
+                type: 'source',
+                sourceId: block.sliceId,
+                ...(block.url !== undefined ? { url: block.url } : {}),
+                ...(block.title !== undefined ? { title: block.title } : {}),
+                ...(block.mediaType !== undefined ? { mediaType: block.mediaType } : {}),
+            }
+        case 'stage':
+            return {
+                type: 'step-start',
+                ...(block.landed !== undefined
+                    ? { label: `Stage ${block.stage} · ${block.landed}` }
+                    : { label: `Stage ${block.stage}` }),
+            }
+    }
 }
 
 export function resolveMessagePart(
-    part: UIMessage['parts'][number],
+    block: FeedBlock,
     defaults?: { fontSize?: number; lineHeight?: number },
 ): MessagePartSchema | null {
-    return buildMessagePart(part, defaults)
-}
-
-function buildMessagePart(
-    part: UIMessage['parts'][number],
-    defaults?: { fontSize?: number; lineHeight?: number },
-): MessagePartSchema | null {
-    if (isTextUIPart(part)) {
-        const p = part as { type: 'text'; text: string; state?: string; isSystem?: boolean }
-        if (p.isSystem) return null
-        return {
-            type: 'text',
-            text: part.text,
-            state: 'state' in part ? (part.state as string | undefined) : undefined,
-            fontSize: defaults?.fontSize,
-            lineHeight: defaults?.lineHeight,
-        }
-    }
-    if (isReasoningUIPart(part)) {
-        return {
-            type: 'reasoning',
-            text: part.text,
-            state: 'state' in part ? (part.state as string | undefined) : undefined,
-        }
-    }
-    if (isToolUIPart(part)) {
-        return {
-            type: 'tool-call',
-            toolName: getToolToolName(part),
-            toolCallId: part.toolCallId,
-            state: part.state,
-            input: 'input' in part ? part.input : undefined,
-            output: 'output' in part ? part.output : undefined,
-            errorText: 'errorText' in part ? part.errorText : undefined,
-        }
-    }
-    if (isSourcePart(part)) {
-        return {
-            type: 'source',
-            sourceId: part.sourceId,
-            url: part.url,
-            title: part.title,
-            mediaType: 'mediaType' in part ? (part as { mediaType?: string }).mediaType : undefined,
-        }
-    }
-    if (isFileUIPart(part)) {
-        return {
-            type: 'file',
-            mediaType: part.mediaType,
-            url: part.url,
-            filename: 'filename' in part ? part.filename : undefined,
-        }
-    }
-    if (isDataUIPart(part)) {
-        const raw = part as { type: string; id?: unknown; data?: unknown }
-        if (isToolDataPartType(raw.type)) {
-            return {
-                type: raw.type,
-                ...(typeof raw.id === 'string' ? { id: raw.id } : {}),
-                data: ('data' in part ? part.data : {}) as never,
-            } as MessagePartSchema
-        }
-        return {
-            type: 'data',
-            data: 'data' in part ? part.data : {},
-        }
-    }
-    if (isStepStart(part)) {
-        return { type: 'step-start' }
-    }
-    return { type: 'text', text: '' }
-}
-
-function getToolDataCallId(part: UIMessage['parts'][number]): string | null {
-    const data = (part as { data?: unknown }).data
-    if (data !== null && typeof data === 'object') {
-        const toolCallId = (data as { toolCallId?: unknown }).toolCallId
-        if (typeof toolCallId === 'string' && toolCallId.length > 0) return toolCallId
-    }
-    return null
+    return blockToPart(block, defaults)
 }
 
 export function resolveMessageParts(
-    parts: UIMessage['parts'] | undefined,
+    blocks: FeedBlock[] | undefined,
     defaults?: { fontSize?: number; lineHeight?: number },
 ): MessagePartSchema[] {
-    const list = parts ?? []
-    const toolDataByCall = new Map<string, ToolData>()
-    for (const part of list) {
-        const raw = part as { type?: unknown }
-        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
-            const toolCallId = getToolDataCallId(part)
-            const data = (part as { data?: unknown }).data as ToolData | undefined
-            if (toolCallId !== null && data !== undefined) {
-                toolDataByCall.set(toolCallId, data)
-            }
-        }
-    }
-
     const out: MessagePartSchema[] = []
-    for (const part of list) {
-        const raw = part as { type?: unknown }
-        if (typeof raw.type === 'string' && isToolDataPartType(raw.type)) {
-            continue
-        }
-        const resolved = buildMessagePart(part, defaults)
-        if (resolved === null) continue
-        if (resolved.type === 'tool-call') {
-            const frontend = toolDataByCall.get(resolved.toolCallId)
-            if (frontend !== undefined) resolved.frontend = frontend
-        }
-        out.push(resolved)
+    for (const block of blocks ?? []) {
+        const part = blockToPart(block, defaults)
+        if (part !== null) out.push(part)
     }
     return out
+}
+
+export function resolveMessageBlocks(
+    message: FeedMessage,
+    defaults?: { fontSize?: number; lineHeight?: number },
+): MessagePartSchema[] {
+    return resolveMessageParts(message.blocks, defaults)
 }

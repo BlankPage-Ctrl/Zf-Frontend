@@ -7,7 +7,6 @@ import ReasoningPart from './ReasoningPart.vue'
 import ToolCallPart from './ToolCallPart.vue'
 import SourcePart from './SourcePart.vue'
 import FilePart from './FilePart.vue'
-import DataPart from './DataPart.vue'
 import StepIndicator from './StepIndicator.vue'
 
 const props = defineProps<{
@@ -25,11 +24,6 @@ const PLACEHOLDER_HEIGHT: Record<MessagePartSchema['type'], number> = {
     'tool-call': 40,
     source: 36,
     file: 36,
-    data: 32,
-    'data-list_files': 40,
-    'data-read_file': 40,
-    'data-edit_file': 40,
-    'data-run_shell': 40,
     'step-start': 28,
 }
 
@@ -63,7 +57,6 @@ onBeforeUnmount(() => {
         <ToolCallPart v-else-if="visible && part.type === 'tool-call'" :schema="part" />
         <SourcePart v-else-if="visible && part.type === 'source'" :schema="part" />
         <FilePart v-else-if="visible && part.type === 'file'" :schema="part" />
-        <DataPart v-else-if="visible && part.type === 'data'" :schema="part" />
         <StepIndicator v-else-if="visible && part.type === 'step-start'" :schema="part" />
     </div>
 </template>

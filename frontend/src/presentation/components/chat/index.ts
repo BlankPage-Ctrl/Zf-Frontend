@@ -13,7 +13,6 @@ export type {
     ToolCallPartSchema,
     SourcePartSchema,
     FilePartSchema,
-    DataPartSchema,
     StepIndicatorSchema,
     MessagePartSchema,
 } from './types/schema.ts'

@@ -36,17 +36,60 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
     const cache = new Map<string, FeedMessage[]>()
     const watches = new Map<string, ActiveWatch>()
     const loaded = new Set<string>()
+    const pendingFrames = new Map<string, number>()
 
     function patchMessages(chatId: string, messages: FeedMessage[]): void {
+        cancelCoalesced(chatId)
         cache.set(chatId, messages)
         deps.onState(chatId, { messages: [...messages] })
     }
 
+    function cancelCoalesced(chatId: string): void {
+        const id = pendingFrames.get(chatId)
+        if (id === undefined) return
+        pendingFrames.delete(chatId)
+        if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(id)
+    }
+
+    function flushCoalesced(chatId: string): void {
+        if (!pendingFrames.has(chatId)) return
+        cancelCoalesced(chatId)
+        const messages = cache.get(chatId)
+        if (messages) deps.onState(chatId, { messages: [...messages] })
+    }
+
+    function scheduleCoalesced(chatId: string): void {
+        if (pendingFrames.has(chatId)) return
+        if (typeof requestAnimationFrame !== 'function') {
+            // Non-DOM environments (tests/SSR): preserve synchronous behavior.
+            const messages = cache.get(chatId)
+            if (messages) deps.onState(chatId, { messages: [...messages] })
+            return
+        }
+        const id = requestAnimationFrame(() => {
+            // A flush/cancel for a newer event supersedes this frame.
+            if (pendingFrames.get(chatId) !== id) return
+            pendingFrames.delete(chatId)
+            const messages = cache.get(chatId)
+            if (messages) deps.onState(chatId, { messages: [...messages] })
+        })
+        pendingFrames.set(chatId, id)
+    }
+
     function applyEvent(chatId: string, event: FeedEvent): void {
-        const next = applyFeedEvent(cache.get(chatId) ?? [], event)
-        patchMessages(chatId, next)
+        const prev = cache.get(chatId) ?? []
+        const next = applyFeedEvent(prev, event)
+        if (next !== prev) {
+            if (event.type === 'text-delta' || event.type === 'think-delta') {
+                cache.set(chatId, next)
+                scheduleCoalesced(chatId)
+            } else {
+                patchMessages(chatId, next)
+            }
+        }
         if (event.type === 'oops') {
             const detail = typeof event.message === 'string' ? event.message : 'Run failed'
+            flushCoalesced(chatId)
             deps.onState(chatId, {
                 error: new Error(detail),
                 status: 'error',
@@ -56,6 +99,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
             watches.delete(chatId)
         }
         if (event.type === 'run-close') {
+            flushCoalesced(chatId)
             finishWatch(chatId, event.status, typeof event.message === 'string' ? event.message : undefined)
         }
     }
@@ -198,6 +242,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
             watch.detach()
             watches.delete(chatId)
         }
+        cancelCoalesced(chatId)
         loaded.delete(chatId)
     }
 
@@ -208,6 +253,9 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
     function clear(): void {
         for (const chatId of watches.keys()) {
             detach(chatId)
+        }
+        for (const chatId of [...pendingFrames.keys()]) {
+            cancelCoalesced(chatId)
         }
         cache.clear()
         loaded.clear()

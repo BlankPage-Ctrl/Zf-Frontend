@@ -24,12 +24,7 @@ export { resolveChatInputSchema } from './resolver/resolveChatInputSchema.ts'
 export { resolveMessageBubbleSchema } from './resolver/resolveMessageBubbleSchema.ts'
 export { resolveMessageListSchema } from './resolver/resolveMessageListSchema.ts'
 
-export {
-    KNOWN_TOOL_NAMES,
-    isKnownToolName,
-    TOOL_LABELS,
-    TOOL_DESCRIPTIONS,
-} from './helpers/knownTools.ts'
+export { KNOWN_TOOL_NAMES, isKnownToolName, TOOL_LABELS } from './helpers/knownTools.ts'
 export type { KnownToolName, ToolName } from './helpers/knownTools.ts'
 export {
     parseToolName,

@@ -1,6 +1,7 @@
 import { Wrench, Eye, EditPencil, Folder, Terminal, Book } from '@iconoir/vue'
 import type { Component } from 'vue'
 import type { BlockPartSchema } from '@/presentation/components/blockpart'
+import { TOOL_LABELS } from '@/presentation/components/chat/helpers/knownTools'
 
 export interface ToolCallSchemaParams {
     toolName: string
@@ -46,7 +47,9 @@ export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSch
     const isSkill = params.toolName === 'skill'
 
     return {
-        title: isSkill ? getSkillTitle(params.input) : params.toolName,
+        title: isSkill
+            ? getSkillTitle(params.input)
+            : ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName),
         icon: TOOL_ICONS[params.toolName] ?? Wrench,
         variant: 'default',
         collapsible: isSkill ? false : true,

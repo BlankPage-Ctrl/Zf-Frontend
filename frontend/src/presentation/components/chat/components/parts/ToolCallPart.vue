@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
-import type { ListFilesToolData, ReadFileToolData } from '../../types/schema'
+import type { EditFileToolData, ListFilesToolData, ReadFileToolData } from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer, useThemeStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
@@ -137,6 +137,49 @@ const listFilesPreview = computed(() => {
     }
 })
 
+const editFilePreview = computed(() => {
+    if (resolved.value.toolName !== 'edit_file') return null
+    if (resolved.value.state !== 'ok') return null
+    const frontend = resolved.value.frontend as EditFileToolData | undefined
+    let diff: string | undefined
+    let diffTruncated: boolean | undefined
+    let filePath = ''
+    let appliedEdits: number | undefined
+    if (frontend && typeof frontend.diff === 'string') {
+        diff = frontend.diff
+        diffTruncated = frontend.diffTruncated
+        filePath = frontend.path ?? ''
+        appliedEdits = frontend.appliedEdits
+    } else {
+        const output = resolved.value.output as
+            | { diff?: string; diffTruncated?: boolean; path?: string }
+            | undefined
+        if (typeof output?.diff === 'string') {
+            diff = output.diff
+            diffTruncated = output.diffTruncated
+            filePath = output.path ?? ''
+            const input = resolved.value.input as unknown
+            if (!filePath && input && typeof input === 'object' && 'path' in (input as Record<string, unknown>)) {
+                const p = (input as Record<string, unknown>).path
+                if (typeof p === 'string') filePath = p
+            }
+            if (!filePath && input && typeof input === 'object' && 'raw' in (input as Record<string, unknown>)) {
+                const raw = (input as Record<string, unknown>).raw
+                if (typeof raw === 'string') filePath = raw.split('\n')[0]?.trim() ?? ''
+            }
+        }
+    }
+    if (typeof diff !== 'string' || diff.trim() === '') return null
+    return {
+        diff,
+        path: filePath,
+        lang: inferLangFromPath(filePath),
+        truncated: !!diffTruncated,
+        isDark: isDark.value,
+        appliedEdits,
+    }
+})
+
 function formatSize(bytes: number): string {
     if (!Number.isFinite(bytes) || bytes < 0) return '0B'
     if (bytes < 1024) return `${Math.trunc(bytes)}B`
@@ -174,6 +217,28 @@ const blockSchema = computed(() =>
                         lang: readFilePreview.lang,
                         status: 'done',
                         isDark: readFilePreview.isDark,
+                    }"
+                />
+            </div>
+        </template>
+        <template v-else-if="editFilePreview" #preview>
+            <div class="edit-file-preview">
+                <div v-if="editFilePreview.path" class="edit-file-preview__path">
+                    {{ editFilePreview.path }}
+                    <span v-if="editFilePreview.appliedEdits != null" class="edit-file-preview__meta"
+                        >· {{ editFilePreview.appliedEdits }} edit{{ editFilePreview.appliedEdits === 1 ? '' : 's' }}</span
+                    >
+                    <span v-if="editFilePreview.truncated" class="edit-file-preview__truncated"
+                        >(diff truncated)</span
+                    >
+                </div>
+                <CodeRenderer
+                    :schema="{
+                        code: editFilePreview.diff,
+                        lang: editFilePreview.lang,
+                        variant: 'diff',
+                        status: 'done',
+                        isDark: editFilePreview.isDark,
                     }"
                 />
             </div>
@@ -288,5 +353,31 @@ const blockSchema = computed(() =>
 
 .list-files-preview__more {
     opacity: 0.6;
+}
+
+.edit-file-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    max-height: 420px;
+    overflow: auto;
+}
+
+.edit-file-preview__path {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    opacity: 0.6;
+    word-break: break-all;
+}
+
+.edit-file-preview__meta {
+    margin-left: 6px;
+    opacity: 0.8;
+}
+
+.edit-file-preview__truncated {
+    margin-left: 6px;
+    color: var(--text-warning, #d97706);
 }
 </style>

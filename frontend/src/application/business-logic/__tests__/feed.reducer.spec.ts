@@ -104,7 +104,7 @@ describe('applyFeedEvent', () => {
                 body: { toolCallId: 'c1', path: 'x.ts', content: 'RICH' },
             },
         ])
-        const block = messages[0]!.blocks[0]
+        const block = messages[0]!.blocks[0]!
         expect(block.kind).toBe('work')
         if (block.kind === 'work') {
             expect(block.notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
@@ -124,7 +124,7 @@ describe('applyFeedEvent', () => {
             { type: 'work-queued', messageId: 'a1', sliceId: 'c9', callId: 'c9', implement: 'read_file' },
         ])
         expect(messages[0]!.blocks).toHaveLength(1)
-        const block = messages[0]!.blocks[0]
+        const block = messages[0]!.blocks[0]!
         expect(block).toMatchObject({ kind: 'work', callId: 'c9', implement: 'read_file', state: 'queued' })
         if (block.kind === 'work') {
             expect(block.notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
@@ -148,5 +148,79 @@ describe('applyFeedEvent', () => {
         const after = applyFeedEvent(before, { type: 'text-open', messageId: 'a1', sliceId: 't1' })
         expect(before).toEqual([])
         expect(after).not.toBe(before)
+    })
+
+    it('does not merge text blocks when the same sliceId reopens in a later step', () => {
+        // Live part IDs (e.g. txt-0) repeat every step; each open must
+        // start a fresh block so the conclusion does not glue onto the preamble.
+        const messages = reduce([
+            { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'preamble' },
+            { type: 'text-close', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'stage-open', messageId: 'a1', stage: 1 },
+            { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'conclusion' },
+            { type: 'text-close', messageId: 'a1', sliceId: 'txt-0' },
+        ])
+        const texts = messages[0]!.blocks.filter((b) => b.kind === 'text')
+        expect(texts).toHaveLength(2)
+        expect(texts[0]).toMatchObject({ sliceId: 'txt-0', text: 'preamble', closed: true })
+        expect(texts[1]).toMatchObject({ sliceId: 'txt-0', text: 'conclusion', closed: true })
+    })
+
+    it('does not merge think blocks when the same sliceId reopens in a later step', () => {
+        const messages = reduce([
+            { type: 'think-open', messageId: 'a1', sliceId: 'reasoning-0' },
+            { type: 'think-delta', messageId: 'a1', sliceId: 'reasoning-0', delta: 'hmm' },
+            { type: 'think-close', messageId: 'a1', sliceId: 'reasoning-0' },
+            { type: 'think-open', messageId: 'a1', sliceId: 'reasoning-0' },
+            { type: 'think-delta', messageId: 'a1', sliceId: 'reasoning-0', delta: 'aha' },
+            { type: 'think-close', messageId: 'a1', sliceId: 'reasoning-0' },
+        ])
+        const thinks = messages[0]!.blocks.filter((b) => b.kind === 'think')
+        expect(thinks).toHaveLength(2)
+        expect(thinks[0]).toMatchObject({ text: 'hmm', closed: true })
+        expect(thinks[1]).toMatchObject({ text: 'aha', closed: true })
+    })
+
+    it('marks only the latest block closed when the same sliceId reopens', () => {
+        const messages = reduce([
+            { type: 'text-open', messageId: 'a1', sliceId: 't1' },
+            { type: 'text-delta', messageId: 'a1', sliceId: 't1', delta: 'a' },
+            { type: 'text-close', messageId: 'a1', sliceId: 't1' },
+            { type: 'text-open', messageId: 'a1', sliceId: 't1' },
+        ])
+        const texts = messages[0]!.blocks.filter((b) => b.kind === 'text')
+        expect(texts).toHaveLength(2)
+        expect(texts[0]).toMatchObject({ text: 'a', closed: true })
+        expect(texts[1]).toMatchObject({ text: '', closed: false })
+    })
+
+    it('keeps multi-step streams ordered: preamble, tools, then conclusion', () => {
+        const messages = reduce([
+            { type: 'stage-open', messageId: 'a1', stage: 0 },
+            { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'preamble' },
+            { type: 'text-close', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'work-queued', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file' },
+            { type: 'work-ok', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file', input: {}, output: {} },
+            { type: 'stage-open', messageId: 'a1', stage: 1 },
+            { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
+            { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'conclusion' },
+            { type: 'text-close', messageId: 'a1', sliceId: 'txt-0' },
+        ])
+        const kinds = messages[0]!.blocks.map((b) => b.kind)
+        expect(kinds).toEqual(['stage', 'text', 'work', 'stage', 'text'])
+        const texts = messages[0]!.blocks.filter((b) => b.kind === 'text')
+        expect(texts[1]).toMatchObject({ text: 'conclusion' })
+    })
+
+    it('does not duplicate a stage block when stage-close repeats', () => {
+        const messages = reduce([
+            { type: 'stage-open', messageId: 'a1', stage: 2 },
+            { type: 'stage-close', messageId: 'a1', stage: 2, landed: 'tool-calls' },
+            { type: 'stage-close', messageId: 'a1', stage: 2, landed: 'tool-calls' },
+        ])
+        expect(messages[0]!.blocks).toEqual([{ kind: 'stage', stage: 2, landed: 'tool-calls' }])
     })
 })

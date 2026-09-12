@@ -9,6 +9,11 @@ defineProps<{
     roleLabel?: string
     avatarLabel?: string
 }>()
+
+function partKey(part: MessagePartSchema, idx: number): string {
+    const id = part.type === 'tool-call' ? part.toolCallId : ''
+    return `${part.type}:${id}:${idx}`
+}
 </script>
 
 <template>
@@ -26,7 +31,7 @@ defineProps<{
                 class="bubble-role-label"
                 v-text="roleLabel ?? (role === 'user' ? 'You' : 'Assistant')"
             ></div>
-            <template v-for="(part, idx) in parts" :key="idx">
+            <template v-for="(part, idx) in parts" :key="partKey(part, idx)">
                 <MessagePartSlot :part="part" />
             </template>
         </div>

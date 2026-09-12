@@ -30,6 +30,24 @@ function findBlock(message: FeedMessage, sliceId: string): FeedBlock | undefined
 }
 
 /**
+ * Finds the most recent text/think block with the given sliceId.
+ * Live stream part IDs (e.g. `txt-0`, `reasoning-0`) are reused every
+ * step, so an -open must never merge into an older block from a previous
+ * step — deltas attach to the latest matching block instead.
+ */
+function findLastTextBlock(
+    message: FeedMessage,
+    sliceId: string,
+    kind: 'text' | 'think',
+): FeedBlock | undefined {
+    for (let i = message.blocks.length - 1; i >= 0; i--) {
+        const b = message.blocks[i]!
+        if (b.kind === kind && 'sliceId' in b && b.sliceId === sliceId) return b
+    }
+    return undefined
+}
+
+/**
  * Reduces one chat-feed event into the message list. Pure: never mutates
  * its input. Used for both live stream chunks and replayed history
  * (history events are completed open+delta+close triples with `role`).
@@ -48,20 +66,37 @@ export function applyFeedEvent(messages: FeedMessage[], event: FeedEvent): FeedM
             return messages
 
         case 'text-open':
+        case 'think-open': {
+            const id = event.messageId
+            const sliceId = event.sliceId
+            if (!id || !sliceId) return messages
+            const isThink = event.type.startsWith('think')
+            const { list, message } = ensureMessage(messages, id, toFeedRole(event.role))
+            // Always start a fresh block: live part IDs repeat every step,
+            // so reusing an older block would glue steps together.
+            message.blocks.push({
+                kind: isThink ? 'think' : 'text',
+                sliceId,
+                text: '',
+                closed: false,
+            } as FeedBlock)
+            return list
+        }
+
         case 'text-delta':
         case 'text-close':
-        case 'think-open':
         case 'think-delta':
         case 'think-close': {
             const id = event.messageId
             const sliceId = event.sliceId
             if (!id || !sliceId) return messages
             const isThink = event.type.startsWith('think')
+            const kind = isThink ? 'think' : 'text'
             const { list, message } = ensureMessage(messages, id, toFeedRole(event.role))
-            const existing = findBlock(message, sliceId)
+            const existing = findLastTextBlock(message, sliceId, kind)
             if (!existing) {
                 message.blocks.push({
-                    kind: isThink ? 'think' : 'text',
+                    kind,
                     sliceId,
                     text: event.type.endsWith('delta') ? (event.delta ?? '') : '',
                     closed: event.type.endsWith('close'),
@@ -128,11 +163,17 @@ export function applyFeedEvent(messages: FeedMessage[], event: FeedEvent): FeedM
             const id = event.messageId
             if (!id || event.stage === undefined) return messages
             const { list, message } = ensureMessage(messages, id, toFeedRole(event.role))
-            const stage = message.blocks.find(
+            const open = message.blocks.find(
                 (b) => b.kind === 'stage' && b.stage === event.stage && b.landed === undefined,
             )
-            if (stage && stage.kind === 'stage') stage.landed = event.landed
-            else message.blocks.push({ kind: 'stage', stage: event.stage, landed: event.landed })
+            if (open && open.kind === 'stage') open.landed = event.landed
+            else if (
+                !message.blocks.some((b) => b.kind === 'stage' && b.stage === event.stage)
+            ) {
+                // No open block (e.g. it was never seen): record the landing
+                // once instead of stacking duplicate stage blocks.
+                message.blocks.push({ kind: 'stage', stage: event.stage, landed: event.landed })
+            }
             return list
         }
 

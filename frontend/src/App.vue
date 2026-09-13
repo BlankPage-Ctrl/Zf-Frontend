@@ -15,6 +15,7 @@ import {
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { workspaceFormSchema } from '@/presentation/schemas'
+import type { AppSearchItemAny } from '@/presentation/components/app-search/types'
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
@@ -83,6 +84,29 @@ async function onDeleteWorkspace(id: string) {
 function onNavigateTestLab() {
     router.push({ name: 'test-lab' })
 }
+
+function onSelectSearch(payload: AppSearchItemAny) {
+    console.log('[AppSearch] select', payload.kind, payload)
+    switch (payload.kind) {
+        case 'workspace':
+            onSelectWorkspace(payload.payload.id)
+            break
+        case 'chat':
+            if (payload.payload.workspaceId) {
+                router.push({ name: 'workspace', params: { id: payload.payload.workspaceId }, query: { chat: payload.payload.id } })
+            }
+            break
+        case 'note':
+            break
+        case 'file':
+        case 'folder':
+            console.log('[AppSearch] open file', payload.payload.path)
+            break
+        case 'setting':
+        case 'action':
+            break
+    }
+}
 </script>
 
 <template>
@@ -97,6 +121,7 @@ function onNavigateTestLab() {
                 @delete-workspace="onDeleteWorkspace"
                 @open-settings="settingsTab.requestOpen()"
                 @navigate-test-lab="onNavigateTestLab"
+                @select-search="onSelectSearch"
             />
             <RouterView v-slot="{ Component }">
                 <div class="router-view">

@@ -35,3 +35,7 @@ export { createNotesTabSchema } from './notes/notes-tab.schema'
 export { createSettingsTabSchema } from './settings/settings-tab.schema'
 export { EditActionIcon, TrashActionIcon } from './common/icons.schema'
 export { WORKSPACE_COMMANDS } from './common/commands'
+export {
+    createCommandPaletteItems,
+    type CommandPaletteParams,
+} from './app-search/command-palette.schema'

@@ -16,7 +16,7 @@ import type {
     TriggerMode,
 } from '../components/dropdown/types'
 import { getSelectableItems } from '../components/dropdown/utils'
-import { useKeyboardScope, useKeyboard } from './keyboard'
+import { useEventListener } from '@vueuse/core'
 
 export function useDropdown<T = string>(options: {
     isOpen: Ref<boolean>
@@ -132,29 +132,46 @@ export function useDropdown<T = string>(options: {
         }
     })
 
-    const dropdownScope = useKeyboardScope({
-        id: 'dropdown',
-        priority: 10,
-    })
+    function handleKeydown(e: KeyboardEvent) {
+        if (!isOpen.value) return
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault()
+                focusNext()
+                break
+            case 'ArrowUp':
+                e.preventDefault()
+                focusPrev()
+                break
+            case 'Enter':
+            case ' ':
+                e.preventDefault()
+                selectFocused()
+                break
+            case 'Escape':
+                e.preventDefault()
+                isOpen.value = false
+                break
+            case 'Home':
+                e.preventDefault()
+                focusFirst()
+                break
+            case 'End':
+                e.preventDefault()
+                focusLast()
+                break
+        }
+    }
 
-    useKeyboard({
-        scope: dropdownScope,
-        active: isOpen,
-        bindings: {
-            ArrowDown: { handler: focusNext, preventDefault: true },
-            ArrowUp: { handler: focusPrev, preventDefault: true },
-            Enter: { handler: selectFocused, preventDefault: true },
-            ' ': { handler: selectFocused, preventDefault: true },
-            Escape: {
-                handler: () => {
-                    isOpen.value = false
-                },
-                preventDefault: true,
-            },
-            Home: { handler: focusFirst, preventDefault: true },
-            End: { handler: focusLast, preventDefault: true },
-        },
-        target: 'document',
+    let cleanupKeydown: (() => void) | null = null
+    watch(isOpen, (open) => {
+        if (open) {
+            const stop = useEventListener(document, 'keydown', handleKeydown)
+            cleanupKeydown = () => stop()
+        } else {
+            cleanupKeydown?.()
+            cleanupKeydown = null
+        }
     })
 
     function handleClickOutside(e: MouseEvent) {
@@ -191,8 +208,8 @@ export function useDropdown<T = string>(options: {
         focusFirst,
         focusLast,
         resetFocus,
+        handleKeydown,
         update,
         selectableItems,
-        scope: dropdownScope,
     }
 }

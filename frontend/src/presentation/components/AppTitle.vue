@@ -2,8 +2,10 @@
 import { computed } from 'vue'
 import { NavArrowDown, Plus, Settings as SettingsIcon, Flask } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
+import AppSearchBar from '@/presentation/components/app-search/AppSearchBar.vue'
 import type { CommandAction } from '@/presentation/components/dropdown/types'
 import type { Workspace } from '@/core/entities'
+import type { AppSearchItemAny } from '@/presentation/components/app-search/types'
 import {
     createWorkspaceDropdownItems,
     workspaceDropdownProps,
@@ -22,6 +24,7 @@ const emit = defineEmits<{
     'delete-workspace': [id: string]
     'open-settings': []
     'navigate-test-lab': []
+    'select-search': [payload: AppSearchItemAny]
 }>()
 
 const selectedWsName = computed(() => {
@@ -55,6 +58,19 @@ function openSettings() {
 
 function openTestLab() {
     emit('navigate-test-lab')
+}
+
+function handleSearchSelect(payload: AppSearchItemAny) {
+    emit('select-search', payload)
+    if (payload.kind === 'setting') {
+        emit('open-settings')
+    } else if (payload.kind === 'action' && payload.payload.command === 'create-workspace') {
+        emit('create-workspace')
+    } else if (payload.kind === 'action' && payload.payload.command === 'open-test-lab') {
+        emit('navigate-test-lab')
+    } else if (payload.kind === 'workspace') {
+        emit('select-workspace', payload.payload.id)
+    }
 }
 </script>
 
@@ -98,6 +114,10 @@ function openTestLab() {
             </button>
         </div>
 
+        <div class="app-search-wrapper">
+            <AppSearchBar @select="handleSearchSelect" />
+        </div>
+
         <div class="title-actions">
             <button
                 class="title-action-btn ws-testlab-btn"
@@ -122,7 +142,8 @@ function openTestLab() {
 <style scoped>
 .app-title {
     height: 35px;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 1px 5px;
     gap: 6px;
@@ -137,6 +158,7 @@ function openTestLab() {
     height: 25px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    justify-self: start;
     -webkit-app-region: no-drag;
 }
 
@@ -202,11 +224,21 @@ function openTestLab() {
     color: var(--text-primary);
 }
 
+.app-search-wrapper {
+    display: flex;
+    justify-content: center;
+    justify-self: center;
+    width: clamp(260px, 42vw, 520px);
+    min-width: 0;
+    -webkit-app-region: no-drag;
+}
+
 .title-actions {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-left: auto;
+    justify-self: end;
+    flex-shrink: 0;
     -webkit-app-region: no-drag;
 }
 

@@ -137,6 +137,161 @@
     border-bottom: 1px solid var(--border-color);
 }
 
+/* --- Panel Nav Header --- */
+.ws-panel-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 5px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-color);
+    height: auto;
+}
+
+.ws-panel-group {
+    display: flex;
+    align-items: stretch;
+    height: 32px;
+    width: 100%;
+    align-self: none;
+    flex: none;
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    background: transparent;
+    transition:
+        background-color 80ms ease,
+        border-color 80ms ease;
+}
+
+.ws-panel-group:hover {
+    background: rgba(var(--raw-border-color), 0.18);
+}
+
+.ws-panel-group--active {
+    background: rgba(var(--raw-border-color), 0.3);
+    border-color: var(--border-color);
+}
+
+.ws-panel-group--active .ws-panel-main {
+    opacity: 1;
+    font-weight: var(--font-weight-medium);
+}
+
+.ws-panel-main {
+    flex: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 0 12px;
+    font-family: var(--font-serif);
+    font-size: var(--type-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.72;
+    transition:
+        background-color 80ms ease,
+        opacity 80ms ease;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.ws-panel-main:hover {
+    opacity: 1;
+    background: rgba(var(--raw-border-color), 0.12);
+}
+
+.ws-panel-group--active .ws-panel-main:hover {
+    background: rgba(var(--raw-border-color), 0.18);
+}
+
+.ws-panel-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: none;
+    border-left: 1px solid transparent;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0;
+    transition:
+        width 140ms ease,
+        max-width 140ms ease,
+        opacity 100ms ease,
+        background-color 80ms ease,
+        border-color 80ms ease;
+    pointer-events: none;
+}
+
+.ws-panel-group:hover .ws-panel-add,
+.ws-panel-group:focus-within .ws-panel-add,
+.ws-panel-group--active:hover .ws-panel-add {
+    width: 32px;
+    max-width: 32px;
+    opacity: 0.85;
+    border-left-color: var(--border-color);
+    pointer-events: auto;
+}
+
+.ws-panel-add:hover {
+    opacity: 1 !important;
+    background: rgba(var(--raw-border-color), 0.3);
+}
+
+.ws-panel-add:active {
+    background: rgba(var(--raw-border-color), 0.4);
+}
+
+.ws-panel-single {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    width: 100%;
+    align-self: none;
+    flex: none;
+    min-width: 0;
+    font-family: var(--font-serif);
+    font-size: var(--type-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0.72;
+    transition:
+        background-color 80ms ease,
+        opacity 80ms ease,
+        border-color 80ms ease;
+    white-space: nowrap;
+}
+
+.ws-panel-single:hover {
+    opacity: 1;
+    background: rgba(var(--raw-border-color), 0.18);
+}
+
+.ws-panel-single--active {
+    opacity: 1;
+    background: rgba(var(--raw-border-color), 0.3);
+}
+
 /* --- Shared within Workspace --- */
 
 .ws-btn-icon {

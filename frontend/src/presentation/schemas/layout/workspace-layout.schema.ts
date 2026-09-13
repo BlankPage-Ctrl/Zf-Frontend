@@ -11,18 +11,6 @@ export function createWorkspaceLayout(params: WorkspaceLayoutParams): ContainerS
             id: 'workspace',
             columns: [
                 {
-                    id: 'rail',
-                    width: 40,
-                    resizable: false,
-                    cell: {
-                        background: 'var(--bg-secondary)',
-                        borderColor: 'var(--border-color)',
-                        borderWidth: '0 1px 0 0',
-                        borderStyle: 'solid',
-                        overflow: 'hidden',
-                    },
-                },
-                {
                     id: 'panel',
                     width: params.panelWidth,
                     visible: !params.collapsed,

@@ -68,7 +68,8 @@
 }
 
 .markdown p {
-    margin: 0.7em 0;
+    margin: 0.12em 0;
+    line-height: 1.25;
 }
 
 .markdown a {
@@ -83,8 +84,8 @@
 .markdown .markdown-inline-code {
     background: var(--md-code-bg);
     border: 1px solid var(--md-code-border);
-    border-radius: 4px;
-    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    padding: 0.2em 0.2em;
     font-size: 0.9em;
 }
 
@@ -97,12 +98,33 @@
 
 .markdown ul,
 .markdown ol {
-    margin: 0.7em 0;
-    padding-left: 1.6em;
+    margin: 0.35em 0;
+    padding-left: 2.3em;
+    line-height: 1.25;
+}
+
+.markdown ul {
+    list-style: disc outside;
+}
+
+.markdown ol {
+    list-style: decimal outside;
+}
+.markdown ul ul,
+.markdown ol ul {
+    list-style: circle outside;
+}
+
+.markdown ol ol {
+    list-style: lower-alpha outside;
 }
 
 .markdown li {
     margin: 0.25em 0;
+}
+
+.markdown li::marker {
+    color: var(--md-fg-muted);
 }
 
 .markdown .markdown-task {

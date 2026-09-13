@@ -421,7 +421,7 @@
     flex: 0 1 auto;
     min-width: 0;
     max-width: 75%;
-    padding: 8px 12px;
+    padding: 4px 12px;
     border-radius: 4px;
 }
 
@@ -442,7 +442,7 @@
 .bubble-role-label {
     font-size: var(--type-xs);
     font-weight: var(--font-weight-semibold);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     opacity: 0.4;
 }
 

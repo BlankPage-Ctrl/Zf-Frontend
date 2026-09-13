@@ -61,6 +61,17 @@
     --stream-accent: rgb(var(--raw-stream-accent));
     --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
     --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
+    /* markdown tokens  */
+    --md-fg: var(--text-primary);
+    --md-fg-muted: #59636e;
+    --md-code-bg: var(--bg-secondary);
+    --md-code-border: #d0d7de;
+    --md-accent: #0969da;
+    --md-blockquote-fg: #59636e;
+    --md-blockquote-border: #d0d7de;
+    --md-table-border: #d0d7de;
+    --md-table-header-bg: #f6f8fa;
+    --md-loading-opacity: 0.4;
 }
 
 [data-theme='ola'] {
@@ -82,6 +93,17 @@
     --stream-accent: rgb(var(--raw-stream-accent));
     --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
     --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
+    /* markdown tokens */
+    --md-fg: var(--text-primary);
+    --md-fg-muted: #6e6252;
+    --md-code-bg: var(--bg-secondary);
+    --md-code-border: #e8d9b8;
+    --md-accent: #8a4a0a;
+    --md-blockquote-fg: #6e6252;
+    --md-blockquote-border: #e8d9b8;
+    --md-table-border: #e8d9b8;
+    --md-table-header-bg: #fdf6e8;
+    --md-loading-opacity: 0.4;
 }
 
 [data-theme='day'] {
@@ -103,6 +125,17 @@
     --stream-accent: rgb(var(--raw-stream-accent));
     --stream-accent-soft: rgba(var(--raw-stream-accent), 0.14);
     --stream-accent-glow: rgba(var(--raw-stream-accent), 0.18);
+    /* markdown tokens */
+    --md-fg: var(--text-primary);
+    --md-fg-muted: #59636e;
+    --md-code-bg: var(--bg-secondary);
+    --md-code-border: #d0d7de;
+    --md-accent: #0969da;
+    --md-blockquote-fg: #59636e;
+    --md-blockquote-border: #d0d7de;
+    --md-table-border: #d0d7de;
+    --md-table-header-bg: #f6f8fa;
+    --md-loading-opacity: 0.4;
 }
 
 [data-theme='night'] {
@@ -124,6 +157,17 @@
     --stream-accent: rgb(var(--raw-stream-accent));
     --stream-accent-soft: rgba(var(--raw-stream-accent), 0.16);
     --stream-accent-glow: rgba(var(--raw-stream-accent), 0.22);
+    /* markdown tokens */
+    --md-fg: var(--text-primary);
+    --md-fg-muted: #9198a1;
+    --md-code-bg: var(--bg-secondary);
+    --md-code-border: #30363d;
+    --md-accent: #4493f8;
+    --md-blockquote-fg: #9198a1;
+    --md-blockquote-border: #30363d;
+    --md-table-border: #30363d;
+    --md-table-header-bg: #161b22;
+    --md-loading-opacity: 0.4;
 }
 
 @keyframes fadeIn {

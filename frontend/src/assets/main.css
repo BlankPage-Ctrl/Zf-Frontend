@@ -106,8 +106,8 @@
 }
 
 [data-theme='night'] {
-    --raw-bg-primary: 34, 34, 40;
-    --raw-bg-secondary: 44, 44, 52;
+    --raw-bg-primary: 38, 38, 38;
+    --raw-bg-secondary: 33, 33, 33;
     --raw-border-color: 68, 68, 80;
     --raw-text-primary: 215, 215, 225;
     --raw-success: 68, 220, 120;

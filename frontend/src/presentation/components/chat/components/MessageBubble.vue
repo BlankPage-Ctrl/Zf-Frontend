@@ -17,15 +17,7 @@ function partKey(part: MessagePartSchema, idx: number): string {
 </script>
 
 <template>
-    <div
-        class="message-bubble"
-        :class="[`role-${role ?? 'assistant'}`]"
-        :style="contentWidth ? { maxWidth: contentWidth + 'px' } : undefined"
-    >
-        <div class="bubble-avatar">
-            <span v-if="role === 'user'" class="avatar-user">{{ avatarLabel ?? 'U' }}</span>
-            <span v-else class="avatar-ai">{{ avatarLabel ?? 'AI' }}</span>
-        </div>
+    <div class="message-bubble" :class="[`role-${role ?? 'assistant'}`]">
         <div class="bubble-content">
             <div
                 class="bubble-role-label"

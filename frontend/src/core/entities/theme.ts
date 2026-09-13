@@ -56,8 +56,8 @@ export const BUILT_IN_THEMES: ThemeSchema[] = [
         name: 'Night',
         description: 'Dark mode, easy on the eyes',
         colors: {
-            bgPrimary: '34, 34, 40',
-            bgSecondary: '44, 44, 52',
+            bgPrimary: '38, 38, 38',
+            bgSecondary: '33, 33, 33',
             border: '68, 68, 80',
             textPrimary: '215, 215, 225',
             success: '68, 220, 120',

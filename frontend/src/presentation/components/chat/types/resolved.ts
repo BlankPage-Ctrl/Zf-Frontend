@@ -13,18 +13,13 @@ export type {
     ToolCallPartSchema,
     SourcePartSchema,
     FilePartSchema,
-    DataPartSchema,
-    ListFilesDataPartSchema,
-    ReadFileDataPartSchema,
-    EditFileDataPartSchema,
-    RunShellDataPartSchema,
     ListFilesToolData,
     ReadFileToolData,
     EditFileToolData,
     RunShellToolData,
     ToolData,
     ToolFileNode,
-    ToolDataPartType,
+    FeedWorkPartState,
     StepIndicatorSchema,
     MessagePartSchema,
 } from './schema'
@@ -125,11 +120,6 @@ export interface ResolvedFilePart {
     displayName: string
     typeLabel: string
     isLink: boolean
-}
-
-export interface ResolvedDataPart {
-    type: string
-    data: unknown
 }
 
 export interface ResolvedStepIndicator {

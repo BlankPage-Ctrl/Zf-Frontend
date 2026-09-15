@@ -63,7 +63,7 @@ function handleKeydown(e: KeyboardEvent) {
     border: none;
     border-radius: 3px;
     background: transparent;
-    color: var(--text-primary);
+    color: var(--bp-action-fg);
     opacity: 0.55;
     cursor: pointer;
     flex-shrink: 0;
@@ -75,16 +75,16 @@ function handleKeydown(e: KeyboardEvent) {
 
 .block-action-btn:hover:not(:disabled) {
     opacity: 0.9;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bp-action-hover-bg);
 }
 
 .block-action-btn:active:not(:disabled) {
     transform: scale(0.96);
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bp-action-active-bg);
 }
 
 .block-action-btn:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--stream-accent) 45%, transparent);
+    outline: 2px solid var(--bp-focus-ring);
     outline-offset: 1px;
     opacity: 0.9;
 }

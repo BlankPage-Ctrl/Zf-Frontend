@@ -111,15 +111,15 @@ function handleHeaderKeydown(e: KeyboardEvent) {
     justify-content: space-between;
     gap: 8px;
     padding: 6px 10px;
-    background: var(--border-color);
+    background: var(--bp-header-bg);
     min-height: 32px;
     position: relative;
     overflow: hidden;
 }
 
 .block-header--streaming {
-    background: color-mix(in srgb, var(--stream-accent) 9%, var(--border-color));
-    border-bottom: 1px solid color-mix(in srgb, var(--stream-accent) 14%, transparent);
+    background: var(--bp-header-bg-streaming);
+    border-bottom: 1px solid var(--bp-header-border-streaming);
     transition:
         background 0.3s ease,
         border-color 0.3s ease;
@@ -136,7 +136,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
         90deg,
         transparent 0%,
         transparent 25%,
-        var(--stream-accent) 50%,
+        var(--bp-stream-accent) 50%,
         transparent 75%,
         transparent 100%
     );
@@ -189,7 +189,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
 }
 
 .block-header--collapsible:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--stream-accent) 45%, transparent);
+    outline: 2px solid var(--bp-focus-ring);
     outline-offset: -2px;
 }
 
@@ -209,7 +209,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
 .block-title {
     font-size: 12px;
     font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
+    color: var(--bp-header-fg);
     opacity: 0.85;
     white-space: nowrap;
     overflow: hidden;
@@ -223,7 +223,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
     padding: 3px 8px;
     border: none;
     background: transparent;
-    color: var(--text-primary);
+    color: var(--bp-header-fg);
     opacity: 0.45;
     font-size: 11px;
     cursor: pointer;
@@ -233,12 +233,12 @@ function handleHeaderKeydown(e: KeyboardEvent) {
 
 .view-toggle-btn:hover:not(:disabled) {
     opacity: 0.7;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bp-view-toggle-hover-bg);
 }
 
 .view-toggle-btn.active {
     opacity: 0.9;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bp-view-toggle-active-bg);
 }
 
 .view-toggle-btn:disabled {
@@ -254,12 +254,12 @@ function handleHeaderKeydown(e: KeyboardEvent) {
 }
 
 .status-indicator--streaming {
-    background: var(--stream-accent, #3b82f6);
+    background: var(--bp-status-streaming);
     animation: pulse 1.5s ease-in-out infinite;
 }
 
 .status-indicator--done {
-    background: #22c55e;
+    background: var(--bp-status-done);
 }
 
 @keyframes pulse {
@@ -278,7 +278,7 @@ function handleHeaderKeydown(e: KeyboardEvent) {
     .block-header--streaming::after {
         animation: none;
         opacity: 0.45;
-        background: var(--stream-accent,);
+        background: var(--bp-stream-accent);
     }
 }
 </style>

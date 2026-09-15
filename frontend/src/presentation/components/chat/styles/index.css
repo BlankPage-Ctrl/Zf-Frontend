@@ -395,66 +395,54 @@
 
 .message-bubble {
     display: flex;
-    gap: 12px;
-    padding: 8px 20px;
-    margin: 0 auto;
+    gap: 0;
+    padding: 8px 12px;
+    margin: 0;
     width: 100%;
+    max-width: none !important;
+    box-sizing: border-box;
 }
 
 .message-bubble.role-user {
-    flex-direction: row-reverse;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 
 .message-bubble.role-assistant {
     flex-direction: row;
+    justify-content: flex-start;
 }
 
 .bubble-avatar {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--type-xs);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.02em;
-    margin-top: 4px;
-}
-
-.role-user .bubble-avatar {
-    background: var(--border-color);
-    color: var(--text-primary);
-}
-
-.role-assistant .bubble-avatar {
-    background: var(--text-primary);
-    color: var(--text-primary);
+    display: none !important;
 }
 
 .bubble-content {
-    flex: 1;
+    flex: 0 1 auto;
     min-width: 0;
     max-width: 75%;
-    padding: 8px 12px;
+    padding: 4px 12px;
     border-radius: 4px;
 }
 
 .role-user .bubble-content {
     background: var(--border-color);
     border-bottom-right-radius: 4px;
+    max-width: 75%;
 }
 
 .role-assistant .bubble-content {
-    background: var(--bg-secondary);
+    background: transparent !important;
     border-bottom-left-radius: 4px;
+    max-width: 75%;
+    flex: 1 1 auto;
+    width: 100%;
 }
 
 .bubble-role-label {
     font-size: var(--type-xs);
     font-weight: var(--font-weight-semibold);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     opacity: 0.4;
 }
 

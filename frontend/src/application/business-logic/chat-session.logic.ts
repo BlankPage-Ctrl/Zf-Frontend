@@ -1,11 +1,10 @@
-import { Chat } from '@ai-sdk/vue'
-import type { UIMessage } from 'ai'
-import type { MessageRepository, ChatStreamPort, RunRepository } from '@/core/repositories'
-import type { ChatSessionStatus } from '@/core/entities'
-import type { RunFetchHooks } from '@/data/stream/run.transport'
+import type { FeedStreamPort, MessageRepository, RunRepository } from '@/core/repositories'
+import type { ChatSessionStatus, FeedEvent, FeedMessage } from '@/core/entities'
+import { applyFeedEvent } from './feed.reducer'
+import { FeedCancelledError } from '@/data/stream'
 
 export interface ChatSessionStatePatch {
-    messages?: UIMessage[]
+    messages?: FeedMessage[]
     status?: ChatSessionStatus
     error?: Error | undefined
     isLoading?: boolean
@@ -15,7 +14,7 @@ export interface ChatSessionStatePatch {
 export interface ChatSessionDeps {
     messagesRepo: MessageRepository
     runsRepo: RunRepository
-    stream: ChatStreamPort
+    stream: FeedStreamPort
     onState: (chatId: string, patch: ChatSessionStatePatch) => void
 }
 
@@ -23,154 +22,168 @@ export interface ChatSessionEngine {
     loadHistory(workspaceId: string, chatId: string): Promise<void>
     sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
     stop(chatId: string): Promise<void>
-    regenerate(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
 }
 
-export interface ChatSessionEngineBundle {
-    engine: ChatSessionEngine
-    runHooks: RunFetchHooks
+interface ActiveWatch {
+    workspaceId: string
+    runId: string
+    detach: () => void
 }
 
-export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngineBundle {
-    const engines = new Map<string, Chat<UIMessage>>()
-    const intervals = new Map<string, ReturnType<typeof setInterval>>()
-    const chatWorkspaces = new Map<string, string>()
-    const activeRuns = new Map<string, { runId: string; workspaceId: string }>()
-    const lastSeq = new Map<string, number>()
-    const resumeTargets = new Map<string, { runId: string; afterSeq: number }>()
+export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngine {
+    const cache = new Map<string, FeedMessage[]>()
+    const watches = new Map<string, ActiveWatch>()
+    const loaded = new Set<string>()
+    const pendingFrames = new Map<string, number>()
 
-    const runHooks: RunFetchHooks = {
-        onRunStarted: (chatId, runId) => {
-            const workspaceId = chatWorkspaces.get(chatId)
-            if (workspaceId) activeRuns.set(chatId, { runId, workspaceId })
-            deps.onState(chatId, { activeRunId: runId })
-        },
-        onSeq: (chatId, seq) => {
-            lastSeq.set(chatId, seq)
-        },
-        getResumeTarget: (chatId) => resumeTargets.get(chatId),
-        clearResumeTarget: (chatId) => {
-            resumeTargets.delete(chatId)
-        },
+    function patchMessages(chatId: string, messages: FeedMessage[]): void {
+        cancelCoalesced(chatId)
+        cache.set(chatId, messages)
+        deps.onState(chatId, { messages: [...messages] })
     }
 
-    function ensureEngine(
-        workspaceId: string,
-        chatId: string,
-        initialMessages?: UIMessage[],
-    ): Chat<UIMessage> {
-        chatWorkspaces.set(chatId, workspaceId)
-        let chat = engines.get(chatId)
-        if (!chat) {
-            const transport = deps.stream.createTransport(workspaceId, chatId)
-            chat = new Chat({
-                id: chatId,
-                messages: initialMessages ?? [],
-                transport,
-                onFinish: () => {
-                    activeRuns.delete(chatId)
-                    deps.onState(chatId, {
-                        status: 'ready',
-                        isLoading: false,
-                        activeRunId: undefined,
-                    })
-                    stopPolling(chatId)
-                },
-                onError: (e: Error) => {
-                    activeRuns.delete(chatId)
-                    deps.onState(chatId, {
-                        error: e,
-                        status: 'error',
-                        isLoading: false,
-                        activeRunId: undefined,
-                    })
-                    stopPolling(chatId)
-                },
+    function cancelCoalesced(chatId: string): void {
+        const id = pendingFrames.get(chatId)
+        if (id === undefined) return
+        pendingFrames.delete(chatId)
+        if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(id)
+    }
+
+    function flushCoalesced(chatId: string): void {
+        if (!pendingFrames.has(chatId)) return
+        cancelCoalesced(chatId)
+        const messages = cache.get(chatId)
+        if (messages) deps.onState(chatId, { messages: [...messages] })
+    }
+
+    function scheduleCoalesced(chatId: string): void {
+        if (pendingFrames.has(chatId)) return
+        if (typeof requestAnimationFrame !== 'function') {
+            // Non-DOM environments (tests/SSR): preserve synchronous behavior.
+            const messages = cache.get(chatId)
+            if (messages) deps.onState(chatId, { messages: [...messages] })
+            return
+        }
+        const id = requestAnimationFrame(() => {
+            // A flush/cancel for a newer event supersedes this frame.
+            if (pendingFrames.get(chatId) !== id) return
+            pendingFrames.delete(chatId)
+            const messages = cache.get(chatId)
+            if (messages) deps.onState(chatId, { messages: [...messages] })
+        })
+        pendingFrames.set(chatId, id)
+    }
+
+    function applyEvent(chatId: string, event: FeedEvent): void {
+        const prev = cache.get(chatId) ?? []
+        const next = applyFeedEvent(prev, event)
+        if (next !== prev) {
+            if (event.type === 'text-delta' || event.type === 'think-delta') {
+                cache.set(chatId, next)
+                scheduleCoalesced(chatId)
+            } else {
+                patchMessages(chatId, next)
+            }
+        }
+        if (event.type === 'oops') {
+            const detail = typeof event.message === 'string' ? event.message : 'Run failed'
+            flushCoalesced(chatId)
+            deps.onState(chatId, {
+                error: new Error(detail),
+                status: 'error',
+                isLoading: false,
+                activeRunId: undefined,
             })
-            engines.set(chatId, chat)
+            watches.delete(chatId)
         }
-        return chat
+        if (event.type === 'run-close') {
+            flushCoalesced(chatId)
+            finishWatch(
+                chatId,
+                event.status,
+                typeof event.message === 'string' ? event.message : undefined,
+            )
+        }
     }
 
-    function syncChat(chatId: string): void {
-        const chat = engines.get(chatId)
-        if (!chat) return
-        const patch: ChatSessionStatePatch = { status: chat.status }
-        if (chat.messages) {
-            patch.messages = [...chat.messages]
+    function finishWatch(chatId: string, status: unknown, message?: string): void {
+        const watch = watches.get(chatId)
+        if (watch) {
+            watch.detach()
+            watches.delete(chatId)
         }
-        patch.isLoading = chat.status === 'submitted' || chat.status === 'streaming'
-        deps.onState(chatId, patch)
+        if (status === 'failed') {
+            deps.onState(chatId, {
+                error: new Error(message || 'Run failed'),
+                status: 'error',
+                isLoading: false,
+                activeRunId: undefined,
+            })
+        } else {
+            // done + cancelled both settle cleanly; stop() already patched
+            // its own state, so only fill in when still loading.
+            deps.onState(chatId, { status: 'ready', isLoading: false, activeRunId: undefined })
+        }
     }
 
-    function startPolling(chatId: string): void {
-        if (intervals.has(chatId)) return
-        syncChat(chatId)
-        intervals.set(
-            chatId,
-            setInterval(() => {
-                const chat = engines.get(chatId)
-                if (!chat) {
-                    stopPolling(chatId)
+    function attach(workspaceId: string, chatId: string, runId: string, afterSeq: number): void {
+        const prev = watches.get(chatId)
+        if (prev) {
+            prev.detach()
+            watches.delete(chatId)
+        }
+        deps.onState(chatId, {
+            status: 'streaming',
+            isLoading: true,
+            activeRunId: runId,
+            error: undefined,
+        })
+        const detach = deps.stream.openStream(workspaceId, chatId, runId, afterSeq, {
+            onEvent: (event) => applyEvent(chatId, event),
+            onSeq: () => {},
+            onDone: () => finishWatch(chatId, 'done'),
+            onError: (err) => {
+                if (err instanceof FeedCancelledError) {
+                    finishWatch(chatId, 'cancelled')
                     return
                 }
-                syncChat(chatId)
-                if (chat.status !== 'submitted' && chat.status !== 'streaming') {
-                    stopPolling(chatId)
+                const watch = watches.get(chatId)
+                if (watch) {
+                    watch.detach()
+                    watches.delete(chatId)
                 }
-            }, 100),
-        )
-    }
-
-    function stopPolling(chatId: string): void {
-        const interval = intervals.get(chatId)
-        if (interval) {
-            clearInterval(interval)
-            intervals.delete(chatId)
-        }
+                deps.onState(chatId, {
+                    error: err,
+                    status: 'error',
+                    isLoading: false,
+                    activeRunId: undefined,
+                })
+            },
+        })
+        watches.set(chatId, { workspaceId, runId, detach })
     }
 
     async function loadHistory(workspaceId: string, chatId: string): Promise<void> {
-        if (engines.has(chatId)) return
+        if (loaded.has(chatId)) return
+        loaded.add(chatId)
         try {
             const history = await deps.messagesRepo.loadHistory(workspaceId, chatId)
+            let messages: FeedMessage[] = []
+            for (const event of history ?? []) {
+                messages = applyFeedEvent(messages, event)
+            }
+            patchMessages(chatId, messages)
+            deps.onState(chatId, { status: 'ready', isLoading: false })
+
+            // Reattach to a still-running run: replay is final DB state,
+            // the live tail rebuilds on top of it from seq 0.
             const runs = await deps.runsRepo.list(workspaceId, chatId).catch(() => [])
             const running = (runs ?? []).filter((r) => r.status === 'running')
-            if (running.length === 0) {
-                ensureEngine(workspaceId, chatId, history ?? [])
-                deps.onState(chatId, { messages: history ?? [], status: 'ready', isLoading: false })
-                return
-            }
-            // Resume the newest running run,drop its partial assistant
-            // message from history (the resumed stream rebuilds it), then
-            // reattach from seq 0.
             const target = running[0]
-            if (!target) {
-                ensureEngine(workspaceId, chatId, history ?? [])
-                deps.onState(chatId, { messages: history ?? [], status: 'ready', isLoading: false })
-                return
-            }
-            const initial = (history ?? []).filter((m) => m.id !== target.assistantMessageId)
-            const chat = ensureEngine(workspaceId, chatId, initial)
-            activeRuns.set(chatId, { runId: target.runId, workspaceId })
-            resumeTargets.set(chatId, { runId: target.runId, afterSeq: 0 })
-            deps.onState(chatId, {
-                messages: initial,
-                error: undefined,
-                isLoading: true,
-                activeRunId: target.runId,
-            })
-            startPolling(chatId)
-            try {
-                await chat.resumeStream()
-            } catch (e: unknown) {
-                deps.onState(chatId, {
-                    error: e instanceof Error ? e : new Error('Failed to resume stream'),
-                    isLoading: false,
-                })
-                stopPolling(chatId)
+            if (target) {
+                attach(workspaceId, chatId, target.runId, 0)
             }
         } catch (e: unknown) {
             deps.onState(chatId, {
@@ -181,75 +194,60 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
 
     async function sendMessage(workspaceId: string, chatId: string, text: string): Promise<void> {
         if (!text.trim()) return
-        const chat = ensureEngine(workspaceId, chatId)
-        deps.onState(chatId, { error: undefined, isLoading: true })
-        startPolling(chatId)
+        const userMessage: FeedMessage = {
+            id: crypto.randomUUID(),
+            role: 'user',
+            blocks: [{ kind: 'text', sliceId: crypto.randomUUID(), text, closed: true }],
+        }
+        patchMessages(chatId, [...(cache.get(chatId) ?? []), userMessage])
+        deps.onState(chatId, { error: undefined, isLoading: true, status: 'submitted' })
         try {
-            await chat.sendMessage({ text })
+            const started = await deps.runsRepo.start(workspaceId, chatId, {
+                id: userMessage.id,
+                role: 'user',
+                parts: [{ type: 'text', text }],
+            })
+            attach(workspaceId, chatId, started.runId, 0)
         } catch (e: unknown) {
             deps.onState(chatId, {
                 error: e instanceof Error ? e : new Error('Failed to send message'),
+                status: 'error',
                 isLoading: false,
             })
-            stopPolling(chatId)
         }
     }
 
     async function stop(chatId: string): Promise<void> {
-        const active = activeRuns.get(chatId)
-        if (active) {
-            // top cancels the run server-side (kills the agent).
-            // The terminal frame closes the SSE stream; Chat then finishes.
+        const watch = watches.get(chatId)
+        if (watch) {
+            // Cancel server-side (kills the agent). The `run-close`
+            // terminal frame settles the stream; detach only unwatches.
             try {
-                await deps.runsRepo.cancel(active.workspaceId, chatId, active.runId)
+                await deps.runsRepo.cancel(watch.workspaceId, chatId, watch.runId)
             } catch (e: unknown) {
                 deps.onState(chatId, {
                     error: e instanceof Error ? e : new Error('Failed to cancel run'),
                 })
             }
-            activeRuns.delete(chatId)
         }
-        const chat = engines.get(chatId)
-        if (chat) {
-            try {
-                await chat.stop()
-            } catch {
-                /* settling local state only */
-            }
+        const active = watches.get(chatId)
+        if (active) {
+            active.detach()
+            watches.delete(chatId)
         }
-        stopPolling(chatId)
         deps.onState(chatId, { status: 'ready', isLoading: false, activeRunId: undefined })
     }
 
-    async function regenerate(chatId: string): Promise<void> {
-        const chat = engines.get(chatId)
-        if (!chat) return
-        deps.onState(chatId, { error: undefined, isLoading: true })
-        startPolling(chatId)
-        try {
-            await chat.regenerate()
-        } catch (e: unknown) {
-            deps.onState(chatId, {
-                error: e instanceof Error ? e : new Error('Failed to regenerate'),
-                isLoading: false,
-            })
-            stopPolling(chatId)
-        }
-    }
-
     function detach(chatId: string): void {
-        // Locked R2: closing a tab only detaches the local watcher — the
-        // run keeps going on the backend and can be resumed later.
-        const chat = engines.get(chatId)
-        if (chat) {
-            chat.stop().catch(() => {})
+        // Closing a tab only detaches the local watcher — the run keeps
+        // going on the backend and can be resumed later.
+        const watch = watches.get(chatId)
+        if (watch) {
+            watch.detach()
+            watches.delete(chatId)
         }
-        stopPolling(chatId)
-        engines.delete(chatId)
-        activeRuns.delete(chatId)
-        lastSeq.delete(chatId)
-        resumeTargets.delete(chatId)
-        chatWorkspaces.delete(chatId)
+        cancelCoalesced(chatId)
+        loaded.delete(chatId)
     }
 
     function dispose(chatId: string): void {
@@ -257,22 +255,15 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
     }
 
     function clear(): void {
-        for (const chatId of engines.keys()) {
+        for (const chatId of watches.keys()) {
             detach(chatId)
         }
-        intervals.forEach((interval) => clearInterval(interval))
-        intervals.clear()
+        for (const chatId of pendingFrames.keys()) {
+            cancelCoalesced(chatId)
+        }
+        cache.clear()
+        loaded.clear()
     }
 
-    return {
-        engine: {
-            loadHistory,
-            sendMessage,
-            stop,
-            regenerate,
-            dispose,
-            clear,
-        },
-        runHooks,
-    }
+    return { loadHistory, sendMessage, stop, dispose, clear }
 }

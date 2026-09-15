@@ -1,4 +1,5 @@
-import type { UIMessage } from 'ai'
+import type { FeedBlock, FeedMessage } from '@/core/entities'
+import { isHiddenToolName } from './knownTools'
 
 type UnknownPart = Record<string, unknown>
 
@@ -20,6 +21,11 @@ export function parseToolName(part: unknown): string | null {
     const record = asRecord(part)
     if (!record) return null
 
+    // Feed work blocks carry the tool name as `implement`.
+    const implement = getStringField(record, ['implement'])
+    const kind = getStringField(record, ['kind'])
+    if (kind === 'work' && implement) return implement
+
     // 1. dynamic-tool or any part with explicit toolName string
     const toolNameField = getStringField(record, ['toolName'])
     const typeField = getStringField(record, ['type'])
@@ -28,7 +34,7 @@ export function parseToolName(part: unknown): string | null {
         return toolNameField
     }
 
-    // 2. AI SDK / generic tool-call with toolName
+    // 2. tool-call schema part with toolName
     if (toolNameField) {
         if (
             typeField === 'tool-call' ||
@@ -42,7 +48,7 @@ export function parseToolName(part: unknown): string | null {
         }
     }
 
-    // 3. Mock SSE prefix: `tool-list_files` -> `list_files`
+    // 3. Legacy prefix: `tool-list_files` -> `list_files`
     if (typeField !== null && typeField.startsWith('tool-')) {
         const sliced = typeField.slice(5)
         if (sliced.length > 0) return sliced
@@ -58,7 +64,7 @@ function hasToolCallId(record: UnknownPart): boolean {
 export function parseToolCallId(part: unknown): string | null {
     const record = asRecord(part)
     if (!record) return null
-    return getStringField(record, ['toolCallId', 'ToolCallId', 'tool_call_id', 'id'])
+    return getStringField(record, ['toolCallId', 'callId', 'ToolCallId', 'tool_call_id', 'id'])
 }
 
 export function parseToolCall(part: unknown): { toolName: string; toolCallId: string } | null {
@@ -73,21 +79,32 @@ export function isToolPart(part: unknown): boolean {
     return parseToolName(part) !== null
 }
 
-export function getToolNamesFromParts(parts: UIMessage['parts']): string[] {
-    if (!Array.isArray(parts)) return []
+export function getToolNamesFromBlocks(blocks: FeedBlock[]): string[] {
+    if (!Array.isArray(blocks)) return []
     const names: string[] = []
-    for (const part of parts) {
-        const name = parseToolName(part)
-        if (name !== null) names.push(name)
+    for (const block of blocks) {
+        if (block.kind === 'work') {
+            if (isHiddenToolName(block.implement)) continue
+            names.push(block.implement)
+            continue
+        }
+        const name = parseToolName(block)
+        if (name !== null) {
+            if (isHiddenToolName(name)) continue
+            names.push(name)
+        }
     }
     return names
 }
 
-export function getToolNamesFromMessage(message: UIMessage): string[] {
-    return getToolNamesFromParts(message.parts as unknown as UIMessage['parts'])
+/** Alias kept for the barrel export: feed blocks replaced message parts. */
+export const getToolNamesFromParts = getToolNamesFromBlocks
+
+export function getToolNamesFromMessage(message: FeedMessage): string[] {
+    return getToolNamesFromBlocks(message.blocks ?? [])
 }
 
-export function getToolNamesFromMessages(messages: UIMessage[]): string[] {
+export function getToolNamesFromMessages(messages: FeedMessage[]): string[] {
     const seen = new Set<string>()
     const ordered: string[] = []
     for (const msg of messages) {
@@ -102,18 +119,29 @@ export function getToolNamesFromMessages(messages: UIMessage[]): string[] {
 }
 
 export function getToolCallsFromMessages(
-    messages: UIMessage[],
+    messages: FeedMessage[],
 ): Array<{ toolName: string; toolCallId: string; state?: string }> {
     const seen = new Set<string>()
     const out: Array<{ toolName: string; toolCallId: string; state?: string }> = []
     for (const msg of messages) {
-        const parts = (msg.parts ?? []) as unknown as unknown[]
-        for (const part of parts) {
-            const parsed = parseToolCall(part)
+        for (const block of msg.blocks ?? []) {
+            if (block.kind === 'work') {
+                if (isHiddenToolName(block.implement)) continue
+                if (seen.has(block.callId)) continue
+                seen.add(block.callId)
+                out.push({
+                    toolName: block.implement,
+                    toolCallId: block.callId,
+                    state: block.state,
+                })
+                continue
+            }
+            const parsed = parseToolCall(block)
             if (!parsed) continue
+            if (isHiddenToolName(parsed.toolName)) continue
             if (seen.has(parsed.toolCallId)) continue
             seen.add(parsed.toolCallId)
-            const record = asRecord(part)
+            const record = asRecord(block)
             const state = record ? (getStringField(record, ['state']) ?? undefined) : undefined
             out.push({ ...parsed, state: state ?? undefined })
         }
@@ -121,7 +149,7 @@ export function getToolCallsFromMessages(
     return out
 }
 
-export function getAllToolNamesFromMessages(messages: UIMessage[]): string[] {
+export function getAllToolNamesFromMessages(messages: FeedMessage[]): string[] {
     const out: string[] = []
     for (const msg of messages) {
         out.push(...getToolNamesFromMessage(msg))

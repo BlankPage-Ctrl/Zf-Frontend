@@ -1,32 +1,21 @@
 package messages
 
-import "myproject/internal/client"
+import (
+	"encoding/json"
 
-type UIMessage struct {
-	ID      string        `json:"id"`
-	Role    string        `json:"role"`
-	Content string        `json:"content"`
-	Parts   []UIMessagePart `json:"parts,omitempty"`
-}
+	"myproject/internal/client"
+)
 
-type UIMessagePart struct {
-	Type             string      `json:"type"`
-	Text             string      `json:"text,omitempty"`
-	Content          string      `json:"content,omitempty"`
-	State            string      `json:"state,omitempty"`
-	ToolCallId       string      `json:"toolCallId,omitempty"`
-	Input            interface{} `json:"input,omitempty"`
-	Output           interface{} `json:"output,omitempty"`
-	ErrorText        string      `json:"errorText,omitempty"`
-	ProviderExecuted *bool       `json:"providerExecuted,omitempty"`
-	SourceId         string      `json:"sourceId,omitempty"`
-	Url              string      `json:"url,omitempty"`
-	Title            string      `json:"title,omitempty"`
-	MediaType        string      `json:"mediaType,omitempty"`
-	Filename         string      `json:"filename,omitempty"`
-	Data             interface{} `json:"data,omitempty"`
-	Id               string      `json:"id,omitempty"`
-	IsSystem         *bool       `json:"isSystem,omitempty"`
+// FeedEvent mirrors the backend custom chat-feed wire event
+// (apps/shared/chat-feed FeedWireEvent / FeedHistoryEvent).
+// The payload shape varies per `type` (text-open, work-ok, asset, ...),
+// so the full raw object is preserved; the frontend reducer interprets it.
+type FeedEvent map[string]any
+
+// Type returns the feed event name (e.g. "text-delta", "run-close").
+func (e FeedEvent) Type() string {
+	t, _ := e["type"].(string)
+	return t
 }
 
 type Service struct {
@@ -37,6 +26,18 @@ func NewService(c *client.Client) *Service {
 	return &Service{c: c}
 }
 
-func (s *Service) LoadHistory(workspaceID, chatID string) ([]UIMessage, error) {
-	return client.DoOK[[]UIMessage](s.c, "GET", "/workspaces/"+workspaceID+"/chats/"+chatID+"/messages", nil, nil)
+func (s *Service) LoadHistory(workspaceID, chatID string) ([]FeedEvent, error) {
+	raw, err := client.DoOK[[]json.RawMessage](s.c, "GET", "/workspaces/"+workspaceID+"/chats/"+chatID+"/messages", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	events := make([]FeedEvent, 0, len(raw))
+	for _, r := range raw {
+		var e FeedEvent
+		if err := json.Unmarshal(r, &e); err != nil {
+			return nil, err
+		}
+		events = append(events, e)
+	}
+	return events, nil
 }

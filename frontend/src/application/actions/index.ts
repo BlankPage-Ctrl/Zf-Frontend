@@ -23,8 +23,7 @@ import {
     categoriesRepository,
     hitlRepository,
 } from '@/data/services'
-import { fileWatch, createRunStreamPort, hitlWatch } from '@/data/stream'
-import type { RunFetchHooks } from '@/data/stream/run.transport'
+import { fileWatch, createFeedStreamPort, hitlWatch } from '@/data/stream'
 
 import { createWorkspaceStoreLogic } from '../store-logic/workspace.logic'
 import { createChatStoreLogic } from '../store-logic/chat.logic'
@@ -100,24 +99,13 @@ export const fileExplorerActions = createFileExplorerActions(
 )
 
 const chatSessionStoreLogic = createChatSessionStoreLogic(() => useChatSessionStorer())
-// The run transport needs engine hooks, but the engine needs the transport,
-// both are only used lazily (per chat, after wiring), so forward via ref.
-const runHooksRef: { current?: RunFetchHooks } = {}
-const forwardHooks: RunFetchHooks = {
-    onRunStarted: (chatId, runId) => runHooksRef.current?.onRunStarted(chatId, runId),
-    onSeq: (chatId, seq) => runHooksRef.current?.onSeq(chatId, seq),
-    getResumeTarget: (chatId) => runHooksRef.current?.getResumeTarget(chatId),
-    clearResumeTarget: (chatId) => runHooksRef.current?.clearResumeTarget(chatId),
-}
-const runStreamPort = createRunStreamPort({ runs: runsRepository, hooks: forwardHooks })
-const chatSessionBundle = createChatSessionEngine({
+const feedStreamPort = createFeedStreamPort()
+const chatSessionEngine = createChatSessionEngine({
     messagesRepo: messagesRepository,
     runsRepo: runsRepository,
-    stream: runStreamPort,
+    stream: feedStreamPort,
     onState: (chatId, patch) => chatSessionStoreLogic.patch(chatId, patch),
 })
-runHooksRef.current = chatSessionBundle.runHooks
-const chatSessionEngine = chatSessionBundle.engine
 
 export const chatSessionActions = createChatSessionActions(chatSessionStoreLogic, chatSessionEngine)
 

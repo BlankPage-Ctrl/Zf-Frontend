@@ -2,10 +2,6 @@ import { ref, onUnmounted, unref, isRef } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import type { ShortcutConfig } from './types'
 
-/**
- * Global shortcut registry tracks all registered shortcuts
- * Ensures no conflicts between shortcuts
- */
 const shortcutRegistry = new Map<
     string,
     {
@@ -41,34 +37,12 @@ function matchesShortcut(e: KeyboardEvent, config: ShortcutConfig): boolean {
 }
 
 /**
- * useShortcut for Register global keyboard shortcuts
- *
- * These shortcuts bypass the scope system and always listen on window.
- * Use this for app-wide shortcuts like Ctrl+S (save), Ctrl+Q (quit), etc.
- *
- * @example
- * ```ts
- * // App-wide save shortcut
- * useShortcut({
- *   key: 's',
- *   modifiers: { ctrl: true },
- *   handler: () => saveDocument(),
- *   description: 'Save current document',
- * })
- *
- * // Toggle sidebar
- * useShortcut({
- *   key: 'b',
- *   modifiers: { ctrl: true },
- *   handler: () => toggleSidebar(),
- *   priority: 10,
- * })
- * ```
+ * useShortcut — global register: "Shortcut ini bakal trigger ini"
+ * Bypasses scope. Active via `disabled` ref. Duplicate key warns, last wins.
  */
 export function useShortcut(config: ShortcutConfig) {
     const {
         handler,
-        priority = 0,
         disabled = false,
         description = '',
         preventDefault = true,
@@ -80,39 +54,32 @@ export function useShortcut(config: ShortcutConfig) {
     const keyString = buildKeyString(config)
 
     function handleKeyDown(e: KeyboardEvent) {
-        if (disabledRef.value) return
+        if (unref(disabledRef)) return
         if (!matchesShortcut(e, config)) return
 
-        const conflictingShortcut = findConflictingShortcut(config, priority)
-        if (conflictingShortcut) {
+        // duplicate detection — warning only, last registered wins
+        const duplicate = findDuplicate(config)
+        if (duplicate && duplicate.id !== id) {
             console.warn(
-                `[useShortcut] Conflict detected: "${keyString}" conflicts with "${buildKeyString(conflictingShortcut.config)}" (priority: ${conflictingShortcut.config.priority ?? 0} > ${priority})`,
+                `[useShortcut] Duplicate "${keyString}" — "${duplicate.id}" already registered. Last wins.`,
             )
-            return // Higher priority shortcut exists, skip this one
         }
 
-        if (preventDefault) {
-            e.preventDefault()
-        }
-        if (stopPropagation) {
-            e.stopPropagation()
-        }
-
+        if (preventDefault) e.preventDefault()
+        if (stopPropagation) e.stopPropagation()
         handler(e)
     }
 
-    function findConflictingShortcut(
-        config: ShortcutConfig,
-        currentPriority: number,
-    ): { config: ShortcutConfig; cleanup: () => void } | undefined {
-        for (const [, entry] of shortcutRegistry) {
+    function findDuplicate(config: ShortcutConfig) {
+        for (const [otherId, entry] of shortcutRegistry) {
+            if (otherId === id) continue
+            if (entry.config.key.toLowerCase() !== config.key.toLowerCase()) continue
             if (
-                entry.config.key === config.key &&
-                JSON.stringify(entry.config.modifiers) === JSON.stringify(config.modifiers) &&
-                (entry.config.priority ?? 0) > currentPriority
-            ) {
-                return entry
-            }
+                JSON.stringify(entry.config.modifiers ?? {}) !==
+                JSON.stringify(config.modifiers ?? {})
+            )
+                continue
+            return { id: otherId, config: entry.config }
         }
         return undefined
     }
@@ -128,44 +95,23 @@ export function useShortcut(config: ShortcutConfig) {
     const cleanupListener = useEventListener(window, 'keydown', handleKeyDown)
     shortcutRegistry.set(id, {
         config: { ...config, description },
-        cleanup: () => {
-            cleanupListener()
-        },
+        cleanup: () => cleanupListener(),
     })
 
-    onUnmounted(() => {
-        cleanup()
-    })
+    onUnmounted(() => cleanup())
 
     return {
         id,
         keyString,
-        disable: () => {
-            disabledRef.value = true
-        },
-        enable: () => {
-            disabledRef.value = false
-        },
-        isDisabled: () => disabledRef.value,
+        disable: () => (disabledRef.value = true),
+        enable: () => (disabledRef.value = false),
+        isDisabled: () => unref(disabledRef) as boolean,
         destroy: cleanup,
     }
 }
 
-/**
- * useShortcutGroup for Register multiple shortcuts at once
- *
- * @example
- * ```ts
- * useShortcutGroup([
- *   { key: 's', modifiers: { ctrl: true }, handler: save },
- *   { key: 'z', modifiers: { ctrl: true }, handler: undo },
- *   { key: 'y', modifiers: { ctrl: true }, handler: redo },
- * ])
- * ```
- */
 export function useShortcutGroup(shortcuts: ShortcutConfig[]) {
     const instances = shortcuts.map((config) => useShortcut(config))
-
     return {
         disableAll: () => instances.forEach((s) => s.disable()),
         enableAll: () => instances.forEach((s) => s.enable()),
@@ -178,31 +124,21 @@ export function getRegisteredShortcuts(): Array<{
     id: string
     keyString: string
     description: string
-    priority: number
     disabled: boolean
 }> {
-    const result: Array<{
-        id: string
-        keyString: string
-        description: string
-        priority: number
-        disabled: boolean
-    }> = []
-
+    const result: Array<{ id: string; keyString: string; description: string; disabled: boolean }> =
+        []
     for (const [id, entry] of shortcutRegistry) {
         result.push({
             id,
             keyString: buildKeyString(entry.config),
             description: entry.config.description ?? '',
-            priority: entry.config.priority ?? 0,
             disabled: unref(entry.config.disabled) ?? false,
         })
     }
-
     return result
 }
 
 export function debugShortcuts(): void {
-    const shortcuts = getRegisteredShortcuts()
-    console.log('[useShortcut] Registered shortcuts:', shortcuts)
+    console.log('[useShortcut] Registered shortcuts:', getRegisteredShortcuts())
 }

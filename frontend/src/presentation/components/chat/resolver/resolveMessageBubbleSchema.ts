@@ -1,4 +1,4 @@
-import type { MessageBubbleSchema, MessagePartSchema } from '../types/schema'
+import type { MessageBubbleSchema } from '../types/schema'
 import type { ResolvedMessageBubble } from '../types/resolved'
 import { resolveMessageParts } from './resolvePartsSchema'
 
@@ -7,7 +7,7 @@ export function resolveMessageBubbleSchema(schema: MessageBubbleSchema): Resolve
         role: schema.role,
         roleLabel: schema.role === 'user' ? 'You' : 'Assistant',
         avatarLabel: schema.role === 'user' ? 'U' : 'AI',
-        parts: resolveMessageParts(schema.parts ?? []),
+        parts: resolveMessageParts(schema.blocks ?? []),
         contentWidth: schema.contentWidth,
     }
 }

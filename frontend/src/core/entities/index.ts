@@ -1,5 +1,6 @@
 export * from './appearance'
 export * from './chat'
+export * from './feed'
 export * from './file'
 export * from './hitl'
 export * from './mention'

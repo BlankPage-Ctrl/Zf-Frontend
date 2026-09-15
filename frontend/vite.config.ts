@@ -11,9 +11,9 @@ import Icons from 'unplugin-icons/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    vueDevTools(),
     vue(),
     vueJsx(),
-    vueDevTools(),
     tailwindcss(),
     Icons({ compiler: 'vue3' }),
   ],

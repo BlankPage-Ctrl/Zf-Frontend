@@ -2,7 +2,6 @@ import {
     Folder,
     ChatBubble,
     Notes,
-    Page,
     Settings as SettingsIcon,
     Plus,
     Flask,

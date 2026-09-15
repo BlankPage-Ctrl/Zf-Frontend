@@ -254,7 +254,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         for (const chatId of watches.keys()) {
             detach(chatId)
         }
-        for (const chatId of [...pendingFrames.keys()]) {
+        for (const chatId of pendingFrames.keys()) {
             cancelCoalesced(chatId)
         }
         cache.clear()

@@ -106,9 +106,7 @@ describe('applyFeedEvent', () => {
         ])
         const block = messages[0]!.blocks[0]!
         expect(block.kind).toBe('work')
-        if (block.kind === 'work') {
             expect(block.notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
-        }
     })
 
     it('folds an out-of-order notice into a placeholder work block', () => {
@@ -126,9 +124,7 @@ describe('applyFeedEvent', () => {
         expect(messages[0]!.blocks).toHaveLength(1)
         const block = messages[0]!.blocks[0]!
         expect(block).toMatchObject({ kind: 'work', callId: 'c9', implement: 'read_file', state: 'queued' })
-        if (block.kind === 'work') {
-            expect(block.notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
-        }
+        expect(block.notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
     })
 
     it('records stages and assets', () => {

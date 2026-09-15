@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { applyFeedEvent } from '../feed.reducer'
-import type { FeedEvent, FeedMessage } from '@/core/entities'
+import type { FeedEvent, FeedMessage, FeedWorkBlock } from '@/core/entities'
 
 function reduce(events: FeedEvent[]): FeedMessage[] {
     let messages: FeedMessage[] = []
@@ -128,7 +128,7 @@ describe('applyFeedEvent', () => {
         ])
         const block = messages[0]!.blocks[0]!
         expect(block.kind).toBe('work')
-        expect(block.notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
+        expect((block as FeedWorkBlock).notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
     })
 
     it('folds an out-of-order notice into a placeholder work block', () => {
@@ -157,7 +157,7 @@ describe('applyFeedEvent', () => {
             implement: 'read_file',
             state: 'queued',
         })
-        expect(block.notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
+        expect((block as FeedWorkBlock).notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
     })
 
     it('records stages and assets', () => {

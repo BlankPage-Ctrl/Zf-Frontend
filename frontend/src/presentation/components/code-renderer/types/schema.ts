@@ -1,8 +1,11 @@
 export type CodeRendererStatus = 'idle' | 'streaming' | 'done'
 
+export type CodeRendererVariant = 'code' | 'diff'
+
 export interface CodeRendererSchema {
     readonly code: string
     readonly lang?: string
+    readonly variant?: CodeRendererVariant
     readonly status?: CodeRendererStatus
     readonly isDark?: boolean
     readonly theme?: {
@@ -16,6 +19,7 @@ export interface CodeRendererSchema {
 export interface ResolvedCodeRendererSchema {
     readonly code: string
     readonly lang: string
+    readonly variant: CodeRendererVariant
     readonly status: CodeRendererStatus
     readonly isDark: boolean
     readonly theme: {

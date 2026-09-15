@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { Xmark } from '@iconoir/vue'
 import type { DialogGridSchema, DynamicGridDataOutput } from './types.ts'
 import DynamicGridForm from './GridForm.vue'
-import { useKeyboardScope, useKeyboard } from '../../composables/keyboard/index.ts'
+import { useEventListener } from '@vueuse/core'
 
 type Props = {
     modelValue: boolean
@@ -120,21 +120,30 @@ const handleTab = (e: KeyboardEvent) => {
     }
 }
 
-const dialogScope = useKeyboardScope({
-    id: `dialog-${Date.now()}`,
-    priority: 100,
-})
-const isDialogOpen = computed(() => props.modelValue)
+let cleanupDialogKeydown: (() => void) | null = null
 
-useKeyboard({
-    scope: dialogScope,
-    active: isDialogOpen,
-    bindings: {
-        Escape: { handler: close, preventDefault: true },
-        Tab: { handler: handleTab, preventDefault: true },
+function handleDialogKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+        e.preventDefault()
+        close()
+    } else if (e.key === 'Tab') {
+        handleTab(e)
+    }
+}
+
+watch(
+    () => props.modelValue,
+    (open) => {
+        cleanupDialogKeydown?.()
+        cleanupDialogKeydown = null
+        if (open) {
+            const stop = useEventListener(window, 'keydown', handleDialogKeydown)
+            cleanupDialogKeydown = () => stop()
+        }
     },
-    target: 'window',
-})
+)
+
+onUnmounted(() => cleanupDialogKeydown?.())
 
 // Watch modal state for focus management
 watch(

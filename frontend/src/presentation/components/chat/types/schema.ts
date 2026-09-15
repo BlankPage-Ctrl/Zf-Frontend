@@ -1,12 +1,17 @@
-import type { UIMessage } from 'ai'
-import type { Provider, MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
+import type {
+    FeedMessage,
+    Provider,
+    MentionItem,
+    MentionTriggerRange,
+    ChatMode,
+} from '@/core/entities'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export interface ChatTabSchema {
     title: string
     chatId: string
     hitl: HitlDockSchema | null
-    messages: UIMessage[]
+    messages: FeedMessage[]
     loading?: boolean
     providers: Provider[]
     modelId?: string
@@ -48,12 +53,12 @@ export interface ChatInputSchema {
 
 export interface MessageBubbleSchema {
     role: 'user' | 'assistant'
-    parts: UIMessage['parts']
+    blocks: FeedMessage['blocks']
     contentWidth?: number
 }
 
 export interface MessageListSchema {
-    messages: UIMessage[]
+    messages: FeedMessage[]
     loading?: boolean
     contentWidth?: number
     fontSize?: number
@@ -64,6 +69,7 @@ export interface MessageListSchema {
 
 export interface TextPartSchema {
     text: string
+    /** 'streaming' while the slice is open, 'done' after close. */
     state?: string
     fontSize?: number
     lineHeight?: number
@@ -71,13 +77,16 @@ export interface TextPartSchema {
 
 export interface ReasoningPartSchema {
     text: string
+    /** 'streaming' while the slice is open, 'done' after close. */
     state?: string
 }
+
+export type FeedWorkPartState = 'queued' | 'active' | 'ok' | 'bad'
 
 export interface ToolCallPartSchema {
     toolName: string
     toolCallId: string
-    state: string
+    state: FeedWorkPartState
     input?: unknown
     output?: unknown
     errorText?: string
@@ -95,11 +104,6 @@ export interface FilePartSchema {
     mediaType: string
     url?: string
     filename?: string
-}
-
-export interface DataPartSchema {
-    type: string
-    data: unknown
 }
 
 export interface ToolFileNode {
@@ -167,26 +171,6 @@ export interface RunShellToolData {
 
 export type ToolData = ListFilesToolData | ReadFileToolData | EditFileToolData | RunShellToolData
 
-export interface ListFilesDataPartSchema {
-    id?: string
-    data: ListFilesToolData
-}
-
-export interface ReadFileDataPartSchema {
-    id?: string
-    data: ReadFileToolData
-}
-
-export interface EditFileDataPartSchema {
-    id?: string
-    data: EditFileToolData
-}
-
-export interface RunShellDataPartSchema {
-    id?: string
-    data: RunShellToolData
-}
-
 export interface StepIndicatorSchema {
     label?: string
 }
@@ -197,22 +181,4 @@ export type MessagePartSchema =
     | ({ type: 'tool-call' } & ToolCallPartSchema)
     | ({ type: 'source' } & SourcePartSchema)
     | ({ type: 'file' } & FilePartSchema)
-    | ({ type: 'data' } & DataPartSchema)
-    | ({ type: 'data-list_files' } & ListFilesDataPartSchema)
-    | ({ type: 'data-read_file' } & ReadFileDataPartSchema)
-    | ({ type: 'data-edit_file' } & EditFileDataPartSchema)
-    | ({ type: 'data-run_shell' } & RunShellDataPartSchema)
     | ({ type: 'step-start' } & StepIndicatorSchema)
-
-export const TOOL_DATA_PART_TYPES = [
-    'data-list_files',
-    'data-read_file',
-    'data-edit_file',
-    'data-run_shell',
-] as const
-
-export type ToolDataPartType = (typeof TOOL_DATA_PART_TYPES)[number]
-
-export function isToolDataPartType(type: string): type is ToolDataPartType {
-    return (TOOL_DATA_PART_TYPES as readonly string[]).includes(type)
-}

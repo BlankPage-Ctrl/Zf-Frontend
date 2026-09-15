@@ -20,6 +20,7 @@ export function resolveCodeRendererSchema(
     return {
         code: schema.code,
         lang: schema.lang ?? 'plaintext',
+        variant: schema.variant ?? 'code',
         status: schema.status ?? (schema.code ? 'done' : 'idle'),
         isDark: schema.isDark ?? defaults.isDark ?? false,
         theme: {

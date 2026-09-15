@@ -6,8 +6,8 @@ export function resolveMessageListSchema(schema: MessageListSchema): ResolvedMes
     const defaults = { fontSize: schema.fontSize, lineHeight: schema.lineHeight }
     const messages: ResolvedMessage[] = schema.messages.map((msg) => ({
         id: msg.id,
-        role: msg.role as 'user' | 'assistant',
-        parts: resolveMessageParts(msg.parts ?? [], defaults),
+        role: msg.role,
+        parts: resolveMessageParts(msg.blocks ?? [], defaults),
     }))
     return {
         messages,

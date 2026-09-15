@@ -74,7 +74,7 @@ function toggleView(mode: BlockPartViewMode) {
 
 .block-part {
     margin: 4px 0;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--bp-border);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -113,8 +113,8 @@ function toggleView(mode: BlockPartViewMode) {
         from var(--bp-angle),
         transparent 0deg,
         transparent 250deg,
-        var(--stream-accent) 320deg,
-        var(--stream-accent) 360deg
+        var(--bp-stream-accent) 320deg,
+        var(--bp-stream-accent) 360deg
     );
     -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
@@ -137,9 +137,9 @@ function toggleView(mode: BlockPartViewMode) {
     inset: 0;
     border-radius: inherit;
     box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--stream-accent) 18%, transparent),
-        0 0 10px var(--stream-accent-soft, rgba(37, 99, 235, 0.14)),
-        0 0 18px var(--stream-accent-glow, rgba(37, 99, 235, 0.08));
+        0 0 0 1px var(--bp-stream-border),
+        0 0 10px var(--bp-stream-soft),
+        0 0 18px var(--bp-stream-glow);
     opacity: 0;
     pointer-events: none;
     z-index: 0;
@@ -175,13 +175,13 @@ function toggleView(mode: BlockPartViewMode) {
             from var(--bp-angle),
             transparent 0deg,
             transparent 250deg,
-            var(--stream-accent) 320deg,
-            var(--stream-accent) 360deg
+            var(--bp-stream-accent) 320deg,
+            var(--bp-stream-accent) 360deg
         );
     }
     .block-part--streaming::after {
         inset: 1.5px;
-        background: var(--bg-primary);
+        background: var(--bp-bg);
         box-shadow: none;
     }
     .block-part--streaming.block-part--expanded::after {
@@ -190,9 +190,9 @@ function toggleView(mode: BlockPartViewMode) {
     .block-part--streaming.block-part--collapsed::after {
         opacity: 0;
     }
-    /* markdown code bg beda */
+    /* markdown code bg beda — pakai token bp yang alias ke md */
     :global(.markdown) .block-part--streaming::after {
-        background: var(--md-code-bg, var(--bg-primary));
+        background: var(--bp-bg-markdown);
     }
 }
 
@@ -201,8 +201,8 @@ function toggleView(mode: BlockPartViewMode) {
         background: linear-gradient(
             90deg,
             transparent 0%,
-            var(--stream-accent) 45%,
-            var(--stream-accent) 55%,
+            var(--bp-stream-accent) 45%,
+            var(--bp-stream-accent) 55%,
             transparent 100%
         );
         background-size: 200% 100%;
@@ -234,13 +234,13 @@ function toggleView(mode: BlockPartViewMode) {
     }
     .block-part--streaming::before {
         background: transparent;
-        border: 1.5px solid color-mix(in srgb, var(--stream-accent) 45%, transparent);
+        border: 1.5px solid var(--bp-focus-ring);
         padding: 0;
         -webkit-mask: none;
         mask: none;
     }
     .block-part--streaming::after {
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--stream-accent) 12%, transparent);
+        box-shadow: 0 0 0 1px var(--bp-stream-border-subtle);
     }
     .block-part--streaming.block-part--expanded :deep(.block-header--streaming::after) {
         opacity: 0 !important;

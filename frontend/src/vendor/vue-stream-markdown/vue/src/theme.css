@@ -43,8 +43,8 @@
 }
 
 :root[data-theme='night'] .stream-markdown {
-    --markdown-raw-bg-primary: 34, 34, 40;
-    --markdown-raw-bg-secondary: 44, 44, 52;
+    --markdown-raw-bg-primary: 38, 38, 38;
+    --markdown-raw-bg-secondary: 33, 33, 33;
     --markdown-raw-border: 68, 68, 80;
     --markdown-raw-text-primary: 215, 215, 225;
     --markdown-raw-success: 68, 220, 120;

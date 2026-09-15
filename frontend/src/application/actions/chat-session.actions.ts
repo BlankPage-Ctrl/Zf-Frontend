@@ -5,7 +5,6 @@ export interface ChatSessionActions {
     loadHistory(workspaceId: string, chatId: string): Promise<void>
     sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
     stop(chatId: string): Promise<void>
-    regenerate(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
 }
@@ -26,10 +25,6 @@ export function createChatSessionActions(
         await businessLogic.stop(chatId)
     }
 
-    async function regenerate(chatId: string): Promise<void> {
-        await businessLogic.regenerate(chatId)
-    }
-
     function dispose(chatId: string): void {
         businessLogic.dispose(chatId)
         storeLogic.remove(chatId)
@@ -44,7 +39,6 @@ export function createChatSessionActions(
         loadHistory,
         sendMessage,
         stop,
-        regenerate,
         dispose,
         clear,
     }

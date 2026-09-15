@@ -189,7 +189,11 @@ func (s *RunStreamService) watchLoop(
 			runtime.EventsEmit(s.appCtx, "run:chunk", watchID, string(event))
 			continue
 		}
-		if frame.Type == "run-status" {
+		// Terminal frame is the custom chat-feed `run-close` event
+		// (status done|failed|cancelled). Everything else — text-delta,
+		// work-*, stage-*, asset, notice, oops, run-open — is a chunk
+		// for the frontend feed reducer.
+		if frame.Type == "run-close" {
 			terminalSeen = true
 			if frame.Status == "done" {
 				runtime.EventsEmit(s.appCtx, "run:done", watchID, string(event))

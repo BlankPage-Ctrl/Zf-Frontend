@@ -2,11 +2,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Album, ChatBubbleEmpty, Label, Notes, Settings as SettingsIcon } from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Folder, Notes, Plus, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
-import { IconRails } from '@/presentation/components/icon-rails'
-import { pButton } from '@/presentation/components/button'
 import {
     useWorkspaceStorer,
     useChatStorer,
@@ -61,7 +59,6 @@ import {
     createChatTabSchema,
     createHitlDockSchema,
     createNotesTabSchema,
-    createChatRailsSchema,
     createWorkspaceLayout,
     createSettingsTabSchema,
 } from '@/presentation/schemas'
@@ -154,16 +151,6 @@ function showPanel(view: 'chat' | 'files' | 'notes') {
     showNotes.value = view === 'notes'
     sidebarCollapsed.value = false
 }
-
-const iconRailsSchema = computed(() =>
-    createChatRailsSchema({
-        showFiles: showFileExplorer.value,
-        showNotes: showNotes.value,
-        onChat: () => showPanel('chat'),
-        onFiles: () => showPanel('files'),
-        onNotes: () => showPanel('notes'),
-    }),
-)
 
 const workspaceSchema = computed(() =>
     createWorkspaceLayout({
@@ -834,42 +821,70 @@ onUnmounted(() => {
 <template>
     <div class="ws-layout" v-if="workspace">
         <ContainerGrid :schema="workspaceSchema" :animate="true">
-            <template #rail>
-                <IconRails :schema="iconRailsSchema" />
-            </template>
-
             <template #panel>
                 <div class="ws-sidebar__panel">
-                    <div v-if="workspace && !showFileExplorer" class="ws-sidebar__header">
-                        <pButton
-                            v-if="!showNotes"
-                            :schema="{
-                                variant: 'outline',
-                                size: 'md',
-                                fullWidth: true,
-                                label: 'Create Chat',
-                                fontFamily: 'serif',
-                                fontWeight: 'medium',
-                            }"
-                            @click="openChatCreate"
-                        />
-                        <div v-else class="ws-sidebar__split-btn">
+                    <div class="ws-panel-nav">
+                        <div
+                            class="ws-panel-group"
+                            :class="{ 'ws-panel-group--active': !showFileExplorer && !showNotes }"
+                        >
                             <button
                                 type="button"
-                                class="ws-sidebar__split-main"
-                                @click="openNoteCreate"
+                                class="ws-panel-main"
+                                :aria-pressed="!showFileExplorer && !showNotes"
+                                title="Chat"
+                                @click="showPanel('chat')"
                             >
-                                Create Note
+                                <ChatBubbleEmpty width="14" height="14" />
+                                <span>Chat</span>
                             </button>
                             <button
                                 type="button"
-                                class="ws-sidebar__split-icon"
-                                title="New category"
-                                @click="openCategoryCreate(null as any)"
+                                class="ws-panel-add"
+                                title="New chat"
+                                aria-label="New chat"
+                                @click="openChatCreate"
                             >
-                                <Label />
+                                <Plus width="14" height="14" />
                             </button>
                         </div>
+
+                        <div
+                            class="ws-panel-group"
+                            :class="{ 'ws-panel-group--active': showNotes }"
+                        >
+                            <button
+                                type="button"
+                                class="ws-panel-main"
+                                :aria-pressed="showNotes"
+                                title="Notes"
+                                @click="showPanel('notes')"
+                            >
+                                <Notes width="14" height="14" />
+                                <span>Notes</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="ws-panel-add"
+                                title="New note"
+                                aria-label="New note"
+                                @click="openNoteCreate"
+                            >
+                                <Plus width="14" height="14" />
+                            </button>
+                        </div>
+
+                        <button
+                            typews-panel-single="button"
+                            class="ws-panel-single"
+                            :class="{ 'ws-panel-single--active': showFileExplorer }"
+                            :aria-pressed="showFileExplorer"
+                            title="File Explorer"
+                            @click="showPanel('files')"
+                        >
+                            <Folder width="14" height="14" />
+                            <span>File Explorer</span>
+                        </button>
                     </div>
                     <div class="ws-sidebar__body">
                         <AppList

@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { UIMessage } from 'ai'
+import type { FeedMessage } from '@/core/entities'
 import type { ChatSessionStatus } from '@/core/entities'
 
 export interface ChatSessionState {
-    messages: UIMessage[]
+    messages: FeedMessage[]
     status: ChatSessionStatus
     error: Error | undefined
     isLoading: boolean

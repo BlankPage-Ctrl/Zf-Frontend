@@ -94,5 +94,92 @@ func (s *Store) handleDeleteChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Store) handleGetMessages(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, r, http.StatusOK, s.Messages)
+	chatID := r.PathValue("chatId")
+	events := historyFeedEvents(chatID, s.Messages)
+	if events == nil {
+		events = []map[string]any{}
+	}
+	writeJSON(w, r, http.StatusOK, events)
+}
+
+// historyFeedEvents converts stored mock messages into custom chat-feed
+// history events (mirrors apps/shared/chat-feed replayHistory: completed
+// open+delta+close triples with role, no runId on the mock path).
+func historyFeedEvents(chatID string, msgs []mockMessage) []map[string]any {
+	events := []map[string]any{}
+	emit := func(obj map[string]any) { events = append(events, obj) }
+	for _, m := range msgs {
+		scope := map[string]any{"chatId": chatID, "messageId": m.ID, "role": m.Role}
+		stage := 0
+		for i, part := range m.Parts {
+			sliceID := part.ToolCallID
+			if sliceID == "" {
+				sliceID = m.ID + ":p" + itoa(i)
+			}
+			switch part.Type {
+			case "text":
+				if part.Text == "" {
+					continue
+				}
+				emit(merge(scope, map[string]any{"type": "text-open", "sliceId": sliceID}))
+				emit(merge(scope, map[string]any{"type": "text-delta", "sliceId": sliceID, "delta": part.Text}))
+				emit(merge(scope, map[string]any{"type": "text-close", "sliceId": sliceID}))
+			case "reasoning":
+				if part.Text == "" {
+					continue
+				}
+				emit(merge(scope, map[string]any{"type": "think-open", "sliceId": sliceID}))
+				emit(merge(scope, map[string]any{"type": "think-delta", "sliceId": sliceID, "delta": part.Text}))
+				emit(merge(scope, map[string]any{"type": "think-close", "sliceId": sliceID}))
+			case "step-start":
+				emit(merge(scope, map[string]any{"type": "stage-open", "stage": stage}))
+				stage++
+			default:
+				if len(part.Type) > 5 && part.Type[:5] == "tool-" {
+					toolName := part.Type[5:]
+					callID := part.ToolCallID
+					if callID == "" {
+						callID = sliceID
+					}
+					emit(merge(scope, map[string]any{
+						"type": "work-queued", "sliceId": callID, "callId": callID, "implement": toolName,
+					}))
+					emit(merge(scope, map[string]any{
+						"type": "work-active", "sliceId": callID, "callId": callID,
+						"implement": toolName, "input": part.Input,
+					}))
+					if part.Output != nil {
+						emit(merge(scope, map[string]any{
+							"type": "work-ok", "sliceId": callID, "callId": callID,
+							"implement": toolName, "input": part.Input, "output": part.Output,
+						}))
+					}
+				}
+			}
+		}
+	}
+	return events
+}
+
+func merge(base, over map[string]any) map[string]any {
+	out := make(map[string]any, len(base)+len(over))
+	for k, v := range base {
+		out[k] = v
+	}
+	for k, v := range over {
+		out[k] = v
+	}
+	return out
+}
+
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	digits := []byte{}
+	for n > 0 {
+		digits = append([]byte{byte('0' + n%10)}, digits...)
+		n /= 10
+	}
+	return string(digits)
 }

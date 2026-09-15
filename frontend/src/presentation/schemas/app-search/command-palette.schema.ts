@@ -1,16 +1,6 @@
-import {
-    Folder,
-    ChatBubble,
-    Notes,
-    Settings as SettingsIcon,
-    Plus,
-    Flask,
-} from '@iconoir/vue'
+import { Folder, ChatBubble, Notes, Settings as SettingsIcon, Plus, Flask } from '@iconoir/vue'
 import { resolveFileIconComponent } from '@/presentation/composables/useFileIcon'
-import type {
-    AppSearchItemAny,
-    AppSearchFlag,
-} from '@/presentation/components/app-search/types'
+import type { AppSearchItemAny, AppSearchFlag } from '@/presentation/components/app-search/types'
 
 function flag(label: string, tone: AppSearchFlag['tone'] = 'default'): AppSearchFlag {
     return { label, tone }
@@ -241,7 +231,8 @@ export function createCommandPaletteItems(params: CommandPaletteParams): AppSear
 
     if (q) {
         items = items.filter((it) => {
-            const hay = `${it.title} ${it.desc ?? ''} ${it.kind} ${it.flags.map((f) => f.label).join(' ')}`.toLowerCase()
+            const hay =
+                `${it.title} ${it.desc ?? ''} ${it.kind} ${it.flags.map((f) => f.label).join(' ')}`.toLowerCase()
             return hay.includes(q)
         })
     }

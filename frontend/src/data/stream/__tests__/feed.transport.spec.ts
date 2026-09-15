@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createFeedStreamPort, resetRunDispatcherGlobal, FeedCancelledError } from '../feed.transport'
+import {
+    createFeedStreamPort,
+    resetRunDispatcherGlobal,
+    FeedCancelledError,
+} from '../feed.transport'
 import type { FeedEvent } from '@/core/entities'
 
 const router = vi.hoisted(() => {
@@ -100,8 +104,16 @@ describe('createFeedStreamPort', () => {
     it('forwards feed events raw with seq tracking', () => {
         const c = collect()
         const wid = backend.watchIds[0]!
-        router.emit('run:chunk', wid, '{"type":"text-delta","messageId":"m1","sliceId":"t1","delta":"hi","seq":4}')
-        router.emit('run:chunk', wid, '{"type":"text-delta","messageId":"m1","sliceId":"t1","delta":"!","seq":5}')
+        router.emit(
+            'run:chunk',
+            wid,
+            '{"type":"text-delta","messageId":"m1","sliceId":"t1","delta":"hi","seq":4}',
+        )
+        router.emit(
+            'run:chunk',
+            wid,
+            '{"type":"text-delta","messageId":"m1","sliceId":"t1","delta":"!","seq":5}',
+        )
         router.emit('run:done', wid)
 
         expect(c.events).toEqual([
@@ -125,11 +137,7 @@ describe('createFeedStreamPort', () => {
     it('maps run-close cancelled to FeedCancelledError', () => {
         const c = collect()
         const wid = backend.watchIds[0]!
-        router.emit(
-            'run:error',
-            wid,
-            '{"type":"run-close","runId":"run_1","status":"cancelled"}',
-        )
+        router.emit('run:error', wid, '{"type":"run-close","runId":"run_1","status":"cancelled"}')
         expect(c.error).toBeInstanceOf(FeedCancelledError)
         expect(c.done).toBe(0)
     })

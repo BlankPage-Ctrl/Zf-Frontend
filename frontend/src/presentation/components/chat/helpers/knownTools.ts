@@ -1,4 +1,10 @@
-export const KNOWN_TOOL_NAMES = ['list_files', 'read_file', 'edit_file', 'run_shell', 'skill'] as const
+export const KNOWN_TOOL_NAMES = [
+    'list_files',
+    'read_file',
+    'edit_file',
+    'run_shell',
+    'skill',
+] as const
 
 export type KnownToolName = (typeof KNOWN_TOOL_NAMES)[number]
 

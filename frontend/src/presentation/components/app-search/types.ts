@@ -1,14 +1,7 @@
 import type { Component } from 'vue'
 import type { Workspace, Chat, Note, FEFileNode } from '@/core/entities'
 
-export type AppSearchKind =
-    | 'workspace'
-    | 'chat'
-    | 'note'
-    | 'file'
-    | 'folder'
-    | 'setting'
-    | 'action'
+export type AppSearchKind = 'workspace' | 'chat' | 'note' | 'file' | 'folder' | 'setting' | 'action'
 
 export interface AppSearchFlag {
     label: string

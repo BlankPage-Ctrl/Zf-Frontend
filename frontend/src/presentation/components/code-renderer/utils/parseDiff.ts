@@ -30,7 +30,12 @@ export function parseUnifiedDiff(diff: string): DiffLine[] {
             out.push({ kind: 'del', prefix: '-', text, raw })
         } else {
             // ' ' or anything else is context
-            out.push({ kind: 'context', prefix: prefix === ' ' ? ' ' : prefix, text: prefix === ' ' ? text : raw, raw })
+            out.push({
+                kind: 'context',
+                prefix: prefix === ' ' ? ' ' : prefix,
+                text: prefix === ' ' ? text : raw,
+                raw,
+            })
         }
     }
     return out

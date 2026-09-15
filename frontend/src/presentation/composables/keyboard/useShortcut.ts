@@ -41,7 +41,13 @@ function matchesShortcut(e: KeyboardEvent, config: ShortcutConfig): boolean {
  * Bypasses scope. Active via `disabled` ref. Duplicate key warns, last wins.
  */
 export function useShortcut(config: ShortcutConfig) {
-    const { handler, disabled = false, description = '', preventDefault = true, stopPropagation = false } = config
+    const {
+        handler,
+        disabled = false,
+        description = '',
+        preventDefault = true,
+        stopPropagation = false,
+    } = config
 
     const id = generateShortcutId(config)
     const disabledRef = isRef(disabled) ? disabled : ref(disabled)
@@ -54,7 +60,9 @@ export function useShortcut(config: ShortcutConfig) {
         // duplicate detection — warning only, last registered wins
         const duplicate = findDuplicate(config)
         if (duplicate && duplicate.id !== id) {
-            console.warn(`[useShortcut] Duplicate "${keyString}" — "${duplicate.id}" already registered. Last wins.`)
+            console.warn(
+                `[useShortcut] Duplicate "${keyString}" — "${duplicate.id}" already registered. Last wins.`,
+            )
         }
 
         if (preventDefault) e.preventDefault()
@@ -66,7 +74,11 @@ export function useShortcut(config: ShortcutConfig) {
         for (const [otherId, entry] of shortcutRegistry) {
             if (otherId === id) continue
             if (entry.config.key.toLowerCase() !== config.key.toLowerCase()) continue
-            if (JSON.stringify(entry.config.modifiers ?? {}) !== JSON.stringify(config.modifiers ?? {})) continue
+            if (
+                JSON.stringify(entry.config.modifiers ?? {}) !==
+                JSON.stringify(config.modifiers ?? {})
+            )
+                continue
             return { id: otherId, config: entry.config }
         }
         return undefined
@@ -114,7 +126,8 @@ export function getRegisteredShortcuts(): Array<{
     description: string
     disabled: boolean
 }> {
-    const result: Array<{ id: string; keyString: string; description: string; disabled: boolean }> = []
+    const result: Array<{ id: string; keyString: string; description: string; disabled: boolean }> =
+        []
     for (const [id, entry] of shortcutRegistry) {
         result.push({
             id,

@@ -31,7 +31,6 @@ export const hitlWatch: HitlWatchPort = {
                 const event = toEvent(arg)
                 if (event) {
                     if (import.meta.env.DEV) {
-                         
                         console.debug('[hitl] watch event:', event.type, arg.slice(0, 300))
                     }
                     handlers.onEvent(event)
@@ -39,7 +38,6 @@ export const hitlWatch: HitlWatchPort = {
                 }
             }
             if (import.meta.env.DEV) {
-                 
                 console.debug('[hitl] ignored frame:', ...args)
             }
         }
@@ -53,7 +51,6 @@ export const hitlWatch: HitlWatchPort = {
                 const sid = args.find((arg): arg is string => typeof arg === 'string')
                 if (streamId !== null && sid !== undefined && sid !== streamId) return
                 if (import.meta.env.DEV) {
-                     
                     console.debug('[hitl] watch error:', ...args)
                 }
                 handlers.onError?.(new Event('hitl-watch-error'))

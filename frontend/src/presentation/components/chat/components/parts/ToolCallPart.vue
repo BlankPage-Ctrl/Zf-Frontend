@@ -159,11 +159,21 @@ const editFilePreview = computed(() => {
             diffTruncated = output.diffTruncated
             filePath = output.path ?? ''
             const input = resolved.value.input as unknown
-            if (!filePath && input && typeof input === 'object' && 'path' in (input as Record<string, unknown>)) {
+            if (
+                !filePath &&
+                input &&
+                typeof input === 'object' &&
+                'path' in (input as Record<string, unknown>)
+            ) {
                 const p = (input as Record<string, unknown>).path
                 if (typeof p === 'string') filePath = p
             }
-            if (!filePath && input && typeof input === 'object' && 'raw' in (input as Record<string, unknown>)) {
+            if (
+                !filePath &&
+                input &&
+                typeof input === 'object' &&
+                'raw' in (input as Record<string, unknown>)
+            ) {
                 const raw = (input as Record<string, unknown>).raw
                 if (typeof raw === 'string') filePath = raw.split('\n')[0]?.trim() ?? ''
             }
@@ -225,8 +235,12 @@ const blockSchema = computed(() =>
             <div class="edit-file-preview">
                 <div v-if="editFilePreview.path" class="edit-file-preview__path">
                     {{ editFilePreview.path }}
-                    <span v-if="editFilePreview.appliedEdits != null" class="edit-file-preview__meta"
-                        >· {{ editFilePreview.appliedEdits }} edit{{ editFilePreview.appliedEdits === 1 ? '' : 's' }}</span
+                    <span
+                        v-if="editFilePreview.appliedEdits != null"
+                        class="edit-file-preview__meta"
+                        >· {{ editFilePreview.appliedEdits }} edit{{
+                            editFilePreview.appliedEdits === 1 ? '' : 's'
+                        }}</span
                     >
                     <span v-if="editFilePreview.truncated" class="edit-file-preview__truncated"
                         >(diff truncated)</span

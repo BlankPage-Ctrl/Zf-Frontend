@@ -167,9 +167,7 @@ export function applyFeedEvent(messages: FeedMessage[], event: FeedEvent): FeedM
                 (b) => b.kind === 'stage' && b.stage === event.stage && b.landed === undefined,
             )
             if (open && open.kind === 'stage') open.landed = event.landed
-            else if (
-                !message.blocks.some((b) => b.kind === 'stage' && b.stage === event.stage)
-            ) {
+            else if (!message.blocks.some((b) => b.kind === 'stage' && b.stage === event.stage)) {
                 // No open block (e.g. it was never seen): record the landing
                 // once instead of stacking duplicate stage blocks.
                 message.blocks.push({ kind: 'stage', stage: event.stage, landed: event.landed })

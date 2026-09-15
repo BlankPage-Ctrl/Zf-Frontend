@@ -2,14 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-    Album,
-    ChatBubbleEmpty,
-    Folder,
-    Notes,
-    Plus,
-    Settings as SettingsIcon,
-} from '@iconoir/vue'
+import { Album, ChatBubbleEmpty, Folder, Notes, Plus, Settings as SettingsIcon } from '@iconoir/vue'
 import { useDialog } from '@/presentation/composables/useDialog'
 import { AppList } from '@/presentation/components/list'
 import {

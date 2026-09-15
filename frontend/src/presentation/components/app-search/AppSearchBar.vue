@@ -133,7 +133,11 @@ watch(
 
 <template>
     <div class="app-search" @keydown="handleKeydown">
-        <div ref="referenceEl" class="app-search__trigger" :class="{ 'app-search__trigger--open': store.isOpen.value }">
+        <div
+            ref="referenceEl"
+            class="app-search__trigger"
+            :class="{ 'app-search__trigger--open': store.isOpen.value }"
+        >
             <Search width="14" height="14" class="app-search__icon" />
             <input
                 ref="inputRef"
@@ -144,7 +148,9 @@ watch(
                 @input="handleInput"
                 @focus="handleFocus"
             />
-            <span v-if="!store.isOpen.value && !store.query.value" class="app-search__shortcut">⌘ + K</span>
+            <span v-if="!store.isOpen.value && !store.query.value" class="app-search__shortcut"
+                >⌘ + K</span
+            >
             <button
                 v-if="store.query.value"
                 class="app-search__clear"
@@ -175,7 +181,9 @@ watch(
                                 @hover="handleHover"
                             />
                         </template>
-                        <div v-else class="app-search__empty">No results for “{{ store.query.value }}”</div>
+                        <div v-else class="app-search__empty">
+                            No results for “{{ store.query.value }}”
+                        </div>
                     </div>
                     <div class="app-search__footer">
                         <span class="app-search__hint"><strong>↑↓</strong> navigate</span>
@@ -201,7 +209,7 @@ watch(
     height: 25px;
     padding-left: 8px;
     padding-right: 2px;
-    
+
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 6px;

@@ -21,13 +21,11 @@ export function createHitlActions(
         try {
             const pending = await businessLogic.listPending()
             if (import.meta.env.DEV) {
-                 
                 console.log(`[hitl] seedPending: ${pending.length} pending request(s)`)
             }
             storeLogic.setPending(pending)
         } catch (e: unknown) {
             if (import.meta.env.DEV) {
-                 
                 console.log('[hitl] seedPending failed:', toMessage(e))
             }
             storeLogic.setPending([])

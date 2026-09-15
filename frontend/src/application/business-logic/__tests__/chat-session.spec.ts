@@ -23,7 +23,13 @@ function createHarness() {
             cancel: async () => true,
         } as never,
         stream: {
-            openStream: (_workspaceId: string, _chatId: string, _runId: string, _afterSeq: number, handlers: CapturedHandlers) => {
+            openStream: (
+                _workspaceId: string,
+                _chatId: string,
+                _runId: string,
+                _afterSeq: number,
+                handlers: CapturedHandlers,
+            ) => {
                 captured = handlers
                 return () => {}
             },
@@ -36,21 +42,39 @@ function createHarness() {
 }
 
 function messagePatches(patches: Array<{ patch: ChatSessionStatePatch }>): FeedMessage[][] {
-    return patches.filter((p) => p.patch.messages !== undefined).map((p) => p.patch.messages as FeedMessage[])
+    return patches
+        .filter((p) => p.patch.messages !== undefined)
+        .map((p) => p.patch.messages as FeedMessage[])
 }
 
 const ASSISTANT_ID = 'msg-assistant'
 
 function textOpen(): FeedEvent {
-    return { type: 'text-open', messageId: ASSISTANT_ID, sliceId: 'txt-0', role: 'assistant' } as FeedEvent
+    return {
+        type: 'text-open',
+        messageId: ASSISTANT_ID,
+        sliceId: 'txt-0',
+        role: 'assistant',
+    } as FeedEvent
 }
 
 function textDelta(delta: string): FeedEvent {
-    return { type: 'text-delta', messageId: ASSISTANT_ID, sliceId: 'txt-0', delta, role: 'assistant' } as FeedEvent
+    return {
+        type: 'text-delta',
+        messageId: ASSISTANT_ID,
+        sliceId: 'txt-0',
+        delta,
+        role: 'assistant',
+    } as FeedEvent
 }
 
 function textClose(): FeedEvent {
-    return { type: 'text-close', messageId: ASSISTANT_ID, sliceId: 'txt-0', role: 'assistant' } as FeedEvent
+    return {
+        type: 'text-close',
+        messageId: ASSISTANT_ID,
+        sliceId: 'txt-0',
+        role: 'assistant',
+    } as FeedEvent
 }
 
 function runClose(): FeedEvent {
@@ -67,9 +91,11 @@ describe('chat-session delta coalescing', () => {
     const realCancelRaf = globalThis.cancelAnimationFrame
 
     afterEach(() => {
-        if (realRaf === undefined) delete (globalThis as Record<string, unknown>).requestAnimationFrame
+        if (realRaf === undefined)
+            delete (globalThis as Record<string, unknown>).requestAnimationFrame
         else globalThis.requestAnimationFrame = realRaf
-        if (realCancelRaf === undefined) delete (globalThis as Record<string, unknown>).cancelAnimationFrame
+        if (realCancelRaf === undefined)
+            delete (globalThis as Record<string, unknown>).cancelAnimationFrame
         else globalThis.cancelAnimationFrame = realCancelRaf
         vi.restoreAllMocks()
     })
@@ -98,7 +124,9 @@ describe('chat-session delta coalescing', () => {
         expect(after.length).toBe(before + 2)
         const last = after[after.length - 1]!
         const assistant = last.find((m) => m.id === ASSISTANT_ID)!
-        expect(assistant.blocks).toEqual([{ kind: 'text', sliceId: 'txt-0', text: 'abcde', closed: false }])
+        expect(assistant.blocks).toEqual([
+            { kind: 'text', sliceId: 'txt-0', text: 'abcde', closed: false },
+        ])
     })
 
     it('flushes pending text on structural events and run-close', async () => {
@@ -120,7 +148,9 @@ describe('chat-session delta coalescing', () => {
         handlers.onEvent(textClose())
         const afterClose = messagePatches(harness.patches)
         const assistant = afterClose[afterClose.length - 1]!.find((m) => m.id === ASSISTANT_ID)!
-        expect(assistant.blocks).toEqual([{ kind: 'text', sliceId: 'txt-0', text: 'ab', closed: true }])
+        expect(assistant.blocks).toEqual([
+            { kind: 'text', sliceId: 'txt-0', text: 'ab', closed: true },
+        ])
 
         handlers.onEvent(textOpen())
         handlers.onEvent(textDelta('c'))

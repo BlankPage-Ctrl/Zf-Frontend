@@ -93,7 +93,11 @@ function onSelectSearch(payload: AppSearchItemAny) {
             break
         case 'chat':
             if (payload.payload.workspaceId) {
-                router.push({ name: 'workspace', params: { id: payload.payload.workspaceId }, query: { chat: payload.payload.id } })
+                router.push({
+                    name: 'workspace',
+                    params: { id: payload.payload.workspaceId },
+                    query: { chat: payload.payload.id },
+                })
             }
             break
         case 'note':

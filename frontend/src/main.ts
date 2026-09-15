@@ -23,7 +23,9 @@ if (typeof window !== 'undefined' && !(window as unknown as { runtime?: unknown 
         LogError: () => {},
         LogFatal: () => {},
     } as unknown as never
-    console.warn('[wails] window.runtime missing at startup — injected mock to prevent blank crash (will be overwritten when Wails reloads)')
+    console.warn(
+        '[wails] window.runtime missing at startup — injected mock to prevent blank crash (will be overwritten when Wails reloads)',
+    )
 }
 
 const app = createApp(App)

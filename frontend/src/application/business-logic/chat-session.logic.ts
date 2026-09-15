@@ -100,7 +100,11 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         }
         if (event.type === 'run-close') {
             flushCoalesced(chatId)
-            finishWatch(chatId, event.status, typeof event.message === 'string' ? event.message : undefined)
+            finishWatch(
+                chatId,
+                event.status,
+                typeof event.message === 'string' ? event.message : undefined,
+            )
         }
     }
 
@@ -124,18 +128,18 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         }
     }
 
-    function attach(
-        workspaceId: string,
-        chatId: string,
-        runId: string,
-        afterSeq: number,
-    ): void {
+    function attach(workspaceId: string, chatId: string, runId: string, afterSeq: number): void {
         const prev = watches.get(chatId)
         if (prev) {
             prev.detach()
             watches.delete(chatId)
         }
-        deps.onState(chatId, { status: 'streaming', isLoading: true, activeRunId: runId, error: undefined })
+        deps.onState(chatId, {
+            status: 'streaming',
+            isLoading: true,
+            activeRunId: runId,
+            error: undefined,
+        })
         const detach = deps.stream.openStream(workspaceId, chatId, runId, afterSeq, {
             onEvent: (event) => applyEvent(chatId, event),
             onSeq: () => {},

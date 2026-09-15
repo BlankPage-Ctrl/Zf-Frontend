@@ -129,7 +129,11 @@ export function getToolCallsFromMessages(
                 if (isHiddenToolName(block.implement)) continue
                 if (seen.has(block.callId)) continue
                 seen.add(block.callId)
-                out.push({ toolName: block.implement, toolCallId: block.callId, state: block.state })
+                out.push({
+                    toolName: block.implement,
+                    toolCallId: block.callId,
+                    state: block.state,
+                })
                 continue
             }
             const parsed = parseToolCall(block)

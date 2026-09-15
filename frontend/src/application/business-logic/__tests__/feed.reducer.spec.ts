@@ -47,7 +47,13 @@ describe('applyFeedEvent', () => {
 
     it('merges work queued/active/ok into one block', () => {
         const messages = reduce([
-            { type: 'work-queued', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file' },
+            {
+                type: 'work-queued',
+                messageId: 'a1',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'read_file',
+            },
             {
                 type: 'work-active',
                 messageId: 'a1',
@@ -78,7 +84,13 @@ describe('applyFeedEvent', () => {
 
     it('marks work-bad with error text', () => {
         const messages = reduce([
-            { type: 'work-queued', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'run_shell' },
+            {
+                type: 'work-queued',
+                messageId: 'a1',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'run_shell',
+            },
             {
                 type: 'work-bad',
                 messageId: 'a1',
@@ -89,12 +101,22 @@ describe('applyFeedEvent', () => {
                 errorText: 'nope',
             },
         ])
-        expect(messages[0]!.blocks[0]).toMatchObject({ kind: 'work', state: 'bad', errorText: 'nope' })
+        expect(messages[0]!.blocks[0]).toMatchObject({
+            kind: 'work',
+            state: 'bad',
+            errorText: 'nope',
+        })
     })
 
     it('attaches notice bodies to the matching work block', () => {
         const messages = reduce([
-            { type: 'work-queued', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file' },
+            {
+                type: 'work-queued',
+                messageId: 'a1',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'read_file',
+            },
             {
                 type: 'notice',
                 messageId: 'a1',
@@ -106,7 +128,7 @@ describe('applyFeedEvent', () => {
         ])
         const block = messages[0]!.blocks[0]!
         expect(block.kind).toBe('work')
-            expect(block.notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
+        expect(block.notices).toEqual([{ toolCallId: 'c1', path: 'x.ts', content: 'RICH' }])
     })
 
     it('folds an out-of-order notice into a placeholder work block', () => {
@@ -119,11 +141,22 @@ describe('applyFeedEvent', () => {
                 implement: 'read_file',
                 body: { toolCallId: 'c9', path: 'x.ts', content: 'RICH' },
             },
-            { type: 'work-queued', messageId: 'a1', sliceId: 'c9', callId: 'c9', implement: 'read_file' },
+            {
+                type: 'work-queued',
+                messageId: 'a1',
+                sliceId: 'c9',
+                callId: 'c9',
+                implement: 'read_file',
+            },
         ])
         expect(messages[0]!.blocks).toHaveLength(1)
         const block = messages[0]!.blocks[0]!
-        expect(block).toMatchObject({ kind: 'work', callId: 'c9', implement: 'read_file', state: 'queued' })
+        expect(block).toMatchObject({
+            kind: 'work',
+            callId: 'c9',
+            implement: 'read_file',
+            state: 'queued',
+        })
         expect(block.notices).toEqual([{ toolCallId: 'c9', path: 'x.ts', content: 'RICH' }])
     })
 
@@ -198,8 +231,22 @@ describe('applyFeedEvent', () => {
             { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
             { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'preamble' },
             { type: 'text-close', messageId: 'a1', sliceId: 'txt-0' },
-            { type: 'work-queued', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file' },
-            { type: 'work-ok', messageId: 'a1', sliceId: 'c1', callId: 'c1', implement: 'read_file', input: {}, output: {} },
+            {
+                type: 'work-queued',
+                messageId: 'a1',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'read_file',
+            },
+            {
+                type: 'work-ok',
+                messageId: 'a1',
+                sliceId: 'c1',
+                callId: 'c1',
+                implement: 'read_file',
+                input: {},
+                output: {},
+            },
             { type: 'stage-open', messageId: 'a1', stage: 1 },
             { type: 'text-open', messageId: 'a1', sliceId: 'txt-0' },
             { type: 'text-delta', messageId: 'a1', sliceId: 'txt-0', delta: 'conclusion' },

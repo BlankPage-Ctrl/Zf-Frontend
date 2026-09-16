@@ -75,12 +75,12 @@ const providerBusinessLogic = createProviderBusinessLogic({
 export const providerActions = createProviderActions(providerStoreLogic, providerBusinessLogic)
 
 const themeStoreLogic = createThemeStoreLogic(() => useThemeStorer())
-const themeBusinessLogic = createThemeBusinessLogic(settingsRepository)
+const themeBusinessLogic = createThemeBusinessLogic()
 
 export const themeActions = createThemeActions(themeStoreLogic, themeBusinessLogic)
 
 const appearanceStoreLogic = createAppearanceStoreLogic(() => useAppearanceStorer())
-const appearanceBusinessLogic = createAppearanceBusinessLogic(settingsRepository)
+const appearanceBusinessLogic = createAppearanceBusinessLogic()
 
 export const appearanceActions = createAppearanceActions(
     appearanceStoreLogic,

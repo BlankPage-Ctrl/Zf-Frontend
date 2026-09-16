@@ -1,5 +1,3 @@
-import type { SettingsRepository } from '@/core/repositories'
-
 const STORAGE_KEY = 'appearance'
 
 export interface AppearanceBusinessLogic {
@@ -7,14 +5,12 @@ export interface AppearanceBusinessLogic {
     save(fontSize: number): Promise<void>
 }
 
-export function createAppearanceBusinessLogic(
-    settingsRepo: SettingsRepository,
-): AppearanceBusinessLogic {
+export function createAppearanceBusinessLogic(): AppearanceBusinessLogic {
     async function load(): Promise<number | null> {
         try {
-            const res = await settingsRepo.getValue(STORAGE_KEY)
-            if (res.value) {
-                const parsed = JSON.parse(res.value)
+            const raw = localStorage.getItem(STORAGE_KEY)
+            if (raw) {
+                const parsed = JSON.parse(raw)
                 if (typeof parsed.fontSize === 'number') {
                     return parsed.fontSize
                 }
@@ -27,7 +23,7 @@ export function createAppearanceBusinessLogic(
 
     async function save(fontSize: number): Promise<void> {
         try {
-            await settingsRepo.setValue(STORAGE_KEY, JSON.stringify({ fontSize }))
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize }))
         } catch {
             /* ignore */
         }

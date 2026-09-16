@@ -7,3 +7,11 @@ export interface DefaultProvider {
     providerId: string | null
     modelId: string | null
 }
+
+export interface ThemeValue {
+    themeId?: string
+}
+
+export interface WorkspaceThemeValue {
+    themeId?: string
+}

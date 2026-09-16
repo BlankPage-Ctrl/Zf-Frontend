@@ -123,8 +123,6 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("PATCH /categories/{id}", s.handleRenameCategory)
 	mux.HandleFunc("DELETE /categories/{id}", s.handleDeleteCategory)
 
-	mux.HandleFunc("GET /settings/default-provider", s.handleGetDefaultProvider)
-	mux.HandleFunc("PUT /settings/default-provider", s.handleSetDefaultProvider)
 	mux.HandleFunc("GET /settings/{key}", s.handleGetSetting)
 	mux.HandleFunc("PUT /settings/{key}", s.handleSetSetting)
 

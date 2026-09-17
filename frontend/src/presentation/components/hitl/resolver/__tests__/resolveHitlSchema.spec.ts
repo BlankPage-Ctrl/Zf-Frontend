@@ -133,4 +133,90 @@ describe('resolveHitlDockSchema', () => {
         expect(card?.submitting).toBe(true)
         expect(card?.error).toBe('boom')
     })
+
+    it('maps approval modification and requireReasonOnReject', () => {
+        const schema = resolveHitlDockSchema(
+            [
+                item({
+                    type: 'approval',
+                    payload: {
+                        requireReasonOnReject: true,
+                        modification: { initialValue: 'PATCH', label: 'Patch', placeholder: 'Edit…' },
+                        contextPreview: { command: 'edit a', cwd: '/repo', reason: 'needs review' },
+                    },
+                }),
+            ],
+            callbacks(),
+        )
+        const card = schema.items[0]
+        expect(card?.type).toBe('approval')
+        if (card?.type !== 'approval') return
+        expect(card.requireReasonOnReject).toBe(true)
+        expect(card.supportsModification).toBe(true)
+        expect(card.modificationDraft).toBe('PATCH')
+        expect(card.modificationLabel).toBe('Patch')
+        expect(card.modificationPlaceholder).toBe('Edit…')
+        expect(card.details).toEqual([
+            { key: 'cmd', value: 'edit a' },
+            { key: 'cwd', value: '/repo' },
+        ])
+    })
+
+    it('maps ranked choice and per-option allowCustomInput', () => {
+        const schema = resolveHitlDockSchema(
+            [
+                item({
+                    type: 'choice',
+                    payload: {
+                        mode: 'ranked',
+                        options: [
+                            { id: 'a', title: 'A', allowCustomInput: true },
+                            { id: 'b', title: 'B', recommended: true },
+                        ],
+                        defaultSelection: ['b'],
+                        minSelect: 1,
+                        maxSelect: 2,
+                    },
+                }),
+            ],
+            callbacks(),
+        )
+        const card = schema.items[0]
+        expect(card?.type).toBe('choice')
+        if (card?.type !== 'choice') return
+        expect(card.mode).toBe('ranked')
+        expect(card.minSelect).toBe(1)
+        expect(card.maxSelect).toBe(2)
+        expect(card.options).toEqual([
+            { id: 'a', title: 'A', description: undefined, recommended: false, allowCustomInput: true },
+            { id: 'b', title: 'B', description: undefined, recommended: true },
+        ])
+        expect(card.defaultSelection).toEqual(['b'])
+    })
+
+    it('maps multi wizard ask steps with placeholders', () => {
+        const schema = resolveHitlDockSchema(
+            [
+                item({
+                    type: 'ask',
+                    payload: {
+                        wizard: {
+                            steps: [
+                                { key: 'name', prompt: 'Name?', placeholder: 'my-ws' },
+                                { key: 'desc', prompt: 'Desc?' },
+                            ],
+                        },
+                    },
+                }),
+            ],
+            callbacks(),
+        )
+        const card = schema.items[0]
+        expect(card?.type).toBe('ask')
+        if (card?.type !== 'ask') return
+        expect(card.steps).toEqual([
+            { key: 'name', prompt: 'Name?', placeholder: 'my-ws' },
+            { key: 'desc', prompt: 'Desc?', placeholder: undefined },
+        ])
+    })
 })

@@ -61,6 +61,7 @@ export interface HitlChoiceOptionSchema {
     title: string
     description?: string
     recommended?: boolean
+    allowCustomInput?: boolean
 }
 
 export type HitlChoiceMode = 'single' | 'multi' | 'ranked'

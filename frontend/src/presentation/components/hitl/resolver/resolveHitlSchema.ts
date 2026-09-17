@@ -142,6 +142,7 @@ function resolveChoiceOptions(request: FEHitlRequest): HitlChoiceOptionSchema[] 
                     title: option.title,
                     description: toStringOrUndefined(option.description),
                     recommended: option.recommended === true,
+                    ...(option.allowCustomInput === true ? { allowCustomInput: true } : {}),
                 })
             }
         }

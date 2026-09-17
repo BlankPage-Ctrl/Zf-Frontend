@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
-import type { EditFileToolData, ListFilesToolData, ReadFileToolData, RunShellToolData } from '../../types/schema'
+import type {
+    EditFileToolData,
+    ListFilesToolData,
+    ReadFileToolData,
+    RunShellToolData,
+    CreateFileToolData,
+} from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer, useThemeStorer, useAppearanceStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
@@ -230,6 +236,22 @@ const editFilePreview = computed(() => {
     }
 })
 
+const createFilePreview = computed(() => {
+    if (resolved.value.toolName !== 'create_file') return null
+    if (resolved.value.state !== 'ok') return null
+    const frontend = resolved.value.frontend as CreateFileToolData | undefined
+    if (!frontend || typeof frontend.content !== 'string') return null
+    if (frontend.encoding === 'base64') return null
+    const filePath = frontend.path ?? ''
+    return {
+        code: frontend.content,
+        lang: inferLangFromPath(filePath),
+        path: filePath,
+        totalLines: frontend.totalLines,
+        isDark: isDark.value,
+    }
+})
+
 function formatSize(bytes: number): string {
     if (!Number.isFinite(bytes) || bytes < 0) return '0B'
     if (bytes < 1024) return `${Math.trunc(bytes)}B`
@@ -327,6 +349,28 @@ const blockSchema = computed(() =>
                 </div>
             </div>
         </template>
+        <template v-else-if="createFilePreview" #preview>
+            <div class="read-file-preview">
+                <div v-if="createFilePreview.path" class="read-file-preview__path">
+                    {{ createFilePreview.path }}
+                    <span v-if="createFilePreview.totalLines != null" class="read-file-preview__meta"
+                        >· {{ createFilePreview.totalLines }} line{{
+                            createFilePreview.totalLines === 1 ? '' : 's'
+                        }}</span
+                    >
+                </div>
+                <CodeRenderer
+                    v-if="createFilePreview.code !== ''"
+                    :schema="{
+                        code: createFilePreview.code,
+                        lang: createFilePreview.lang,
+                        status: 'done',
+                        isDark: createFilePreview.isDark,
+                    }"
+                />
+                <div v-else class="read-file-preview__empty">_(empty file)_</div>
+            </div>
+        </template>
         <template v-else-if="shellRendererSchema" #preview>
             <TerminalRenderer :schema="shellRendererSchema" />
         </template>
@@ -353,6 +397,18 @@ const blockSchema = computed(() =>
 .read-file-preview__truncated {
     margin-left: 6px;
     color: var(--text-warning, #d97706);
+}
+
+.read-file-preview__meta {
+    margin-left: 6px;
+    opacity: 0.8;
+}
+
+.read-file-preview__empty {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    opacity: 0.5;
+    font-style: italic;
 }
 
 .list-files-preview {

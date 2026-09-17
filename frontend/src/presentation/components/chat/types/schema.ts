@@ -171,7 +171,18 @@ export interface RunShellToolData {
     signal: string | null
 }
 
-export type ToolData = ListFilesToolData | ReadFileToolData | EditFileToolData | RunShellToolData
+export interface CreateFileToolData {
+    toolCallId: string
+    path: string
+    content: string
+    contentWithLineNumbers?: string
+    encoding: string
+    size: number
+    truncated?: boolean
+    totalLines: number
+}
+
+export type ToolData = ListFilesToolData | ReadFileToolData | EditFileToolData | RunShellToolData | CreateFileToolData
 
 export interface StepIndicatorSchema {
     label?: string

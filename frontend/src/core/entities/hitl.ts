@@ -47,13 +47,6 @@ export interface FEChoiceResponse {
 
 export type FEHitlResponse = FEApprovalResponse | FEAskResponse | FEChoiceResponse
 
-export interface FEHitlShellPreview {
-    command?: string
-    cwd?: string
-    matched?: { pattern?: string; tier?: string }
-    reason?: string
-}
-
 export interface FEAskStep {
     key: string
     prompt: string
@@ -188,24 +181,4 @@ export function parseHitlEvent(raw: string): FEHitlEvent | null {
         return parsed as FEHitlEvent
     }
     return null
-}
-
-export function hitlShellPreview(request: FEHitlRequest): FEHitlShellPreview {
-    const preview = isRecord(request.payload.contextPreview) ? request.payload.contextPreview : {}
-    const matched = isRecord(preview.matched) ? preview.matched : {}
-    const fromMeta = (key: string): string | undefined => {
-        const value = request.metadata[key]
-        return typeof value === 'string' && value ? value : undefined
-    }
-    const str = (value: unknown): string | undefined =>
-        typeof value === 'string' && value ? value : undefined
-    return {
-        command: str(preview.command) ?? fromMeta('command'),
-        cwd: str(preview.cwd) ?? fromMeta('cwd'),
-        matched: {
-            pattern: str(matched.pattern) ?? fromMeta('matchedPattern'),
-            tier: str(matched.tier) ?? fromMeta('matchedTier'),
-        },
-        reason: str(preview.reason),
-    }
 }

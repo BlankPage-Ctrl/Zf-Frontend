@@ -6,6 +6,7 @@ import type { HitlCardCallbacks } from '../../types/schema'
 function callbacks(): HitlCardCallbacks {
     return {
         onApprove: vi.fn<HitlCardCallbacks['onApprove']>(),
+        onApproveWithModification: vi.fn<HitlCardCallbacks['onApproveWithModification']>(),
         onDeny: vi.fn<HitlCardCallbacks['onDeny']>(),
         onAskSubmit: vi.fn<HitlCardCallbacks['onAskSubmit']>(),
         onChoiceSubmit: vi.fn<HitlCardCallbacks['onChoiceSubmit']>(),

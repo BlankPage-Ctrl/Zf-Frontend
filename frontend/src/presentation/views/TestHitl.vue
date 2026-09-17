@@ -119,6 +119,7 @@ const schema = computed(() =>
     createHitlDockSchema({
         items: items.value,
         onApprove: (id) => simulateResolve(id),
+        onApproveWithModification: (id) => simulateResolve(id),
         onDeny: (id) => simulateResolve(id),
         onAskSubmit: (id) => simulateResolve(id),
         onChoiceSubmit: (id) => simulateResolve(id),

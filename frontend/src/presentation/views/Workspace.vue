@@ -256,6 +256,9 @@ function buildHitlDockSchema(chatId: string) {
         onApprove: (id, always) => {
             void hitlActions.submit(id, { outcome: always ? 'always_approved' : 'approved' })
         },
+        onApproveWithModification: (id, modificationNote) => {
+            void hitlActions.submit(id, { outcome: 'approved_with_modification', modificationNote })
+        },
         onDeny: (id, reason) => {
             void hitlActions.submit(id, {
                 outcome: 'rejected',

@@ -20,6 +20,7 @@ export interface SettingsTabSchema {
     themes: SettingsTheme[]
     activeThemeId: string | null
     presets: readonly PresetOption[]
+    terminalAnimated: boolean
     onAddProvider?: () => void
     onEditProvider?: (provider: Provider) => void
     onDeleteProvider?: (id: string) => void
@@ -34,5 +35,6 @@ export interface SettingsTabSchema {
     onUpdatePreset?: (preset: string) => void
     onUpdateFontSize?: (size: number) => void
     onSetActiveTheme?: (id: string) => void
+    onToggleTerminalAnimated?: (v: boolean) => void
     onClose?: () => void
 }

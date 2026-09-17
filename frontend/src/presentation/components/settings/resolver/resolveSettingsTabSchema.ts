@@ -29,5 +29,9 @@ export function resolveSettingsTabSchema(schema: SettingsTabSchema): ResolvedSet
             activeThemeId: schema.activeThemeId,
             onSetActiveTheme: schema.onSetActiveTheme,
         },
+        terminal: {
+            animated: schema.terminalAnimated,
+            onToggle: schema.onToggleTerminalAnimated,
+        },
     }
 }

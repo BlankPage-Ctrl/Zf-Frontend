@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
 import type { EditFileToolData, ListFilesToolData, ReadFileToolData, RunShellToolData } from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
-import { useShellExecStorer, useThemeStorer } from '@/application/stores'
+import { useShellExecStorer, useThemeStorer, useAppearanceStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
 import { createToolCallSchema } from '@/presentation/schemas'
 import { isKnownToolName } from '../../helpers/knownTools'
@@ -17,6 +17,7 @@ const props = defineProps<{
 const resolved = computed(() => resolveToolCallPartSchema(props.schema))
 const shellStore = useShellExecStorer()
 const themeStore = useThemeStorer()
+const appearanceStore = useAppearanceStorer()
 const isDark = computed(() => themeStore.activeThemeId === 'night')
 
 interface RunShellOutput {
@@ -70,7 +71,7 @@ const shellRendererSchema = computed(() => {
         truncated: liveState?.result?.truncated ?? frontend?.truncated ?? false,
         spillPath: liveState?.result?.spillPath ?? frontend?.spillPath ?? null,
         status,
-        animated: true,
+        animated: appearanceStore.terminalAnimated,
         isDark: isDark.value,
     }
 })

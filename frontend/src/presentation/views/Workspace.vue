@@ -696,6 +696,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         themes: settingsThemes.value,
         activeThemeId: themeStorer.activeThemeId,
         presets: APPEARANCE_PRESETS,
+        terminalAnimated: appearanceStorer.terminalAnimated,
         onAddProvider: handleAddProvider,
         onEditProvider: handleEditProvider,
         onDeleteProvider: handleDeleteProvider,
@@ -706,6 +707,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         onUpdatePreset: handleUpdatePreset,
         onUpdateFontSize: handleUpdateFontSize,
         onSetActiveTheme: handleSetActiveTheme,
+        onToggleTerminalAnimated: handleToggleTerminalAnimated,
     })
 }
 
@@ -738,6 +740,10 @@ function handleUpdateFontSize(size: number) {
 
 function handleSetActiveTheme(id: string) {
     themeActions.setTheme(id)
+}
+
+function handleToggleTerminalAnimated(v: boolean) {
+    appearanceActions.setTerminalAnimated(v)
 }
 
 watch(routeWsId, (id) => {

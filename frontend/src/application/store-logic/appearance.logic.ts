@@ -5,6 +5,8 @@ export interface AppearanceStoreLogic {
     setFontSize(size: number): void
     setPreset(label: string): void
     getFontSize(): number
+    setTerminalAnimated(v: boolean): void
+    getTerminalAnimated(): boolean
 }
 
 export function createAppearanceStoreLogic(
@@ -24,9 +26,19 @@ export function createAppearanceStoreLogic(
         return getStorer().fontSize
     }
 
+    function setTerminalAnimated(v: boolean): void {
+        getStorer().setTerminalAnimated(v)
+    }
+
+    function getTerminalAnimated(): boolean {
+        return getStorer().terminalAnimated
+    }
+
     return {
         setFontSize,
         setPreset,
         getFontSize,
+        setTerminalAnimated,
+        getTerminalAnimated,
     }
 }

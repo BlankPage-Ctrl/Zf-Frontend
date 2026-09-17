@@ -4,6 +4,7 @@ import type { ResolvedSettingsTab } from './types/resolved'
 import ProviderSection from './components/ProviderSection.vue'
 import AppearanceSection from './components/AppearanceSection.vue'
 import ThemeSection from './components/ThemeSection.vue'
+import TerminalSection from './components/TerminalSection.vue'
 
 defineProps<{
     resolved: ResolvedSettingsTab
@@ -35,6 +36,18 @@ defineProps<{
             />
             <AppearanceSection :resolved="resolved.appearance" />
             <ThemeSection :resolved="resolved.theme" />
+        </section>
+
+        <section class="settings-section section-terminal">
+            <Header
+                :schema="{
+                    title: 'Terminal',
+                    height: 'auto',
+                    padding: 'none',
+                    border: true,
+                }"
+            />
+            <TerminalSection :resolved="resolved.terminal" />
         </section>
     </div>
 </template>

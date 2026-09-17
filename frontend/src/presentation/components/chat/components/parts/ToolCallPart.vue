@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
-import type { EditFileToolData, ListFilesToolData, ReadFileToolData } from '../../types/schema'
+import type { EditFileToolData, ListFilesToolData, ReadFileToolData, RunShellToolData } from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
 import { useShellExecStorer, useThemeStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
 import { createToolCallSchema } from '@/presentation/schemas'
 import { isKnownToolName } from '../../helpers/knownTools'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
-import ShellTerminal from './ShellTerminal.vue'
+import { TerminalRenderer } from '@/presentation/components/terminal-renderer'
 
 const props = defineProps<{
     schema: ToolCallPartSchema
@@ -34,6 +34,45 @@ const live = computed(() => {
         props.schema.toolCallId ?? (props.schema.output as RunShellOutput | undefined)?.executionId
     if (!id) return undefined
     return shellStore.byToolCall[id]
+})
+
+const shellRendererSchema = computed(() => {
+    if (resolved.value.toolName !== 'run_shell') return null
+    const liveState = live.value
+    const frontend = resolved.value.frontend as RunShellToolData | undefined
+    if (!liveState && !frontend) return null
+
+    const inputCmd = (resolved.value.input as { command?: string } | undefined)?.command ?? ''
+    const command = liveState?.command ?? frontend!.command ?? inputCmd
+    const cwd = liveState?.cwd ?? frontend!.cwd ?? ''
+
+    const status: 'running' | 'done' | 'error' =
+        liveState?.status === 'running' ? 'running' : resolved.value.state === 'ok' ? 'done' : resolved.value.state === 'bad' ? 'error' : 'done'
+
+    // When frontend missing (streaming), use empty ansi strings; renderer will use live lines.
+    const stdout = frontend?.stdout ?? ''
+    const stderr = frontend?.stderr ?? ''
+    const stdoutAnsi = frontend?.stdoutAnsi ?? ''
+    const stderrAnsi = frontend?.stderrAnsi ?? ''
+
+    return {
+        command,
+        cwd,
+        lines: liveState?.lines,
+        stdout,
+        stderr,
+        stdoutAnsi,
+        stderrAnsi,
+        exitCode: liveState?.result?.exitCode ?? frontend?.exitCode ?? null,
+        durationMs: liveState?.result?.durationMs ?? frontend?.durationMs ?? null,
+        timedOut: liveState?.result?.timedOut ?? frontend?.timedOut ?? false,
+        signal: liveState?.result?.signal ?? frontend?.signal ?? null,
+        truncated: liveState?.result?.truncated ?? frontend?.truncated ?? false,
+        spillPath: liveState?.result?.spillPath ?? frontend?.spillPath ?? null,
+        status,
+        animated: true,
+        isDark: isDark.value,
+    }
 })
 
 interface ReadFileOutput {
@@ -287,8 +326,8 @@ const blockSchema = computed(() =>
                 </div>
             </div>
         </template>
-        <template v-else-if="live" #preview>
-            <ShellTerminal :lines="live.lines" />
+        <template v-else-if="shellRendererSchema" #preview>
+            <TerminalRenderer :schema="shellRendererSchema" />
         </template>
     </BlockPart>
 </template>

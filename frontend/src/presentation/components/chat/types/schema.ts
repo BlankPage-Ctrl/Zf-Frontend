@@ -162,6 +162,8 @@ export interface RunShellToolData {
     exitCode: number
     stdout: string
     stderr: string
+    stdoutAnsi: string
+    stderrAnsi: string
     truncated: boolean
     spillPath: string | null
     durationMs: number

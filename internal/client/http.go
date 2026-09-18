@@ -72,7 +72,7 @@ func (t *HTTPTransport) do(httpClient *http.Client, method, path string, body an
 	var bodyReader io.Reader
 	var bodyStr string
 	if body != nil {
-		b, err := json.Marshal(body)
+		b, err := marshalBody(body)
 		if err != nil {
 			return nil, fmt.Errorf("marshal body: %w", err)
 		}
@@ -104,6 +104,24 @@ func newRequestID() string {
 		return "req-" + strconv.FormatInt(time.Now().UnixNano(), 16)
 	}
 	return "req-" + hex.EncodeToString(b[:])
+}
+
+// marshalBody encodes JSON without HTML escaping (<>& stay literal) so the
+// wire bytes match what a JS JSON.stringify client would send. The backend
+// verifies exact wire bytes (req.rawBody), so this is strictly for
+// interoperability/debuggability — signatures match either way.
+func marshalBody(v any) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return nil, err
+	}
+	b := buf.Bytes()
+	if len(b) > 0 && b[len(b)-1] == '\n' {
+		b = b[:len(b)-1]
+	}
+	return b, nil
 }
 
 func sortQueryString(qs string) string {

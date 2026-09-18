@@ -27,4 +27,9 @@ export {
     type HitlBusinessLogic,
     type HitlBusinessLogicDeps,
 } from './hitl.logic'
+export {
+    createInsightBusinessLogic,
+    type InsightBusinessLogic,
+    type InsightBusinessLogicDeps,
+} from './insight.logic'
 

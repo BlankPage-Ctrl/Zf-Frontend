@@ -126,6 +126,13 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("GET /settings/{key}", s.handleGetSetting)
 	mux.HandleFunc("PUT /settings/{key}", s.handleSetSetting)
 
+	mux.HandleFunc("POST /workspaces/{id}/insight/ensure", s.handleInsightEnsure)
+	mux.HandleFunc("GET /workspaces/{id}/insight/status", s.handleInsightStatus)
+	mux.HandleFunc("DELETE /workspaces/{id}/insight", s.handleInsightStop)
+	mux.HandleFunc("POST /workspaces/{id}/insight/sync", s.handleInsightSync)
+	mux.HandleFunc("GET /workspaces/{id}/insight/search", s.handleInsightSearch)
+	mux.HandleFunc("GET /workspaces/{id}/insight/events", s.handleInsightEvents)
+
 	return mux
 }
 

@@ -15,6 +15,7 @@ import {
     useChatSessionStorer,
     useFileExplorerStorer,
     useHitlStorer,
+    useInsightStorer,
     createEmptyChatSessionState,
 } from '@/application/stores'
 import {
@@ -27,6 +28,7 @@ import {
     noteActions,
     chatSessionActions,
     hitlActions,
+    insightActions,
 } from '@/application/actions'
 import type { Chat, ChatMode, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
@@ -92,6 +94,7 @@ const settingsTab = useSettingsTab()
 const chatSessionStorer = useChatSessionStorer()
 const fileExplorerStorer = useFileExplorerStorer()
 const hitlStorer = useHitlStorer()
+const insightStorer = useInsightStorer()
 
 const mentionQuery = ref('')
 const mentionLoading = ref(false)
@@ -700,6 +703,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         activeThemeId: themeStorer.activeThemeId,
         presets: APPEARANCE_PRESETS,
         terminalAnimated: appearanceStorer.terminalAnimated,
+        insightEnabled: insightStorer.enabled,
         onAddProvider: handleAddProvider,
         onEditProvider: handleEditProvider,
         onDeleteProvider: handleDeleteProvider,
@@ -711,7 +715,14 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         onUpdateFontSize: handleUpdateFontSize,
         onSetActiveTheme: handleSetActiveTheme,
         onToggleTerminalAnimated: handleToggleTerminalAnimated,
+        onToggleInsightEnabled: handleToggleInsightEnabled,
     })
+}
+
+async function handleToggleInsightEnabled(v: boolean) {
+    const id = workspaceId.value
+    if (!id) return
+    await insightActions.setEnabled(id, v)
 }
 
 async function handleDeleteModel(providerId: string, modelId: string) {
@@ -729,6 +740,7 @@ async function handleDeleteProvider(id: string) {
 function cleanupWorkspace() {
     chatSessionActions.clear()
     fileExplorerActions.stopWatch()
+    insightActions.unsubscribe()
     flushSaves()
     stopAutoSaveInterval()
 }
@@ -769,6 +781,7 @@ watch(
     async (newId, oldId) => {
         if (!newId) {
             cleanupWorkspace()
+            void insightActions.ensureOnSelect(null)
             return
         }
 
@@ -780,6 +793,7 @@ watch(
         providerActions.fetchProviders()
         noteActions.fetchNotes(newId)
         noteActions.fetchCategories(newId)
+        void insightActions.ensureOnSelect(newId)
         startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)

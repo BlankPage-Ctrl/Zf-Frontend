@@ -5,12 +5,13 @@ import { RouterView } from 'vue-router'
 import { IconoirProvider } from '@iconoir/vue'
 import AppTitle from '@/presentation/components/AppTitle.vue'
 import DialogContainer from '@/presentation/components/dialog/DialogContainer.vue'
-import { useWorkspaceStorer } from '@/application/stores'
+import { useWorkspaceStorer, useInsightStorer } from '@/application/stores'
 import {
     workspaceActions,
     appearanceActions,
     themeActions,
     providerActions,
+    insightActions,
 } from '@/application/actions'
 import { useSettingsTab } from '@/presentation/composables/useSettingsTab'
 import { useDialog } from '@/presentation/composables/useDialog'
@@ -19,6 +20,7 @@ import type { AppSearchItemAny } from '@/presentation/components/app-search/type
 
 const router = useRouter()
 const wsStorer = useWorkspaceStorer()
+const insightStorer = useInsightStorer()
 const settingsTab = useSettingsTab()
 const dialog = useDialog()
 
@@ -85,6 +87,16 @@ function onNavigateTestLab() {
     router.push({ name: 'test-lab' })
 }
 
+function onRequestInsightSync() {
+    const id = wsStorer.selectedWorkspaceId
+    if (!id) return
+    void insightActions.sync(id, insightStorer.force)
+}
+
+function onToggleInsightForce(force: boolean) {
+    insightActions.setForce(force)
+}
+
 function onSelectSearch(payload: AppSearchItemAny) {
     console.log('[AppSearch] select', payload.kind, payload)
     switch (payload.kind) {
@@ -120,12 +132,17 @@ function onSelectSearch(payload: AppSearchItemAny) {
                 :workspaces="wsStorer.workspaces"
                 :selected-workspace-id="wsStorer.selectedWorkspaceId"
                 :loading="wsStorer.loading"
+                :insight-active="insightStorer.syncing"
+                :insight-force="insightStorer.force"
+                :insight-enabled="insightStorer.enabled"
                 @select-workspace="onSelectWorkspace"
                 @create-workspace="onCreateWorkspace"
                 @delete-workspace="onDeleteWorkspace"
                 @open-settings="settingsTab.requestOpen()"
                 @navigate-test-lab="onNavigateTestLab"
                 @select-search="onSelectSearch"
+                @request-insight-sync="onRequestInsightSync"
+                @toggle-insight-force="onToggleInsightForce"
             />
             <RouterView v-slot="{ Component }">
                 <div class="router-view">

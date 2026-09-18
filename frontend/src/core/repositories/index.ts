@@ -1,5 +1,6 @@
 export * from './chat-stream.repository'
 export * from './hitl.repository'
+export * from './insight.repository'
 export * from './run.repository'
 export * from './chat.repository'
 export * from './file.repository'

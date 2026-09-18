@@ -33,5 +33,9 @@ export function resolveSettingsTabSchema(schema: SettingsTabSchema): ResolvedSet
             animated: schema.terminalAnimated,
             onToggle: schema.onToggleTerminalAnimated,
         },
+        insight: {
+            enabled: schema.insightEnabled,
+            onToggle: schema.onToggleInsightEnabled,
+        },
     }
 }

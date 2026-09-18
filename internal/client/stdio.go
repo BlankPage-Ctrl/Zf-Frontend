@@ -530,6 +530,14 @@ var stdioRoutes = []stdioRoute{
 	{verb: "PUT", re: re(`^/settings/default-provider$`), rpc: "set.default-provider", build: directBody},
 	{verb: "GET", re: re(`^/settings/([^/]+)$`), rpc: "get.setting", build: params("key")},
 	{verb: "PUT", re: re(`^/settings/([^/]+)$`), rpc: "set.setting", build: setSetting},
+
+	// insight
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/ensure$`), rpc: "ensure.insight", build: params("workspaceId")},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/status$`), rpc: "get.insight-status", build: params("workspaceId")},
+	{verb: "DELETE", re: re(`^/workspaces/([^/]+)/insight$`), rpc: "stop.insight", build: params("workspaceId")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/sync$`), rpc: "sync.insight", build: extendBody("workspaceId")},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/search$`), rpc: "search.insight", build: buildInsightSearch},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/events$`), rpc: "watch.insight", stream: true, convert: insightEvent, build: params("workspaceId")},
 }
 
 func re(pattern string) *regexp.Regexp {
@@ -668,6 +676,28 @@ func buildRenameCategory(ids []string, body any, _ map[string]string) (any, erro
 	return map[string]any{"workspaceId": ids[0], "id": ids[1], "name": name}, nil
 }
 
+func buildInsightSearch(ids []string, _ any, query map[string]string) (any, error) {
+	m := map[string]any{"workspaceId": ids[0]}
+	if v := query["query"]; v != "" {
+		m["query"] = v
+	}
+	if v := query["mode"]; v != "" {
+		m["mode"] = v
+	}
+	if v := query["limit"]; v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			m["limit"] = n
+		}
+	}
+	if v := query["file"]; v != "" {
+		m["file"] = v
+	}
+	if v := query["container"]; v != "" {
+		m["container"] = v
+	}
+	return m, nil
+}
+
 func queryToObject(_ []string, _ any, query map[string]string) (any, error) {
 	m := make(map[string]any, len(query))
 	for k, v := range query {
@@ -712,6 +742,16 @@ func fileEvent(params json.RawMessage) ([]byte, error) {
 }
 
 func hitlEvent(params json.RawMessage) ([]byte, error) {
+	var p struct {
+		Event json.RawMessage `json:"event"`
+	}
+	if err := json.Unmarshal(params, &p); err != nil {
+		return nil, err
+	}
+	return p.Event, nil
+}
+
+func insightEvent(params json.RawMessage) ([]byte, error) {
 	var p struct {
 		Event json.RawMessage `json:"event"`
 	}

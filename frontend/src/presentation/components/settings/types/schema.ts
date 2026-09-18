@@ -21,6 +21,7 @@ export interface SettingsTabSchema {
     activeThemeId: string | null
     presets: readonly PresetOption[]
     terminalAnimated: boolean
+    insightEnabled: boolean
     onAddProvider?: () => void
     onEditProvider?: (provider: Provider) => void
     onDeleteProvider?: (id: string) => void
@@ -36,5 +37,6 @@ export interface SettingsTabSchema {
     onUpdateFontSize?: (size: number) => void
     onSetActiveTheme?: (id: string) => void
     onToggleTerminalAnimated?: (v: boolean) => void
+    onToggleInsightEnabled?: (v: boolean) => void
     onClose?: () => void
 }

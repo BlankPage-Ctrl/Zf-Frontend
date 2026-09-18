@@ -344,6 +344,138 @@ export namespace hitl {
 
 }
 
+export namespace insight {
+	
+	export class SearchHit {
+	    id: string;
+	    name: string;
+	    kind: string;
+	    filePath: string;
+	    // Go type: struct { Start int "json:\"start\""; End int "json:\"end\"" }
+	    lineRange: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new SearchHit(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.kind = source["kind"];
+	        this.filePath = source["filePath"];
+	        this.lineRange = this.convertValues(source["lineRange"], Object);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class SearchParams {
+	    query: string;
+	    mode?: string;
+	    limit?: number;
+	    file?: string;
+	    container?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SearchParams(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	        this.mode = source["mode"];
+	        this.limit = source["limit"];
+	        this.file = source["file"];
+	        this.container = source["container"];
+	    }
+	}
+	export class SearchResult {
+	    query: string;
+	    hits: SearchHit[];
+	    stats: Record<string, any>;
+	
+	    static createFrom(source: any = {}) {
+	        return new SearchResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	        this.hits = this.convertValues(source["hits"], SearchHit);
+	        this.stats = source["stats"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Status {
+	    workspaceId: string;
+	    enabled: boolean;
+	    running: boolean;
+	    projectPath: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Status(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.workspaceId = source["workspaceId"];
+	        this.enabled = source["enabled"];
+	        this.running = source["running"];
+	        this.projectPath = source["projectPath"];
+	    }
+	}
+	export class SyncAccepted {
+	    accepted: boolean;
+	    force: boolean;
+	    at: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SyncAccepted(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.accepted = source["accepted"];
+	        this.force = source["force"];
+	        this.at = source["at"];
+	    }
+	}
+
+}
+
 export namespace models {
 	
 	export class Model {

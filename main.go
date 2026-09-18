@@ -39,6 +39,8 @@ func main() {
 			app.RunStream,
 			app.Hitl,
 			app.HitlWatch,
+			app.Insight,
+			app.InsightWatch,
 			app.ShellExecWatch,
 		},
 	})

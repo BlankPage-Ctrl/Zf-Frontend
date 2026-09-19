@@ -38,26 +38,12 @@ watch(
 watch(shouldRenderBody, (v) => {
     if (v) nextTick(() => scrollToBottom())
 })
-
-async function copy() {
-    const text = lines.value.map((l) => l.plain).join('\n')
-    const payload = `$ ${resolved.value.command}\n${text}`
-    try {
-        await navigator.clipboard.writeText(payload)
-    } catch {
-        // ignore
-    }
-}
-
-defineExpose({ copy })
 </script>
 
 <template>
     <div
         class="terminal-renderer"
         :class="{
-            'terminal-renderer--dark': resolved.isDark,
-            'terminal-renderer--light': !resolved.isDark,
             'terminal-renderer--plain': !resolved.animated,
             'terminal-renderer--animated': resolved.animated,
         }"
@@ -66,15 +52,8 @@ defineExpose({ copy })
     >
         <TerminalHeader
             :command="resolved.command"
-            :cwd="resolved.cwd"
-            :exit-code="resolved.exitCode"
-            :timed-out="resolved.timedOut"
-            :signal="resolved.signal"
-            :duration-ms="resolved.durationMs"
-            :status="resolved.status"
             :truncated="resolved.truncated"
             :spill-path="resolved.spillPath"
-            @copy="copy"
         />
 
         <div v-if="!shouldRenderBody" class="terminal-renderer__lazy">Preview hidden — expand to render</div>

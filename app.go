@@ -59,6 +59,8 @@ func NewApp() *App {
 		mockapi.EnableMock(c)
 	}
 
+	settingsSvc := settings.NewService(c)
+
 	return &App{
 		Client:         c,
 		Backend:        backendMgr,
@@ -69,13 +71,13 @@ func NewApp() *App {
 		Categories:     categories.NewService(c),
 		Providers:      providers.NewService(c),
 		Models:         models.NewService(c),
-		Settings:       settings.NewService(c),
+		Settings:       settingsSvc,
 		Files:          files.NewService(c),
 		FileWatch:      stream.NewFileWatchService(c),
 		RunStream:      stream.NewRunStreamService(c),
 		Hitl:           hitl.NewService(c),
 		HitlWatch:      stream.NewHitlWatchService(c),
-		Insight:        insight.NewService(c),
+		Insight:        insight.NewService(c, settingsSvc),
 		ShellExecWatch: stream.NewShellExecWatchService(c),
 	}
 }

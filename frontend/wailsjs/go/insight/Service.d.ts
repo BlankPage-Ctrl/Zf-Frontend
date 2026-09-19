@@ -6,6 +6,10 @@ export function Ensure(arg1:string):Promise<insight.Status>;
 
 export function GetStatus(arg1:string):Promise<insight.Status>;
 
+export function Index(arg1:string,arg2:boolean):Promise<insight.SyncResult>;
+
+export function IndexStatus(arg1:string):Promise<insight.IndexStatus>;
+
 export function IsEnabled(arg1:string):Promise<boolean>;
 
 export function Search(arg1:string,arg2:insight.SearchParams):Promise<insight.SearchResult>;
@@ -14,4 +18,4 @@ export function SetEnabled(arg1:string,arg2:boolean):Promise<boolean>;
 
 export function Stop(arg1:string):Promise<Record<string, any>>;
 
-export function Sync(arg1:string,arg2:boolean):Promise<insight.SyncAccepted>;
+export function Sync(arg1:string):Promise<insight.SyncResult>;

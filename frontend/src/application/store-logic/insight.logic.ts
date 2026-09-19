@@ -1,3 +1,4 @@
+import type { FEInsightIndexStatus } from '@/core/entities'
 import type { InsightStorer } from '../stores/insight.storer'
 
 export interface InsightStoreLogic {
@@ -6,7 +7,7 @@ export interface InsightStoreLogic {
     endSync(at?: string): void
     setRunning(running: boolean): void
     setEnabled(enabled: boolean): void
-    setForce(force: boolean): void
+    setIndexStatus(status: FEInsightIndexStatus | null): void
     setError(message: string | null): void
     beginLoad(): void
     endLoad(): void
@@ -30,7 +31,9 @@ export function createInsightStoreLogic(getStorer: () => InsightStorer): Insight
         setEnabled: (enabled) => {
             getStorer().enabled = enabled
         },
-        setForce: (force) => getStorer().setForce(force),
+        setIndexStatus: (status) => {
+            getStorer().indexStatus = status
+        },
         setError: (message) => {
             getStorer().error = message
         },

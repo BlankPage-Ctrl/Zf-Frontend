@@ -346,6 +346,22 @@ export namespace hitl {
 
 export namespace insight {
 	
+	export class IndexStatus {
+	    syncing: boolean;
+	    pending: number;
+	    requiresFull: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new IndexStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.syncing = source["syncing"];
+	        this.pending = source["pending"];
+	        this.requiresFull = source["requiresFull"];
+	    }
+	}
 	export class SearchHit {
 	    id: string;
 	    name: string;
@@ -457,20 +473,22 @@ export namespace insight {
 	        this.projectPath = source["projectPath"];
 	    }
 	}
-	export class SyncAccepted {
-	    accepted: boolean;
-	    force: boolean;
-	    at: string;
+	export class SyncResult {
+	    filesChecked: number;
+	    added: number;
+	    modified: number;
+	    removed: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new SyncAccepted(source);
+	        return new SyncResult(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.accepted = source["accepted"];
-	        this.force = source["force"];
-	        this.at = source["at"];
+	        this.filesChecked = source["filesChecked"];
+	        this.added = source["added"];
+	        this.modified = source["modified"];
+	        this.removed = source["removed"];
 	    }
 	}
 

@@ -25,7 +25,7 @@ import {
     hitlRepository,
     insightRepository,
 } from '@/data/services'
-import { fileWatch, createFeedStreamPort, hitlWatch, insightWatch } from '@/data/stream'
+import { fileWatch, createFeedStreamPort, hitlWatch } from '@/data/stream'
 
 import { createWorkspaceStoreLogic } from '../store-logic/workspace.logic'
 import { createChatStoreLogic } from '../store-logic/chat.logic'
@@ -128,7 +128,7 @@ const hitlBusinessLogic = createHitlBusinessLogic({ repo: hitlRepository, watch:
 export const hitlActions = createHitlActions(hitlStoreLogic, hitlBusinessLogic)
 
 const insightStoreLogic = createInsightStoreLogic(() => useInsightStorer())
-const insightBusinessLogic = createInsightBusinessLogic({ repo: insightRepository, watch: insightWatch })
+const insightBusinessLogic = createInsightBusinessLogic({ repo: insightRepository })
 
 export const insightActions = createInsightActions(insightStoreLogic, insightBusinessLogic)
 

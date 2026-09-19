@@ -2,8 +2,10 @@ package insight
 
 import (
 	"strconv"
+	"strings"
 
 	"myproject/internal/client"
+	"myproject/internal/settings"
 )
 
 type SyncResult struct {
@@ -52,13 +54,14 @@ type SearchParams struct {
 }
 
 // Service talks to the backend insight endpoints over the shared client
-// transport (HTTP and STDIO both work — see stdioRoutes in client/stdio.go).
+// transport (HTTP and STDIO both work - see stdioRoutes in client/stdio.go).
 type Service struct {
-	c *client.Client
+	c        *client.Client
+	settings *settings.Service
 }
 
-func NewService(c *client.Client) *Service {
-	return &Service{c: c}
+func NewService(c *client.Client, settingsSvc *settings.Service) *Service {
+	return &Service{c: c, settings: settingsSvc}
 }
 
 func (s *Service) Ensure(workspaceID string) (Status, error) {
@@ -102,60 +105,42 @@ func (s *Service) Search(workspaceID string, p SearchParams) (SearchResult, erro
 	return client.DoOK[SearchResult](s.c, "GET", "/workspaces/"+workspaceID+"/insight/search", nil, q)
 }
 
-// settingValue mirrors the GET/PUT /settings/:key payload.
-type settingValue struct {
-	Key   string  `json:"key"`
-	Value *string `json:"value"`
-}
-
 // insightKey builds the workspace-scoped settings key, mirroring
 // workspaceKey() in apps/shared/workspace-settings.ts.
 func insightKey(workspaceID string) string {
 	return "workspace:" + workspaceID + ":insight"
 }
 
-// IsEnabled reads workspace:<id>:insight via the generic settings endpoints
-// (default true when absent/empty).
-func (s *Service) IsEnabled(workspaceID string) (bool, error) {
-	v, err := client.DoOK[settingValue](s.c, "GET", "/settings/"+insightKey(workspaceID), nil, nil)
-	if err != nil {
-		return false, err
+func parseEnabled(raw *string) bool {
+	if raw == nil || *raw == "" {
+		return true
 	}
-	if v.Value == nil || *v.Value == "" {
-		return true, nil
-	}
-	raw := *v.Value
-	// trim spaces
-	for len(raw) > 0 && (raw[0] == ' ' || raw[0] == '\t' || raw[0] == '\n') {
-		raw = raw[1:]
-	}
-	for len(raw) > 0 && (raw[len(raw)-1] == ' ' || raw[len(raw)-1] == '\t' || raw[len(raw)-1] == '\n') {
-		raw = raw[:len(raw)-1]
-	}
-	lower := ""
-	for _, r := range raw {
-		if r >= 'A' && r <= 'Z' {
-			lower += string(r + 32)
-		} else {
-			lower += string(r)
-		}
-	}
-	switch lower {
+	switch strings.ToLower(strings.TrimSpace(*raw)) {
 	case "false", "0", "off", "disabled":
-		return false, nil
+		return false
 	default:
-		return true, nil
+		return true
 	}
 }
 
-// SetEnabled writes workspace:<id>:insight ("true"/"false") via the generic
-// settings endpoints.
+// IsEnabled reads the workspace insight toggle via the generic settings
+// service (default true when absent/empty).
+func (s *Service) IsEnabled(workspaceID string) (bool, error) {
+	v, err := s.settings.GetValue(insightKey(workspaceID))
+	if err != nil {
+		return false, err
+	}
+	return parseEnabled(v.Value), nil
+}
+
+// SetEnabled writes the workspace insight toggle ("true"/"false") via the
+// generic settings service.
 func (s *Service) SetEnabled(workspaceID string, enabled bool) (bool, error) {
 	v := "false"
 	if enabled {
 		v = "true"
 	}
-	if _, err := client.DoOK[settingValue](s.c, "PUT", "/settings/"+insightKey(workspaceID), map[string]string{"value": v}, nil); err != nil {
+	if _, err := s.settings.SetValue(insightKey(workspaceID), v); err != nil {
 		return false, err
 	}
 	return enabled, nil

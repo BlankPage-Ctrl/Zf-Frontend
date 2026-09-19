@@ -10,6 +10,14 @@ export function GetStatus(arg1) {
   return window['go']['insight']['Service']['GetStatus'](arg1);
 }
 
+export function Index(arg1, arg2) {
+  return window['go']['insight']['Service']['Index'](arg1, arg2);
+}
+
+export function IndexStatus(arg1) {
+  return window['go']['insight']['Service']['IndexStatus'](arg1);
+}
+
 export function IsEnabled(arg1) {
   return window['go']['insight']['Service']['IsEnabled'](arg1);
 }
@@ -26,6 +34,6 @@ export function Stop(arg1) {
   return window['go']['insight']['Service']['Stop'](arg1);
 }
 
-export function Sync(arg1, arg2) {
-  return window['go']['insight']['Service']['Sync'](arg1, arg2);
+export function Sync(arg1) {
+  return window['go']['insight']['Service']['Sync'](arg1);
 }

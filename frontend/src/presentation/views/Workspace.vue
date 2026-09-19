@@ -740,7 +740,6 @@ async function handleDeleteProvider(id: string) {
 function cleanupWorkspace() {
     chatSessionActions.clear()
     fileExplorerActions.stopWatch()
-    insightActions.unsubscribe()
     flushSaves()
     stopAutoSaveInterval()
 }

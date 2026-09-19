@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { NavArrowDown, Plus, Settings as SettingsIcon, Flask, RefreshDouble } from '@iconoir/vue'
+import { computed } from 'vue'
+import { NavArrowDown, Plus, Settings as SettingsIcon, Flask } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import AppSearchBar from '@/presentation/components/app-search/AppSearchBar.vue'
 import type { CommandAction } from '@/presentation/components/dropdown/types'
@@ -12,16 +12,10 @@ import {
     WORKSPACE_COMMANDS,
 } from '@/presentation/schemas'
 
-// Long-hover delay before the force tooltip appears.
-const FORCE_TOOLTIP_DELAY_MS = 600
-
 const props = defineProps<{
     workspaces: Workspace[]
     selectedWorkspaceId: string | null
     loading?: boolean
-    insightActive?: boolean
-    insightForce?: boolean
-    insightEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -31,8 +25,6 @@ const emit = defineEmits<{
     'open-settings': []
     'navigate-test-lab': []
     'select-search': [payload: AppSearchItemAny]
-    'request-insight-sync': []
-    'toggle-insight-force': [force: boolean]
 }>()
 
 const selectedWsName = computed(() => {
@@ -46,41 +38,6 @@ const wsDropdownItems = computed(() =>
         selectedWorkspaceId: props.selectedWorkspaceId,
     }),
 )
-
-const tooltipVisible = ref(false)
-let hoverTimer: ReturnType<typeof setTimeout> | null = null
-
-const canSync = computed(() => !!props.selectedWorkspaceId && props.insightEnabled !== false)
-
-function clearHoverTimer() {
-    if (hoverTimer) {
-        clearTimeout(hoverTimer)
-        hoverTimer = null
-    }
-}
-
-function onSyncEnter() {
-    clearHoverTimer()
-    hoverTimer = setTimeout(() => {
-        tooltipVisible.value = true
-        hoverTimer = null
-    }, FORCE_TOOLTIP_DELAY_MS)
-}
-
-function onSyncLeave() {
-    clearHoverTimer()
-    tooltipVisible.value = false
-}
-
-function onSyncClick() {
-    if (!canSync.value) return
-    emit('request-insight-sync')
-}
-
-function onForceToggle(event: Event) {
-    const target = event.target as HTMLInputElement
-    emit('toggle-insight-force', target.checked)
-}
 
 function handleSelect(value: string) {
     emit('select-workspace', value)
@@ -158,42 +115,10 @@ function handleSearchSelect(payload: AppSearchItemAny) {
         </div>
 
         <div class="app-search-wrapper">
-            <span
-                class="insight-dot"
-                :class="{ 'insight-dot--active': props.insightActive }"
-                :title="props.insightActive ? 'Insight indexing…' : 'Insight idle'"
-                aria-label="Insight status"
-            />
             <AppSearchBar @select="handleSearchSelect" />
         </div>
 
         <div class="title-actions">
-            <div
-                class="insight-sync-wrap"
-                @mouseenter="onSyncEnter"
-                @mouseleave="onSyncLeave"
-            >
-                <button
-                    class="title-action-btn insight-sync-btn"
-                    :class="{ 'insight-sync-btn--active': props.insightActive }"
-                    :disabled="!canSync"
-                    @click="onSyncClick"
-                    title="Sync insight index"
-                    aria-label="Sync insight index"
-                >
-                    <RefreshDouble width="14" height="14" />
-                </button>
-                <div v-if="tooltipVisible" class="insight-sync-tooltip" role="tooltip">
-                    <label class="insight-force-toggle">
-                        <input
-                            type="checkbox"
-                            :checked="props.insightForce"
-                            @change="onForceToggle"
-                        />
-                        <span>Force</span>
-                    </label>
-                </div>
-            </div>
             <button
                 class="title-action-btn ws-testlab-btn"
                 @click="openTestLab"
@@ -310,23 +235,6 @@ function handleSearchSelect(payload: AppSearchItemAny) {
     -webkit-app-region: no-drag;
 }
 
-.insight-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    border: 1px solid var(--border-color);
-    background: var(--bg-tertiary, transparent);
-    transition:
-        background-color 150ms ease,
-        border-color 150ms ease;
-}
-
-.insight-dot--active {
-    background: var(--accent, #4caf50);
-    border-color: var(--accent, #4caf50);
-}
-
 .title-actions {
     display: flex;
     align-items: center;
@@ -364,45 +272,6 @@ function handleSearchSelect(payload: AppSearchItemAny) {
 
 .title-action-btn:disabled:hover {
     background: transparent;
-}
-
-.insight-sync-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.insight-sync-btn--active {
-    color: var(--accent, #4caf50);
-}
-
-.insight-sync-tooltip {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 10px;
-    border-radius: 4px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    z-index: 100;
-    white-space: nowrap;
-    -webkit-app-region: no-drag;
-}
-
-.insight-force-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: var(--type-sm);
-    color: var(--text-primary);
-    cursor: pointer;
-    user-select: none;
-}
-
-.insight-force-toggle input {
-    cursor: pointer;
 }
 
 .ws-settings-btn {

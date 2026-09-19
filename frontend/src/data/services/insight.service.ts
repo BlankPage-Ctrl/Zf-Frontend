@@ -3,17 +3,44 @@ import {
     GetStatus,
     Stop,
     Sync,
+    Index,
+    IndexStatus,
     Search,
     IsEnabled,
     SetEnabled,
 } from '../../../wailsjs/go/insight/Service'
 import type {
+    FEInsightIndexStatus,
     FEInsightSearchParams,
     FEInsightSearchResult,
     FEInsightStatus,
     FEInsightSyncAccepted,
+    FEInsightSyncResult,
 } from '@/core/entities'
 import type { InsightRepository } from '@/core/repositories'
+
+function toNumber(v: unknown): number {
+    return typeof v === 'number' && Number.isFinite(v) ? v : 0
+}
+
+function toSyncResult(raw: unknown): FEInsightSyncResult {
+    const r = (raw ?? {}) as Record<string, unknown>
+    return {
+        filesChecked: toNumber(r.filesChecked),
+        added: toNumber(r.added),
+        modified: toNumber(r.modified),
+        removed: toNumber(r.removed),
+    }
+}
+
+function toIndexStatus(raw: unknown): FEInsightIndexStatus {
+    const r = (raw ?? {}) as Record<string, unknown>
+    return {
+        syncing: r.syncing === true,
+        pending: toNumber(r.pending),
+        requiresFull: r.requiresFull === true,
+    }
+}
 
 function toStatus(raw: unknown): FEInsightStatus {
     const r = (raw ?? {}) as Record<string, unknown>
@@ -31,13 +58,18 @@ export const insightRepository: InsightRepository = {
     stop: async (workspaceId: string): Promise<void> => {
         await Stop(workspaceId)
     },
-    sync: async (workspaceId: string, force: boolean): Promise<FEInsightSyncAccepted> => {
-        const raw = ((await Sync(workspaceId, force)) as unknown) as Record<string, unknown>
+    sync: async (workspaceId: string): Promise<FEInsightSyncAccepted> => {
+        const raw = ((await Sync(workspaceId)) as unknown) as Record<string, unknown>
         return {
             accepted: raw.accepted === true,
-            force: raw.force === true,
             at: typeof raw.at === 'string' ? raw.at : '',
         }
+    },
+    index: async (workspaceId: string): Promise<FEInsightSyncResult> => {
+        return toSyncResult((await Index(workspaceId, true)) as unknown)
+    },
+    indexStatus: async (workspaceId: string): Promise<FEInsightIndexStatus> => {
+        return toIndexStatus((await IndexStatus(workspaceId)) as unknown)
     },
     search: async (workspaceId: string, params: FEInsightSearchParams): Promise<FEInsightSearchResult> => {
         const raw = ((await Search(workspaceId, {

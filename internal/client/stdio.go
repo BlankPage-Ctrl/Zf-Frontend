@@ -535,9 +535,10 @@ var stdioRoutes = []stdioRoute{
 	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/ensure$`), rpc: "ensure.insight", build: params("workspaceId")},
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/status$`), rpc: "get.insight-status", build: params("workspaceId")},
 	{verb: "DELETE", re: re(`^/workspaces/([^/]+)/insight$`), rpc: "stop.insight", build: params("workspaceId")},
-	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/sync$`), rpc: "sync.insight", build: extendBody("workspaceId")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/sync$`), rpc: "sync.insight", build: params("workspaceId")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/index$`), rpc: "index.insight", build: extendBody("workspaceId")},
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/index/status$`), rpc: "index-status.insight", build: params("workspaceId")},
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/search$`), rpc: "search.insight", build: buildInsightSearch},
-	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/events$`), rpc: "watch.insight", stream: true, convert: insightEvent, build: params("workspaceId")},
 }
 
 func re(pattern string) *regexp.Regexp {
@@ -742,16 +743,6 @@ func fileEvent(params json.RawMessage) ([]byte, error) {
 }
 
 func hitlEvent(params json.RawMessage) ([]byte, error) {
-	var p struct {
-		Event json.RawMessage `json:"event"`
-	}
-	if err := json.Unmarshal(params, &p); err != nil {
-		return nil, err
-	}
-	return p.Event, nil
-}
-
-func insightEvent(params json.RawMessage) ([]byte, error) {
 	var p struct {
 		Event json.RawMessage `json:"event"`
 	}

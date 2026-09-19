@@ -130,8 +130,9 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("GET /workspaces/{id}/insight/status", s.handleInsightStatus)
 	mux.HandleFunc("DELETE /workspaces/{id}/insight", s.handleInsightStop)
 	mux.HandleFunc("POST /workspaces/{id}/insight/sync", s.handleInsightSync)
+	mux.HandleFunc("POST /workspaces/{id}/insight/index", s.handleInsightIndex)
+	mux.HandleFunc("GET /workspaces/{id}/insight/index/status", s.handleInsightIndexStatus)
 	mux.HandleFunc("GET /workspaces/{id}/insight/search", s.handleInsightSearch)
-	mux.HandleFunc("GET /workspaces/{id}/insight/events", s.handleInsightEvents)
 
 	return mux
 }

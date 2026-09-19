@@ -6,10 +6,17 @@ import (
 	"myproject/internal/client"
 )
 
-type SyncAccepted struct {
-	Accepted bool   `json:"accepted"`
-	Force    bool   `json:"force"`
-	At       string `json:"at"`
+type SyncResult struct {
+	FilesChecked int `json:"filesChecked"`
+	Added        int `json:"added"`
+	Modified     int `json:"modified"`
+	Removed      int `json:"removed"`
+}
+
+type IndexStatus struct {
+	Syncing      bool `json:"syncing"`
+	Pending      int  `json:"pending"`
+	RequiresFull bool `json:"requiresFull"`
 }
 
 type SearchHit struct {
@@ -66,8 +73,16 @@ func (s *Service) Stop(workspaceID string) (map[string]any, error) {
 	return client.DoOK[map[string]any](s.c, "DELETE", "/workspaces/"+workspaceID+"/insight", nil, nil)
 }
 
-func (s *Service) Sync(workspaceID string, force bool) (SyncAccepted, error) {
-	return client.DoOK[SyncAccepted](s.c, "POST", "/workspaces/"+workspaceID+"/insight/sync", map[string]any{"force": force}, nil)
+func (s *Service) Sync(workspaceID string) (SyncResult, error) {
+	return client.DoOK[SyncResult](s.c, "POST", "/workspaces/"+workspaceID+"/insight/sync", map[string]any{}, nil)
+}
+
+func (s *Service) Index(workspaceID string, force bool) (SyncResult, error) {
+	return client.DoOK[SyncResult](s.c, "POST", "/workspaces/"+workspaceID+"/insight/index", map[string]any{"force": force}, nil)
+}
+
+func (s *Service) IndexStatus(workspaceID string) (IndexStatus, error) {
+	return client.DoOK[IndexStatus](s.c, "GET", "/workspaces/"+workspaceID+"/insight/index/status", nil, nil)
 }
 
 func (s *Service) Search(workspaceID string, p SearchParams) (SearchResult, error) {

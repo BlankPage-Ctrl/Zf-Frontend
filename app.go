@@ -42,7 +42,6 @@ type App struct {
 	Hitl           *hitl.Service
 	HitlWatch      *stream.HitlWatchService
 	Insight        *insight.Service
-	InsightWatch   *stream.InsightWatchService
 	ShellExecWatch *stream.ShellExecWatchService
 }
 
@@ -77,7 +76,6 @@ func NewApp() *App {
 		Hitl:           hitl.NewService(c),
 		HitlWatch:      stream.NewHitlWatchService(c),
 		Insight:        insight.NewService(c),
-		InsightWatch:   stream.NewInsightWatchService(c),
 		ShellExecWatch: stream.NewShellExecWatchService(c),
 	}
 }
@@ -110,7 +108,6 @@ func (a *App) startup(ctx context.Context) {
 	a.FileWatch.SetAppContext(ctx)
 	a.RunStream.SetAppContext(ctx)
 	a.HitlWatch.SetAppContext(ctx)
-	a.InsightWatch.SetAppContext(ctx)
 	a.ShellExecWatch.SetAppContext(ctx)
 	a.Files.SetAppContext(ctx)
 }

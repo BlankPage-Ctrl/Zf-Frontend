@@ -2,7 +2,6 @@ package mockapi
 
 import (
 	"net/http"
-	"time"
 )
 
 // Static insight stubs so USE_MOCK=true frontends can exercise the
@@ -27,10 +26,23 @@ func (s *Store) handleInsightStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Store) handleInsightSync(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, r, http.StatusAccepted, map[string]any{
-		"accepted": true,
-		"force":    false,
-		"at":       time.Now().UTC().Format(time.RFC3339),
+	writeJSON(w, r, http.StatusOK, map[string]any{
+		"filesChecked": 0,
+		"added":        0,
+		"modified":     0,
+		"removed":      0,
+	})
+}
+
+func (s *Store) handleInsightIndex(w http.ResponseWriter, r *http.Request) {
+	s.handleInsightSync(w, r)
+}
+
+func (s *Store) handleInsightIndexStatus(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, r, http.StatusOK, map[string]any{
+		"syncing":      false,
+		"pending":      0,
+		"requiresFull": false,
 	})
 }
 
@@ -41,14 +53,4 @@ func (s *Store) handleInsightSearch(w http.ResponseWriter, r *http.Request) {
 		"hits":  []any{},
 		"stats": map[string]any{"filesScanned": 0, "functionsIndexed": 0, "nodesReturned": 0},
 	})
-}
-
-func (s *Store) handleInsightEvents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("data: {\"method\":\"sync/done\",\"params\":{}}\n\n"))
-	if f, ok := w.(http.Flusher); ok {
-		f.Flush()
-	}
 }

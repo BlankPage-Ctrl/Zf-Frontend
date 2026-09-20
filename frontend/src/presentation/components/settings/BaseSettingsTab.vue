@@ -5,7 +5,6 @@ import ProviderSection from './components/ProviderSection.vue'
 import AppearanceSection from './components/AppearanceSection.vue'
 import ThemeSection from './components/ThemeSection.vue'
 import TerminalSection from './components/TerminalSection.vue'
-import InsightSection from './components/InsightSection.vue'
 
 defineProps<{
     resolved: ResolvedSettingsTab
@@ -49,18 +48,6 @@ defineProps<{
                 }"
             />
             <TerminalSection :resolved="resolved.terminal" />
-        </section>
-
-        <section class="settings-section section-insight">
-            <Header
-                :schema="{
-                    title: 'Insight',
-                    height: 'auto',
-                    padding: 'none',
-                    border: true,
-                }"
-            />
-            <InsightSection :resolved="resolved.insight" />
         </section>
     </div>
 </template>

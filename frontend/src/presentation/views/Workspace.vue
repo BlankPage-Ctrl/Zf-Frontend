@@ -15,7 +15,6 @@ import {
     useChatSessionStorer,
     useFileExplorerStorer,
     useHitlStorer,
-    useInsightStorer,
     createEmptyChatSessionState,
 } from '@/application/stores'
 import {
@@ -94,7 +93,6 @@ const settingsTab = useSettingsTab()
 const chatSessionStorer = useChatSessionStorer()
 const fileExplorerStorer = useFileExplorerStorer()
 const hitlStorer = useHitlStorer()
-const insightStorer = useInsightStorer()
 
 const mentionQuery = ref('')
 const mentionLoading = ref(false)
@@ -703,7 +701,6 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         activeThemeId: themeStorer.activeThemeId,
         presets: APPEARANCE_PRESETS,
         terminalAnimated: appearanceStorer.terminalAnimated,
-        insightEnabled: insightStorer.enabled,
         onAddProvider: handleAddProvider,
         onEditProvider: handleEditProvider,
         onDeleteProvider: handleDeleteProvider,
@@ -715,14 +712,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         onUpdateFontSize: handleUpdateFontSize,
         onSetActiveTheme: handleSetActiveTheme,
         onToggleTerminalAnimated: handleToggleTerminalAnimated,
-        onToggleInsightEnabled: handleToggleInsightEnabled,
     })
-}
-
-async function handleToggleInsightEnabled(v: boolean) {
-    const id = workspaceId.value
-    if (!id) return
-    await insightActions.setEnabled(id, v)
 }
 
 async function handleDeleteModel(providerId: string, modelId: string) {

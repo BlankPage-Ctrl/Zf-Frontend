@@ -8,7 +8,6 @@ export interface ResolvedSettingsTab {
     appearance: ResolvedAppearanceSection
     theme: ResolvedThemeSection
     terminal: ResolvedTerminalSection
-    insight: ResolvedInsightSection
 }
 
 export interface ResolvedProviderSection {
@@ -46,10 +45,5 @@ export interface ResolvedThemeSection {
 
 export interface ResolvedTerminalSection {
     animated: boolean
-    onToggle?: (v: boolean) => void
-}
-
-export interface ResolvedInsightSection {
-    enabled: boolean
     onToggle?: (v: boolean) => void
 }

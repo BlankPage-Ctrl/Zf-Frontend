@@ -212,7 +212,7 @@ watch(
 
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 4px;
     transition:
         border-color 80ms ease,
         background-color 80ms ease;

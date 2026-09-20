@@ -14,7 +14,7 @@ function onToggle(e: Event) {
         <div class="terminal-row">
             <div class="terminal-label">
                 <span class="terminal-label__title">Animated Terminal Output</span>
-                <span class="terminal-label__desc">Colored ANSI (full art). Disable for plain monochrome, lightweight. Streaming border tetap jalan.</span>
+                <span class="terminal-label__desc">Colored ANSI (full art). Disable for plain monochrome, lightweight.</span>
             </div>
             <label class="terminal-toggle">
                 <input type="checkbox" :checked="resolved.animated" @change="onToggle" />

@@ -17,7 +17,6 @@ export interface SettingsTabParams {
     activeThemeId: string | null
     presets: readonly PresetOption[]
     terminalAnimated: boolean
-    insightEnabled: boolean
     onAddProvider?: () => void
     onEditProvider?: (provider: Provider) => void
     onDeleteProvider?: (id: string) => void
@@ -33,7 +32,6 @@ export interface SettingsTabParams {
     onUpdateFontSize?: (size: number) => void
     onSetActiveTheme?: (id: string) => void
     onToggleTerminalAnimated?: (v: boolean) => void
-    onToggleInsightEnabled?: (v: boolean) => void
     onClose?: () => void
 }
 
@@ -50,7 +48,6 @@ export function createSettingsTabSchema(params: SettingsTabParams): SettingsTabS
         activeThemeId: params.activeThemeId,
         presets: params.presets,
         terminalAnimated: params.terminalAnimated,
-        insightEnabled: params.insightEnabled,
         onAddProvider: params.onAddProvider,
         onEditProvider: params.onEditProvider,
         onDeleteProvider: params.onDeleteProvider,
@@ -62,7 +59,6 @@ export function createSettingsTabSchema(params: SettingsTabParams): SettingsTabS
         onUpdateFontSize: params.onUpdateFontSize,
         onSetActiveTheme: params.onSetActiveTheme,
         onToggleTerminalAnimated: params.onToggleTerminalAnimated,
-        onToggleInsightEnabled: params.onToggleInsightEnabled,
         onClose: params.onClose,
     }
 }

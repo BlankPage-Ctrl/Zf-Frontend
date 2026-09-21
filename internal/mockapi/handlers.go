@@ -123,10 +123,16 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("PATCH /categories/{id}", s.handleRenameCategory)
 	mux.HandleFunc("DELETE /categories/{id}", s.handleDeleteCategory)
 
-	mux.HandleFunc("GET /settings/default-provider", s.handleGetDefaultProvider)
-	mux.HandleFunc("PUT /settings/default-provider", s.handleSetDefaultProvider)
 	mux.HandleFunc("GET /settings/{key}", s.handleGetSetting)
 	mux.HandleFunc("PUT /settings/{key}", s.handleSetSetting)
+
+	mux.HandleFunc("POST /workspaces/{id}/insight/ensure", s.handleInsightEnsure)
+	mux.HandleFunc("GET /workspaces/{id}/insight/status", s.handleInsightStatus)
+	mux.HandleFunc("DELETE /workspaces/{id}/insight", s.handleInsightStop)
+	mux.HandleFunc("POST /workspaces/{id}/insight/sync", s.handleInsightSync)
+	mux.HandleFunc("POST /workspaces/{id}/insight/index", s.handleInsightIndex)
+	mux.HandleFunc("GET /workspaces/{id}/insight/index/status", s.handleInsightIndexStatus)
+	mux.HandleFunc("GET /workspaces/{id}/insight/search", s.handleInsightSearch)
 
 	return mux
 }

@@ -27,6 +27,7 @@ import {
     noteActions,
     chatSessionActions,
     hitlActions,
+    insightActions,
 } from '@/application/actions'
 import type { Chat, ChatMode, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
@@ -255,6 +256,9 @@ function buildHitlDockSchema(chatId: string) {
         items: hitlStorer.pendingForChat(chatId),
         onApprove: (id, always) => {
             void hitlActions.submit(id, { outcome: always ? 'always_approved' : 'approved' })
+        },
+        onApproveWithModification: (id, modificationNote) => {
+            void hitlActions.submit(id, { outcome: 'approved_with_modification', modificationNote })
         },
         onDeny: (id, reason) => {
             void hitlActions.submit(id, {
@@ -696,6 +700,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         themes: settingsThemes.value,
         activeThemeId: themeStorer.activeThemeId,
         presets: APPEARANCE_PRESETS,
+        terminalAnimated: appearanceStorer.terminalAnimated,
         onAddProvider: handleAddProvider,
         onEditProvider: handleEditProvider,
         onDeleteProvider: handleDeleteProvider,
@@ -706,6 +711,7 @@ function buildSettingsTabSchema(): SettingsTabSchema {
         onUpdatePreset: handleUpdatePreset,
         onUpdateFontSize: handleUpdateFontSize,
         onSetActiveTheme: handleSetActiveTheme,
+        onToggleTerminalAnimated: handleToggleTerminalAnimated,
     })
 }
 
@@ -740,6 +746,10 @@ function handleSetActiveTheme(id: string) {
     themeActions.setTheme(id)
 }
 
+function handleToggleTerminalAnimated(v: boolean) {
+    appearanceActions.setTerminalAnimated(v)
+}
+
 watch(routeWsId, (id) => {
     if (id && id !== wsStorer.selectedWorkspaceId) {
         workspaceActions.selectWorkspace(id)
@@ -760,6 +770,7 @@ watch(
     async (newId, oldId) => {
         if (!newId) {
             cleanupWorkspace()
+            void insightActions.ensureOnSelect(null)
             return
         }
 
@@ -771,6 +782,7 @@ watch(
         providerActions.fetchProviders()
         noteActions.fetchNotes(newId)
         noteActions.fetchCategories(newId)
+        void insightActions.ensureOnSelect(newId)
         startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)

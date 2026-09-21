@@ -9,6 +9,7 @@ export interface HitlDockParams extends HitlCardCallbacks {
 export function createHitlDockSchema(params: HitlDockParams): HitlDockSchema {
     return resolveHitlDockSchema(params.items, {
         onApprove: params.onApprove,
+        onApproveWithModification: params.onApproveWithModification,
         onDeny: params.onDeny,
         onAskSubmit: params.onAskSubmit,
         onChoiceSubmit: params.onChoiceSubmit,

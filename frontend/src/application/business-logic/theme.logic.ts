@@ -1,6 +1,5 @@
-import type { SettingsRepository } from '@/core/repositories'
-
-const STORAGE_KEY_CURRENT = 'theme-current'
+const THEME_KEY = 'theme-current'
+const workspaceThemeKey = (workspaceId: string) => `workspace:${workspaceId}:theme`
 
 export interface ThemePersistence {
     currentId: string | null
@@ -9,28 +8,59 @@ export interface ThemePersistence {
 export interface ThemeBusinessLogic {
     load(): Promise<ThemePersistence>
     saveCurrent(id: string): Promise<void>
+    loadWorkspace(workspaceId: string): Promise<ThemePersistence>
+    saveWorkspace(workspaceId: string, id: string): Promise<void>
 }
 
-export function createThemeBusinessLogic(settingsRepo: SettingsRepository): ThemeBusinessLogic {
+export function createThemeBusinessLogic(): ThemeBusinessLogic {
     async function load(): Promise<ThemePersistence> {
-        const result: ThemePersistence = { currentId: null }
         try {
-            const currentRes = await settingsRepo.getValue(STORAGE_KEY_CURRENT)
-            if (currentRes.value) {
-                const parsed = JSON.parse(currentRes.value)
-                if (typeof parsed.themeId === 'string') {
-                    result.currentId = parsed.themeId
+            const raw = localStorage.getItem(THEME_KEY)
+            if (raw) {
+                const parsed = JSON.parse(raw)
+                if (typeof parsed.themeId === 'string' && parsed.themeId) {
+                    return { currentId: parsed.themeId }
+                }
+                // fallback plain string
+                if (typeof parsed === 'string' && parsed) {
+                    return { currentId: parsed }
                 }
             }
         } catch {
             /* ignore */
         }
-        return result
+        return { currentId: null }
     }
 
     async function saveCurrent(id: string): Promise<void> {
         try {
-            await settingsRepo.setValue(STORAGE_KEY_CURRENT, JSON.stringify({ themeId: id }))
+            localStorage.setItem(THEME_KEY, JSON.stringify({ themeId: id }))
+        } catch {
+            /* ignore */
+        }
+    }
+
+    async function loadWorkspace(workspaceId: string): Promise<ThemePersistence> {
+        try {
+            const raw = localStorage.getItem(workspaceThemeKey(workspaceId))
+            if (raw) {
+                const parsed = JSON.parse(raw)
+                if (typeof parsed.themeId === 'string' && parsed.themeId) {
+                    return { currentId: parsed.themeId }
+                }
+                if (typeof parsed === 'string' && parsed) {
+                    return { currentId: parsed }
+                }
+            }
+        } catch {
+            /* ignore */
+        }
+        return { currentId: null }
+    }
+
+    async function saveWorkspace(workspaceId: string, id: string): Promise<void> {
+        try {
+            localStorage.setItem(workspaceThemeKey(workspaceId), JSON.stringify({ themeId: id }))
         } catch {
             /* ignore */
         }
@@ -39,5 +69,7 @@ export function createThemeBusinessLogic(settingsRepo: SettingsRepository): Them
     return {
         load,
         saveCurrent,
+        loadWorkspace,
+        saveWorkspace,
     }
 }

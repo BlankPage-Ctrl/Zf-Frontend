@@ -6,6 +6,7 @@ export type HitlCardType = 'approval' | 'ask' | 'choice'
  */
 export interface HitlCardCallbacks {
     onApprove: (id: string, always: boolean) => void
+    onApproveWithModification: (id: string, modificationNote: string) => void
     onDeny: (id: string, reason?: string) => void
     onAskSubmit: (id: string, value: string) => void
     onChoiceSubmit: (id: string, selected: string[], customInput?: string) => void
@@ -30,7 +31,12 @@ export interface HitlApprovalCardSchema extends HitlCardBaseSchema {
     type: 'approval'
     details: HitlApprovalDetailRow[]
     requireReasonOnReject: boolean
+    supportsModification: boolean
+    modificationDraft: string
+    modificationLabel: string
+    modificationPlaceholder: string
     onApprove: HitlCardCallbacks['onApprove']
+    onApproveWithModification: HitlCardCallbacks['onApproveWithModification']
     onDeny: HitlCardCallbacks['onDeny']
 }
 
@@ -55,6 +61,7 @@ export interface HitlChoiceOptionSchema {
     title: string
     description?: string
     recommended?: boolean
+    allowCustomInput?: boolean
 }
 
 export type HitlChoiceMode = 'single' | 'multi' | 'ranked'

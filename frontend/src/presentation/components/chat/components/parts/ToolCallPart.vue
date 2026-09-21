@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ToolCallPartSchema } from '../../types/schema'
-import type { EditFileToolData, ListFilesToolData, ReadFileToolData } from '../../types/schema'
+import type {
+    EditFileToolData,
+    ListFilesToolData,
+    ReadFileToolData,
+    RunShellToolData,
+    CreateFileToolData,
+} from '../../types/schema'
 import { resolveToolCallPartSchema } from '../../resolver/resolvePartsSchema'
-import { useShellExecStorer, useThemeStorer } from '@/application/stores'
+import { useShellExecStorer, useThemeStorer, useAppearanceStorer } from '@/application/stores'
 import { BlockPart } from '@/presentation/components/blockpart'
 import { createToolCallSchema } from '@/presentation/schemas'
 import { isKnownToolName } from '../../helpers/knownTools'
 import { CodeRenderer } from '@/presentation/components/code-renderer'
-import ShellTerminal from './ShellTerminal.vue'
+import { TerminalRenderer } from '@/presentation/components/terminal-renderer'
 
 const props = defineProps<{
     schema: ToolCallPartSchema
@@ -17,6 +23,7 @@ const props = defineProps<{
 const resolved = computed(() => resolveToolCallPartSchema(props.schema))
 const shellStore = useShellExecStorer()
 const themeStore = useThemeStorer()
+const appearanceStore = useAppearanceStorer()
 const isDark = computed(() => themeStore.activeThemeId === 'night')
 
 interface RunShellOutput {
@@ -34,6 +41,51 @@ const live = computed(() => {
         props.schema.toolCallId ?? (props.schema.output as RunShellOutput | undefined)?.executionId
     if (!id) return undefined
     return shellStore.byToolCall[id]
+})
+
+const shellRendererSchema = computed(() => {
+    if (resolved.value.toolName !== 'run_shell') return null
+    const liveState = live.value
+    const frontend = resolved.value.frontend as RunShellToolData | undefined
+    if (!liveState && !frontend) return null
+
+    const inputCmd = (resolved.value.input as { command?: string } | undefined)?.command ?? ''
+    const command = liveState?.command ?? frontend!.command ?? inputCmd
+    const cwd = liveState?.cwd ?? frontend!.cwd ?? ''
+
+    const status: 'running' | 'done' | 'error' =
+        liveState?.status === 'running'
+            ? 'running'
+            : resolved.value.state === 'ok'
+              ? 'done'
+              : resolved.value.state === 'bad'
+                ? 'error'
+                : 'done'
+
+    // When frontend missing (streaming), use empty ansi strings; renderer will use live lines.
+    const stdout = frontend?.stdout ?? ''
+    const stderr = frontend?.stderr ?? ''
+    const stdoutAnsi = frontend?.stdoutAnsi ?? ''
+    const stderrAnsi = frontend?.stderrAnsi ?? ''
+
+    return {
+        command,
+        cwd,
+        lines: liveState?.lines,
+        stdout,
+        stderr,
+        stdoutAnsi,
+        stderrAnsi,
+        exitCode: liveState?.result?.exitCode ?? frontend?.exitCode ?? null,
+        durationMs: liveState?.result?.durationMs ?? frontend?.durationMs ?? null,
+        timedOut: liveState?.result?.timedOut ?? frontend?.timedOut ?? false,
+        signal: liveState?.result?.signal ?? frontend?.signal ?? null,
+        truncated: liveState?.result?.truncated ?? frontend?.truncated ?? false,
+        spillPath: liveState?.result?.spillPath ?? frontend?.spillPath ?? null,
+        status,
+        animated: appearanceStore.terminalAnimated,
+        isDark: isDark.value,
+    }
 })
 
 interface ReadFileOutput {
@@ -190,6 +242,22 @@ const editFilePreview = computed(() => {
     }
 })
 
+const createFilePreview = computed(() => {
+    if (resolved.value.toolName !== 'create_file') return null
+    if (resolved.value.state !== 'ok') return null
+    const frontend = resolved.value.frontend as CreateFileToolData | undefined
+    if (!frontend || typeof frontend.content !== 'string') return null
+    if (frontend.encoding === 'base64') return null
+    const filePath = frontend.path ?? ''
+    return {
+        code: frontend.content,
+        lang: inferLangFromPath(filePath),
+        path: filePath,
+        totalLines: frontend.totalLines,
+        isDark: isDark.value,
+    }
+})
+
 function formatSize(bytes: number): string {
     if (!Number.isFinite(bytes) || bytes < 0) return '0B'
     if (bytes < 1024) return `${Math.trunc(bytes)}B`
@@ -287,8 +355,32 @@ const blockSchema = computed(() =>
                 </div>
             </div>
         </template>
-        <template v-else-if="live" #preview>
-            <ShellTerminal :lines="live.lines" />
+        <template v-else-if="createFilePreview" #preview>
+            <div class="read-file-preview">
+                <div v-if="createFilePreview.path" class="read-file-preview__path">
+                    {{ createFilePreview.path }}
+                    <span
+                        v-if="createFilePreview.totalLines != null"
+                        class="read-file-preview__meta"
+                        >· {{ createFilePreview.totalLines }} line{{
+                            createFilePreview.totalLines === 1 ? '' : 's'
+                        }}</span
+                    >
+                </div>
+                <CodeRenderer
+                    v-if="createFilePreview.code !== ''"
+                    :schema="{
+                        code: createFilePreview.code,
+                        lang: createFilePreview.lang,
+                        status: 'done',
+                        isDark: createFilePreview.isDark,
+                    }"
+                />
+                <div v-else class="read-file-preview__empty">_(empty file)_</div>
+            </div>
+        </template>
+        <template v-else-if="shellRendererSchema" #preview>
+            <TerminalRenderer :schema="shellRendererSchema" />
         </template>
     </BlockPart>
 </template>
@@ -313,6 +405,18 @@ const blockSchema = computed(() =>
 .read-file-preview__truncated {
     margin-left: 6px;
     color: var(--text-warning, #d97706);
+}
+
+.read-file-preview__meta {
+    margin-left: 6px;
+    opacity: 0.8;
+}
+
+.read-file-preview__empty {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    opacity: 0.5;
+    font-style: italic;
 }
 
 .list-files-preview {

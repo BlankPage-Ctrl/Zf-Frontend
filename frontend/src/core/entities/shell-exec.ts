@@ -12,6 +12,9 @@ export interface FEShellRunData {
     exitCode: number
     stdout: string
     stderr: string
+    stdoutAnsi: string
+    stderrAnsi: string
+    interleavedAnsi: string
     durationMs: number
     timedOut: boolean
     signal: string | null

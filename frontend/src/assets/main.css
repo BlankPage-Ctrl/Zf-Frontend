@@ -18,13 +18,13 @@
     --font-mono:
         ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
-    --type-2xs: 10px; /* eyebrow labels, badges, shortcuts */
-    --type-xs: 11px; /* captions, dense meta, tab labels */
-    --type-sm: 12px; /* ui base (inputs, dropdown items, buttons sm) */
-    --type-md: 13px; /* primary ui text (body, buttons md, list titles) */
-    --type-lg: 14px; /* emphasized / section titles */
-    --type-xl: 15px; /* panel / dialog titles */
-    --type-2xl: 18px; /* empty / welcome state titles */
+    --type-2xs: 11px; /* eyebrow labels, badges, shortcuts */
+    --type-xs: 12px; /* captions, dense meta, tab labels */
+    --type-sm: 13px; /* ui base (inputs, dropdown items, buttons sm) */
+    --type-md: 14px; /* primary ui text (body, buttons md, list titles) */
+    --type-lg: 15px; /* emphasized / section titles */
+    --type-xl: 16px; /* panel / dialog titles */
+    --type-2xl: 19px; /* empty / welcome state titles */
 
     --font-weight-normal: 400;
     --font-weight-medium: 500;

@@ -86,7 +86,9 @@ function deny(): void {
                 :disabled="submitting"
                 data-testid="hitl-modification-input"
             />
-            <p v-if="showModification" class="hitl-card__hint">Edit before approving. Will be validated before execution.</p>
+            <p v-if="showModification" class="hitl-card__hint">
+                Edit before approving. Will be validated before execution.
+            </p>
         </div>
         <p v-if="schema.error" class="hitl-card__error">{{ schema.error }}</p>
         <div class="hitl-card__actions">

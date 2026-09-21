@@ -27,7 +27,13 @@ export function useTerminalRenderer(resolved: ComputedRef<ResolvedTerminalRender
             if (animated) {
                 const spans = parseAnsiToSpans(b.text)
                 const plain = stripAnsi(b.text)
-                return { key: `${b.stream}:${b.at}:${idx}`, stream: b.stream, raw: b.text, spans, plain }
+                return {
+                    key: `${b.stream}:${b.at}:${idx}`,
+                    stream: b.stream,
+                    raw: b.text,
+                    spans,
+                    plain,
+                }
             }
             // plain: single span stripped
             const plain = stripAnsi(b.text)

@@ -59,7 +59,7 @@ export const insightRepository: InsightRepository = {
         await Stop(workspaceId)
     },
     sync: async (workspaceId: string): Promise<FEInsightSyncAccepted> => {
-        const raw = ((await Sync(workspaceId)) as unknown) as Record<string, unknown>
+        const raw = (await Sync(workspaceId)) as unknown as Record<string, unknown>
         return {
             accepted: raw.accepted === true,
             at: typeof raw.at === 'string' ? raw.at : '',
@@ -71,14 +71,17 @@ export const insightRepository: InsightRepository = {
     indexStatus: async (workspaceId: string): Promise<FEInsightIndexStatus> => {
         return toIndexStatus((await IndexStatus(workspaceId)) as unknown)
     },
-    search: async (workspaceId: string, params: FEInsightSearchParams): Promise<FEInsightSearchResult> => {
-        const raw = ((await Search(workspaceId, {
+    search: async (
+        workspaceId: string,
+        params: FEInsightSearchParams,
+    ): Promise<FEInsightSearchResult> => {
+        const raw = (await Search(workspaceId, {
             query: params.query,
             mode: params.mode ?? '',
             limit: params.limit ?? 0,
             file: params.file ?? '',
             container: params.container ?? '',
-        })) as unknown) as Record<string, unknown>
+        })) as unknown as Record<string, unknown>
         const hits = Array.isArray(raw.hits) ? raw.hits : []
         return {
             query: typeof raw.query === 'string' ? raw.query : params.query,

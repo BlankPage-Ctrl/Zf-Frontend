@@ -54,7 +54,13 @@ const shellRendererSchema = computed(() => {
     const cwd = liveState?.cwd ?? frontend!.cwd ?? ''
 
     const status: 'running' | 'done' | 'error' =
-        liveState?.status === 'running' ? 'running' : resolved.value.state === 'ok' ? 'done' : resolved.value.state === 'bad' ? 'error' : 'done'
+        liveState?.status === 'running'
+            ? 'running'
+            : resolved.value.state === 'ok'
+              ? 'done'
+              : resolved.value.state === 'bad'
+                ? 'error'
+                : 'done'
 
     // When frontend missing (streaming), use empty ansi strings; renderer will use live lines.
     const stdout = frontend?.stdout ?? ''
@@ -353,7 +359,9 @@ const blockSchema = computed(() =>
             <div class="read-file-preview">
                 <div v-if="createFilePreview.path" class="read-file-preview__path">
                     {{ createFilePreview.path }}
-                    <span v-if="createFilePreview.totalLines != null" class="read-file-preview__meta"
+                    <span
+                        v-if="createFilePreview.totalLines != null"
+                        class="read-file-preview__meta"
                         >· {{ createFilePreview.totalLines }} line{{
                             createFilePreview.totalLines === 1 ? '' : 's'
                         }}</span

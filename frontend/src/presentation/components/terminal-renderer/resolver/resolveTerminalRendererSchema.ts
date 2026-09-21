@@ -15,7 +15,8 @@ export function resolveTerminalRendererSchema(
     schema: TerminalRendererSchema,
     defaults: ResolveTerminalDefaults = {},
 ): ResolvedTerminalRendererSchema {
-    const status: TerminalRendererStatus = schema.status ?? (schema.lines?.length ? 'running' : 'done')
+    const status: TerminalRendererStatus =
+        schema.status ?? (schema.lines?.length ? 'running' : 'done')
     return {
         command: schema.command,
         cwd: schema.cwd,

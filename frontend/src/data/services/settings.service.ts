@@ -1,4 +1,9 @@
-import { GetDefaultProvider, GetValue, SetDefaultProvider, SetValue } from '../../../wailsjs/go/settings/Service'
+import {
+    GetDefaultProvider,
+    GetValue,
+    SetDefaultProvider,
+    SetValue,
+} from '../../../wailsjs/go/settings/Service'
 import type { DefaultProvider, SettingsValue } from '@/core/entities'
 import type { SettingsRepository } from '@/core/repositories'
 

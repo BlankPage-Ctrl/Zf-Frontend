@@ -55,11 +55,15 @@ const selectionError = computed((): string | null => {
 })
 
 const hasPerOptionCustomSelected = computed(() =>
-    selected.value.some((id) => props.schema.options.find((o) => o.id === id)?.allowCustomInput === true),
+    selected.value.some(
+        (id) => props.schema.options.find((o) => o.id === id)?.allowCustomInput === true,
+    ),
 )
 
 const needsCustomInput = computed(
-    () => (props.schema.allowOther && selected.value.includes(OTHER_ID)) || hasPerOptionCustomSelected.value,
+    () =>
+        (props.schema.allowOther && selected.value.includes(OTHER_ID)) ||
+        hasPerOptionCustomSelected.value,
 )
 
 const canSubmit = computed(() => {
@@ -142,7 +146,11 @@ function dismiss(): void {
             v-model="customInput"
             class="hitl-card__input"
             rows="2"
-            :placeholder="hasPerOptionCustomSelected ? 'Custom value for selected option' : 'Describe your choice'"
+            :placeholder="
+                hasPerOptionCustomSelected
+                    ? 'Custom value for selected option'
+                    : 'Describe your choice'
+            "
             :disabled="submitting"
         />
         <p v-if="selectionError" class="hitl-card__error">{{ selectionError }}</p>

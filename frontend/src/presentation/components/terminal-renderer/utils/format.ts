@@ -5,7 +5,11 @@ export function formatDuration(ms: number | null | undefined): string | null {
     return `${(ms / 60000).toFixed(1)}m`
 }
 
-export function formatExitBadge(exitCode: number | null, timedOut: boolean, signal: string | null): { label: string; kind: 'ok' | 'err' | 'warn' } | null {
+export function formatExitBadge(
+    exitCode: number | null,
+    timedOut: boolean,
+    signal: string | null,
+): { label: string; kind: 'ok' | 'err' | 'warn' } | null {
     if (timedOut) return { label: 'timed out', kind: 'warn' }
     if (signal) return { label: `signal ${signal}`, kind: 'err' }
     if (exitCode == null) return null

@@ -141,7 +141,11 @@ describe('resolveHitlDockSchema', () => {
                     type: 'approval',
                     payload: {
                         requireReasonOnReject: true,
-                        modification: { initialValue: 'PATCH', label: 'Patch', placeholder: 'Edit…' },
+                        modification: {
+                            initialValue: 'PATCH',
+                            label: 'Patch',
+                            placeholder: 'Edit…',
+                        },
                         contextPreview: { command: 'edit a', cwd: '/repo', reason: 'needs review' },
                     },
                 }),
@@ -188,7 +192,13 @@ describe('resolveHitlDockSchema', () => {
         expect(card.minSelect).toBe(1)
         expect(card.maxSelect).toBe(2)
         expect(card.options).toEqual([
-            { id: 'a', title: 'A', description: undefined, recommended: false, allowCustomInput: true },
+            {
+                id: 'a',
+                title: 'A',
+                description: undefined,
+                recommended: false,
+                allowCustomInput: true,
+            },
             { id: 'b', title: 'B', description: undefined, recommended: true },
         ])
         expect(card.defaultSelection).toEqual(['b'])

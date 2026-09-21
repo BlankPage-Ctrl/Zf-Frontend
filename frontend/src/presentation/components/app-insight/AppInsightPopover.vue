@@ -33,9 +33,7 @@ const { floatingStyles } = useFloating(referenceEl, floatingEl, {
 
 const busy = computed(() => storer.syncing)
 const enabled = computed(() => storer.enabled)
-const canAct = computed(
-    () => props.workspaceId !== null && storer.enabled && !storer.syncing,
-)
+const canAct = computed(() => props.workspaceId !== null && storer.enabled && !storer.syncing)
 
 function clearFooterTimer() {
     if (footerTimer) {
@@ -44,7 +42,11 @@ function clearFooterTimer() {
     }
 }
 
-function setFooter(entry: { prefix: 'Sync' | 'Index' | 'Insight'; text: string; isError: boolean }) {
+function setFooter(entry: {
+    prefix: 'Sync' | 'Index' | 'Insight'
+    text: string
+    isError: boolean
+}) {
     clearFooterTimer()
     footer.value = entry
     footerTimer = setTimeout(() => {
@@ -182,7 +184,8 @@ onBeforeUnmount(() => {
                         </label>
                     </div>
                     <p class="insight-card__desc">
-                        Builds a deterministic, repeatable representation of a source with stable identifiers.
+                        Builds a deterministic, repeatable representation of a source with stable
+                        identifiers.
                     </p>
                     <div class="insight-card__sep" />
                     <div class="insight-card__actions">

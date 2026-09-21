@@ -12,7 +12,10 @@ export interface InsightActions {
     sync(workspaceId: string): Promise<void>
     index(workspaceId: string): Promise<FEInsightSyncResult | null>
     refreshIndexStatus(workspaceId: string): Promise<void>
-    search(workspaceId: string, params: FEInsightSearchParams): Promise<FEInsightSearchResult | null>
+    search(
+        workspaceId: string,
+        params: FEInsightSearchParams,
+    ): Promise<FEInsightSearchResult | null>
     setEnabled(workspaceId: string, enabled: boolean): Promise<void>
 }
 

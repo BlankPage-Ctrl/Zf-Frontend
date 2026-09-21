@@ -117,9 +117,13 @@ export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSch
     const title = isSkill
         ? getSkillTitle(params.input)
         : isSearch
-          ? (getInsightSearchTitle(params.input) ?? ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName))
+          ? (getInsightSearchTitle(params.input) ??
+            (TOOL_LABELS as Record<string, string>)[params.toolName] ??
+            params.toolName)
           : isGraph
-            ? (getInsightGraphTitle(params.input) ?? ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName))
+            ? (getInsightGraphTitle(params.input) ??
+              (TOOL_LABELS as Record<string, string>)[params.toolName] ??
+              params.toolName)
             : ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName)
 
     return {

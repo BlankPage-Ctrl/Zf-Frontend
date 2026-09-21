@@ -32,4 +32,3 @@ export {
     type InsightBusinessLogic,
     type InsightBusinessLogicDeps,
 } from './insight.logic'
-

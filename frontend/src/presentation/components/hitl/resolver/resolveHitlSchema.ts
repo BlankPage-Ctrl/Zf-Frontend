@@ -37,7 +37,9 @@ function resolveApproval(
     const neutralLabel = toStringOrUndefined(neutralMod?.label)
     const neutralPlaceholder = toStringOrUndefined(neutralMod?.placeholder)
 
-    const contextPreview = isRecord(payloadRecord.contextPreview) ? payloadRecord.contextPreview : undefined
+    const contextPreview = isRecord(payloadRecord.contextPreview)
+        ? payloadRecord.contextPreview
+        : undefined
     const fallbackCommand = toStringOrUndefined(contextPreview?.command)
     const fallbackCwd = toStringOrUndefined(contextPreview?.cwd)
     const fallbackMatched = isRecord(contextPreview?.matched) ? contextPreview.matched : undefined

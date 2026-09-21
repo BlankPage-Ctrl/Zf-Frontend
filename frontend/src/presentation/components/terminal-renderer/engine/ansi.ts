@@ -51,7 +51,7 @@ const BG: Record<string, string> = {
     '107': '#ffffff',
 }
 
-const ANSI_RE = /\x1b\[([0-9;]*)m/g
+const ANSI_RE = /\[([0-9;]*)m/g
 
 export function parseAnsiToSpans(input: string): AnsiSpan[] {
     const spans: AnsiSpan[] = []

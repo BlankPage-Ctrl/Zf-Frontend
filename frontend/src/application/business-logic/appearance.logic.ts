@@ -12,8 +12,10 @@ export function createAppearanceBusinessLogic(): AppearanceBusinessLogic {
             if (raw) {
                 const parsed = JSON.parse(raw)
                 const fontSize = typeof parsed.fontSize === 'number' ? parsed.fontSize : null
-                const terminalAnimated = typeof parsed.terminalAnimated === 'boolean' ? parsed.terminalAnimated : null
-                if (fontSize !== null || terminalAnimated !== null) return { fontSize, terminalAnimated }
+                const terminalAnimated =
+                    typeof parsed.terminalAnimated === 'boolean' ? parsed.terminalAnimated : null
+                if (fontSize !== null || terminalAnimated !== null)
+                    return { fontSize, terminalAnimated }
             }
         } catch {
             /* ignore */

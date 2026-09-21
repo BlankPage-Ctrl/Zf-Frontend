@@ -21,7 +21,14 @@ const { lines } = useTerminalRenderer(
     computed(() =>
         shouldRenderBody.value
             ? resolved.value
-            : ({ ...resolved.value, lines: [], stdout: '', stderr: '', stdoutAnsi: '', stderrAnsi: '' } as any),
+            : {
+                  ...resolved.value,
+                  lines: [],
+                  stdout: '',
+                  stderr: '',
+                  stdoutAnsi: '',
+                  stderrAnsi: '',
+              },
     ),
 )
 
@@ -56,8 +63,15 @@ watch(shouldRenderBody, (v) => {
             :spill-path="resolved.spillPath"
         />
 
-        <div v-if="!shouldRenderBody" class="terminal-renderer__lazy">Preview hidden — expand to render</div>
-        <pre v-else ref="bodyRef" class="terminal-renderer__body" @scroll="onScroll"><template v-if="lines.length === 0"><span class="terminal-renderer__empty">(no output)</span></template><template v-else><span
+        <div v-if="!shouldRenderBody" class="terminal-renderer__lazy">
+            Preview hidden — expand to render
+        </div>
+        <pre
+            v-else
+            ref="bodyRef"
+            class="terminal-renderer__body"
+            @scroll="onScroll"
+        ><template v-if="lines.length === 0"><span class="terminal-renderer__empty">(no output)</span></template><template v-else><span
                 v-for="line in lines"
                 :key="line.key"
                 class="terminal-renderer__line"

@@ -182,7 +182,12 @@ export interface CreateFileToolData {
     totalLines: number
 }
 
-export type ToolData = ListFilesToolData | ReadFileToolData | EditFileToolData | RunShellToolData | CreateFileToolData
+export type ToolData =
+    | ListFilesToolData
+    | ReadFileToolData
+    | EditFileToolData
+    | RunShellToolData
+    | CreateFileToolData
 
 export interface StepIndicatorSchema {
     label?: string

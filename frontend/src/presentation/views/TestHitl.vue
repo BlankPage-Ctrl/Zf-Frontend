@@ -104,7 +104,8 @@ function previewChoiceMulti() {
 function previewApprovalWithModification() {
     push({
         ...base('approval', 'Apply patch to src/auth/login.ts?'),
-        description: 'Agent wants to edit login logic — review and optionally modify before approving.',
+        description:
+            'Agent wants to edit login logic — review and optionally modify before approving.',
         payload: {
             requireReasonOnReject: true,
             modification: {
@@ -142,7 +143,12 @@ function previewAskValidation() {
     push({
         ...base('ask', 'Enter alpha-only token'),
         description: 'Top-level validationRegex — try typing 123 to see error.',
-        payload: { placeholder: 'only lowercase a-z', validationRegex: '^[a-z]+$', minLength: 2, maxLength: 10 },
+        payload: {
+            placeholder: 'only lowercase a-z',
+            validationRegex: '^[a-z]+$',
+            minLength: 2,
+            maxLength: 10,
+        },
     })
 }
 
@@ -245,15 +251,23 @@ const buttonClass =
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-4">
         <div class="flex flex-wrap gap-2">
             <button type="button" :class="buttonClass" @click="previewApproval">approval</button>
-            <button type="button" :class="buttonClass" @click="previewApprovalWithModification">approve+edit</button>
+            <button type="button" :class="buttonClass" @click="previewApprovalWithModification">
+                approve+edit
+            </button>
             <button type="button" :class="buttonClass" @click="previewAsk">ask</button>
             <button type="button" :class="buttonClass" @click="previewAskWizard">wizard</button>
-            <button type="button" :class="buttonClass" @click="previewAskValidation">validate</button>
+            <button type="button" :class="buttonClass" @click="previewAskValidation">
+                validate
+            </button>
             <button type="button" :class="buttonClass" @click="previewChoiceSingle">choice</button>
             <button type="button" :class="buttonClass" @click="previewChoiceMulti">multi</button>
             <button type="button" :class="buttonClass" @click="previewChoiceRanked">ranked</button>
-            <button type="button" :class="buttonClass" @click="previewChoiceCustomInput">custom</button>
-            <button type="button" :class="buttonClass" @click="previewChoiceMultiCustom">multi+custom</button>
+            <button type="button" :class="buttonClass" @click="previewChoiceCustomInput">
+                custom
+            </button>
+            <button type="button" :class="buttonClass" @click="previewChoiceMultiCustom">
+                multi+custom
+            </button>
             <button type="button" :class="buttonClass" @click="previewErrorState">error</button>
             <button type="button" :class="buttonClass" @click="clear">clear</button>
         </div>

@@ -7,3 +7,4 @@ export { createFileExplorerStoreLogic, type FileExplorerStoreLogic } from './fil
 export { createChatSessionStoreLogic, type ChatSessionStoreLogic } from './chat-session.logic'
 export { createShellExecStoreLogic, type ShellExecStoreLogic } from './shell-exec.logic'
 export { createHitlStoreLogic, type HitlStoreLogic } from './hitl.logic'
+export { createInsightStoreLogic, type InsightStoreLogic } from './insight.logic'

@@ -54,9 +54,21 @@ const selectionError = computed((): string | null => {
     return null
 })
 
+const hasPerOptionCustomSelected = computed(() =>
+    selected.value.some(
+        (id) => props.schema.options.find((o) => o.id === id)?.allowCustomInput === true,
+    ),
+)
+
+const needsCustomInput = computed(
+    () =>
+        (props.schema.allowOther && selected.value.includes(OTHER_ID)) ||
+        hasPerOptionCustomSelected.value,
+)
+
 const canSubmit = computed(() => {
     if (submitting.value || selected.value.length === 0) return false
-    if (props.schema.allowOther && selected.value.includes(OTHER_ID) && !customInput.value.trim()) {
+    if (needsCustomInput.value && !customInput.value.trim()) {
         return false
     }
     return !selectionError.value
@@ -65,12 +77,12 @@ const canSubmit = computed(() => {
 function submit(): void {
     if (selected.value.length === 0 || submitting.value) return
     if (selectionError.value) return
-    const useOther = props.schema.allowOther && selected.value.includes(OTHER_ID)
     const custom = customInput.value.trim()
+    const useCustom = needsCustomInput.value && Boolean(custom)
     props.schema.onSubmit(
         props.schema.id,
         selected.value.filter((id) => id !== OTHER_ID),
-        useOther && custom ? custom : undefined,
+        useCustom ? custom : undefined,
     )
 }
 
@@ -114,6 +126,7 @@ function dismiss(): void {
                     </div>
                 </span>
                 <span v-if="option.recommended" class="hitl-choice__badge">recommended</span>
+                <span v-if="option.allowCustomInput" class="hitl-choice__badge">custom</span>
             </button>
             <button
                 v-if="schema.allowOther"
@@ -129,11 +142,15 @@ function dismiss(): void {
             </button>
         </div>
         <textarea
-            v-if="schema.allowOther && selected.includes(OTHER_ID)"
+            v-if="needsCustomInput"
             v-model="customInput"
             class="hitl-card__input"
             rows="2"
-            placeholder="Describe your choice"
+            :placeholder="
+                hasPerOptionCustomSelected
+                    ? 'Custom value for selected option'
+                    : 'Describe your choice'
+            "
             :disabled="submitting"
         />
         <p v-if="selectionError" class="hitl-card__error">{{ selectionError }}</p>

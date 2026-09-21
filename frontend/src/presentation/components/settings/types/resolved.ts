@@ -7,6 +7,7 @@ export interface ResolvedSettingsTab {
     provider: ResolvedProviderSection
     appearance: ResolvedAppearanceSection
     theme: ResolvedThemeSection
+    terminal: ResolvedTerminalSection
 }
 
 export interface ResolvedProviderSection {
@@ -40,4 +41,9 @@ export interface ResolvedThemeSection {
     themes: SettingsTheme[]
     activeThemeId: string | null
     onSetActiveTheme?: (id: string) => void
+}
+
+export interface ResolvedTerminalSection {
+    animated: boolean
+    onToggle?: (v: boolean) => void
 }

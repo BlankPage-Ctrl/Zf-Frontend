@@ -16,6 +16,7 @@ export interface SettingsTabParams {
     themes: SettingsTheme[]
     activeThemeId: string | null
     presets: readonly PresetOption[]
+    terminalAnimated: boolean
     onAddProvider?: () => void
     onEditProvider?: (provider: Provider) => void
     onDeleteProvider?: (id: string) => void
@@ -30,6 +31,7 @@ export interface SettingsTabParams {
     onUpdatePreset?: (preset: string) => void
     onUpdateFontSize?: (size: number) => void
     onSetActiveTheme?: (id: string) => void
+    onToggleTerminalAnimated?: (v: boolean) => void
     onClose?: () => void
 }
 
@@ -45,6 +47,7 @@ export function createSettingsTabSchema(params: SettingsTabParams): SettingsTabS
         themes: params.themes,
         activeThemeId: params.activeThemeId,
         presets: params.presets,
+        terminalAnimated: params.terminalAnimated,
         onAddProvider: params.onAddProvider,
         onEditProvider: params.onEditProvider,
         onDeleteProvider: params.onDeleteProvider,
@@ -55,6 +58,7 @@ export function createSettingsTabSchema(params: SettingsTabParams): SettingsTabS
         onUpdatePreset: params.onUpdatePreset,
         onUpdateFontSize: params.onUpdateFontSize,
         onSetActiveTheme: params.onSetActiveTheme,
+        onToggleTerminalAnimated: params.onToggleTerminalAnimated,
         onClose: params.onClose,
     }
 }

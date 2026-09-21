@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { WarningTriangle } from '@iconoir/vue'
 import type { HitlApprovalCardSchema } from '../types/schema'
 
@@ -10,10 +10,35 @@ const props = defineProps<{
 const showRejectReason = ref(false)
 const rejectReason = ref('')
 
+const showModification = ref(false)
+const modificationNote = ref(props.schema.modificationDraft ?? '')
+
 const submitting = computed(() => props.schema.submitting)
+const canApproveWithModification = computed(() => {
+    const v = modificationNote.value.trim()
+    return Boolean(v && v !== (props.schema.modificationDraft ?? '').trim())
+})
+
+watch(
+    () => props.schema.modificationDraft,
+    (next) => {
+        if (!showModification.value) modificationNote.value = next ?? ''
+    },
+)
 
 function approve(always: boolean): void {
     props.schema.onApprove(props.schema.id, always)
+}
+
+function approveWithModification(): void {
+    if (!props.schema.supportsModification) return
+    if (!showModification.value) {
+        showModification.value = true
+        return
+    }
+    const note = modificationNote.value.trim()
+    if (!note) return
+    props.schema.onApproveWithModification(props.schema.id, note)
 }
 
 function deny(): void {
@@ -50,6 +75,21 @@ function deny(): void {
             placeholder="Reason for rejection (required)"
             :disabled="submitting"
         />
+        <div v-if="schema.supportsModification" class="hitl-card__modification">
+            <label class="hitl-card__modification-label">{{ schema.modificationLabel }}</label>
+            <textarea
+                v-if="showModification"
+                v-model="modificationNote"
+                class="hitl-card__input hitl-card__input--modification"
+                rows="3"
+                :placeholder="schema.modificationPlaceholder"
+                :disabled="submitting"
+                data-testid="hitl-modification-input"
+            />
+            <p v-if="showModification" class="hitl-card__hint">
+                Edit before approving. Will be validated before execution.
+            </p>
+        </div>
         <p v-if="schema.error" class="hitl-card__error">{{ schema.error }}</p>
         <div class="hitl-card__actions">
             <button
@@ -59,6 +99,16 @@ function deny(): void {
                 @click="deny"
             >
                 {{ showRejectReason ? 'Confirm deny' : 'Deny' }}
+            </button>
+            <button
+                v-if="schema.supportsModification"
+                class="hitl-btn hitl-btn--secondary"
+                type="button"
+                :disabled="submitting || (showModification && !canApproveWithModification)"
+                data-testid="hitl-approve-with-modification"
+                @click="approveWithModification"
+            >
+                {{ showModification ? 'Approve with edits' : 'Edit & approve' }}
             </button>
             <button
                 class="hitl-btn hitl-btn--secondary"

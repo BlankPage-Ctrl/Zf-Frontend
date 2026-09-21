@@ -2,8 +2,11 @@ export const KNOWN_TOOL_NAMES = [
     'list_files',
     'read_file',
     'edit_file',
+    'create_file',
     'run_shell',
     'skill',
+    'insight_search',
+    'insight_graph',
 ] as const
 
 export type KnownToolName = (typeof KNOWN_TOOL_NAMES)[number]
@@ -14,7 +17,7 @@ export function isKnownToolName(value: string): value is KnownToolName {
     return (KNOWN_TOOL_NAMES as readonly string[]).includes(value)
 }
 
-export const HIDDEN_TOOL_NAMES = ['write_plan', 'edit_plan', 'read_plan'] as const
+export const HIDDEN_TOOL_NAMES = ['write_plan', 'edit_plan', 'read_plan', 'request_human'] as const
 
 export type HiddenToolName = (typeof HIDDEN_TOOL_NAMES)[number]
 
@@ -26,6 +29,9 @@ export const TOOL_LABELS: Record<KnownToolName, string> = {
     list_files: 'List Files',
     read_file: 'Read File',
     edit_file: 'Edit File',
+    create_file: 'Create File',
     run_shell: 'Run Shell',
     skill: 'Skill',
+    insight_search: 'Search',
+    insight_graph: 'Tree',
 }

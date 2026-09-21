@@ -1,4 +1,3 @@
-import { hitlShellPreview } from '@/core/entities'
 import type { FEHitlRequest } from '@/core/entities'
 import type { HitlItemState, HitlStorer } from '@/application/stores'
 import type {
@@ -23,33 +22,56 @@ function toNumberOrUndefined(value: unknown): number | undefined {
     return typeof value === 'number' ? value : undefined
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 function resolveApproval(
     item: HitlItemState,
     callbacks: HitlCardCallbacks,
 ): HitlApprovalCardSchema {
     const request = item.request
-    const preview = hitlShellPreview(request)
+    const payloadRecord = request.payload as Record<string, unknown>
+    const neutralMod = isRecord(payloadRecord.modification) ? payloadRecord.modification : undefined
+    const neutralInitial = toStringOrUndefined(neutralMod?.initialValue)
+    const neutralLabel = toStringOrUndefined(neutralMod?.label)
+    const neutralPlaceholder = toStringOrUndefined(neutralMod?.placeholder)
+
+    const contextPreview = isRecord(payloadRecord.contextPreview)
+        ? payloadRecord.contextPreview
+        : undefined
+    const fallbackCommand = toStringOrUndefined(contextPreview?.command)
+    const fallbackCwd = toStringOrUndefined(contextPreview?.cwd)
+    const fallbackMatched = isRecord(contextPreview?.matched) ? contextPreview.matched : undefined
+    const fallbackReason = toStringOrUndefined(contextPreview?.reason)
+
     const details: HitlApprovalCardSchema['details'] = []
-    if (preview.command) details.push({ key: 'cmd', value: preview.command })
-    if (preview.cwd) details.push({ key: 'cwd', value: preview.cwd })
-    if (preview.matched?.pattern) {
-        details.push({
-            key: 'match',
-            value: preview.matched.tier
-                ? `${preview.matched.pattern} (${preview.matched.tier})`
-                : preview.matched.pattern,
-        })
+    if (fallbackCommand) details.push({ key: 'cmd', value: fallbackCommand })
+    if (fallbackCwd) details.push({ key: 'cwd', value: fallbackCwd })
+    if (toStringOrUndefined(fallbackMatched?.pattern)) {
+        const pattern = String(fallbackMatched?.pattern)
+        const tier = toStringOrUndefined(fallbackMatched?.tier)
+        details.push({ key: 'match', value: tier ? `${pattern} (${tier})` : pattern })
     }
+
+    const modificationDraft = neutralInitial ?? fallbackCommand ?? ''
+    const supportsModification = Boolean(modificationDraft || neutralMod !== undefined)
+
     return {
         id: request.id,
         type: 'approval',
         title: request.title,
-        description: request.description ?? preview.reason ?? null,
+        description: request.description ?? fallbackReason ?? null,
         submitting: item.submitting,
         error: item.error,
         details,
         requireReasonOnReject: request.payload.requireReasonOnReject === true,
+        supportsModification,
+        modificationDraft,
+        modificationLabel: neutralLabel ?? 'Modification',
+        modificationPlaceholder: neutralPlaceholder ?? 'Edit content before approving…',
         onApprove: callbacks.onApprove,
+        onApproveWithModification: callbacks.onApproveWithModification,
         onDeny: callbacks.onDeny,
     }
 }
@@ -122,6 +144,7 @@ function resolveChoiceOptions(request: FEHitlRequest): HitlChoiceOptionSchema[] 
                     title: option.title,
                     description: toStringOrUndefined(option.description),
                     recommended: option.recommended === true,
+                    ...(option.allowCustomInput === true ? { allowCustomInput: true } : {}),
                 })
             }
         }

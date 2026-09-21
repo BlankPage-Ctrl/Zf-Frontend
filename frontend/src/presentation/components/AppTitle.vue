@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { NavArrowDown, Plus, Settings as SettingsIcon, Flask } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import AppSearchBar from '@/presentation/components/app-search/AppSearchBar.vue'
+import AppInsightPopover from '@/presentation/components/app-insight/AppInsightPopover.vue'
 import type { CommandAction } from '@/presentation/components/dropdown/types'
 import type { Workspace } from '@/core/entities'
 import type { AppSearchItemAny } from '@/presentation/components/app-search/types'
@@ -116,6 +117,7 @@ function handleSearchSelect(payload: AppSearchItemAny) {
 
         <div class="app-search-wrapper">
             <AppSearchBar @select="handleSearchSelect" />
+            <AppInsightPopover :workspace-id="selectedWorkspaceId" />
         </div>
 
         <div class="title-actions">
@@ -226,11 +228,18 @@ function handleSearchSelect(payload: AppSearchItemAny) {
 
 .app-search-wrapper {
     display: flex;
+    align-items: center;
+    gap: 6px;
     justify-content: center;
     justify-self: center;
     width: clamp(260px, 42vw, 520px);
     min-width: 0;
     -webkit-app-region: no-drag;
+}
+
+.app-search-wrapper .app-search {
+    flex: 1;
+    min-width: 0;
 }
 
 .title-actions {
@@ -261,6 +270,15 @@ function handleSearchSelect(payload: AppSearchItemAny) {
 .title-action-btn:hover {
     background: rgba(var(--raw-border-color), 0.3);
     color: var(--text-primary);
+}
+
+.title-action-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.title-action-btn:disabled:hover {
+    background: transparent;
 }
 
 .ws-settings-btn {

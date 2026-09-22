@@ -40,6 +40,7 @@ func main() {
 			app.Hitl,
 			app.HitlWatch,
 			app.Insight,
+			app.Mcp,
 			app.ShellExecWatch,
 		},
 	})

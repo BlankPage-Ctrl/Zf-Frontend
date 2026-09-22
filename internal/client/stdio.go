@@ -539,6 +539,10 @@ var stdioRoutes = []stdioRoute{
 	{verb: "POST", re: re(`^/workspaces/([^/]+)/insight/index$`), rpc: "index.insight", build: extendBody("workspaceId")},
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/index/status$`), rpc: "index-status.insight", build: params("workspaceId")},
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/insight/search$`), rpc: "search.insight", build: buildInsightSearch},
+
+	// mcp
+	{verb: "GET", re: re(`^/workspaces/([^/]+)/mcp/servers$`), rpc: "list.mcp-server", build: params("workspaceId")},
+	{verb: "PUT", re: re(`^/workspaces/([^/]+)/mcp/servers/([^/]+)$`), rpc: "set.mcp-server", build: extendBody("workspaceId", "name")},
 }
 
 func re(pattern string) *regexp.Regexp {

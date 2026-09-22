@@ -32,3 +32,8 @@ export {
     type InsightBusinessLogic,
     type InsightBusinessLogicDeps,
 } from './insight.logic'
+export {
+    createMcpBusinessLogic,
+    type McpBusinessLogic,
+    type McpBusinessLogicDeps,
+} from './mcp.logic'

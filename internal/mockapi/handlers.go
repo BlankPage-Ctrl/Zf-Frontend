@@ -134,6 +134,9 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("GET /workspaces/{id}/insight/index/status", s.handleInsightIndexStatus)
 	mux.HandleFunc("GET /workspaces/{id}/insight/search", s.handleInsightSearch)
 
+	mux.HandleFunc("GET /workspaces/{id}/mcp/servers", s.handleMcpList)
+	mux.HandleFunc("PUT /workspaces/{id}/mcp/servers/{name}", s.handleMcpSet)
+
 	return mux
 }
 

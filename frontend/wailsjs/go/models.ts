@@ -494,6 +494,100 @@ export namespace insight {
 
 }
 
+export namespace mcp {
+	
+	export class ServerState {
+	    name: string;
+	    transport: string;
+	    enabled: boolean;
+	    status: string;
+	    tools: number;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ServerState(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.transport = source["transport"];
+	        this.enabled = source["enabled"];
+	        this.status = source["status"];
+	        this.tools = source["tools"];
+	        this.error = source["error"];
+	    }
+	}
+	export class ListResult {
+	    workspaceId: string;
+	    source: string;
+	    servers: ServerState[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ListResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.workspaceId = source["workspaceId"];
+	        this.source = source["source"];
+	        this.servers = this.convertValues(source["servers"], ServerState);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	export class SetResult {
+	    workspaceId: string;
+	    server: ServerState;
+	
+	    static createFrom(source: any = {}) {
+	        return new SetResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.workspaceId = source["workspaceId"];
+	        this.server = this.convertValues(source["server"], ServerState);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace models {
 	
 	export class Model {

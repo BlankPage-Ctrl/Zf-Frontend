@@ -4,6 +4,7 @@ import { NavArrowDown, Plus, Settings as SettingsIcon, Flask } from '@iconoir/vu
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
 import AppSearchBar from '@/presentation/components/app-search/AppSearchBar.vue'
 import AppInsightPopover from '@/presentation/components/app-insight/AppInsightPopover.vue'
+import AppMcpPopover from '@/presentation/components/app-mcp/AppMcpPopover.vue'
 import type { CommandAction } from '@/presentation/components/dropdown/types'
 import type { Workspace } from '@/core/entities'
 import type { AppSearchItemAny } from '@/presentation/components/app-search/types'
@@ -118,6 +119,7 @@ function handleSearchSelect(payload: AppSearchItemAny) {
         <div class="app-search-wrapper">
             <AppSearchBar @select="handleSearchSelect" />
             <AppInsightPopover :workspace-id="selectedWorkspaceId" />
+            <AppMcpPopover :workspace-id="selectedWorkspaceId" />
         </div>
 
         <div class="title-actions">

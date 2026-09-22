@@ -385,6 +385,8 @@ func TestStdioRouteMapping(t *testing.T) {
 		{"DELETE", "/workspaces/ws-1/categories/c-1", "delete.category"},
 		{"GET", "/settings/default-provider", "get.default-provider"},
 		{"PUT", "/settings/some-key", "set.setting"},
+		{"GET", "/workspaces/ws-1/mcp/servers", "list.mcp-server"},
+		{"PUT", "/workspaces/ws-1/mcp/servers/default-srv", "set.mcp-server"},
 	}
 	for _, c := range cases {
 		route, err := mapRoute(c.verb, c.path)

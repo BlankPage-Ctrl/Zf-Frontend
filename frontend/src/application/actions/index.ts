@@ -9,6 +9,7 @@ import {
     useChatSessionStorer,
     useHitlStorer,
     useInsightStorer,
+    useMcpStorer,
 } from '../stores'
 
 import {
@@ -24,6 +25,7 @@ import {
     categoriesRepository,
     hitlRepository,
     insightRepository,
+    mcpRepository,
 } from '@/data/services'
 import { fileWatch, createFeedStreamPort, hitlWatch } from '@/data/stream'
 
@@ -37,6 +39,7 @@ import { createNoteStoreLogic } from '../store-logic/note.logic'
 import { createChatSessionStoreLogic } from '../store-logic/chat-session.logic'
 import { createHitlStoreLogic } from '../store-logic/hitl.logic'
 import { createInsightStoreLogic } from '../store-logic/insight.logic'
+import { createMcpStoreLogic } from '../store-logic/mcp.logic'
 
 import { createWorkspaceBusinessLogic } from '../business-logic/workspace.logic'
 import { createChatBusinessLogic } from '../business-logic/chat.logic'
@@ -48,6 +51,7 @@ import { createNoteBusinessLogic } from '../business-logic/note.logic'
 import { createChatSessionEngine } from '../business-logic/chat-session.logic'
 import { createHitlBusinessLogic } from '../business-logic/hitl.logic'
 import { createInsightBusinessLogic } from '../business-logic/insight.logic'
+import { createMcpBusinessLogic } from '../business-logic/mcp.logic'
 
 import { createWorkspaceActions } from './workspace.actions'
 import { createChatActions } from './chat.actions'
@@ -59,6 +63,7 @@ import { createChatSessionActions } from './chat-session.actions'
 import { createNoteActions } from './note.actions'
 import { createHitlActions } from './hitl.actions'
 import { createInsightActions } from './insight.actions'
+import { createMcpActions } from './mcp.actions'
 
 const workspaceStoreLogic = createWorkspaceStoreLogic(() => useWorkspaceStorer())
 const workspaceBusinessLogic = createWorkspaceBusinessLogic(workspacesRepository)
@@ -132,6 +137,11 @@ const insightBusinessLogic = createInsightBusinessLogic({ repo: insightRepositor
 
 export const insightActions = createInsightActions(insightStoreLogic, insightBusinessLogic)
 
+const mcpStoreLogic = createMcpStoreLogic(() => useMcpStorer())
+const mcpBusinessLogic = createMcpBusinessLogic({ repo: mcpRepository })
+
+export const mcpActions = createMcpActions(mcpStoreLogic, mcpBusinessLogic)
+
 export type { WorkspaceActions } from './workspace.actions'
 export type { ChatActions } from './chat.actions'
 export type { ProviderActions } from './provider.actions'
@@ -142,3 +152,4 @@ export type { ChatSessionActions } from './chat-session.actions'
 export type { NoteActions } from './note.actions'
 export type { HitlActions } from './hitl.actions'
 export type { InsightActions } from './insight.actions'
+export type { McpActions } from './mcp.actions'

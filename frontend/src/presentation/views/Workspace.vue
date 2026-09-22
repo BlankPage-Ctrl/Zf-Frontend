@@ -28,6 +28,7 @@ import {
     chatSessionActions,
     hitlActions,
     insightActions,
+    mcpActions,
 } from '@/application/actions'
 import type { Chat, ChatMode, Note } from '@/core/entities'
 import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
@@ -771,6 +772,7 @@ watch(
         if (!newId) {
             cleanupWorkspace()
             void insightActions.ensureOnSelect(null)
+            void mcpActions.refreshOnSelect(null)
             return
         }
 
@@ -783,6 +785,7 @@ watch(
         noteActions.fetchNotes(newId)
         noteActions.fetchCategories(newId)
         void insightActions.ensureOnSelect(newId)
+        void mcpActions.refreshOnSelect(newId)
         startAutoSaveInterval()
 
         const ws = wsStorer.workspaces.find((w) => w.id === newId)

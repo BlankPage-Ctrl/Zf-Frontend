@@ -14,6 +14,7 @@ import (
 	"myproject/internal/files"
 	"myproject/internal/hitl"
 	"myproject/internal/insight"
+	"myproject/internal/mcp"
 	"myproject/internal/messages"
 	"myproject/internal/mockapi"
 	"myproject/internal/models"
@@ -42,6 +43,7 @@ type App struct {
 	Hitl           *hitl.Service
 	HitlWatch      *stream.HitlWatchService
 	Insight        *insight.Service
+	Mcp            *mcp.Service
 	ShellExecWatch *stream.ShellExecWatchService
 }
 
@@ -78,6 +80,7 @@ func NewApp() *App {
 		Hitl:           hitl.NewService(c),
 		HitlWatch:      stream.NewHitlWatchService(c),
 		Insight:        insight.NewService(c, settingsSvc),
+		Mcp:            mcp.NewService(c),
 		ShellExecWatch: stream.NewShellExecWatchService(c),
 	}
 }

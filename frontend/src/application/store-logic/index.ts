@@ -8,3 +8,4 @@ export { createChatSessionStoreLogic, type ChatSessionStoreLogic } from './chat-
 export { createShellExecStoreLogic, type ShellExecStoreLogic } from './shell-exec.logic'
 export { createHitlStoreLogic, type HitlStoreLogic } from './hitl.logic'
 export { createInsightStoreLogic, type InsightStoreLogic } from './insight.logic'
+export { createMcpStoreLogic, type McpStoreLogic } from './mcp.logic'

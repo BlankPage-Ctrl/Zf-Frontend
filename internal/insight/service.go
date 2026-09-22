@@ -113,18 +113,20 @@ func insightKey(workspaceID string) string {
 
 func parseEnabled(raw *string) bool {
 	if raw == nil || *raw == "" {
-		return true
+		return false
 	}
 	switch strings.ToLower(strings.TrimSpace(*raw)) {
 	case "false", "0", "off", "disabled":
 		return false
-	default:
+	case "true", "1", "on", "enabled":
 		return true
+	default:
+		return false
 	}
 }
 
 // IsEnabled reads the workspace insight toggle via the generic settings
-// service (default true when absent/empty).
+// service (default false when absent/empty).
 func (s *Service) IsEnabled(workspaceID string) (bool, error) {
 	v, err := s.settings.GetValue(insightKey(workspaceID))
 	if err != nil {

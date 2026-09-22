@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { CodeBrackets } from '@iconoir/vue'
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
 import { insightActions } from '@/application/actions'
-import { useInsightStorer } from '@/application/stores'
+import { useInsightStorer, useThemeStorer } from '@/application/stores'
+import { Markdown, type MarkdownSchema } from '@/presentation/components/markdown'
 
 const props = defineProps<{
     workspaceId: string | null
@@ -12,7 +13,47 @@ const props = defineProps<{
 /** How long the Sync/Index result (or error) stays in the card footer. */
 const FOOTER_TTL_MS = 6000
 
+/** Experimental-feature disclaimer shown before Insight can be enabled. */
+const INSIGHT_DISCLAIMER_MD = `**Insight is an experimental feature and is disabled by default.**
+
+When enabled, Insight is **read-only with respect to your system and source code**. It does not modify your files or source code. The only write operations performed by Insight are to the application's own SQLite database for storing internal data.
+
+By enabling this feature, you acknowledge that it is experimental and use it at your own risk. The author is not responsible for any damage, data loss, corruption, or other consequences resulting from its use.
+
+**If you "Enable" it you understand and accept these conditions.**`
+
+/** localStorage key (per workspace) tracking whether the disclaimer was read/accepted. */
+const disclaimerReadKey = (workspaceId: string) => `insight:disclaimer-read:${workspaceId}`
+
 const storer = useInsightStorer()
+const themeStorer = useThemeStorer()
+
+const showDisclaimer = ref(false)
+const disclaimerMode = ref<'gate' | 'info'>('gate')
+
+const disclaimerSchema = computed<MarkdownSchema>(() => ({
+    text: INSIGHT_DISCLAIMER_MD,
+    state: 'done',
+    isDark: themeStorer.activeThemeId === 'night',
+    fontSize: 13,
+    lineHeight: 1.55,
+}))
+
+function hasReadDisclaimer(workspaceId: string): boolean {
+    try {
+        return localStorage.getItem(disclaimerReadKey(workspaceId)) === '1'
+    } catch {
+        return false
+    }
+}
+
+function markDisclaimerRead(workspaceId: string): void {
+    try {
+        localStorage.setItem(disclaimerReadKey(workspaceId), '1')
+    } catch {
+        /* private mode etc. — gating still works, just re-prompts next time */
+    }
+}
 
 const isOpen = ref(false)
 const referenceEl = ref<HTMLElement | null>(null)
@@ -60,6 +101,7 @@ watch(
     () => {
         clearFooterTimer()
         footer.value = null
+        showDisclaimer.value = false
     },
 )
 
@@ -78,10 +120,7 @@ function formatTime(iso: string | null): string {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-async function onToggleEnabled(e: Event) {
-    const id = props.workspaceId
-    const v = (e.target as HTMLInputElement).checked
-    if (!id) return
+async function applyEnabled(id: string, v: boolean) {
     await insightActions.setEnabled(id, v)
     // The checkbox is bound to the store, so a failed toggle snaps back —
     // surface the reason in the footer instead of failing silently.
@@ -92,6 +131,52 @@ async function onToggleEnabled(e: Event) {
             isError: true,
         })
     }
+}
+
+async function onToggleEnabled(e: Event) {
+    const id = props.workspaceId
+    const el = e.target as HTMLInputElement
+    const v = el.checked
+    // The checkbox is natively toggled by the browser before `change` fires,
+    // but `:checked` only re-renders when the store changes — so any path
+    // that leaves the store untouched must revert the DOM explicitly.
+    if (!id) {
+        el.checked = storer.enabled
+        return
+    }
+    // Disabling needs no confirmation and never touches the read flag.
+    if (!v) {
+        await applyEnabled(id, false)
+        el.checked = storer.enabled
+        return
+    }
+    // Enabling = accepting the disclaimer. Prompt once per workspace.
+    if (hasReadDisclaimer(id)) {
+        await applyEnabled(id, true)
+        el.checked = storer.enabled
+        return
+    }
+    el.checked = storer.enabled
+    disclaimerMode.value = 'gate'
+    showDisclaimer.value = true
+}
+
+/** Info-only view of the disclaimer - never enables, never touches the read flag. */
+function openDisclaimerInfo() {
+    disclaimerMode.value = 'info'
+    showDisclaimer.value = true
+}
+
+function closeDisclaimer() {
+    showDisclaimer.value = false
+}
+
+async function onDisclaimerEnable() {
+    const id = props.workspaceId
+    showDisclaimer.value = false
+    if (!id) return
+    markDisclaimerRead(id)
+    await applyEnabled(id, true)
 }
 
 async function onSync() {
@@ -125,12 +210,18 @@ async function onIndex() {
 
 function onClickOutside(e: MouseEvent) {
     const target = e.target as HTMLElement
+    if (showDisclaimer.value) return
     if (referenceEl.value?.contains(target)) return
     if (floatingEl.value?.contains(target)) return
     close()
 }
 
 function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && showDisclaimer.value) {
+        e.stopPropagation()
+        closeDisclaimer()
+        return
+    }
     if (e.key === 'Escape' && isOpen.value) {
         e.stopPropagation()
         close()
@@ -169,7 +260,17 @@ onBeforeUnmount(() => {
             <Transition name="insight-fade" appear>
                 <div v-if="isOpen" class="insight-card" role="dialog" aria-label="Insight">
                     <div class="insight-card__head">
-                        <span class="insight-card__title">Insight</span>
+                        <span class="insight-card__title-group">
+                            <span class="insight-card__title">Insight</span>
+                            <button
+                                type="button"
+                                class="insight-card__disclaimer"
+                                title="Read the Insight experimental-feature disclaimer"
+                                @click="openDisclaimerInfo"
+                            >
+                                Disclaimer
+                            </button>
+                        </span>
                         <label
                             class="insight-card__enable"
                             title="Enable or disable Insight for this workspace"
@@ -218,6 +319,45 @@ onBeforeUnmount(() => {
                 </div>
             </Transition>
         </div>
+        <Teleport to="body">
+            <div
+                v-if="showDisclaimer"
+                class="insight-disclaimer-overlay"
+                @click.self="closeDisclaimer"
+            >
+                <div
+                    class="insight-disclaimer-panel"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Insight disclaimer"
+                >
+                    <div class="insight-disclaimer-head">
+                        <span class="insight-disclaimer-title">Insight — experimental feature</span>
+                    </div>
+                    <div class="insight-disclaimer-body">
+                        <Markdown :schema="disclaimerSchema" />
+                    </div>
+                    <div class="insight-disclaimer-foot">
+                        <button
+                            type="button"
+                            class="insight-disclaimer-btn"
+                            @click="closeDisclaimer"
+                        >
+                            Close
+                        </button>
+                        <button
+                            v-if="disclaimerMode === 'gate'"
+                            type="button"
+                            class="insight-disclaimer-btn insight-disclaimer-btn--primary"
+                            :disabled="!workspaceId"
+                            @click="onDisclaimerEnable"
+                        >
+                            Enable
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
@@ -282,6 +422,30 @@ onBeforeUnmount(() => {
     font-size: var(--type-xs);
     font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
+}
+
+.insight-card__title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+}
+
+.insight-card__disclaimer {
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: var(--type-2xs);
+    color: var(--text-primary);
+    opacity: 0.6;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.insight-card__disclaimer:hover {
+    opacity: 1;
 }
 
 .insight-card__head {
@@ -400,5 +564,87 @@ onBeforeUnmount(() => {
 .insight-fade-leave-to {
     opacity: 0;
     transform: translateY(-2px);
+}
+
+.insight-disclaimer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: rgba(15, 15, 20, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.insight-disclaimer-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.insight-disclaimer-head {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.insight-disclaimer-title {
+    font-size: var(--type-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.insight-disclaimer-body {
+    padding: 10px 12px;
+    overflow-y: auto;
+}
+
+.insight-disclaimer-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.insight-disclaimer-btn {
+    height: 26px;
+    padding: 0 12px;
+    font-size: var(--type-2xs);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 80ms ease;
+}
+
+.insight-disclaimer-btn:hover:not(:disabled) {
+    background: rgba(var(--raw-border-color), 0.3);
+}
+
+.insight-disclaimer-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.insight-disclaimer-btn--primary {
+    background: var(--border-color);
+    border-color: transparent;
+    color: var(--text-primary);
+}
+
+.insight-disclaimer-btn--primary:hover:not(:disabled) {
+    background: var(--border-color);
+    filter: brightness(1.08);
 }
 </style>

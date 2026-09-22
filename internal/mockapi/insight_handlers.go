@@ -10,8 +10,8 @@ func (s *Store) handleInsightEnsure(w http.ResponseWriter, r *http.Request) {
 	wsID := r.PathValue("id")
 	writeJSON(w, r, http.StatusOK, map[string]any{
 		"workspaceId": wsID,
-		"enabled":     true,
-		"running":     true,
+		"enabled":     false,
+		"running":     false,
 		"projectPath": "/mock",
 	})
 }

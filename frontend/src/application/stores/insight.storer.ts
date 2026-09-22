@@ -5,7 +5,7 @@ import type { FEInsightIndexStatus } from '@/core/entities'
 export const useInsightStorer = defineStore('insight', () => {
     const workspaceId = ref<string | null>(null)
     const running = ref(false)
-    const enabled = ref(true)
+    const enabled = ref(false)
     /** True while a sync/index pass is in flight — drives the AppTitle dot. */
     const syncing = ref(false)
     const loading = ref(false)

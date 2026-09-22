@@ -46,7 +46,7 @@ function toStatus(raw: unknown): FEInsightStatus {
     const r = (raw ?? {}) as Record<string, unknown>
     return {
         workspaceId: typeof r.workspaceId === 'string' ? r.workspaceId : '',
-        enabled: r.enabled !== false,
+        enabled: r.enabled === true,
         running: r.running === true,
         projectPath: typeof r.projectPath === 'string' ? r.projectPath : '',
     }

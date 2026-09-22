@@ -5,8 +5,11 @@ export const KNOWN_TOOL_NAMES = [
     'create_file',
     'run_shell',
     'skill',
+    'skill_list',
     'insight_search',
     'insight_graph',
+    'insight_trace',
+    'grep',
 ] as const
 
 export type KnownToolName = (typeof KNOWN_TOOL_NAMES)[number]
@@ -32,6 +35,9 @@ export const TOOL_LABELS: Record<KnownToolName, string> = {
     create_file: 'Create File',
     run_shell: 'Run Shell',
     skill: 'Skill',
+    skill_list: 'Skill List',
     insight_search: 'Search',
     insight_graph: 'Tree',
+    insight_trace: 'Trace',
+    grep: 'Grep',
 }

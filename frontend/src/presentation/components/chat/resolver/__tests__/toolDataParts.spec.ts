@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
+import { PathArrow, InputSearch } from '@iconoir/vue'
 import type { FeedBlock } from '@/core/entities'
 import { resolveMessageParts } from '../resolvePartsSchema'
 import { isKnownToolName } from '../../helpers/knownTools'
+import { createToolCallSchema } from '@/presentation/schemas/chat/tool-call.schema'
 
 describe('feed blocks', () => {
     it('registers edit_file as a known tool', () => {
@@ -45,6 +47,11 @@ describe('feed blocks', () => {
         expect(frontend.diff).toContain('+new')
     })
 
+    it('registers insight_trace and grep as known tools', () => {
+        expect(isKnownToolName('insight_trace')).toBe(true)
+        expect(isKnownToolName('grep')).toBe(true)
+    })
+
     it('maps text/think/stage/asset blocks', () => {
         const blocks: FeedBlock[] = [
             { kind: 'text', sliceId: 't1', text: 'hi', closed: true },
@@ -60,5 +67,55 @@ describe('feed blocks', () => {
         const think = resolved[1]
         if (think?.type !== 'reasoning') throw new Error('expected reasoning')
         expect(think.state).toBe('streaming')
+    })
+})
+
+describe('tool call schema', () => {
+    it('titles trace from query', () => {
+        const schema = createToolCallSchema({
+            toolName: 'insight_trace',
+            state: 'ok',
+            input: { query: 'loginUser' },
+        })
+        expect(schema.title).toBe('Trace loginUser')
+    })
+
+    it('titles directed trace as from → to', () => {
+        const schema = createToolCallSchema({
+            toolName: 'insight_trace',
+            state: 'ok',
+            input: { query: 'x', from: 'loginUser', to: 'saveSession' },
+        })
+        expect(schema.title).toBe('Trace loginUser → saveSession')
+    })
+
+    it('falls back to Trace label without query', () => {
+        const schema = createToolCallSchema({ toolName: 'insight_trace', state: 'ok' })
+        expect(schema.title).toBe('Trace')
+    })
+
+    it('titles grep from pattern', () => {
+        const schema = createToolCallSchema({
+            toolName: 'grep',
+            state: 'ok',
+            input: { pattern: 'useState' },
+        })
+        expect(schema.title).toBe('Grep "useState"')
+    })
+
+    it('keeps trace and grep blocks static (no expand, no view toggle)', () => {
+        for (const toolName of ['insight_trace', 'grep']) {
+            const schema = createToolCallSchema({ toolName, state: 'ok', input: {} })
+            expect(schema.collapsible).toBe(false)
+            expect(schema.viewToggle).toBe(false)
+            expect(schema.defaultExpanded).toBe(false)
+        }
+    })
+
+    it('assigns distinct icons to trace and grep', () => {
+        const trace = createToolCallSchema({ toolName: 'insight_trace', state: 'ok' })
+        const grep = createToolCallSchema({ toolName: 'grep', state: 'ok' })
+        expect(trace.icon).toBe(PathArrow)
+        expect(grep.icon).toBe(InputSearch)
     })
 })

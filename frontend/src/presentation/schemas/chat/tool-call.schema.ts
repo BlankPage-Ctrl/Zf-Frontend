@@ -1,4 +1,4 @@
-import { Wrench, Eye, EditPencil, Folder, Terminal, Book, Search, Tree, Plus } from '@iconoir/vue'
+import { Wrench, Eye, EditPencil, Folder, Terminal, Book, Search, Tree, Plus, PathArrow, InputSearch } from '@iconoir/vue'
 import type { Component } from 'vue'
 import type { BlockPartSchema } from '@/presentation/components/blockpart'
 import { TOOL_LABELS } from '@/presentation/components/chat/helpers/knownTools'
@@ -38,8 +38,11 @@ const TOOL_ICONS: Record<string, Component> = {
     list_files: Folder,
     run_shell: Terminal,
     skill: Book,
+    skill_list: Book,
     insight_search: Search,
     insight_graph: Tree,
+    insight_trace: PathArrow,
+    grep: InputSearch,
 }
 
 function getSkillTitle(input: unknown): string {
@@ -107,12 +110,39 @@ function getInsightGraphTitle(input: unknown): string | null {
     return null
 }
 
+function getInsightTraceTitle(input: unknown): string | null {
+    if (input && typeof input === 'object') {
+        const rec = input as Record<string, unknown>
+        const from = typeof rec.from === 'string' ? rec.from.trim().slice(0, 40) : ''
+        const to = typeof rec.to === 'string' ? rec.to.trim().slice(0, 40) : ''
+        if (from && to) return `Trace ${from} → ${to}`
+        const query = rec.query
+        if (typeof query === 'string' && query.trim().length > 0) {
+            return `Trace ${query.trim().slice(0, 80)}`
+        }
+    }
+    return null
+}
+
+function getGrepTitle(input: unknown): string | null {
+    if (input && typeof input === 'object' && 'pattern' in input) {
+        const pattern = (input as Record<string, unknown>).pattern
+        if (typeof pattern === 'string' && pattern.trim().length > 0) {
+            return `Grep "${pattern.trim().slice(0, 80)}"`
+        }
+    }
+    return null
+}
+
 export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSchema {
     // Feed work states: queued | active (running) vs ok | bad (settled).
     const isRunning = params.state === 'queued' || params.state === 'active'
     const isSkill = params.toolName === 'skill'
     const isSearch = params.toolName === 'insight_search'
     const isGraph = params.toolName === 'insight_graph'
+    const isTrace = params.toolName === 'insight_trace'
+    const isGrep = params.toolName === 'grep'
+    const isStatic = isSkill || isTrace || isGrep
 
     const title = isSkill
         ? getSkillTitle(params.input)
@@ -124,15 +154,23 @@ export function createToolCallSchema(params: ToolCallSchemaParams): BlockPartSch
             ? (getInsightGraphTitle(params.input) ??
               (TOOL_LABELS as Record<string, string>)[params.toolName] ??
               params.toolName)
-            : ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName)
+            : isTrace
+              ? (getInsightTraceTitle(params.input) ??
+                (TOOL_LABELS as Record<string, string>)[params.toolName] ??
+                params.toolName)
+              : isGrep
+                ? (getGrepTitle(params.input) ??
+                  (TOOL_LABELS as Record<string, string>)[params.toolName] ??
+                  params.toolName)
+                : ((TOOL_LABELS as Record<string, string>)[params.toolName] ?? params.toolName)
 
     return {
         title,
         icon: TOOL_ICONS[params.toolName] ?? Wrench,
         variant: 'default',
-        collapsible: isSkill ? false : true,
-        defaultExpanded: isSkill ? false : (TOOL_EXPANDED[params.toolName] ?? false),
-        viewToggle: isSkill ? false : (TOOL_VIEW_TOGGLE[params.toolName] ?? false),
+        collapsible: isStatic ? false : true,
+        defaultExpanded: isStatic ? false : (TOOL_EXPANDED[params.toolName] ?? false),
+        viewToggle: isStatic ? false : (TOOL_VIEW_TOGGLE[params.toolName] ?? false),
         defaultView: 'preview',
         status: isRunning ? 'streaming' : 'done',
         source: {

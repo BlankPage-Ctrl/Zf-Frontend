@@ -4,6 +4,7 @@ import {
     Create as CreateProvider,
     Update as UpdateProvider,
     Delete as DeleteProvider,
+    ListTypes as ListProviderTypes,
 } from '../../../wailsjs/go/providers/Service'
 import {
     List as ListModels,
@@ -11,7 +12,7 @@ import {
     Update as UpdateModel,
     Delete as DeleteModel,
 } from '../../../wailsjs/go/models/Service'
-import type { Provider, ProviderDto, Model, ModelDto } from '@/core/entities'
+import type { Provider, ProviderDto, Model, ModelDto, ProviderTypeInfo } from '@/core/entities'
 import type { ProviderRepository, ModelRepository } from '@/core/repositories'
 
 export const providersRepository: ProviderRepository = {
@@ -20,6 +21,7 @@ export const providersRepository: ProviderRepository = {
     create: (dto: ProviderDto) => CreateProvider(dto) as Promise<Provider>,
     update: (id: string, dto: Partial<ProviderDto>) => UpdateProvider(id, dto) as Promise<Provider>,
     remove: (id: string) => DeleteProvider(id) as Promise<void>,
+    listTypes: () => ListProviderTypes() as Promise<ProviderTypeInfo[]>,
 }
 
 export const modelsRepository: ModelRepository = {

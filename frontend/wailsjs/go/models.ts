@@ -803,6 +803,25 @@ export namespace providers {
 	        this.baseURL = source["baseURL"];
 	    }
 	}
+	
+	export class ProviderType {
+	    id: string;
+	    label: string;
+	    isOfficial: boolean;
+	    requiresBaseURL: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProviderType(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.label = source["label"];
+	        this.isOfficial = source["isOfficial"];
+	        this.requiresBaseURL = source["requiresBaseURL"];
+	    }
+	}
 
 }
 

@@ -101,6 +101,7 @@ func (s *Store) NewHandler() http.Handler {
 	mux.HandleFunc("GET /workspaces/{workspaceId}/files/events", s.handleFileEvents)
 
 	mux.HandleFunc("GET /providers", s.handleListProviders)
+	mux.HandleFunc("GET /providers/types", s.handleListProviderTypes)
 	mux.HandleFunc("GET /providers/{id}", s.handleGetProvider)
 	mux.HandleFunc("POST /providers", s.handleCreateProvider)
 	mux.HandleFunc("PATCH /providers/{id}", s.handleUpdateProvider)

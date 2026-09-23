@@ -4,6 +4,16 @@ import (
 	"net/http"
 )
 
+var mockProviderTypes = []map[string]interface{}{
+	{"id": "openai", "label": "OpenAI", "isOfficial": true, "requiresBaseURL": false},
+	{"id": "openai-compatible", "label": "OpenAI Compatible", "isOfficial": true, "requiresBaseURL": true},
+	{"id": "openrouter", "label": "OpenRouter", "isOfficial": true, "requiresBaseURL": false},
+}
+
+func (s *Store) handleListProviderTypes(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, r, http.StatusOK, mockProviderTypes)
+}
+
 func (s *Store) handleListProviders(w http.ResponseWriter, r *http.Request) {
 	providers := s.Providers.All()
 	result := make([]interface{}, len(providers))

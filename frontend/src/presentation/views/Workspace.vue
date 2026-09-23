@@ -31,7 +31,7 @@ import {
     mcpActions,
 } from '@/application/actions'
 import type { Chat, ChatMode, Note } from '@/core/entities'
-import { APPEARANCE_PRESETS, type ProviderDto } from '@/core/entities'
+import { APPEARANCE_PRESETS } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
 import NotesTab from '@/presentation/components/notes/NotesTab.vue'
@@ -53,7 +53,7 @@ import { FileExplorer } from '@/presentation/components/file-explorer'
 import { NoteGroup } from '@/presentation/components/note-group'
 import {
     chatFormSchema,
-    providerFormSchema,
+    createProviderFormSchema,
     modelFormSchema,
     categoryFormSchema,
     createSidebarChatListSchema,
@@ -645,13 +645,13 @@ function normalizeRgb(rgb: string): string {
 async function handleAddProvider() {
     await dialog.spawn({
         title: 'Add provider',
-        schema: providerFormSchema,
+        schema: createProviderFormSchema(providerStorer.providerTypes),
         confirmLabel: 'Create',
         submit: async (data: DynamicGridDataOutput) => {
             const row = data.row!
             await providerActions.createProvider({
                 name: String(row.name ?? ''),
-                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                type: String(row.type ?? 'openai'),
                 apiKey: row.apiKey ? String(row.apiKey) : undefined,
                 baseURL: row.baseURL ? String(row.baseURL) : undefined,
             })
@@ -662,13 +662,13 @@ async function handleAddProvider() {
 async function handleEditProvider(provider: {
     id: string
     name: string
-    type: ProviderDto['type']
+    type: string
     apiKey?: string
     baseURL?: string
 }) {
     await dialog.spawn({
         title: 'Edit provider',
-        schema: providerFormSchema,
+        schema: createProviderFormSchema(providerStorer.providerTypes),
         initialData: {
             row: {
                 name: provider.name,
@@ -682,7 +682,7 @@ async function handleEditProvider(provider: {
             const row = data.row!
             await providerActions.updateProvider(provider.id, {
                 name: String(row.name ?? ''),
-                type: String(row.type ?? 'openai') as ProviderDto['type'],
+                type: String(row.type ?? 'openai'),
                 apiKey: row.apiKey ? String(row.apiKey) : undefined,
                 baseURL: row.baseURL ? String(row.baseURL) : undefined,
             })

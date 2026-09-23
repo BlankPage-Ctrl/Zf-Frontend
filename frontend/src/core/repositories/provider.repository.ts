@@ -1,4 +1,4 @@
-import type { Provider, ProviderDto, Model, ModelDto } from '../entities/provider'
+import type { Provider, ProviderDto, Model, ModelDto, ProviderTypeInfo } from '../entities/provider'
 
 export interface ProviderRepository {
     list(): Promise<Provider[]>
@@ -6,6 +6,7 @@ export interface ProviderRepository {
     create(dto: ProviderDto): Promise<Provider>
     update(id: string, dto: Partial<ProviderDto>): Promise<Provider>
     remove(id: string): Promise<void>
+    listTypes(): Promise<ProviderTypeInfo[]>
 }
 
 export interface ModelRepository {

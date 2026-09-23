@@ -27,6 +27,7 @@ onMounted(async () => {
     await themeActions.load()
     await providerActions.fetchProviders()
     await providerActions.fetchDefaultProvider()
+    providerActions.fetchProviderTypes()
     workspaceActions.fetchWorkspaces()
 })
 

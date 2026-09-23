@@ -1,9 +1,10 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Provider, Model } from '@/core/entities'
+import type { Provider, Model, ProviderTypeInfo } from '@/core/entities'
 
 export const useProviderStorer = defineStore('provider', () => {
     const providers = ref<Provider[]>([])
+    const providerTypes = ref<ProviderTypeInfo[]>([])
     const loading = ref(false)
     const error = ref<string | null>(null)
     const defaultProviderId = ref<string | null>(null)
@@ -11,6 +12,10 @@ export const useProviderStorer = defineStore('provider', () => {
 
     function setProviders(list: Provider[]): void {
         providers.value = list
+    }
+
+    function setProviderTypes(list: ProviderTypeInfo[]): void {
+        providerTypes.value = list
     }
 
     function setLoading(v: boolean): void {
@@ -64,11 +69,13 @@ export const useProviderStorer = defineStore('provider', () => {
 
     return {
         providers,
+        providerTypes,
         loading,
         error,
         defaultProviderId,
         defaultModelId,
         setProviders,
+        setProviderTypes,
         setLoading,
         setError,
         clearError,

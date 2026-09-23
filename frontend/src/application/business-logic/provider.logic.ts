@@ -1,5 +1,5 @@
 import type { ProviderRepository, ModelRepository, SettingsRepository } from '@/core/repositories'
-import type { Provider, ProviderDto, Model, ModelDto, DefaultProvider } from '@/core/entities'
+import type { Provider, ProviderDto, Model, ModelDto, DefaultProvider, ProviderTypeInfo } from '@/core/entities'
 
 export interface ProviderBusinessLogicDeps {
     providersRepo: ProviderRepository
@@ -9,6 +9,7 @@ export interface ProviderBusinessLogicDeps {
 
 export interface ProviderBusinessLogic {
     listProviders(): Promise<Provider[]>
+    listProviderTypes(): Promise<ProviderTypeInfo[]>
     createProvider(dto: ProviderDto): Promise<Provider>
     updateProvider(id: string, dto: Partial<ProviderDto>): Promise<Provider>
     removeProvider(id: string): Promise<void>
@@ -24,6 +25,7 @@ export function createProviderBusinessLogic(
 ): ProviderBusinessLogic {
     return {
         listProviders: () => deps.providersRepo.list(),
+        listProviderTypes: () => deps.providersRepo.listTypes(),
         createProvider: (dto) => deps.providersRepo.create(dto),
         updateProvider: (id, dto) => deps.providersRepo.update(id, dto),
         removeProvider: (id) => deps.providersRepo.remove(id),

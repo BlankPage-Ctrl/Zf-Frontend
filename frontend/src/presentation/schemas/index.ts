@@ -1,7 +1,13 @@
 export { chatFormSchema } from './dialog/chat-form.schema'
 export { workspaceFormSchema } from './dialog/workspace-form.schema'
 export { categoryFormSchema } from './dialog/category-form.schema'
-export { providerFormSchema } from './dialog/provider-form.schema'
+export {
+    providerFormSchema,
+    createProviderFormSchema,
+    providerTypeOptions,
+    requiresProviderBaseURL,
+    BUILTIN_PROVIDER_TYPE_OPTIONS,
+} from './dialog/provider-form.schema'
 export { modelFormSchema } from './dialog/model-form.schema'
 export { createSidebarChatListSchema, chatListContentSchema } from './list/chat-list.schema'
 export { createSidebarNoteListSchema } from './list/note-list.schema'

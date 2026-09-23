@@ -1,4 +1,11 @@
-export type ProviderType = 'openai' | 'openai-compatible' | 'openrouter'
+export type ProviderType = string
+
+export interface ProviderTypeInfo {
+    id: string
+    label: string
+    isOfficial: boolean
+    requiresBaseURL: boolean
+}
 
 export interface ProviderDto {
     name: string

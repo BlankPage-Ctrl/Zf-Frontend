@@ -10,4 +10,6 @@ export function Get(arg1:string):Promise<providers.Provider>;
 
 export function List():Promise<Array<providers.Provider>>;
 
+export function ListTypes():Promise<Array<providers.ProviderType>>;
+
 export function Update(arg1:string,arg2:Record<string, any>):Promise<providers.Provider>;

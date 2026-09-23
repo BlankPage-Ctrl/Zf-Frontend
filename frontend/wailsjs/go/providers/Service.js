@@ -18,6 +18,10 @@ export function List() {
   return window['go']['providers']['Service']['List']();
 }
 
+export function ListTypes() {
+  return window['go']['providers']['Service']['ListTypes']();
+}
+
 export function Update(arg1, arg2) {
   return window['go']['providers']['Service']['Update'](arg1, arg2);
 }

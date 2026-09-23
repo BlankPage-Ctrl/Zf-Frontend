@@ -29,6 +29,13 @@ type ProviderDto struct {
 	BaseURL *string `json:"baseURL,omitempty"`
 }
 
+type ProviderType struct {
+	ID              string `json:"id"`
+	Label           string `json:"label"`
+	IsOfficial      bool   `json:"isOfficial"`
+	RequiresBaseURL bool   `json:"requiresBaseURL"`
+}
+
 type Service struct {
 	c *client.Client
 }
@@ -39,6 +46,10 @@ func NewService(c *client.Client) *Service {
 
 func (s *Service) List() ([]Provider, error) {
 	return client.DoOK[[]Provider](s.c, "GET", "/providers", nil, nil)
+}
+
+func (s *Service) ListTypes() ([]ProviderType, error) {
+	return client.DoOK[[]ProviderType](s.c, "GET", "/providers/types", nil, nil)
 }
 
 func (s *Service) Get(id string) (Provider, error) {

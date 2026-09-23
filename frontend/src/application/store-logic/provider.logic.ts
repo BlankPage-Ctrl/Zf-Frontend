@@ -1,4 +1,4 @@
-import type { Provider, Model } from '@/core/entities'
+import type { Provider, Model, ProviderTypeInfo } from '@/core/entities'
 import type { ProviderStorer } from '../stores/provider.storer'
 
 export interface ProviderStoreLogic {
@@ -7,6 +7,7 @@ export interface ProviderStoreLogic {
     setError(message: string): void
     clearError(): void
     setProviders(list: Provider[]): void
+    setProviderTypes(list: ProviderTypeInfo[]): void
     upsertProvider(provider: Provider): void
     removeProvider(id: string): void
     upsertModel(providerId: string, model: Model): void
@@ -35,6 +36,10 @@ export function createProviderStoreLogic(getStorer: () => ProviderStorer): Provi
 
     function setProviders(list: Provider[]): void {
         getStorer().setProviders(list)
+    }
+
+    function setProviderTypes(list: ProviderTypeInfo[]): void {
+        getStorer().setProviderTypes(list)
     }
 
     function upsertProvider(provider: Provider): void {
@@ -71,6 +76,7 @@ export function createProviderStoreLogic(getStorer: () => ProviderStorer): Provi
         setError,
         clearError,
         setProviders,
+        setProviderTypes,
         upsertProvider,
         removeProvider,
         upsertModel,

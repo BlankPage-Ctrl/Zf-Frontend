@@ -1,10 +1,17 @@
 import type { ProviderStoreLogic } from '../store-logic/provider.logic'
 import type { ProviderBusinessLogic } from '../business-logic/provider.logic'
-import type { ProviderDto, ModelDto } from '@/core/entities'
+import type { ProviderDto, ModelDto, ProviderTypeInfo } from '@/core/entities'
 import { toMessage } from '@/shared/utils/error.utils'
+
+const BUILTIN_PROVIDER_TYPES: ProviderTypeInfo[] = [
+    { id: 'openai', label: 'OpenAI', isOfficial: true, requiresBaseURL: false },
+    { id: 'openai-compatible', label: 'OpenAI Compatible', isOfficial: true, requiresBaseURL: true },
+    { id: 'openrouter', label: 'OpenRouter', isOfficial: true, requiresBaseURL: false },
+]
 
 export interface ProviderActions {
     fetchProviders(): Promise<void>
+    fetchProviderTypes(): Promise<void>
     createProvider(dto: ProviderDto): Promise<void>
     updateProvider(id: string, dto: Partial<ProviderDto>): Promise<void>
     deleteProvider(id: string): Promise<void>
@@ -27,6 +34,15 @@ export function createProviderActions(
             storeLogic.setError(toMessage(e) || 'Failed to load providers')
         } finally {
             storeLogic.endLoad()
+        }
+    }
+
+    async function fetchProviderTypes(): Promise<void> {
+        try {
+            const types = await businessLogic.listProviderTypes()
+            storeLogic.setProviderTypes(types.length > 0 ? types : BUILTIN_PROVIDER_TYPES)
+        } catch {
+            storeLogic.setProviderTypes(BUILTIN_PROVIDER_TYPES)
         }
     }
 
@@ -121,6 +137,7 @@ export function createProviderActions(
 
     return {
         fetchProviders,
+        fetchProviderTypes,
         createProvider,
         updateProvider,
         deleteProvider,

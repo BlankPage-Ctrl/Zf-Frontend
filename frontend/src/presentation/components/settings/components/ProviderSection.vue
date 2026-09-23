@@ -56,6 +56,8 @@ function handleModelEdit(providerId: string, m: Model) {
     props.resolved.onEditModel?.(providerId, m.id, {
         modelId: m.modelId,
         displayName: m.displayName ?? '',
+        maxInputTokens: m.maxInputTokens ?? undefined,
+        maxOutputTokens: m.maxOutputTokens ?? undefined,
     })
 }
 function handleModelDelete(providerId: string, m: Model) {
@@ -131,6 +133,12 @@ function handleSetDefault(provider: Provider, model: Model) {
                             <span v-if="model.displayName" class="model-id">{{
                                 model.modelId
                             }}</span>
+                            <span v-if="model.maxInputTokens" class="model-limit"
+                                >in:{{ model.maxInputTokens }}</span
+                            >
+                            <span v-if="model.maxOutputTokens" class="model-limit"
+                                >out:{{ model.maxOutputTokens }}</span
+                            >
                             <span v-if="isDefault(provider, model)" class="default-badge"
                                 >Default</span
                             >
@@ -293,6 +301,13 @@ function handleSetDefault(provider: Provider, model: Model) {
 }
 
 .model-id {
+    font-size: var(--type-2xs);
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    opacity: 0.35;
+}
+
+.model-limit {
     font-size: var(--type-2xs);
     font-family: var(--font-mono);
     color: var(--text-primary);

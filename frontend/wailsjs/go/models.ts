@@ -614,6 +614,8 @@ export namespace models {
 	    modelId: string;
 	    displayName?: string;
 	    providerId: string;
+	    maxInputTokens?: number;
+	    maxOutputTokens?: number;
 	    createdAt: string;
 	    updatedAt: string;
 	
@@ -627,6 +629,8 @@ export namespace models {
 	        this.modelId = source["modelId"];
 	        this.displayName = source["displayName"];
 	        this.providerId = source["providerId"];
+	        this.maxInputTokens = source["maxInputTokens"];
+	        this.maxOutputTokens = source["maxOutputTokens"];
 	        this.createdAt = source["createdAt"];
 	        this.updatedAt = source["updatedAt"];
 	    }
@@ -634,6 +638,8 @@ export namespace models {
 	export class ModelDto {
 	    modelId: string;
 	    displayName?: string;
+	    maxInputTokens?: number;
+	    maxOutputTokens?: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new ModelDto(source);
@@ -643,6 +649,8 @@ export namespace models {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.modelId = source["modelId"];
 	        this.displayName = source["displayName"];
+	        this.maxInputTokens = source["maxInputTokens"];
+	        this.maxOutputTokens = source["maxOutputTokens"];
 	    }
 	}
 
@@ -724,6 +732,8 @@ export namespace providers {
 	    modelId: string;
 	    displayName?: string;
 	    providerId: string;
+	    maxInputTokens?: number;
+	    maxOutputTokens?: number;
 	    createdAt: string;
 	    updatedAt: string;
 	
@@ -737,6 +747,8 @@ export namespace providers {
 	        this.modelId = source["modelId"];
 	        this.displayName = source["displayName"];
 	        this.providerId = source["providerId"];
+	        this.maxInputTokens = source["maxInputTokens"];
+	        this.maxOutputTokens = source["maxOutputTokens"];
 	        this.createdAt = source["createdAt"];
 	        this.updatedAt = source["updatedAt"];
 	    }

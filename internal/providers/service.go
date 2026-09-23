@@ -3,12 +3,14 @@ package providers
 import "myproject/internal/client"
 
 type ProviderModel struct {
-	ID          string  `json:"id"`
-	ModelID     string  `json:"modelId"`
-	DisplayName *string `json:"displayName"`
-	ProviderID  string  `json:"providerId"`
-	CreatedAt   string  `json:"createdAt"`
-	UpdatedAt   string  `json:"updatedAt"`
+	ID              string  `json:"id"`
+	ModelID         string  `json:"modelId"`
+	DisplayName     *string `json:"displayName"`
+	ProviderID      string  `json:"providerId"`
+	MaxInputTokens  *int    `json:"maxInputTokens"`
+	MaxOutputTokens *int    `json:"maxOutputTokens"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type Provider struct {

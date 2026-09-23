@@ -16,6 +16,20 @@ export const modelFormSchema: DialogGridSchema = {
                 placeholder: 'e.g. GPT-4o',
                 span: 6,
             },
+            maxInputTokens: {
+                type: 'number',
+                label: 'Max input tokens (empty = unlimited)',
+                placeholder: 'e.g. 128000',
+                span: 6,
+                metadata: { min: 1 },
+            },
+            maxOutputTokens: {
+                type: 'number',
+                label: 'Max output tokens (empty = provider default)',
+                placeholder: 'e.g. 4096',
+                span: 6,
+                metadata: { min: 1 },
+            },
         },
     },
 }

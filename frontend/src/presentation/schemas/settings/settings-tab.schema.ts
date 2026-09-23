@@ -24,7 +24,7 @@ export interface SettingsTabParams {
     onEditModel?: (
         providerId: string,
         modelId: string,
-        data: { modelId: string; displayName?: string },
+        data: { modelId: string; displayName?: string; maxInputTokens?: number; maxOutputTokens?: number },
     ) => void
     onDeleteModel?: (providerId: string, modelId: string) => void
     onSetDefault?: (providerId: string, modelId: string) => void

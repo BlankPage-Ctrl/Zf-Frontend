@@ -106,8 +106,10 @@ func (s *Store) handleListModels(w http.ResponseWriter, r *http.Request) {
 func (s *Store) handleCreateModel(w http.ResponseWriter, r *http.Request) {
 	pvID := r.PathValue("providerId")
 	var body struct {
-		ModelID     string  `json:"modelId"`
-		DisplayName *string `json:"displayName"`
+		ModelID         string  `json:"modelId"`
+		DisplayName     *string `json:"displayName"`
+		MaxInputTokens  *int    `json:"maxInputTokens"`
+		MaxOutputTokens *int    `json:"maxOutputTokens"`
 	}
 	if err := readBody(r, &body); err != nil {
 		writeError(w, r, http.StatusBadRequest, "invalid body")
@@ -115,15 +117,33 @@ func (s *Store) handleCreateModel(w http.ResponseWriter, r *http.Request) {
 	}
 	now := ts()
 	m := ProviderModel{
-		ID:          newID(),
-		ModelID:     body.ModelID,
-		DisplayName: body.DisplayName,
-		ProviderID:  pvID,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ID:              newID(),
+		ModelID:         body.ModelID,
+		DisplayName:     body.DisplayName,
+		ProviderID:      pvID,
+		MaxInputTokens:  body.MaxInputTokens,
+		MaxOutputTokens: body.MaxOutputTokens,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
 	s.Models.Add(m)
 	writeJSON(w, r, http.StatusCreated, m)
+}
+
+func toOptionalInt(v interface{}) (*int, bool) {
+	if v == nil {
+		return nil, true
+	}
+	switch n := v.(type) {
+	case float64:
+		if n <= 0 {
+			return nil, true
+		}
+		i := int(n)
+		return &i, true
+	default:
+		return nil, false
+	}
 }
 
 func (s *Store) handleUpdateModel(w http.ResponseWriter, r *http.Request) {
@@ -139,6 +159,16 @@ func (s *Store) handleUpdateModel(w http.ResponseWriter, r *http.Request) {
 		}
 		if v, ok := body["displayName"].(string); ok {
 			m.DisplayName = &v
+		}
+		if raw, present := body["maxInputTokens"]; present {
+			if v, ok := toOptionalInt(raw); ok {
+				m.MaxInputTokens = v
+			}
+		}
+		if raw, present := body["maxOutputTokens"]; present {
+			if v, ok := toOptionalInt(raw); ok {
+				m.MaxOutputTokens = v
+			}
 		}
 		m.UpdatedAt = ts()
 	})

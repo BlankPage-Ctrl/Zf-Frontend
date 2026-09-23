@@ -28,6 +28,8 @@ export interface Provider {
 export interface ModelDto {
     modelId: string
     displayName?: string
+    maxInputTokens?: number
+    maxOutputTokens?: number
 }
 
 export interface Model {
@@ -35,6 +37,8 @@ export interface Model {
     modelId: string
     displayName?: string
     providerId: string
+    maxInputTokens?: number
+    maxOutputTokens?: number
     createdAt: string
     updatedAt: string
 }

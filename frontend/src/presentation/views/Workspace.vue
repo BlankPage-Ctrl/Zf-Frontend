@@ -700,19 +700,30 @@ async function handleAddModel(providerId: string) {
             await providerActions.createModel(providerId, {
                 modelId: String(row.modelId ?? ''),
                 displayName: row.displayName ? String(row.displayName) : undefined,
+                maxInputTokens: toOptionalPositiveInt(row.maxInputTokens),
+                maxOutputTokens: toOptionalPositiveInt(row.maxOutputTokens),
             })
         },
     })
 }
 
+function toOptionalPositiveInt(value: unknown): number | undefined {
+    if (value === undefined || value === null || value === '') return undefined
+    const n = typeof value === 'number' ? value : Number(value)
+    if (!Number.isFinite(n) || n < 1) return undefined
+    return Math.floor(n)
+}
+
 async function handleEditModel(
     providerId: string,
     modelId: string,
-    data: { modelId: string; displayName?: string },
+    data: { modelId: string; displayName?: string; maxInputTokens?: number; maxOutputTokens?: number },
 ) {
     await providerActions.updateModel(providerId, modelId, {
         modelId: data.modelId,
         displayName: data.displayName,
+        maxInputTokens: data.maxInputTokens ?? undefined,
+        maxOutputTokens: data.maxOutputTokens ?? undefined,
     })
 }
 

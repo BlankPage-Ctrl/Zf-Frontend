@@ -20,6 +20,9 @@ export interface ChatTabParams {
     onChangeThinkingMode?: (mode: string) => void
     onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
+    draftText?: string
+    onCancelEdit?: () => void
+    onEditMessage?: (messageId: string) => void
 }
 
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
@@ -45,5 +48,8 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         onChangeThinkingMode: params.onChangeThinkingMode,
         onChangeMode: params.onChangeMode,
         onMentionSearch: params.onMentionSearch,
+        draftText: params.draftText,
+        onCancelEdit: params.onCancelEdit,
+        onEditMessage: params.onEditMessage,
     }
 }

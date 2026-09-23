@@ -57,11 +57,13 @@ export function resolveChatInputSchema(schema: ChatInputSchema): ResolvedChatInp
         selectedLabel,
         mentionItems: schema.mentionItems ?? [],
         mentionLoading: !!schema.mentionLoading,
+        editDraft: schema.draftText ?? null,
         onSend: schema.onSend,
         onStop: schema.onStop,
         onSelectModel: schema.onSelectModel,
         onChangeThinkingMode: schema.onChangeThinkingMode,
         onChangeMode: schema.onChangeMode,
         onMentionSearch: schema.onMentionSearch,
+        onCancelEdit: schema.onCancelEdit,
     }
 }

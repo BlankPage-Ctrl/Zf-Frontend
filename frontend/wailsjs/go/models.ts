@@ -588,6 +588,25 @@ export namespace mcp {
 
 }
 
+export namespace messages {
+	
+	export class RevertResult {
+	    deletedMessageIds: string[];
+	    cancelledRunIds: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new RevertResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.deletedMessageIds = source["deletedMessageIds"];
+	        this.cancelledRunIds = source["cancelledRunIds"];
+	    }
+	}
+
+}
+
 export namespace models {
 	
 	export class Model {

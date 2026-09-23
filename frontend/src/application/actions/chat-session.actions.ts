@@ -4,6 +4,13 @@ import type { ChatSessionEngine } from '../business-logic/chat-session.logic'
 export interface ChatSessionActions {
     loadHistory(workspaceId: string, chatId: string): Promise<void>
     sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
+    beginEdit(chatId: string, messageId: string): string | null
+    sendEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+        text: string,
+    ): Promise<boolean>
     stop(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
@@ -19,6 +26,19 @@ export function createChatSessionActions(
 
     async function sendMessage(workspaceId: string, chatId: string, text: string): Promise<void> {
         await businessLogic.sendMessage(workspaceId, chatId, text)
+    }
+
+    function beginEdit(chatId: string, messageId: string): string | null {
+        return businessLogic.beginEdit(chatId, messageId)
+    }
+
+    async function sendEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+        text: string,
+    ): Promise<boolean> {
+        return businessLogic.sendEdit(workspaceId, chatId, messageId, text)
     }
 
     async function stop(chatId: string): Promise<void> {
@@ -38,6 +58,8 @@ export function createChatSessionActions(
     return {
         loadHistory,
         sendMessage,
+        beginEdit,
+        sendEdit,
         stop,
         dispose,
         clear,

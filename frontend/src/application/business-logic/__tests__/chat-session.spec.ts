@@ -13,14 +13,28 @@ interface CapturedHandlers {
 function createHarness() {
     const patches: Array<{ chatId: string; patch: ChatSessionStatePatch }> = []
     let captured: CapturedHandlers | null = null
+    const calls = { starts: 0, cancels: 0, histories: 0, reverts: [] as string[] }
     const engine = createChatSessionEngine({
         messagesRepo: {
-            loadHistory: async () => [],
+            loadHistory: async () => {
+                calls.histories += 1
+                return []
+            },
+            revert: async (_ws: string, _chat: string, messageId: string) => {
+                calls.reverts.push(messageId)
+                return { deletedMessageIds: [messageId], cancelledRunIds: ['run-1'] }
+            },
         } as never,
         runsRepo: {
             list: async () => [],
-            start: async () => ({ runId: 'run-1' }),
-            cancel: async () => true,
+            start: async () => {
+                calls.starts += 1
+                return { runId: `run-${calls.starts}` }
+            },
+            cancel: async () => {
+                calls.cancels += 1
+                return true
+            },
         } as never,
         stream: {
             openStream: (
@@ -38,7 +52,7 @@ function createHarness() {
             patches.push({ chatId, patch })
         },
     })
-    return { engine, patches, getCaptured: () => captured as unknown as CapturedHandlers }
+    return { engine, patches, calls, getCaptured: () => captured as unknown as CapturedHandlers }
 }
 
 function messagePatches(patches: Array<{ patch: ChatSessionStatePatch }>): FeedMessage[][] {
@@ -179,8 +193,7 @@ describe('chat-session delta coalescing', () => {
         expect(messagePatches(harness.patches).length).toBe(before + 3)
     })
 
-    it('drops deferred paint on dispose', async () => {
-        const queued: FrameRequestCallback[] = []
+    it('drops deferred paint on dispose', async () => {        const queued: FrameRequestCallback[] = []
         vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
             queued.push(cb)
             return queued.length
@@ -197,5 +210,158 @@ describe('chat-session delta coalescing', () => {
         // The cancelled frame must not notify; dispose() itself only
         // detaches (no messages patch for the removed session).
         expect(harness.patches.length).toBe(countAfterDispose)
+    })
+})
+
+describe('chat-session revert edit', () => {
+    function userId(harness: ReturnType<typeof createHarness>): string {
+        const first = messagePatches(harness.patches)[0]!
+        return first.find((m) => m.role === 'user')!.id
+    }
+
+    it('beginEdit returns the user text without touching runs', async () => {
+        const harness = createHarness()
+        await harness.engine.sendMessage('ws-1', 'chat-1', 'hello')
+        expect(harness.engine.beginEdit('chat-1', userId(harness))).toBe('hello')
+        expect(harness.calls.cancels).toBe(0)
+        expect(harness.calls.reverts).toEqual([])
+    })
+
+    it('beginEdit returns null for unknown and assistant messages', async () => {
+        const harness = createHarness()
+        await harness.engine.sendMessage('ws-1', 'chat-1', 'hello')
+        expect(harness.engine.beginEdit('chat-1', 'nope')).toBeNull()
+        expect(harness.engine.beginEdit('chat-1', ASSISTANT_ID)).toBeNull()
+    })
+
+    it('sendEdit drops the reverted tail surgically without reloading history', async () => {
+        const harness = createHarness()
+        await harness.engine.sendMessage('ws-1', 'chat-1', 'hello')
+        const id = userId(harness)
+        const ok = await harness.engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(ok).toBe(true)
+        expect(harness.calls.reverts).toEqual([id])
+        expect(harness.calls.histories).toBe(0)
+        // First send + resend after revert.
+        expect(harness.calls.starts).toBe(2)
+        const all = messagePatches(harness.patches)
+        const last = all[all.length - 1]!
+        expect(last.map((m: FeedMessage) => m.role)).toEqual(['user'])
+        expect(last[0]!.blocks).toEqual([
+            expect.objectContaining({ kind: 'text', text: 'hello edited' }),
+        ])
+    })
+
+    it('sendEdit keeps messages before the tail and drops the rest', async () => {
+        const harness = createHarness()
+        await harness.engine.sendMessage('ws-1', 'chat-1', 'first')
+        const patchesAfterFirst = messagePatches(harness.patches)
+        const firstId = patchesAfterFirst[patchesAfterFirst.length - 1]!.find(
+            (m) => m.role === 'user',
+        )!.id
+        await harness.engine.sendMessage('ws-1', 'chat-1', 'second')
+        const patchesAfterSecond = messagePatches(harness.patches)
+        const secondId = patchesAfterSecond[patchesAfterSecond.length - 1]!.find(
+            (m) => m.blocks.some((b) => b.kind === 'text' && 'text' in b && b.text === 'second'),
+        )!.id
+        void firstId
+        const ok = await harness.engine.sendEdit('ws-1', 'chat-1', secondId, 'second edited')
+        expect(ok).toBe(true)
+        expect(harness.calls.histories).toBe(0)
+        const all = messagePatches(harness.patches)
+        const last = all[all.length - 1]!
+        const texts = last.map((m) =>
+            m.blocks.map((b) => (b.kind === 'text' ? b.text : '')).join(''),
+        )
+        expect(texts).toEqual(['first', 'second edited'])
+    })
+
+    it('sendEdit falls back to full reload when the revert result is inconsistent', async () => {
+        const patches: Array<{ chatId: string; patch: ChatSessionStatePatch }> = []
+        let starts = 0
+        let histories = 0
+        const engine = createChatSessionEngine({
+            messagesRepo: {
+                loadHistory: async () => {
+                    histories += 1
+                    return []
+                },
+                // Backend reports nothing deleted (and not the target id):
+                // the local cache cannot be trusted, reload instead.
+                revert: async () => ({ deletedMessageIds: [], cancelledRunIds: [] }),
+            } as never,
+            runsRepo: {
+                list: async () => [],
+                start: async () => {
+                    starts += 1
+                    return { runId: `run-${starts}` }
+                },
+                cancel: async () => true,
+            } as never,
+            stream: {
+                openStream: () => () => {},
+            } as never,
+            onState: (chatId: string, patch: ChatSessionStatePatch) => {
+                patches.push({ chatId, patch })
+            },
+        })
+        await engine.sendMessage('ws-1', 'chat-1', 'hello')
+        const first = messagePatches(patches)[0]!
+        const id = first.find((m) => m.role === 'user')!.id
+        const ok = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(ok).toBe(true)
+        expect(histories).toBe(1)
+        expect(starts).toBe(2)
+        const all = messagePatches(patches)
+        const last = all[all.length - 1]!
+        expect(last.map((m: FeedMessage) => m.role)).toEqual(['user'])
+    })
+
+    it('sendEdit surfaces revert failures without starting a run', async () => {
+        const patches: Array<{ chatId: string; patch: ChatSessionStatePatch }> = []
+        let starts = 0
+        let captured: CapturedHandlers | null = null
+        const engine = createChatSessionEngine({
+            messagesRepo: {
+                loadHistory: async () => [],
+                revert: async () => {
+                    throw new Error('revert boom')
+                },
+            } as never,
+            runsRepo: {
+                list: async () => [],
+                start: async () => {
+                    starts += 1
+                    return { runId: `run-${starts}` }
+                },
+                cancel: async () => true,
+            } as never,
+            stream: {
+                openStream: (
+                    _workspaceId: string,
+                    _chatId: string,
+                    _runId: string,
+                    _afterSeq: number,
+                    handlers: CapturedHandlers,
+                ) => {
+                    captured = handlers
+                    return () => {}
+                },
+            } as never,
+            onState: (chatId: string, patch: ChatSessionStatePatch) => {
+                patches.push({ chatId, patch })
+            },
+        })
+        await engine.sendMessage('ws-1', 'chat-1', 'hello')
+        const first = messagePatches(patches)[0]!
+        const id = first.find((m) => m.role === 'user')!.id
+        const ok = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(ok).toBe(false)
+        expect(starts).toBe(1)
+        // Live stream untouched: still streaming, and events still land.
+        expect(patches[patches.length - 1]!.patch.status).toBe('streaming')
+        const before = messagePatches(patches).length
+        captured!.onEvent(textOpen())
+        expect(messagePatches(patches).length).toBe(before + 1)
     })
 })

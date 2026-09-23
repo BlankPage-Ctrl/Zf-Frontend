@@ -48,7 +48,7 @@ func NewManagerFromEnv() (*Manager, error) {
 	cfg := Config{
 		Bin:           os.Getenv("BACKEND_BIN"),
 		Transport:     transport,
-		Port:          4567,
+		Port:          3000,
 		DataDir:       os.Getenv("APP_DATA_DIR"),
 		MigrationsDir: os.Getenv("APP_MIGRATIONS_DIR"),
 	}

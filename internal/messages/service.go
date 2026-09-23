@@ -41,3 +41,16 @@ func (s *Service) LoadHistory(workspaceID, chatID string) ([]FeedEvent, error) {
 	}
 	return events, nil
 }
+
+// RevertResult mirrors the backend revert.message-run result JSON shape.
+type RevertResult struct {
+	DeletedMessageIDs []string `json:"deletedMessageIds"`
+	CancelledRunIDs   []string `json:"cancelledRunIds"`
+}
+
+// RevertMessages cancels running runs in the chat and deletes the target
+// user message plus all messages after it (conversation-only revert).
+func (s *Service) RevertMessages(workspaceID, chatID, messageID string) (RevertResult, error) {
+	body := map[string]any{"messageId": messageID, "mode": "conversation"}
+	return client.DoOK[RevertResult](s.c, "POST", "/workspaces/"+workspaceID+"/chats/"+chatID+"/revert", body, nil)
+}

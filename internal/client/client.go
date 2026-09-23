@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-const DefaultBaseURL = "http://localhost:4567"
+const DefaultBaseURL = "http://127.0.0.1:3000"
 const DefaultClientID = "default-client"
 const DefaultSecretKey = "default-01KY288BNYMXFXEK5GF3N82MT8"
 

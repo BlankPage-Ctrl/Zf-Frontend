@@ -93,13 +93,67 @@ func (s *Store) handleDeleteChat(w http.ResponseWriter, r *http.Request) {
 	writeNoContent(w)
 }
 
-func (s *Store) handleGetMessages(w http.ResponseWriter, r *http.Request) {
-	chatID := r.PathValue("chatId")
+func (s *Store) handleGetMessages(w http.ResponseWriter, r *http.Request) {	chatID := r.PathValue("chatId")
 	events := historyFeedEvents(chatID, s.Messages)
 	if events == nil {
 		events = []map[string]any{}
 	}
 	writeJSON(w, r, http.StatusOK, events)
+}
+
+func (s *Store) handleRevertMessages(w http.ResponseWriter, r *http.Request) {
+	wsID := r.PathValue("workspaceId")
+	chatID := r.PathValue("chatId")
+
+	chat, ok := s.Chats.Find(func(c Chat) bool { return c.ID == chatID && c.WorkspaceID == wsID })
+	if !ok {
+		writeError(w, r, http.StatusNotFound, "Chat "+chatID+" not found")
+		return
+	}
+
+	var body struct {
+		MessageID string `json:"messageId"`
+		Mode      string `json:"mode"`
+	}
+	if err := readBody(r, &body); err != nil || body.MessageID == "" {
+		writeError(w, r, http.StatusBadRequest, "body.messageId is required")
+		return
+	}
+
+	cancelled := []string{}
+	for _, run := range s.Runs.Filter(func(m MockRun) bool {
+		return m.ChatID == chat.ID && m.WorkspaceID == wsID && m.Status == "running"
+	}) {
+		cancelled = append(cancelled, run.RunID)
+	}
+	for _, runID := range cancelled {
+		s.Runs.Update(
+			func(m MockRun) bool { return m.RunID == runID },
+			func(m *MockRun) { m.Status = "cancelled" },
+		)
+	}
+
+	idx := -1
+	for i, m := range s.Messages {
+		if m.ID == body.MessageID {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		writeError(w, r, http.StatusNotFound, "Message "+body.MessageID+" not found")
+		return
+	}
+	deleted := []string{}
+	for _, m := range s.Messages[idx:] {
+		deleted = append(deleted, m.ID)
+	}
+	s.Messages = append([]mockMessage{}, s.Messages[:idx]...)
+
+	writeJSON(w, r, http.StatusOK, map[string]any{
+		"deletedMessageIds": deleted,
+		"cancelledRunIds":   cancelled,
+	})
 }
 
 // historyFeedEvents converts stored mock messages into custom chat-feed

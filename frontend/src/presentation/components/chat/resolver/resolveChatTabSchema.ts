@@ -18,9 +18,12 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             lineHeight: schema.lineHeight,
             emptyMessage: schema.emptyMessage,
             emptyHint: schema.emptyHint,
+            onEditMessage: schema.onEditMessage,
         }),
         input: resolveChatInputSchema({
-            disabled: schema.loading,
+            // An edit draft keeps the composer usable while a run is live:
+            // sending the draft cancels that run and restarts from the edit.
+            disabled: !!schema.loading && schema.draftText == null,
             modelId: schema.modelId,
             providerId: schema.providerId,
             thinkingMode: schema.thinkingMode,
@@ -28,12 +31,14 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             providers: schema.providers,
             mentionItems: schema.mentionItems,
             mentionLoading: schema.mentionLoading,
+            draftText: schema.draftText,
             onSend: schema.onSend,
             onStop: schema.onStop,
             onSelectModel: schema.onSelectModel,
             onChangeThinkingMode: schema.onChangeThinkingMode,
             onChangeMode: schema.onChangeMode,
             onMentionSearch: schema.onMentionSearch,
+            onCancelEdit: schema.onCancelEdit,
         }),
     }
 }

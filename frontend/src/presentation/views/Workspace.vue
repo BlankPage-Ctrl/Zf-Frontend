@@ -98,6 +98,10 @@ const hitlStorer = useHitlStorer()
 const mentionQuery = ref('')
 const mentionLoading = ref(false)
 
+// Revert-message drafts, keyed by chat. Set by beginEdit (runs keep going),
+// cleared by Cancel or by Send (which cancels the live run and restarts).
+const pendingEdits = ref<Record<string, { messageId: string; text: string }>>({})
+
 const mentionItems = computed(() =>
     createMentionItemsFromFiles({
         query: mentionQuery.value,
@@ -283,6 +287,7 @@ function buildHitlDockSchema(chatId: string) {
 }
 
 function buildChatTabSchema(chat: Chat): ChatTabSchema {
+    const pending = pendingEdits.value[chat.id]
     return createChatTabSchema({
         chat,
         hitl: buildHitlDockSchema(chat.id),
@@ -293,8 +298,30 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         lineHeight: appearanceStorer.lineHeight,
         mentionItems: mentionItems.value,
         mentionLoading: mentionLoading.value,
-        onSend: (text) => chatSessionActions.sendMessage(workspaceId.value, chat.id, text),
+        draftText: pending?.text,
+        onSend: (text) => {
+            if (pending) {
+                const { messageId } = pending
+                // Keep the draft until sendEdit reports success — on failure
+                // the composer keeps the text so the user can retry.
+                void chatSessionActions
+                    .sendEdit(workspaceId.value, chat.id, messageId, text)
+                    .then((ok) => {
+                        if (ok) delete pendingEdits.value[chat.id]
+                    })
+                return
+            }
+            void chatSessionActions.sendMessage(workspaceId.value, chat.id, text)
+        },
         onStop: () => chatSessionActions.stop(chat.id),
+        onCancelEdit: () => {
+            delete pendingEdits.value[chat.id]
+        },
+        onEditMessage: (messageId) => {
+            const text = chatSessionActions.beginEdit(chat.id, messageId)
+            if (text == null) return
+            pendingEdits.value[chat.id] = { messageId, text }
+        },
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
         onChangeMode: (mode) => onUpdateChat(chat.id, { mode }),

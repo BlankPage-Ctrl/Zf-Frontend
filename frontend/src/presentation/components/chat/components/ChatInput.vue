@@ -66,6 +66,33 @@ const mentionRange = ref<MentionTriggerRange | null>(null)
 const mentionActiveIndex = ref(0)
 const mentionDropupRef = ref<InstanceType<typeof MentionDropup> | null>(null)
 
+const isEditing = computed(() => props.resolved.editDraft != null)
+
+const effectivePlaceholder = computed(() => {
+    if (isEditing.value) return 'Edit prompt — Send restarts from here…'
+    return props.resolved.disabled ? 'AI is responding...' : props.resolved.placeholder
+})
+
+watch(
+    () => props.resolved.editDraft,
+    (draft) => {
+        if (draft == null) {
+            input.value = ''
+            mentionRange.value = null
+            return
+        }
+        if (draft !== input.value) {
+            input.value = draft
+            nextTick(() => textareaRef.value?.focus())
+        }
+    },
+    { immediate: true },
+)
+
+function handleCancelEdit() {
+    props.resolved.onCancelEdit?.()
+}
+
 const mentionVisible = computed(() => {
     if (!mentionRange.value) return false
     return true
@@ -218,8 +245,13 @@ function handleSend() {
     const text = input.value.trim()
     if (!text || props.resolved.disabled) return
     props.resolved.onSend?.(text)
-    input.value = ''
-    mentionRange.value = null
+    if (props.resolved.editDraft == null) {
+        input.value = ''
+        mentionRange.value = null
+    }
+    // In edit mode the input is cleared by the editDraft watcher once the
+    // draft is dismissed (success). On failure the draft stays, so the text
+    // must be preserved here for retry.
 }
 
 function handleStop() {
@@ -246,14 +278,27 @@ function onModelSelect(value: string) {
             @navigate="handleMentionNavigate"
         >
             <template #default>
+                <div v-if="isEditing" class="edit-banner">
+                    <span class="edit-banner__text"
+                        >Editing earlier prompt — Send stops the current run and restarts from
+                        here.</span
+                    >
+                    <button
+                        class="edit-banner__cancel"
+                        type="button"
+                        title="Cancel edit"
+                        @click="handleCancelEdit"
+                    >
+                        <Xmark width="12" height="12" />
+                        <span>Cancel</span>
+                    </button>
+                </div>
                 <div class="input-container">
                     <textarea
                         ref="textareaRef"
                         v-model="input"
                         class="input-field"
-                        :placeholder="
-                            resolved.disabled ? 'AI is responding...' : resolved.placeholder
-                        "
+                        :placeholder="effectivePlaceholder"
                         :disabled="resolved.disabled"
                         rows="1"
                         @keydown="onKeydown"

@@ -18,5 +18,9 @@ const resolved = computed(() => resolveMessageBubbleSchema(props.schema))
         :role="resolved.role"
         :role-label="resolved.roleLabel"
         :avatar-label="resolved.avatarLabel"
+        :message-id="resolved.messageId"
+        :on-edit-message="resolved.onEditMessage"
+        :copy-text="resolved.copyText"
+        :can-copy="resolved.canCopy"
     />
 </template>

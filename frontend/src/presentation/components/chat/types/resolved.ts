@@ -49,6 +49,8 @@ export interface ResolvedChatInput {
     onChangeThinkingMode?: (mode: string) => void
     onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
+    editDraft: string | null
+    onCancelEdit?: () => void
 }
 
 export interface ResolvedMessageBubble {
@@ -57,12 +59,21 @@ export interface ResolvedMessageBubble {
     avatarLabel: string
     parts: MessagePartSchema[]
     contentWidth?: number
+    messageId?: string
+    onEditMessage?: (messageId: string) => void
+    canEdit: boolean
+    /** Plain text of the user message, for the copy action. Empty for assistant. */
+    copyText: string
+    canCopy: boolean
 }
 
 export interface ResolvedMessage {
     id: string
     role: 'user' | 'assistant'
     parts: MessagePartSchema[]
+    /** Plain text of the user message, for the copy action. Empty for assistant. */
+    copyText: string
+    canCopy: boolean
 }
 
 export interface ResolvedMessageList {
@@ -71,6 +82,7 @@ export interface ResolvedMessageList {
     contentWidth?: number
     emptyMessage: string
     emptyHint: string
+    onEditMessage?: (messageId: string) => void
 }
 
 export interface ResolvedTextPart {

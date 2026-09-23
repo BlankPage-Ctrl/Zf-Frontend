@@ -57,6 +57,6 @@ onBeforeUnmount(() => {
         <ToolCallPart v-else-if="visible && part.type === 'tool-call'" :schema="part" />
         <SourcePart v-else-if="visible && part.type === 'source'" :schema="part" />
         <FilePart v-else-if="visible && part.type === 'file'" :schema="part" />
-        <StepIndicator v-else-if="visible && part.type === 'step-start'" :schema="part" />
+        <!-- <StepIndicator v-else-if="visible && part.type === 'step-start'" :schema="part" /> -->
     </div>
 </template>

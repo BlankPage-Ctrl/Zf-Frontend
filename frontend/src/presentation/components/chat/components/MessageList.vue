@@ -73,6 +73,10 @@ watch(
             :parts="msg.parts"
             :role="msg.role"
             :content-width="resolved.contentWidth"
+            :message-id="msg.id"
+            :on-edit-message="resolved.onEditMessage"
+            :copy-text="msg.copyText"
+            :can-copy="msg.canCopy"
         />
         <div v-if="resolved.loading" class="message-list-loading">
             <div class="loading-dots">

@@ -475,6 +475,7 @@ var stdioRoutes = []stdioRoute{
 
 	// messages
 	{verb: "GET", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/messages$`), rpc: "list.message", build: params("workspaceId", "chatId")},
+	{verb: "POST", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/revert$`), rpc: "revert.message-run", build: extendBody("workspaceId", "chatId")},
 
 	// runs
 	{verb: "POST", re: re(`^/workspaces/([^/]+)/chats/([^/]+)/runs$`), rpc: "start.message-run", build: buildStartRun},

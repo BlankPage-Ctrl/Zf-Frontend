@@ -21,6 +21,13 @@ export interface ChatSessionDeps {
 export interface ChatSessionEngine {
     loadHistory(workspaceId: string, chatId: string): Promise<void>
     sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
+    beginEdit(chatId: string, messageId: string): string | null
+    sendEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+        text: string,
+    ): Promise<boolean>
     stop(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
@@ -217,8 +224,72 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         }
     }
 
-    async function stop(chatId: string): Promise<void> {
+    function beginEdit(chatId: string, messageId: string): string | null {
+        // Read-only: never touches the running watch. The live run keeps
+        // going until the user confirms with sendEdit (or cancels the draft).
+        const msg = (cache.get(chatId) ?? []).find((m) => m.id === messageId)
+        if (!msg || msg.role !== 'user') return null
+        const text = msg.blocks.map((b) => (b.kind === 'text' ? b.text : '')).join('')
+        return text
+    }
+
+    async function sendEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+        text: string,
+    ): Promise<boolean> {
+        if (!text.trim()) return false
+        // Revert first, detach after. The backend cancel settles the live
+        // stream on its own (run-close => FeedCancelledError => finishWatch
+        // detaches); the detach below is only local cleanup. Never detach
+        // before revert resolves - a failed revert must leave the live
+        // stream untouched so the user keeps watching it.
+        deps.onState(chatId, { error: undefined, isLoading: true, status: 'submitted' })
+        let deletedIds: string[] | null = null
+        try {
+            const result = await deps.messagesRepo.revert(workspaceId, chatId, messageId)
+            deletedIds = result?.deletedMessageIds ?? null
+        } catch (e: unknown) {
+            const err = e instanceof Error ? e : new Error('Failed to revert message')
+            if (watches.has(chatId)) {
+                // Stream still alive — keep watching, just surface the error.
+                deps.onState(chatId, { error: err, status: 'streaming', isLoading: true })
+            } else {
+                deps.onState(chatId, { error: err, status: 'error', isLoading: false })
+            }
+            return false
+        }
         const watch = watches.get(chatId)
+        if (watch) {
+            watch.detach()
+            watches.delete(chatId)
+        }
+        cancelCoalesced(chatId)
+        // Surgical tail-drop: the backend deleted the edited user message
+        // plus everything after it and told us exactly which ids are gone.
+        // Filter them out of the local cache instead of refetching the full
+        // history. Full reload stays as the fallback for inconsistent
+        // results (target id not reported back).
+        if (deletedIds !== null && deletedIds.includes(messageId)) {
+            const gone = new Set(deletedIds)
+            const prev = cache.get(chatId) ?? []
+            patchMessages(
+                chatId,
+                prev.filter((m) => !gone.has(m.id)),
+            )
+        } else {
+            // Drop the reverted tail locally and rebuild from source of truth,
+            // then send the edited prompt as a fresh run.
+            cache.delete(chatId)
+            loaded.delete(chatId)
+            await loadHistory(workspaceId, chatId)
+        }
+        await sendMessage(workspaceId, chatId, text)
+        return true
+    }
+
+    async function stop(chatId: string): Promise<void> {        const watch = watches.get(chatId)
         if (watch) {
             // Cancel server-side (kills the agent). The `run-close`
             // terminal frame settles the stream; detach only unwatches.
@@ -265,5 +336,5 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         loaded.clear()
     }
 
-    return { loadHistory, sendMessage, stop, dispose, clear }
+    return { loadHistory, sendMessage, beginEdit, sendEdit, stop, dispose, clear }
 }

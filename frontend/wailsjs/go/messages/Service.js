@@ -5,3 +5,7 @@
 export function LoadHistory(arg1, arg2) {
   return window['go']['messages']['Service']['LoadHistory'](arg1, arg2);
 }
+
+export function RevertMessages(arg1, arg2, arg3) {
+  return window['go']['messages']['Service']['RevertMessages'](arg1, arg2, arg3);
+}

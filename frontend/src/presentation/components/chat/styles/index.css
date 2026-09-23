@@ -395,8 +395,9 @@
 
 .message-bubble {
     display: flex;
+    flex-wrap: wrap;
     gap: 0;
-    padding: 8px 12px;
+    padding: 8px 8px;
     margin: 0;
     width: 100%;
     max-width: none !important;
@@ -428,6 +429,7 @@
 .role-user .bubble-content {
     background: var(--border-color);
     border-bottom-right-radius: 4px;
+    min-width: 30%;
     max-width: 75%;
 }
 
@@ -448,6 +450,94 @@
 
 .role-user .bubble-role-label {
     text-align: right;
+}
+
+.bubble-actions {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease;
+}
+
+.role-user .bubble-actions {
+    justify-content: flex-end;
+    padding-right: 12px;
+}
+
+.role-assistant .bubble-actions {
+    justify-content: flex-start;
+}
+
+.message-bubble:hover .bubble-actions,
+.message-bubble:focus-within .bubble-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bubble-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    font-size: var(--type-xs);
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.bubble-action-btn:hover {
+    opacity: 1;
+    background: var(--bg-secondary);
+}
+
+.bubble-action-btn.is-copied {
+    opacity: 1;
+    color: var(--text-primary);
+}
+
+.edit-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    font-size: var(--type-xs);
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.edit-banner__text {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.edit-banner__cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: var(--type-xs);
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.edit-banner__cancel:hover {
+    color: var(--text-primary);
+    background: var(--border-color);
 }
 
 .part-slot {

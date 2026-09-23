@@ -3,3 +3,5 @@
 import {messages} from '../models';
 
 export function LoadHistory(arg1:string,arg2:string):Promise<Array<messages.FeedEvent>>;
+
+export function RevertMessages(arg1:string,arg2:string,arg3:string):Promise<messages.RevertResult>;

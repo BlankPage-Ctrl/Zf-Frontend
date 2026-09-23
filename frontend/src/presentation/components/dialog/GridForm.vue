@@ -124,14 +124,14 @@ const validate = (): boolean => {
             if (isRequired) {
                 if (col.type === 'checkbox' && Array.isArray(val)) {
                     if (val.length === 0) {
-                        error = metadata.errorMessage || 'Pilihan ini wajib diisi'
+                        error = metadata.errorMessage || 'This field is required'
                     }
                 } else if (col.type === 'switch') {
                     if (!val) {
-                        error = metadata.errorMessage || 'Wajib disetujui / diaktifkan'
+                        error = metadata.errorMessage || 'This field is required'
                     }
                 } else if (val === undefined || val === null || String(val).trim() === '') {
-                    error = metadata.errorMessage || 'Field ini wajib diisi'
+                    error = metadata.errorMessage || 'This field is required'
                 }
             }
 
@@ -139,10 +139,10 @@ const validate = (): boolean => {
             if (!error && val !== undefined && val !== null && String(val).trim() !== '') {
                 const strVal = String(val)
                 if (metadata.maxLength !== undefined && strVal.length > metadata.maxLength) {
-                    error = metadata.errorMessage || `Maksimal ${metadata.maxLength} karakter`
+                    error = metadata.errorMessage || `Maximum ${metadata.maxLength} characters`
                 }
                 if (metadata.minLength !== undefined && strVal.length < metadata.minLength) {
-                    error = metadata.errorMessage || `Minimal ${metadata.minLength} karakter`
+                    error = metadata.errorMessage || `Minimum ${metadata.minLength} characters`
                 }
             }
 

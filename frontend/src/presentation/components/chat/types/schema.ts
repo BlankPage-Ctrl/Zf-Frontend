@@ -31,6 +31,9 @@ export interface ChatTabSchema {
     onChangeThinkingMode?: (mode: string) => void
     onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
+    draftText?: string
+    onCancelEdit?: () => void
+    onEditMessage?: (messageId: string) => void
 }
 
 export interface ChatInputSchema {
@@ -49,12 +52,16 @@ export interface ChatInputSchema {
     onChangeThinkingMode?: (mode: string) => void
     onChangeMode?: (mode: ChatMode) => void
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
+    draftText?: string
+    onCancelEdit?: () => void
 }
 
 export interface MessageBubbleSchema {
     role: 'user' | 'assistant'
     blocks: FeedMessage['blocks']
     contentWidth?: number
+    messageId?: string
+    onEditMessage?: (messageId: string) => void
 }
 
 export interface MessageListSchema {
@@ -65,6 +72,7 @@ export interface MessageListSchema {
     lineHeight?: number
     emptyMessage?: string
     emptyHint?: string
+    onEditMessage?: (messageId: string) => void
 }
 
 export interface TextPartSchema {

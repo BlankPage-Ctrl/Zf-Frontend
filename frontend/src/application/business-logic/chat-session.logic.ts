@@ -39,6 +39,13 @@ interface ActiveWatch {
     detach: () => void
 }
 
+function withCode(err: Error, code: unknown): Error {
+    if (typeof code === 'string' && code !== '') {
+        ;(err as Error & { code?: string }).code = code
+    }
+    return err
+}
+
 export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngine {
     const cache = new Map<string, FeedMessage[]>()
     const watches = new Map<string, ActiveWatch>()
@@ -98,7 +105,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
             const detail = typeof event.message === 'string' ? event.message : 'Run failed'
             flushCoalesced(chatId)
             deps.onState(chatId, {
-                error: new Error(detail),
+                error: withCode(new Error(detail), event.code),
                 status: 'error',
                 isLoading: false,
                 activeRunId: undefined,
@@ -111,11 +118,12 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
                 chatId,
                 event.status,
                 typeof event.message === 'string' ? event.message : undefined,
+                typeof event.code === 'string' ? event.code : undefined,
             )
         }
     }
 
-    function finishWatch(chatId: string, status: unknown, message?: string): void {
+    function finishWatch(chatId: string, status: unknown, message?: string, code?: string): void {
         const watch = watches.get(chatId)
         if (watch) {
             watch.detach()
@@ -123,7 +131,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         }
         if (status === 'failed') {
             deps.onState(chatId, {
-                error: new Error(message || 'Run failed'),
+                error: withCode(new Error(message || 'Run failed'), code),
                 status: 'error',
                 isLoading: false,
                 activeRunId: undefined,

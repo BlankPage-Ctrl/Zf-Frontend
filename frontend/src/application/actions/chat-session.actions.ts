@@ -14,6 +14,7 @@ export interface ChatSessionActions {
     stop(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
+    dismissError(chatId: string): void
 }
 
 export function createChatSessionActions(
@@ -55,6 +56,10 @@ export function createChatSessionActions(
         storeLogic.clear()
     }
 
+    function dismissError(chatId: string): void {
+        storeLogic.patch(chatId, { error: undefined })
+    }
+
     return {
         loadHistory,
         sendMessage,
@@ -63,5 +68,6 @@ export function createChatSessionActions(
         stop,
         dispose,
         clear,
+        dismissError,
     }
 }

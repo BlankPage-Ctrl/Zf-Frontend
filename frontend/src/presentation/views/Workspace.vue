@@ -322,6 +322,7 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
             if (text == null) return
             pendingEdits.value[chat.id] = { messageId, text }
         },
+        onDismissError: () => chatSessionActions.dismissError(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),
         onChangeThinkingMode: (thinkingMode) => onUpdateChat(chat.id, { thinkingMode }),
         onChangeMode: (mode) => onUpdateChat(chat.id, { mode }),

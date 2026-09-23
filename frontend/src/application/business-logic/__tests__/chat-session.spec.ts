@@ -365,3 +365,48 @@ describe('chat-session revert edit', () => {
         expect(messagePatches(patches).length).toBe(before + 1)
     })
 })
+
+describe('chat-session error codes', () => {
+    function lastError(
+        patches: Array<{ patch: ChatSessionStatePatch }>,
+    ): (Error & { code?: string }) | undefined {
+        const found = [...patches].reverse().find((p) => p.patch.error !== undefined)
+        return found?.patch.error as (Error & { code?: string }) | undefined
+    }
+
+    it('oops carries the backend code', async () => {
+        const harness = createHarness()
+        const handlers = await startStream(harness)
+        handlers.onEvent({
+            type: 'oops',
+            message: 'Slow down',
+            code: 'RATE_LIMITED',
+        } as FeedEvent)
+        const err = lastError(harness.patches)
+        expect(err?.message).toBe('Slow down')
+        expect(err?.code).toBe('RATE_LIMITED')
+    })
+
+    it('run-close failed carries the backend code', async () => {
+        const harness = createHarness()
+        const handlers = await startStream(harness)
+        handlers.onEvent({
+            type: 'run-close',
+            status: 'failed',
+            message: 'Bad key',
+            code: 'UNAUTHORIZED',
+        } as FeedEvent)
+        const err = lastError(harness.patches)
+        expect(err?.message).toBe('Bad key')
+        expect(err?.code).toBe('UNAUTHORIZED')
+    })
+
+    it('run-close failed without code leaves code unset', async () => {
+        const harness = createHarness()
+        const handlers = await startStream(harness)
+        handlers.onEvent({ type: 'run-close', status: 'failed', message: 'boom' } as FeedEvent)
+        const err = lastError(harness.patches)
+        expect(err?.message).toBe('boom')
+        expect(err?.code).toBeUndefined()
+    })
+})

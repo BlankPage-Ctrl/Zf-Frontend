@@ -23,6 +23,16 @@ export interface ChatTabParams {
     draftText?: string
     onCancelEdit?: () => void
     onEditMessage?: (messageId: string) => void
+    onDismissError?: () => void
+}
+
+function toErrorSchema(error: unknown): { message: string; code?: string } | undefined {
+    if (!(error instanceof Error)) return undefined
+    const code = (error as { code?: unknown }).code
+    return {
+        message: error.message || 'Run failed',
+        ...(typeof code === 'string' && code !== '' ? { code } : {}),
+    }
 }
 
 export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
@@ -51,5 +61,7 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         draftText: params.draftText,
         onCancelEdit: params.onCancelEdit,
         onEditMessage: params.onEditMessage,
+        error: toErrorSchema(params.state.error) ?? null,
+        onDismissError: params.onDismissError,
     }
 }

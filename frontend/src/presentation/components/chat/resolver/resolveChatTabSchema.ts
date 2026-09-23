@@ -10,6 +10,17 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
         },
         chatId: schema.chatId,
         hitl: schema.hitl,
+        errorBanner:
+            schema.error != null
+                ? {
+                      message: schema.error.message,
+                      ...(schema.error.code !== undefined ? { code: schema.error.code } : {}),
+                      ...(schema.error.ttlMs !== undefined ? { ttlMs: schema.error.ttlMs } : {}),
+                      ...(schema.onDismissError !== undefined
+                          ? { onDismiss: schema.onDismissError }
+                          : {}),
+                  }
+                : null,
         messageList: resolveMessageListSchema({
             messages: schema.messages,
             loading: schema.loading,

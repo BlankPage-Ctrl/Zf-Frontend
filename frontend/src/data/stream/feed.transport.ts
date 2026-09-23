@@ -29,13 +29,20 @@ function errorOf(payload: string): Error {
     if (event?.type === 'run-close') {
         if (event.status === 'cancelled') return new FeedCancelledError()
         const detail = typeof event.message === 'string' ? event.message : 'run failed'
-        return new Error(detail)
+        return withCode(new Error(detail), event.code)
     }
     if (event?.type === 'oops') {
         const detail = typeof event.message === 'string' ? event.message : 'run failed'
-        return new Error(detail)
+        return withCode(new Error(detail), event.code)
     }
     return new Error(payload)
+}
+
+function withCode(err: Error, code: unknown): Error {
+    if (typeof code === 'string' && code !== '') {
+        ;(err as Error & { code?: string }).code = code
+    }
+    return err
 }
 
 export function createFeedStreamPort(dispatcher?: RunStreamDispatcher): FeedStreamPort {

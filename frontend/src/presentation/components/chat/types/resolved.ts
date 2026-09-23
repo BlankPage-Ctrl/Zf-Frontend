@@ -5,6 +5,7 @@ import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export type {
     ChatTabSchema,
+    ChatErrorBannerSchema,
     ChatInputSchema,
     MessageBubbleSchema,
     MessageListSchema,
@@ -29,6 +30,7 @@ export interface ResolvedChatTab {
     chatId: string
     hitl: HitlDockSchema | null
     messageList: ResolvedMessageList
+    errorBanner: ResolvedChatErrorBanner | null
     input: ResolvedChatInput
 }
 
@@ -51,6 +53,13 @@ export interface ResolvedChatInput {
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
     editDraft: string | null
     onCancelEdit?: () => void
+}
+
+export interface ResolvedChatErrorBanner {
+    message: string
+    code?: string
+    ttlMs?: number
+    onDismiss?: () => void
 }
 
 export interface ResolvedMessageBubble {

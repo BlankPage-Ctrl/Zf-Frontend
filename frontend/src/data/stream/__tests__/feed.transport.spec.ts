@@ -154,6 +154,31 @@ describe('createFeedStreamPort', () => {
         expect((c.error as Error).message).toBe('boom')
     })
 
+    it('preserves the backend code on run-close failed', () => {
+        const c = collect()
+        const wid = backend.watchIds[0]!
+        router.emit(
+            'run:error',
+            wid,
+            '{"type":"run-close","runId":"run_1","status":"failed","code":"RATE_LIMITED","message":"Slow down"}',
+        )
+        expect(c.error).toBeInstanceOf(Error)
+        expect((c.error as Error).message).toBe('Slow down')
+        expect((c.error as Error & { code?: string }).code).toBe('RATE_LIMITED')
+    })
+
+    it('preserves the backend code on oops', () => {
+        const c = collect()
+        const wid = backend.watchIds[0]!
+        router.emit(
+            'run:error',
+            wid,
+            '{"type":"oops","runId":"run_1","code":"UNAUTHORIZED","message":"Bad key"}',
+        )
+        expect(c.error).toBeInstanceOf(Error)
+        expect((c.error as Error & { code?: string }).code).toBe('UNAUTHORIZED')
+    })
+
     it('unwatches on detach (run keeps going server-side)', () => {
         const c = collect()
         const wid = backend.watchIds[0]!

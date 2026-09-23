@@ -7,6 +7,13 @@ import type {
 } from '@/core/entities'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
 
+export interface ChatErrorBannerSchema {
+    message: string
+    code?: string
+    /** Auto-dismiss after ms. Defaults to 8000. <= 0 disables TTL. */
+    ttlMs?: number
+}
+
 export interface ChatTabSchema {
     title: string
     chatId: string
@@ -34,6 +41,8 @@ export interface ChatTabSchema {
     draftText?: string
     onCancelEdit?: () => void
     onEditMessage?: (messageId: string) => void
+    error?: ChatErrorBannerSchema | null
+    onDismissError?: () => void
 }
 
 export interface ChatInputSchema {

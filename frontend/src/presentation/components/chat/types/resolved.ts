@@ -1,6 +1,11 @@
 import type { DropdownItemConfig } from '@/presentation/components/dropdown/types'
 import type { MessagePartSchema, ToolData } from './schema'
-import type { MentionItem, MentionTriggerRange, ChatMode } from '@/core/entities'
+import type {
+    MentionItem,
+    MentionTriggerRange,
+    ChatMode,
+    RevertPreviewState,
+} from '@/core/entities'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
 
 export type {
@@ -53,6 +58,9 @@ export interface ResolvedChatInput {
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
     editDraft: string | null
     onCancelEdit?: () => void
+    /** Revert preview for the active edit draft (banner warning + toggle). */
+    revertPreview: RevertPreviewState | null
+    onToggleRestoreFiles?: (enabled: boolean) => void
 }
 
 export interface ResolvedChatErrorBanner {

@@ -87,6 +87,7 @@ func (s *Store) NewHandler() http.Handler {
 
 	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/messages", s.handleGetMessages)
 	mux.HandleFunc("POST /workspaces/{workspaceId}/chats/{chatId}/revert", s.handleRevertMessages)
+	mux.HandleFunc("POST /workspaces/{workspaceId}/chats/{chatId}/revert/preview", s.handlePreviewRevertMessages)
 
 	mux.HandleFunc("POST /workspaces/{workspaceId}/chats/{chatId}/runs", s.handleStartRun)
 	mux.HandleFunc("GET /workspaces/{workspaceId}/chats/{chatId}/runs", s.handleListRuns)

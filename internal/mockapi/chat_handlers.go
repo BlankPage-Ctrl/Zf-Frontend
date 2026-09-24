@@ -112,8 +112,9 @@ func (s *Store) handleRevertMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		MessageID string `json:"messageId"`
-		Mode      string `json:"mode"`
+		MessageID    string `json:"messageId"`
+		Mode         string `json:"mode"`
+		RestoreFiles bool   `json:"restoreFiles"`
 	}
 	if err := readBody(r, &body); err != nil || body.MessageID == "" {
 		writeError(w, r, http.StatusBadRequest, "body.messageId is required")
@@ -153,6 +154,63 @@ func (s *Store) handleRevertMessages(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, r, http.StatusOK, map[string]any{
 		"deletedMessageIds": deleted,
 		"cancelledRunIds":   cancelled,
+		// The mock has no file-history ledger; report an empty file plan
+		// for shape parity when the client asks for a file revert.
+		"fileRestore": fileRestoreOrNil(body.RestoreFiles),
+	})
+}
+
+func fileRestoreOrNil(restore bool) map[string]any {
+	if !restore {
+		return nil
+	}
+	return map[string]any{"restored": []string{}, "conflicts": []string{}}
+}
+
+// handlePreviewRevertMessages mirrors the backend preview.message-run
+// action: read-only revert scope plus an (empty) file plan. The mock has
+// no file-history ledger, so files is always empty.
+func (s *Store) handlePreviewRevertMessages(w http.ResponseWriter, r *http.Request) {
+	wsID := r.PathValue("workspaceId")
+	chatID := r.PathValue("chatId")
+
+	chat, ok := s.Chats.Find(func(c Chat) bool { return c.ID == chatID && c.WorkspaceID == wsID })
+	if !ok {
+		writeError(w, r, http.StatusNotFound, "Chat "+chatID+" not found")
+		return
+	}
+
+	var body struct {
+		MessageID string `json:"messageId"`
+		Mode      string `json:"mode"`
+	}
+	if err := readBody(r, &body); err != nil || body.MessageID == "" {
+		writeError(w, r, http.StatusBadRequest, "body.messageId is required")
+		return
+	}
+
+	idx := -1
+	for i, m := range s.Messages {
+		if m.ID == body.MessageID {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		writeError(w, r, http.StatusNotFound, "Message "+body.MessageID+" not found")
+		return
+	}
+	suffix := []string{}
+	for _, m := range s.Messages[idx:] {
+		suffix = append(suffix, m.ID)
+	}
+
+	_ = chat
+	writeJSON(w, r, http.StatusOK, map[string]any{
+		"targetMessageId": body.MessageID,
+		"fromPosition":    idx,
+		"suffixIds":       suffix,
+		"files":           []map[string]any{},
 	})
 }
 

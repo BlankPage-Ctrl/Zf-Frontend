@@ -1,5 +1,11 @@
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
-import type { MentionItem, MentionTriggerRange, Provider, ChatMode } from '@/core/entities'
+import type {
+    MentionItem,
+    MentionTriggerRange,
+    Provider,
+    ChatMode,
+    RevertPreviewState,
+} from '@/core/entities'
 import type { Chat } from '@/core/entities'
 import type { ChatSessionState } from '@/application/stores'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
@@ -24,6 +30,8 @@ export interface ChatTabParams {
     onCancelEdit?: () => void
     onEditMessage?: (messageId: string) => void
     onDismissError?: () => void
+    revertPreview?: RevertPreviewState | null
+    onToggleRestoreFiles?: (enabled: boolean) => void
 }
 
 function toErrorSchema(error: unknown): { message: string; code?: string } | undefined {
@@ -61,6 +69,8 @@ export function createChatTabSchema(params: ChatTabParams): ChatTabSchema {
         draftText: params.draftText,
         onCancelEdit: params.onCancelEdit,
         onEditMessage: params.onEditMessage,
+        revertPreview: params.revertPreview,
+        onToggleRestoreFiles: params.onToggleRestoreFiles,
         error: toErrorSchema(params.state.error) ?? null,
         onDismissError: params.onDismissError,
     }

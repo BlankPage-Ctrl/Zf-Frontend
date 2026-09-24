@@ -30,7 +30,7 @@ import {
     insightActions,
     mcpActions,
 } from '@/application/actions'
-import type { Chat, ChatMode, Note } from '@/core/entities'
+import type { Chat, ChatMode, Note, RevertPreviewState } from '@/core/entities'
 import { APPEARANCE_PRESETS } from '@/core/entities'
 import ChatTab from '@/presentation/components/chat/ChatTab.vue'
 import type { ChatTabSchema } from '@/presentation/components/chat/types/schema'
@@ -101,6 +101,11 @@ const mentionLoading = ref(false)
 // Revert-message drafts, keyed by chat. Set by beginEdit (runs keep going),
 // cleared by Cancel or by Send (which cancels the live run and restarts).
 const pendingEdits = ref<Record<string, { messageId: string; text: string }>>({})
+
+// Revert previews for the active drafts, keyed by chat. Fetched once when
+// the draft opens; advisory only (the file can change while the draft is
+// open — the sendEdit result is authoritative).
+const editPreviews = ref<Record<string, RevertPreviewState>>({})
 
 const mentionItems = computed(() =>
     createMentionItemsFromFiles({
@@ -299,15 +304,24 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         mentionItems: mentionItems.value,
         mentionLoading: mentionLoading.value,
         draftText: pending?.text,
+        revertPreview: editPreviews.value[chat.id] ?? null,
+        onToggleRestoreFiles: (enabled: boolean) => {
+            const current = editPreviews.value[chat.id]
+            if (current) editPreviews.value[chat.id] = { ...current, restoreFiles: enabled }
+        },
         onSend: (text) => {
             if (pending) {
                 const { messageId } = pending
+                const restoreFiles = editPreviews.value[chat.id]?.restoreFiles ?? true
                 // Keep the draft until sendEdit reports success — on failure
                 // the composer keeps the text so the user can retry.
                 void chatSessionActions
-                    .sendEdit(workspaceId.value, chat.id, messageId, text)
-                    .then((ok) => {
-                        if (ok) delete pendingEdits.value[chat.id]
+                    .sendEdit(workspaceId.value, chat.id, messageId, text, { restoreFiles })
+                    .then((result) => {
+                        if (result.ok) {
+                            delete pendingEdits.value[chat.id]
+                            delete editPreviews.value[chat.id]
+                        }
                     })
                 return
             }
@@ -316,11 +330,25 @@ function buildChatTabSchema(chat: Chat): ChatTabSchema {
         onStop: () => chatSessionActions.stop(chat.id),
         onCancelEdit: () => {
             delete pendingEdits.value[chat.id]
+            delete editPreviews.value[chat.id]
         },
         onEditMessage: (messageId) => {
             const text = chatSessionActions.beginEdit(chat.id, messageId)
             if (text == null) return
             pendingEdits.value[chat.id] = { messageId, text }
+            // Preview is advisory: loading state, then the plan (or error).
+            // A failed preview just hides the file section of the banner.
+            editPreviews.value[chat.id] = { status: 'loading', restoreFiles: true }
+            void chatSessionActions
+                .previewEdit(workspaceId.value, chat.id, messageId)
+                .then((preview) => {
+                    // The draft may have been cancelled/sent meanwhile.
+                    if (pendingEdits.value[chat.id]?.messageId !== messageId) return
+                    editPreviews.value[chat.id] =
+                        preview == null
+                            ? { status: 'error', restoreFiles: true }
+                            : { status: 'ready', preview, restoreFiles: true }
+                })
         },
         onDismissError: () => chatSessionActions.dismissError(chat.id),
         onUpdateModel: (modelId, providerId) => onUpdateChat(chat.id, { modelId, providerId }),

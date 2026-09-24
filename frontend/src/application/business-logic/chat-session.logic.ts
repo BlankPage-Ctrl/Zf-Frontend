@@ -1,5 +1,11 @@
 import type { FeedStreamPort, MessageRepository, RunRepository } from '@/core/repositories'
-import type { ChatSessionStatus, FeedEvent, FeedMessage } from '@/core/entities'
+import type {
+    ChatSessionStatus,
+    FeedEvent,
+    FeedMessage,
+    RevertFileRestore,
+    RevertPreview,
+} from '@/core/entities'
 import { applyFeedEvent } from './feed.reducer'
 import { FeedCancelledError } from '@/data/stream'
 
@@ -18,16 +24,31 @@ export interface ChatSessionDeps {
     onState: (chatId: string, patch: ChatSessionStatePatch) => void
 }
 
+export interface SendEditResult {
+    ok: boolean
+    fileRestore?: RevertFileRestore
+}
+
 export interface ChatSessionEngine {
     loadHistory(workspaceId: string, chatId: string): Promise<void>
     sendMessage(workspaceId: string, chatId: string, text: string): Promise<void>
     beginEdit(chatId: string, messageId: string): string | null
+    /**
+     * Read-only revert preview for the edit banner. Never throws: a failed
+     * preview resolves to null and the banner falls back to no file info.
+     */
+    previewEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+    ): Promise<RevertPreview | null>
     sendEdit(
         workspaceId: string,
         chatId: string,
         messageId: string,
         text: string,
-    ): Promise<boolean>
+        opts?: { restoreFiles?: boolean },
+    ): Promise<SendEditResult>
     stop(chatId: string): Promise<void>
     dispose(chatId: string): void
     clear(): void
@@ -241,13 +262,26 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         return text
     }
 
+    async function previewEdit(
+        workspaceId: string,
+        chatId: string,
+        messageId: string,
+    ): Promise<RevertPreview | null> {
+        try {
+            return await deps.messagesRepo.previewRevert(workspaceId, chatId, messageId)
+        } catch {
+            return null
+        }
+    }
+
     async function sendEdit(
         workspaceId: string,
         chatId: string,
         messageId: string,
         text: string,
-    ): Promise<boolean> {
-        if (!text.trim()) return false
+        opts?: { restoreFiles?: boolean },
+    ): Promise<SendEditResult> {
+        if (!text.trim()) return { ok: false }
         // Revert first, detach after. The backend cancel settles the live
         // stream on its own (run-close => FeedCancelledError => finishWatch
         // detaches); the detach below is only local cleanup. Never detach
@@ -255,9 +289,16 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         // stream untouched so the user keeps watching it.
         deps.onState(chatId, { error: undefined, isLoading: true, status: 'submitted' })
         let deletedIds: string[] | null = null
+        let fileRestore: RevertFileRestore | undefined
         try {
-            const result = await deps.messagesRepo.revert(workspaceId, chatId, messageId)
+            const result = await deps.messagesRepo.revert(
+                workspaceId,
+                chatId,
+                messageId,
+                opts?.restoreFiles ?? false,
+            )
             deletedIds = result?.deletedMessageIds ?? null
+            fileRestore = result?.fileRestore
         } catch (e: unknown) {
             const err = e instanceof Error ? e : new Error('Failed to revert message')
             if (watches.has(chatId)) {
@@ -266,7 +307,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
             } else {
                 deps.onState(chatId, { error: err, status: 'error', isLoading: false })
             }
-            return false
+            return { ok: false }
         }
         const watch = watches.get(chatId)
         if (watch) {
@@ -294,7 +335,7 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
             await loadHistory(workspaceId, chatId)
         }
         await sendMessage(workspaceId, chatId, text)
-        return true
+        return fileRestore === undefined ? { ok: true } : { ok: true, fileRestore }
     }
 
     async function stop(chatId: string): Promise<void> {        const watch = watches.get(chatId)
@@ -344,5 +385,5 @@ export function createChatSessionEngine(deps: ChatSessionDeps): ChatSessionEngin
         loaded.clear()
     }
 
-    return { loadHistory, sendMessage, beginEdit, sendEdit, stop, dispose, clear }
+    return { loadHistory, sendMessage, beginEdit, previewEdit, sendEdit, stop, dispose, clear }
 }

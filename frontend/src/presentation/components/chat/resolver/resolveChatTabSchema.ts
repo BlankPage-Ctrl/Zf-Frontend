@@ -50,6 +50,8 @@ export function resolveChatTabSchema(schema: ChatTabSchema): ResolvedChatTab {
             onChangeMode: schema.onChangeMode,
             onMentionSearch: schema.onMentionSearch,
             onCancelEdit: schema.onCancelEdit,
+            revertPreview: schema.revertPreview,
+            onToggleRestoreFiles: schema.onToggleRestoreFiles,
         }),
     }
 }

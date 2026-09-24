@@ -621,6 +621,29 @@
     background: var(--border-color);
 }
 
+.edit-banner--conflict {
+    border-color: var(--warning-border, var(--border-color));
+}
+
+.edit-banner__warn {
+    flex: 0 0 auto;
+    color: var(--warning-text, var(--text-secondary));
+}
+
+.edit-banner__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    cursor: pointer;
+    user-select: none;
+}
+
+.edit-banner__toggle input {
+    accent-color: var(--accent, var(--text-primary));
+    cursor: pointer;
+}
+
 .part-slot {
     min-width: 0;
 }

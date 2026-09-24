@@ -65,5 +65,7 @@ export function resolveChatInputSchema(schema: ChatInputSchema): ResolvedChatInp
         onChangeMode: schema.onChangeMode,
         onMentionSearch: schema.onMentionSearch,
         onCancelEdit: schema.onCancelEdit,
+        revertPreview: schema.revertPreview ?? null,
+        onToggleRestoreFiles: schema.onToggleRestoreFiles,
     }
 }

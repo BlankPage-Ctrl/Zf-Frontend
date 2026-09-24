@@ -4,6 +4,7 @@ import type {
     MentionItem,
     MentionTriggerRange,
     ChatMode,
+    RevertPreviewState,
 } from '@/core/entities'
 import type { HitlDockSchema } from '@/presentation/components/hitl'
 
@@ -43,6 +44,8 @@ export interface ChatTabSchema {
     onEditMessage?: (messageId: string) => void
     error?: ChatErrorBannerSchema | null
     onDismissError?: () => void
+    revertPreview?: RevertPreviewState | null
+    onToggleRestoreFiles?: (enabled: boolean) => void
 }
 
 export interface ChatInputSchema {
@@ -63,6 +66,8 @@ export interface ChatInputSchema {
     onMentionSearch?: (query: string, range: MentionTriggerRange) => void
     draftText?: string
     onCancelEdit?: () => void
+    revertPreview?: RevertPreviewState | null
+    onToggleRestoreFiles?: (enabled: boolean) => void
 }
 
 export interface MessageBubbleSchema {

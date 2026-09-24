@@ -238,8 +238,8 @@ describe('chat-session revert edit', () => {
         const harness = createHarness()
         await harness.engine.sendMessage('ws-1', 'chat-1', 'hello')
         const id = userId(harness)
-        const ok = await harness.engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
-        expect(ok).toBe(true)
+        const result = await harness.engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(result.ok).toBe(true)
         expect(harness.calls.reverts).toEqual([id])
         expect(harness.calls.histories).toBe(0)
         // First send + resend after revert.
@@ -265,8 +265,8 @@ describe('chat-session revert edit', () => {
             (m) => m.blocks.some((b) => b.kind === 'text' && 'text' in b && b.text === 'second'),
         )!.id
         void firstId
-        const ok = await harness.engine.sendEdit('ws-1', 'chat-1', secondId, 'second edited')
-        expect(ok).toBe(true)
+        const result = await harness.engine.sendEdit('ws-1', 'chat-1', secondId, 'second edited')
+        expect(result.ok).toBe(true)
         expect(harness.calls.histories).toBe(0)
         const all = messagePatches(harness.patches)
         const last = all[all.length - 1]!
@@ -308,8 +308,8 @@ describe('chat-session revert edit', () => {
         await engine.sendMessage('ws-1', 'chat-1', 'hello')
         const first = messagePatches(patches)[0]!
         const id = first.find((m) => m.role === 'user')!.id
-        const ok = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
-        expect(ok).toBe(true)
+        const result = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(result.ok).toBe(true)
         expect(histories).toBe(1)
         expect(starts).toBe(2)
         const all = messagePatches(patches)
@@ -355,8 +355,8 @@ describe('chat-session revert edit', () => {
         await engine.sendMessage('ws-1', 'chat-1', 'hello')
         const first = messagePatches(patches)[0]!
         const id = first.find((m) => m.role === 'user')!.id
-        const ok = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
-        expect(ok).toBe(false)
+        const result = await engine.sendEdit('ws-1', 'chat-1', id, 'hello edited')
+        expect(result.ok).toBe(false)
         expect(starts).toBe(1)
         // Live stream untouched: still streaming, and events still land.
         expect(patches[patches.length - 1]!.patch.status).toBe('streaming')
@@ -408,5 +408,104 @@ describe('chat-session error codes', () => {
         const err = lastError(harness.patches)
         expect(err?.message).toBe('boom')
         expect(err?.code).toBeUndefined()
+    })
+})
+
+describe('chat-session revert preview and file restore', () => {
+    function previewHarness() {
+        const calls = { previews: [] as string[], restores: [] as Array<boolean | undefined> }
+        const engine = createChatSessionEngine({
+            messagesRepo: {
+                loadHistory: async () => [],
+                previewRevert: async (_ws: string, _chat: string, messageId: string) => {
+                    calls.previews.push(messageId)
+                    return {
+                        targetMessageId: messageId,
+                        fromPosition: 3,
+                        suffixIds: [messageId, 'a-x'],
+                        files: [
+                            {
+                                path: 'a.txt',
+                                op: 'restored',
+                                status: 'ok',
+                                reason: null,
+                                expectedHash: 'h1',
+                                currentHash: 'h1',
+                                lastWriter: null,
+                            },
+                        ],
+                    }
+                },
+                revert: async (
+                    _ws: string,
+                    _chat: string,
+                    messageId: string,
+                    restoreFiles?: boolean,
+                ) => {
+                    calls.restores.push(restoreFiles)
+                    return {
+                        deletedMessageIds: [messageId],
+                        cancelledRunIds: [],
+                        fileRestore:
+                            restoreFiles === true
+                                ? { restored: [{ path: 'a.txt', op: 'restored' }], conflicts: [] }
+                                : undefined,
+                    }
+                },
+            } as never,
+            runsRepo: {
+                list: async () => [],
+                start: async () => ({ runId: 'run-1' }),
+                cancel: async () => true,
+            } as never,
+            stream: {
+                openStream: () => () => {},
+            } as never,
+            onState: () => {},
+        })
+        return { engine, calls }
+    }
+
+    it('previewEdit returns the backend plan', async () => {
+        const { engine, calls } = previewHarness()
+        const preview = await engine.previewEdit('ws-1', 'chat-1', 'u-1')
+        expect(calls.previews).toEqual(['u-1'])
+        expect(preview?.suffixIds).toEqual(['u-1', 'a-x'])
+        expect(preview?.files).toHaveLength(1)
+        expect(preview?.files[0]?.status).toBe('ok')
+    })
+
+    it('previewEdit resolves null when the backend fails', async () => {
+        const engine = createChatSessionEngine({
+            messagesRepo: {
+                loadHistory: async () => [],
+                previewRevert: async () => {
+                    throw new Error('preview boom')
+                },
+            } as never,
+            runsRepo: { list: async () => [] } as never,
+            stream: { openStream: () => () => {} } as never,
+            onState: () => {},
+        })
+        expect(await engine.previewEdit('ws-1', 'chat-1', 'u-1')).toBeNull()
+    })
+
+    it('sendEdit forwards restoreFiles and returns the file restore', async () => {
+        const { engine, calls } = previewHarness()
+        await engine.sendMessage('ws-1', 'chat-1', 'hello')
+        const result = await engine.sendEdit('ws-1', 'chat-1', 'u-1', 'hello edited', {
+            restoreFiles: true,
+        })
+        expect(result.ok).toBe(true)
+        expect(calls.restores).toEqual([true])
+        expect(result.fileRestore?.restored).toEqual([{ path: 'a.txt', op: 'restored' }])
+    })
+
+    it('sendEdit defaults to conversation-only revert', async () => {
+        const { engine, calls } = previewHarness()
+        const result = await engine.sendEdit('ws-1', 'chat-1', 'u-1', 'hello edited')
+        expect(result.ok).toBe(true)
+        expect(calls.restores).toEqual([false])
+        expect(result.fileRestore).toBeUndefined()
     })
 })

@@ -8,6 +8,7 @@ import {
     Map,
     NavArrowDown,
     SendDiagonal,
+    WarningTriangle,
     Xmark,
 } from '@iconoir/vue'
 import DropdownRoot from '@/presentation/components/dropdown/DropdownRoot.vue'
@@ -91,6 +92,47 @@ watch(
 
 function handleCancelEdit() {
     props.resolved.onCancelEdit?.()
+}
+
+const revertPreview = computed(() => props.resolved.revertPreview ?? null)
+
+/** Files the revert would touch (preview ready only). */
+const revertFiles = computed(() => revertPreview.value?.preview?.files ?? [])
+
+const revertOkCount = computed(() => revertFiles.value.filter((f) => f.status === 'ok').length)
+
+const revertConflictCount = computed(
+    () => revertFiles.value.filter((f) => f.status === 'conflict').length,
+)
+
+/** Suffix messages the send would delete (preview ready only). */
+const revertSuffixCount = computed(() => revertPreview.value?.preview?.suffixIds.length ?? 0)
+
+const showRestoreToggle = computed(
+    () =>
+        isEditing.value &&
+        revertPreview.value?.status === 'ready' &&
+        revertFiles.value.length > 0 &&
+        props.resolved.onToggleRestoreFiles != null,
+)
+
+const restoreEnabled = computed(() => revertPreview.value?.restoreFiles ?? true)
+
+const revertBannerTitle = computed(() => {
+    const parts: string[] = []
+    if (revertSuffixCount.value > 0) parts.push(`deletes ${revertSuffixCount.value} messages`)
+    if (revertOkCount.value > 0)
+        parts.push(`restores ${revertOkCount.value} file${revertOkCount.value === 1 ? '' : 's'}`)
+    if (revertConflictCount.value > 0)
+        parts.push(
+            `${revertConflictCount.value} conflict${revertConflictCount.value === 1 ? '' : 's'} (changed since, will be skipped)`,
+        )
+    return parts.length > 0 ? `Send ${parts.join(', ')}.` : null
+})
+
+function handleToggleRestoreFiles(e: Event) {
+    const target = e.target as HTMLInputElement
+    props.resolved.onToggleRestoreFiles?.(target.checked)
 }
 
 const mentionVisible = computed(() => {
@@ -292,6 +334,27 @@ function onModelSelect(value: string) {
                         <Xmark width="12" height="12" />
                         <span>Cancel</span>
                     </button>
+                </div>
+                <div
+                    v-if="isEditing && revertBannerTitle"
+                    class="edit-banner edit-banner--revert"
+                    :class="{ 'edit-banner--conflict': revertConflictCount > 0 }"
+                >
+                    <WarningTriangle
+                        v-if="revertConflictCount > 0"
+                        width="12"
+                        height="12"
+                        class="edit-banner__warn"
+                    />
+                    <span class="edit-banner__text" v-text="revertBannerTitle"></span>
+                    <label v-if="showRestoreToggle" class="edit-banner__toggle">
+                        <input
+                            type="checkbox"
+                            :checked="restoreEnabled"
+                            @change="handleToggleRestoreFiles"
+                        />
+                        <span>Restore AI files</span>
+                    </label>
                 </div>
                 <div class="input-container">
                     <textarea

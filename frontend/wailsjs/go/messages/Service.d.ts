@@ -4,4 +4,6 @@ import {messages} from '../models';
 
 export function LoadHistory(arg1:string,arg2:string):Promise<Array<messages.FeedEvent>>;
 
-export function RevertMessages(arg1:string,arg2:string,arg3:string):Promise<messages.RevertResult>;
+export function PreviewRevertMessages(arg1:string,arg2:string,arg3:string):Promise<messages.PreviewResult>;
+
+export function RevertMessages(arg1:string,arg2:string,arg3:string,arg4:boolean):Promise<messages.RevertResult>;
